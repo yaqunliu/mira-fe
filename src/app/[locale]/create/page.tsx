@@ -67,7 +67,7 @@ export default function createVideo() {
         onComplete={handleComplete}
         className="px-6"
       />
-      <div className="bg-gray-100 dark:bg-gray-700/30 py-6">
+      <div>
         {currentStep === 0 && <NovelUpload onUpload={() => nextStep()} />}
       </div>
     </div>
