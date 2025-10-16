@@ -12,6 +12,7 @@ export interface ProgressStep extends Step {
 
 export interface ProgressWrapperProps {
   steps: ProgressStep[];
+  currentStep?: number;
   orientation?: "horizontal" | "vertical";
   variant?: "default" | "minimal" | "circular";
   size?: "sm" | "md" | "lg";
@@ -34,6 +35,7 @@ export interface ProgressWrapperProps {
 export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperProps>(
   ({
     steps,
+    currentStep = 0,
     orientation = "horizontal",
     variant = "default",
     size = "md",
@@ -45,15 +47,12 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
     children,
     ...props
   }, ref) => {
-    const [currentStep, setCurrentStep] = useState(0);
-
     const currentStepData = steps[currentStep];
     const isFirstStep = currentStep === 0;
     const isLastStep = currentStep === steps.length - 1;
 
     const goToStep = useCallback((step: number) => {
       if (step >= 0 && step < steps.length) {
-        setCurrentStep(step);
         onStepChange?.(step, steps[step]);
       }
     }, [steps, onStepChange]);
@@ -61,7 +60,6 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
     const nextStep = useCallback(() => {
       if (!isLastStep) {
         const newStep = currentStep + 1;
-        setCurrentStep(newStep);
         onStepChange?.(newStep, steps[newStep]);
       } else {
         onComplete?.();
@@ -71,7 +69,6 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
     const prevStep = useCallback(() => {
       if (!isFirstStep) {
         const newStep = currentStep - 1;
-        setCurrentStep(newStep);
         onStepChange?.(newStep, steps[newStep]);
       }
     }, [currentStep, isFirstStep, onStepChange]);
@@ -164,17 +161,27 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
 ProgressWrapper.displayName = "ProgressWrapper";
 
 // 自定义 Hook 用于管理步骤状态
-export const useProgressSteps = (initialSteps: ProgressStep[]) => {
-  const [steps, setSteps] = useState<ProgressStep[]>(initialSteps);
-  const [currentStep, setCurrentStep] = useState(0);
+export const useProgressSteps = (
+  initialSteps: Omit<ProgressStep, 'status'>[],
+  options?: {
+    currentStep?: number;
+    onStepChange?: (step: number) => void;
+  }
+) => {
+  const [steps, setSteps] = useState<Omit<ProgressStep, 'status'>[]>(initialSteps);
+  const [internalCurrentStep, setInternalCurrentStep] = useState(0);
+  
+  // 使用外部传入的 currentStep 或内部状态
+  const currentStep = options?.currentStep ?? internalCurrentStep;
+  const onStepChange = options?.onStepChange;
 
-  const updateStep = useCallback((stepIndex: number, updates: Partial<ProgressStep>) => {
+  const updateStep = useCallback((stepIndex: number, updates: Partial<Omit<ProgressStep, 'status'>>) => {
     setSteps(prev => prev.map((step, index) => 
       index === stepIndex ? { ...step, ...updates } : step
     ));
   }, []);
 
-  const addStep = useCallback((step: ProgressStep, index?: number) => {
+  const addStep = useCallback((step: Omit<ProgressStep, 'status'>, index?: number) => {
     setSteps(prev => {
       const newSteps = [...prev];
       if (index !== undefined) {
@@ -189,32 +196,54 @@ export const useProgressSteps = (initialSteps: ProgressStep[]) => {
   const removeStep = useCallback((stepIndex: number) => {
     setSteps(prev => prev.filter((_, index) => index !== stepIndex));
     if (currentStep >= stepIndex) {
-      setCurrentStep(Math.max(0, currentStep - 1));
+      const newStep = Math.max(0, currentStep - 1);
+      if (onStepChange) {
+        onStepChange(newStep);
+      } else {
+        setInternalCurrentStep(newStep);
+      }
     }
-  }, [currentStep]);
+  }, [currentStep, onStepChange]);
 
   const goToStep = useCallback((stepIndex: number) => {
     if (stepIndex >= 0 && stepIndex < steps.length) {
-      setCurrentStep(stepIndex);
+      if (onStepChange) {
+        onStepChange(stepIndex);
+      } else {
+        setInternalCurrentStep(stepIndex);
+      }
     }
-  }, [steps.length]);
+  }, [steps.length, onStepChange]);
 
   const nextStep = useCallback(() => {
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const newStep = currentStep + 1;
+      if (onStepChange) {
+        onStepChange(newStep);
+      } else {
+        setInternalCurrentStep(newStep);
+      }
     }
-  }, [currentStep, steps.length]);
+  }, [currentStep, steps.length, onStepChange]);
 
   const prevStep = useCallback(() => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      const newStep = currentStep - 1;
+      if (onStepChange) {
+        onStepChange(newStep);
+      } else {
+        setInternalCurrentStep(newStep);
+      }
     }
-  }, [currentStep]);
+  }, [currentStep, onStepChange]);
+
+  // 计算当前步骤状态更新后的steps
+  const updatedSteps = updateStepStatus(steps as Step[], currentStep);
 
   return {
-    steps,
+    steps: updatedSteps,
     currentStep,
-    currentStepData: steps[currentStep],
+    currentStepData: updatedSteps[currentStep],
     isFirstStep: currentStep === 0,
     isLastStep: currentStep === steps.length - 1,
     updateStep,
@@ -223,6 +252,6 @@ export const useProgressSteps = (initialSteps: ProgressStep[]) => {
     goToStep,
     nextStep,
     prevStep,
-    setCurrentStep,
+    setCurrentStep: onStepChange || setInternalCurrentStep,
   };
 };

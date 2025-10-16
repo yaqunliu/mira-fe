@@ -66,7 +66,11 @@ interface ChunkUpload {
   retryCount: number;
 }
 
-export function NovelUpload({ onUpload }: { onUpload: () => void }) {
+export function NovelUpload({
+  onUpload
+}: {
+  onUpload: (files: File[]) => void;
+}) {
   const t = useTranslations("createVideo");
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -406,220 +410,157 @@ export function NovelUpload({ onUpload }: { onUpload: () => void }) {
     }
   };
 
-  // 提交表单
-  const onSubmit = (data: NovelUploadFormData) => {
-    if (!selectedFile) {
-      toast.error("请选择要上传的文件");
-      return;
-    }
-    startUpload(data);
-  };
-
   const handleUpload = () => {
     if (!selectedFile) {
       toast.error("请选择要上传的小说");
       return;
     }
-    onUpload();
+    onUpload([selectedFile]);
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto border-none p-0 gap-3">
-      <CardHeader>
-        {/* <CardTitle className="flex items-center gap-2">
-          <span className="text-sm">
-            {t("上传小说")} <span className="text-red-500">*</span>
-          </span>
-        </CardTitle> */}
-        {/* <CardDescription>
-          支持大文件上传，自动分片处理，支持断点续传
-        </CardDescription> */}
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/** 添加Tabs切换，有两个选项"从小说列表中选择"和"上传小说" */}
-        <CustomTabs
-          variant="grid"
-          size="md"
-          defaultValue="upload"
-          className="gap-0"
-          tabsListClassName="p-0 rounded-b-none"
-          tabsTriggerClassName="rounded-b-none"
-          tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4"
-          items={[
-            {
-              value: "list",
-              label: "从列表中选择",
-              content: (
-                <div className="text-center py-8 text-muted-foreground">
-                  从小说列表中选择功能待实现
-                </div>
-              ),
-            },
-            {
-              value: "upload",
-              label: "上传小说",
-              content: (
-                <div className="space-y-6">
-                  {/* 文件上传区域 */}
-                  <div
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    className={`border-1 border-dashed border-orange-400/40 rounded-lg p-6 text-center cursor-pointer transition-colors ${
-                      selectedFile
-                        ? "border-green-500 bg-green-50 dark:bg-green-950/60 dark:border-green-400/30"
-                        : "border-muted-foreground/25 hover:border-primary/50"
-                    }`}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".txt"
-                      onChange={handleFileInputChange}
-                      className="hidden"
-                    />
-
-                    {selectedFile ? (
-                      <div className="space-y-4">
-                        <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
-                        <div className="space-y-1">
-                          <p className="text-md font-medium">{selectedFile.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {formatFileSize(selectedFile.size)}
-                          </p>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeFile();
-                          }}
-                          className="text-gray-400 underline"
-                        >
-                          <X className="h-4 w-4 text-red-700" />
-                          移除文件
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <Upload className="h-8 w-8 mx-auto text-orange-600" />
-                        <div>
-                          <div className="text-base font-medium">
-                            拖拽或点击上传小说
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-2 text-gray-500">
-                            支持最大 {formatFileSize(MAX_FILE_SIZE)} 的.txt文件
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 上传进度 */}
-                  {isUploading && (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <CloudUpload className="h-4 w-4" />
-                          <span className="text-sm font-medium">
-                            {uploadProgress.status === "uploading" && "上传中..."}
-                            {uploadProgress.status === "paused" && "已暂停"}
-                            {uploadProgress.status === "completed" && "上传完成"}
-                            {uploadProgress.status === "error" && "上传失败"}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">
-                            {uploadProgress.percentage}%
-                          </span>
-                          {uploadProgress.status === "uploading" && (
-                            <Button size="sm" variant="outline" onClick={pauseUpload}>
-                              <Pause className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {uploadProgress.status === "paused" && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={resumeUpload}
-                            >
-                              <Play className="h-4 w-4" />
-                            </Button>
-                          )}
-                          {(uploadProgress.status === "paused" ||
-                            uploadProgress.status === "error") && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={restartUpload}
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-
-                      <Progress
-                        value={uploadProgress.percentage}
-                        className="w-full"
-                      />
-
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">已上传：</span>
-                          <span>
-                            {formatFileSize(uploadProgress.loaded)} /{" "}
-                            {formatFileSize(uploadProgress.total)}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">上传速度：</span>
-                          <span>{formatFileSize(uploadSpeed)}/s</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">已完成分片：</span>
-                          <span>
-                            {completedChunks.size} / {chunks.length}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">预计剩余：</span>
-                          <span>
-                            {estimatedTime > 0
-                              ? `${Math.ceil(estimatedTime)}s`
-                              : "计算中..."}
-                          </span>
-                        </div>
-                      </div>
-
-                      {uploadProgress.error && (
-                        <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950 rounded-lg">
-                          <AlertCircle className="h-4 w-4 text-red-600" />
-                          <span className="text-sm text-red-600">
-                            {uploadProgress.error}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex justify-center w-full mt-8">
-                    <Button
-                      variant="secondary"
-                      onClick={handleUpload}
-                      className="text-orange-500 tracking-wide"
-                    >
-                      上传解析
-                    </Button>
-                  </div>
-                </div>
-              ),
-            },
-          ]}
+    <div className="space-y-6">
+      {/* 文件上传区域 */}
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        className={`border-1 border-dashed border-orange-400/40 rounded-lg p-6 text-center cursor-pointer transition-colors ${
+          selectedFile
+            ? "border-green-500 bg-green-50 dark:bg-green-950/60 dark:border-green-400/30"
+            : "border-muted-foreground/25 hover:border-primary/50"
+        }`}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".txt"
+          onChange={handleFileInputChange}
+          className="hidden"
         />
-      </CardContent>
-    </Card>
+
+        {selectedFile ? (
+          <div className="space-y-4">
+            <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
+            <div className="space-y-1">
+              <p className="text-md font-medium">{selectedFile.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {formatFileSize(selectedFile.size)}
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFile();
+              }}
+              className="text-gray-400 underline"
+            >
+              <X className="h-4 w-4 text-red-700" />
+              移除文件
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <Upload className="h-8 w-8 mx-auto text-orange-600" />
+            <div>
+              <div className="text-base font-medium">拖拽或点击上传小说</div>
+              <div className="text-xs text-muted-foreground mt-2 text-gray-500">
+                支持最大 {formatFileSize(MAX_FILE_SIZE)} 的.txt文件
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 上传进度 */}
+      {isUploading && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CloudUpload className="h-4 w-4" />
+              <span className="text-sm font-medium">
+                {uploadProgress.status === "uploading" && "上传中..."}
+                {uploadProgress.status === "paused" && "已暂停"}
+                {uploadProgress.status === "completed" && "上传完成"}
+                {uploadProgress.status === "error" && "上传失败"}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {uploadProgress.percentage}%
+              </span>
+              {uploadProgress.status === "uploading" && (
+                <Button size="sm" variant="outline" onClick={pauseUpload}>
+                  <Pause className="h-4 w-4" />
+                </Button>
+              )}
+              {uploadProgress.status === "paused" && (
+                <Button size="sm" variant="outline" onClick={resumeUpload}>
+                  <Play className="h-4 w-4" />
+                </Button>
+              )}
+              {(uploadProgress.status === "paused" ||
+                uploadProgress.status === "error") && (
+                <Button size="sm" variant="outline" onClick={restartUpload}>
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <Progress value={uploadProgress.percentage} className="w-full" />
+
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-muted-foreground">已上传：</span>
+              <span>
+                {formatFileSize(uploadProgress.loaded)} /{" "}
+                {formatFileSize(uploadProgress.total)}
+              </span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">上传速度：</span>
+              <span>{formatFileSize(uploadSpeed)}/s</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">已完成分片：</span>
+              <span>
+                {completedChunks.size} / {chunks.length}
+              </span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">预计剩余：</span>
+              <span>
+                {estimatedTime > 0
+                  ? `${Math.ceil(estimatedTime)}s`
+                  : "计算中..."}
+              </span>
+            </div>
+          </div>
+
+          {uploadProgress.error && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <span className="text-sm text-red-600">
+                {uploadProgress.error}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="flex justify-center w-full mt-8">
+        <Button
+          variant="secondary"
+          onClick={handleUpload}
+          className="text-orange-500 tracking-wide"
+        >
+          上传解析
+        </Button>
+      </div>
+    </div>
   );
 }

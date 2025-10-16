@@ -27,6 +27,7 @@ export interface Chapter {
   title: string
   content: string
   order: number
+  chapterId: string
   createdAt: string
   updatedAt: string
 }
@@ -117,4 +118,33 @@ export interface GenerationOptions {
   bgmStyle?: string
   videoStyle?: string
   characterStyle?: string
+}
+
+// 场景相关类型
+export interface SceneSetting {
+  time: string
+  address: string
+  space: string
+  background_elements: string
+  atmosphere: string
+}
+
+export interface StoryboardItem {
+  storyboard_id: string
+  storyboard_name: string
+  storyboard_characters: string[]
+  storyboard_description: string
+  storyboard_prompt: string
+}
+
+export interface Scene {
+  scene_id: string
+  scene_title: string
+  scene_duration: string
+  scene_setting: SceneSetting
+  storyboard_list: StoryboardItem[]
+}
+
+export interface SceneData {
+  data: Scene[]
 }

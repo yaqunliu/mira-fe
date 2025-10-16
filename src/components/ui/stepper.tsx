@@ -51,18 +51,17 @@ const stepVariants = {
   },
 };
 
-const StepIndicator = ({ 
-  step, 
-  index, 
+const StepIndicator = ({
+  step,
+  index,
   size = "md",
-  variant = "default" 
-}: { 
-  step: Step; 
-  index: number; 
+  variant = "default",
+}: {
+  step: Step;
+  index: number;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "minimal" | "circular";
 }) => {
-  console.log(step);
   const baseClasses = cn(
     "flex items-center justify-center rounded-full font-medium transition-all duration-200",
     stepVariants.size[size],
@@ -85,43 +84,59 @@ const StepIndicator = ({
 
   if (variant === "minimal") {
     return (
-      <div className={cn(
-        "w-2 h-2 rounded-full transition-all duration-200",
-        step.status === "completed" && "bg-primary",
-        step.status === "current" && "bg-primary scale-125",
-        step.status === "upcoming" && "bg-muted-foreground/30"
-      )} />
+      <div
+        className={cn(
+          "w-2 h-2 rounded-full transition-all duration-200",
+          step.status === "completed" && "bg-primary",
+          step.status === "current" && "bg-primary scale-125",
+          step.status === "upcoming" && "bg-muted-foreground/30"
+        )}
+      />
     );
   }
 
   return (
-    <div className={cn(baseClasses, step.status === "current" && "border-[1px] border-orange-400/50")}>
+    <div
+      className={cn(
+        baseClasses,
+        step.status === "current" && "border-[1px] border-orange-400/50"
+      )}
+    >
       {step.status === "completed" ? (
         <Check className="w-4 h-4" />
       ) : (
-        <span className={cn(step.status === "current" && "text-orange-400", 'text-sm font-semibold')}>{index + 1}</span>
+        <span
+          className={cn(
+            step.status === "current" && "text-orange-400",
+            "text-sm font-semibold"
+          )}
+        >
+          {index + 1}
+        </span>
       )}
     </div>
   );
 };
 
-const StepContent = ({ 
-  step, 
+const StepContent = ({
+  step,
   size = "md",
-  variant = "default" 
-}: { 
-  step: Step; 
+  variant = "default",
+}: {
+  step: Step;
   size?: "sm" | "md" | "lg";
   variant?: "default" | "minimal" | "circular";
 }) => {
   if (variant === "minimal") {
     return (
       <div className="flex-1">
-        <div className={cn(
-          "transition-colors font-semibold",
-          stepperVariants.size[size],
-          step.status === "current" && "text-orange-400",
-        )}>
+        <div
+          className={cn(
+            "transition-colors font-semibold",
+            stepperVariants.size[size],
+            step.status === "current" && "text-orange-400"
+          )}
+        >
           {step.title}
         </div>
       </div>
@@ -130,19 +145,23 @@ const StepContent = ({
 
   return (
     <div className="flex-1">
-      <h3 className={cn(
-        "transition-colors",
-        step.status === "current" && "text-default",
-        step.status === "upcoming" && "dark:text-gray-500 text-gray-600",
-        stepperVariants.size[size],
-      )}>
+      <h3
+        className={cn(
+          "transition-colors",
+          step.status === "current" && "text-default",
+          step.status === "upcoming" && "dark:text-gray-500 text-gray-600",
+          stepperVariants.size[size]
+        )}
+      >
         {step.title}
       </h3>
       {step.description && (
-        <p className={cn(
-          "text-sm text-muted-foreground mt-1",
-          step.status === "current" && "text-primary/70"
-        )}>
+        <p
+          className={cn(
+            "text-sm text-muted-foreground mt-1",
+            step.status === "current" && "text-primary/70"
+          )}
+        >
           {step.description}
         </p>
       )}
@@ -150,13 +169,13 @@ const StepContent = ({
   );
 };
 
-const Connector = ({ 
-  isLast, 
+const Connector = ({
+  isLast,
   orientation = "horizontal",
   variant = "default",
-  size = "md"
-}: { 
-  isLast: boolean; 
+  size = "md",
+}: {
+  isLast: boolean;
   orientation?: "horizontal" | "vertical";
   variant?: "default" | "minimal" | "circular";
   size?: "sm" | "md" | "lg";
@@ -165,40 +184,47 @@ const Connector = ({
 
   if (orientation === "vertical") {
     return (
-      <div className={cn(
-        "w-px h-6 ml-4",
-        "border-l border-dashed border-orange-300/30 border-[1px]",
-        variant === "minimal" && "ml-2"
-      )} 
+      <div
+        className={cn(
+          "w-px h-6 ml-4",
+          "border-l border-dashed border-orange-300/30 border-[1px]",
+          variant === "minimal" && "ml-2"
+        )}
       />
     );
   }
 
   return (
-    <div className={cn(
-      "flex items-center flex-1 mx-3",
-      stepVariants.indicator[size]
-    )}>
-      <div className={cn(
-        "h-px flex-1",
-        "border-t border-dashed border-orange-300/30 border-[1px]",
-        variant === "minimal" && "mx-2"
-      )} 
+    <div
+      className={cn(
+        "flex items-center flex-1 mx-3",
+        stepVariants.indicator[size]
+      )}
+    >
+      <div
+        className={cn(
+          "h-px flex-1",
+          "border-t border-dashed border-orange-300/30 border-[1px]",
+          variant === "minimal" && "mx-2"
+        )}
       />
     </div>
   );
 };
 
 export const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
-  ({ 
-    steps, 
-    orientation = "horizontal", 
-    variant = "default",
-    size = "md",
-    className,
-    onStepClick,
-    ...props 
-  }, ref) => {
+  (
+    {
+      steps,
+      orientation = "horizontal",
+      variant = "default",
+      size = "md",
+      className,
+      onStepClick,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <div
         ref={ref}
@@ -219,18 +245,18 @@ export const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
                 onStepClick && !step.disabled && "cursor-pointer hover:opacity-80"
               )}
               onClick={() => onStepClick?.(step, index)}
-            >
+          >
               <div className={cn(
                 "flex items-center",
                 orientation === "horizontal" && "flex-col",
                 orientation === "vertical" && "flex-row"
               )}>
-                <StepIndicator 
-                  step={step} 
-                  index={index} 
-                  size={size}
-                  variant={variant}
-                />
+              <StepIndicator
+                step={step}
+                index={index}
+                size={size}
+                variant={variant}
+              />
                 <div className={cn(
                   orientation === "horizontal" && variant === "minimal" && "mt-2",
                   orientation === "horizontal" && variant !== "minimal" && "mt-2",
@@ -244,12 +270,12 @@ export const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
                 </div>
               </div>
             </div>
-            <Connector 
-              isLast={index === steps.length - 1}
-              orientation={orientation}
-              variant={variant}
-              size={size}
-            />
+              <Connector
+                isLast={index === steps.length - 1}
+                orientation={orientation}
+                variant={variant}
+                size={size}
+              />
           </React.Fragment>
         ))}
       </div>
@@ -260,7 +286,10 @@ export const Stepper = React.forwardRef<HTMLDivElement, StepperProps>(
 Stepper.displayName = "Stepper";
 
 // 导出一些常用的预设步骤
-export const createSteps = (titles: string[], descriptions?: string[]): Step[] => {
+export const createSteps = (
+  titles: string[],
+  descriptions?: string[]
+): Step[] => {
   return titles.map((title, index) => ({
     id: `step-${index}`,
     title,
@@ -269,9 +298,17 @@ export const createSteps = (titles: string[], descriptions?: string[]): Step[] =
   }));
 };
 
-export const updateStepStatus = (steps: Step[], currentIndex: number): Step[] => {
+export const updateStepStatus = (
+  steps: Step[],
+  currentIndex: number
+): Step[] => {
   return steps.map((step, index) => ({
     ...step,
-    status: index < currentIndex ? "completed" : index === currentIndex ? "current" : "upcoming",
+    status:
+      index < currentIndex
+        ? "completed"
+        : index === currentIndex
+        ? "current"
+        : "upcoming",
   }));
 };

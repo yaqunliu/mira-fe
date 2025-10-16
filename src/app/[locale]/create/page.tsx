@@ -1,44 +1,53 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { ProgressWrapper, useProgressSteps, type ProgressStep } from "@/components/business/progress-wrapper";
+import {
+  ProgressWrapper,
+  useProgressSteps,
+  type ProgressStep,
+} from "@/components/business/progress-wrapper";
 import { NovelUpload } from "@/components/business/novel-upload";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { StorySetting } from "@/components/business/story-setting";
+import { SceneDisplay } from "@/components/business/scene-display";
+import { ScriptSetting } from "@/components/business/script-setting";
 
 export default function createVideo() {
   const t = useTranslations();
   const router = useRouter();
   const params = useParams();
   const locale = params?.locale as string;
+  const [scenes, setScenes] = useState<any[]>([]);
 
-  // 创建步骤数据
-  const initialSteps: ProgressStep[] = [
+  // 创建步骤数据（不需要预定义status）
+  const initialSteps = [
     {
       id: "script",
-      title: t("createVideo.选择剧本"),
-      status: "current"
+      title: t("createVideo.故事"),
+    },
+    {
+      id: "style",
+      title: t("createVideo.剧本"),
     },
     {
       id: "material",
-      title: t("createVideo.生成素材"),
-      status: "upcoming",
+      title: t("createVideo.分镜"),
     },
     {
       id: "video",
-      title: t("createVideo.合成视频"),
-      status: "upcoming",
+      title: t("createVideo.视频"),
     },
   ];
 
-  const {
-    steps,
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const { steps, nextStep } = useProgressSteps(initialSteps, {
     currentStep,
-    nextStep
-  } = useProgressSteps(initialSteps);
+    onStepChange: setCurrentStep,
+  });
 
   const handleStepChange = (stepIndex: number, step: ProgressStep) => {
     console.log(`切换到步骤 ${stepIndex}:`, step.title);
@@ -51,14 +60,20 @@ export default function createVideo() {
 
   return (
     <div className="container mx-auto">
-      <div className="flex items-center gap-1 m-3" onClick={() => router.push(`/${locale}`)}>
+      <div
+        className="flex items-center gap-1 m-3"
+        onClick={() => router.push(`/${locale}`)}
+      >
         <ChevronLeft className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-        <h1 className="text-lg text-gradient-primary">{t("createVideo.制作动画")}</h1>
+        <h1 className="text-lg text-gradient-primary">
+          {t("createVideo.制作动画")}
+        </h1>
       </div>
       <div className="h-[1px] w-full divider-primary mb-4" />
 
       <ProgressWrapper
         steps={steps}
+        currentStep={currentStep}
         orientation="horizontal"
         variant="default"
         size="md"
@@ -68,7 +83,18 @@ export default function createVideo() {
         className="px-6"
       />
       <div>
-        {currentStep === 0 && <NovelUpload onUpload={() => nextStep()} />}
+        {currentStep === 0 && (
+          <StorySetting
+            onComplete={(_scenes: any[]) => {
+              setScenes(_scenes);
+              nextStep();
+            }}
+          />
+        )}
+        {currentStep === 1 && (
+         <ScriptSetting scenes={scenes} />
+            
+        )}
       </div>
     </div>
   );

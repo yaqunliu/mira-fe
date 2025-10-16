@@ -79,6 +79,9 @@
   .bg-secondary {
     @apply bg-gray-50 dark:bg-gray-600/30;
   }
+  .text-primary {
+    @apply text-orange-700 dark:text-orange-500/80;
+  }
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-700 to-amber-400;
   }
@@ -91,6 +94,13 @@
   }
   .dark .divider-primary {
     @apply bg-stone-800;
+  }
+
+  .bg-primary-gradient {
+    @apply bg-gradient-to-br from-orange-700 to-amber-400;
+  }
+  .dark .bg-primary-gradient {
+    @apply from-orange-600/60 to-gray-500/50;
   }
 
   .placeholder {
