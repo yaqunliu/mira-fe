@@ -27,7 +27,10 @@ interface SceneDisplayProps {
 }
 
 export function SceneDisplay({ data, className }: SceneDisplayProps) {
-  const [expandedScenes, setExpandedScenes] = useState<Set<string>>(new Set());
+  const [expandedScenes, setExpandedScenes] = useState<Set<string>>(
+    new Set(data.length > 0 ? [data[0].scene_id] : [])
+  );
+  const [scenes, setScenes] = useState(data);
   console.log(data);
 
   const toggleScene = (sceneId: string) => {
@@ -42,16 +45,27 @@ export function SceneDisplay({ data, className }: SceneDisplayProps) {
 
   const isExpanded = (sceneId: string) => expandedScenes.has(sceneId);
 
-  return (
-    <div className={cn("space-y-4 px-1", className)}>
-      <div className="space-y-2">
-        <p className="text-gray-600 dark:text-gray-400 text-sm">
-          共 {data.length} 个场景，每个场景包含多个分镜
-        </p>
-      </div>
+  const handleStoryboardUpdate = (sceneId: string, updatedStoryboard: any) => {
+    setScenes((prevScenes: any) =>
+      prevScenes.map((scene: any) =>
+        scene.scene_id === sceneId
+          ? {
+              ...scene,
+              storyboard_list: scene.storyboard_list.map((sb: any) =>
+                sb.storyboard_id === updatedStoryboard.storyboard_id
+                  ? updatedStoryboard
+                  : sb
+              ),
+            }
+          : scene
+      )
+    );
+  };
 
+  return (
+    <div className={cn("space-y-4", className)}>
       <div className="space-y-4">
-        {data.map((scene) => (
+        {scenes.map((scene: any) => (
           <Card
             key={scene.scene_id}
             className={cn(
@@ -59,14 +73,14 @@ export function SceneDisplay({ data, className }: SceneDisplayProps) {
             )}
           >
             <CardHeader
-              className="cursor-pointer bg-primary-gradient transition-colors p-3"
+              className="cursor-pointer bg-primary-gradient-secondary transition-colors p-3"
               onClick={() => toggleScene(scene.scene_id)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-xs">
+                      <Badge variant="secondary" className="text-xs bg-gray-400/50">
                         {`场景 ${scene.scene_id}`}
                       </Badge>
                       <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -180,17 +194,21 @@ export function SceneDisplay({ data, className }: SceneDisplayProps) {
                     分镜列表 ({scene.storyboard_list.length} 个)
                   </div>
 
-                  <ScrollArea className="h-[600px] w-full">
-                    <div className="space-y-4">
-                      {scene.storyboard_list.map((storyboard, index) => (
-                        <StoryboardItem
-                          key={storyboard.storyboard_id}
-                          storyboard={storyboard}
-                          index={index}
-                        />
-                      ))}
+                  <div className="w-full overflow-x-auto">
+                    <div className="flex space-x-3 pb-4" style={{ width: 'max-content' }}>
+                        {scene.storyboard_list.map((storyboard: any, index: number) => (
+                          <div key={storyboard.storyboard_id} className="w-[65vw] md:w-[240px] lg:w-[300px] flex-shrink-0">
+                            <StoryboardItem
+                              storyboard={storyboard}
+                              index={index}
+                              onUpdate={(updatedStoryboard) => 
+                                handleStoryboardUpdate(scene.scene_id, updatedStoryboard)
+                              }
+                            />
+                          </div>
+                        ))}
                     </div>
-                  </ScrollArea>
+                  </div>
                 </div>
               </CardContent>
             )}

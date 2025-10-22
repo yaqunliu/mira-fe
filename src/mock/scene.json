@@ -67,6 +67,56 @@
                     "storyboard_prompt": "古代写实动漫风格，anime style，咸阳原战场山坡，广阔战场护城河鲜血染红箭矢乱飞尸骸遍地远山夕阳血色，项羽紧握虎头盘龙戟，表情愤怒不甘望着溃败的战场"
                 }
             ]
+        },
+        {
+            "scene_id": "1-2",
+            "scene_title": "骊山骊姬",
+            "scene_duration": "60秒",
+            "scene_setting": {
+                "time": "黄昏时分",
+                "address": "骊山骊姬",
+                "space": "骊山骊姬",
+                "background_elements": "骊山骊姬",
+                "atmosphere": "骊山骊姬"
+            },
+            "storyboard_list": [
+                {
+                    "storyboard_id": "1-2-1",
+                    "storyboard_name": "骊姬出场",
+                    "storyboard_characters": [
+                        "骊姬"
+                    ],
+                    "storyboard_description": "骊姬从骊山中走出，美艳绝伦，身姿婀娜，眼神魅惑，让人无法自拔！",
+                    "storyboard_prompt": "古代写实动漫风格，anime style，骊山骊姬，骊姬从骊山中走出，美艳绝伦，身姿婀娜，眼神魅惑，让人无法自拔！"
+                },
+                {
+                    "storyboard_id": "1-1-3",
+                    "storyboard_name": "骊姬舞蹈",
+                    "storyboard_characters": [
+                        "骊姬"
+                    ],
+                    "storyboard_description": "骊姬开始跳舞，舞姿翩翩，身姿婀娜，眼神魅惑，让人无法自拔！",
+                    "storyboard_prompt": "古代写实动漫风格，anime style，骊山骊姬，骊姬开始跳舞，舞姿翩翩，身姿婀娜，眼神魅惑，让人无法自拔！"
+                },
+                {
+                    "storyboard_id": "1-1-4",
+                    "storyboard_name": "骊姬舞蹈结束",
+                    "storyboard_characters": [
+                        "骊姬"
+                    ],
+                    "storyboard_description": "骊姬开始跳舞，舞姿翩翩，身姿婀娜，眼神魅惑，让人无法自拔！",
+                    "storyboard_prompt": "古代写实动漫风格，anime style，骊山骊姬，骊姬开始跳舞，舞姿翩翩，身姿婀娜，眼神魅惑，让人无法自拔！"
+                },
+                {
+                    "storyboard_id": "1-1-5",
+                    "storyboard_name": "骊姬舞蹈结束",
+                    "storyboard_characters": [
+                        "骊姬"
+                    ],
+                    "storyboard_description": "骊姬舞蹈结束，舞姿翩翩，身姿婀娜，眼神魅惑，让人无法自拔！",
+                    "storyboard_prompt": "古代写实动漫风格，anime style，骊山骊姬，骊姬舞蹈结束，舞姿翩翩，身姿婀娜，眼神魅惑，让人无法自拔！"
+                }
+            ]
         }
     ]
 }

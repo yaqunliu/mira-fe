@@ -135,6 +135,7 @@ export interface StoryboardItem {
   storyboard_characters: string[]
   storyboard_description: string
   storyboard_prompt: string
+  storyboard_narration?: string
 }
 
 export interface Scene {

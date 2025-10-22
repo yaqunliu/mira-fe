@@ -46,11 +46,11 @@ const variants = {
 const sizes = {
   sm: {
     list: "",
-    trigger: "text-xs px-2 py-2",
+    trigger: "text-sm px-2 py-2",
   },
   md: {
     list: "",
-    trigger: "text-sm px-3 py-3",
+    trigger: "text-md px-3 py-3",
   },
   lg: {
     list: "",

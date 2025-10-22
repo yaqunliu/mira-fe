@@ -79,9 +79,6 @@
   .bg-secondary {
     @apply bg-gray-50 dark:bg-gray-600/30;
   }
-  .text-primary {
-    @apply text-orange-700 dark:text-orange-500/80;
-  }
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-700 to-amber-400;
   }
@@ -100,14 +97,50 @@
     @apply bg-gradient-to-br from-orange-700 to-amber-400;
   }
   .dark .bg-primary-gradient {
-    @apply from-orange-600/60 to-gray-500/50;
+    @apply from-orange-500/50 to-gray-500/50;
+  }
+  .bg-primary-gradient-secondary {
+    @apply bg-gradient-to-br from-orange-700 to-amber-400;
+  }
+  .dark .bg-primary-gradient-secondary {
+    @apply from-orange-500/40 to-gray-500/30;
   }
 
   .placeholder {
     @apply placeholder:text-gray-500/60 placeholder:text-sm;
   }
 
+  .border-input {
+    @apply border-[1px] border-gray-300/40 dark:bg-gray-700/30
+  }
+
   .input {
     @apply border-[1px] border-gray-300/40 dark:bg-gray-700/30;
+  }
+
+  .bg-popover {
+    @apply bg-neutral-50;
+  }
+  .dark .bg-popover {
+    @apply bg-neutral-800;
+  }
+}
+
+/* BottomSheet 相关样式 */
+@keyframes slide-in-from-bottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-out-to-bottom {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
   }
 }

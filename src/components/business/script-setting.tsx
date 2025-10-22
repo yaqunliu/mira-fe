@@ -16,11 +16,8 @@ import {
 
 import { useTranslations } from "next-intl";
 import { CustomTabs } from "@/components/ui/custom-tabs";
-import { NovelUpload } from "./novel-upload";
-import { NovelSelect } from "./novel-select";
-import { Novel, Chapter } from "@/types";
-import scene from "@/mock/scene.json";
 import { SceneDisplay } from "./scene-display";
+import { CharacterSetting } from "./character-setting";
 
 export function ScriptSetting({ scenes }: { scenes: any[] }) {
   const t = useTranslations("createVideo");
@@ -29,30 +26,24 @@ export function ScriptSetting({ scenes }: { scenes: any[] }) {
   return (
     <Card className="w-full max-w-4xl mx-auto border-none p-0 gap-3">
       <CardContent className="space-y-4">
-        {/** 添加Tabs切换，有两个选项"从小说列表中选择"和"上传小说" */}
-        <div className="text-base font-bold text-gray-300">选择剧本</div>
         <CustomTabs
           variant="grid"
           size="md"
-          defaultValue="upload"
+          defaultValue="charactor"
           className="gap-0"
-          tabsListClassName="p-0 rounded-b-none"
-          tabsTriggerClassName="rounded-b-none"
-          tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounde-b-lg"
+          tabsListClassName="p-0 w-fit"
+          tabsTriggerClassName="px-4 py-2 dark:data-[state=active]:text-orange-400"
+          tabsContentClassName="mt-0 py-4 mt-[-1px] w-full"
           onValueChange={(value) => setCurScriptItem(value as 'charactor' | 'scene')}
           items={[
             {
               value: "charactor",
               label: "角色设定",
-              content:(
-                <div>
-                     角色设定
-                </div>
-              )
+              content: <CharacterSetting />
             },
             {
               value: "list",
-              label: "场景设定",
+              label: "场景脚本",
               content: (
                 <div>
                     <SceneDisplay data={scenes} />

@@ -103,7 +103,7 @@ const StepIndicator = ({
       )}
     >
       {step.status === "completed" ? (
-        <Check className="w-4 h-4" />
+        <Check className="w-4 h-4 text-primary" />
       ) : (
         <span
           className={cn(
@@ -134,7 +134,7 @@ const StepContent = ({
           className={cn(
             "transition-colors font-semibold",
             stepperVariants.size[size],
-            step.status === "current" && "text-orange-400"
+            step.status === "current" && "text-primary"
           )}
         >
           {step.title}
