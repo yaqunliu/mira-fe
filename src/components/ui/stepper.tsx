@@ -107,7 +107,7 @@ const StepIndicator = ({
       ) : (
         <span
           className={cn(
-            step.status === "current" && "text-orange-400",
+            step.status === "current" && "text-primary",
             "text-sm font-semibold"
           )}
         >

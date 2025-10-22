@@ -426,7 +426,7 @@ export function NovelUpload({
         onDragOver={handleDragOver}
         className={`border-1 border-dashed border-orange-400/40 rounded-lg p-6 text-center cursor-pointer transition-colors ${
           selectedFile
-            ? "border-green-500 bg-green-50 dark:bg-green-950/60 dark:border-green-400/30"
+            ? "border-green-500 bg-green-50 dark:bg-green-950/30 dark:border-green-400/30"
             : "border-muted-foreground/25 hover:border-primary/50"
         }`}
         onClick={() => fileInputRef.current?.click()}
@@ -464,7 +464,7 @@ export function NovelUpload({
           </div>
         ) : (
           <div className="space-y-4">
-            <Upload className="h-8 w-8 mx-auto text-orange-600" />
+            <Upload className="h-8 w-8 mx-auto text-orange-500" />
             <div>
               <div className="text-base font-medium">拖拽或点击上传小说</div>
               <div className="text-xs text-muted-foreground mt-2 text-gray-500">
@@ -556,7 +556,7 @@ export function NovelUpload({
         <Button
           variant="secondary"
           onClick={handleUpload}
-          className="text-orange-500 tracking-wide"
+          className="text-primary tracking-wide w-[120px]"
         >
           上传解析
         </Button>

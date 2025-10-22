@@ -12,8 +12,10 @@ import { NovelUpload } from "@/components/business/novel-upload";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { StorySetting } from "@/components/business/story-setting";
-import { SceneDisplay } from "@/components/business/scene-display";
 import { ScriptSetting } from "@/components/business/script-setting";
+import { CharacterSetting } from "@/components/business/character-setting";
+import { StoryboardImages } from "@/components/business/storyboard-images";
+import sceneImages from "@/mock/scene_images.json";
 
 export default function createVideo() {
   const t = useTranslations();
@@ -25,12 +27,16 @@ export default function createVideo() {
   // 创建步骤数据（不需要预定义status）
   const initialSteps = [
     {
-      id: "script",
+      id: "story",
       title: t("createVideo.故事"),
     },
     {
-      id: "style",
-      title: t("createVideo.剧本"),
+      id: "character",
+      title: t("createVideo.角色"),
+    },
+    {
+      id: "script",
+      title: t("createVideo.脚本"),
     },
     {
       id: "material",
@@ -59,12 +65,12 @@ export default function createVideo() {
   };
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto overflow-y-hidden">
       <div
         className="flex items-center gap-1 m-3"
         onClick={() => router.push(`/${locale}`)}
       >
-        <ChevronLeft className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+        <ChevronLeft className="w-4 h-4 text-primary" />
         <h1 className="text-lg text-gradient-primary">
           {t("createVideo.制作动画")}
         </h1>
@@ -76,7 +82,7 @@ export default function createVideo() {
         currentStep={currentStep}
         orientation="horizontal"
         variant="default"
-        size="md"
+        size="sm"
         showNavigation={false}
         onStepChange={handleStepChange}
         onComplete={handleComplete}
@@ -92,8 +98,27 @@ export default function createVideo() {
           />
         )}
         {currentStep === 1 && (
-         <ScriptSetting scenes={scenes} />
-            
+          <CharacterSetting
+            onComplete={() => {
+              nextStep();
+            }}
+          />
+        )}
+        {currentStep === 2 && (
+          <ScriptSetting
+            data={scenes}
+            onComplete={() => {
+              nextStep();
+            }}
+          />
+        )}
+        {currentStep === 3 && (
+          <StoryboardImages
+            data={sceneImages.data}
+            onComplete={() => {
+              nextStep();
+            }}
+          />
         )}
       </div>
     </div>

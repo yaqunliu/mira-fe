@@ -63,6 +63,7 @@
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-y: hidden;
   }
 
   html, body {
@@ -74,10 +75,16 @@
 
 @layer utilities {
   .bg-primary {
-    @apply bg-orange-50 dark:bg-orange-600/30;
+    @apply bg-orange-50 dark:bg-orange-400/70;
   }
   .bg-secondary {
     @apply bg-gray-50 dark:bg-gray-600/30;
+  }
+  .text-primary {
+    @apply text-orange-600;
+  }
+  .dark .text-primary {
+    @apply text-orange-400;
   }
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-700 to-amber-400;

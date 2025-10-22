@@ -22,6 +22,7 @@ import { NovelUpload } from "./novel-upload";
 import { NovelSelect } from "./novel-select";
 import { Novel, Chapter } from "@/types";
 import scene from "@/mock/scene.json";
+import { ArrowRight } from "lucide-react";
 
 export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: any[]) => void }) {
   const t = useTranslations("createVideo");
@@ -196,7 +197,7 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
           tabsListClassName="p-0 rounded-b-none"
           tabsTriggerClassName="rounded-b-none"
           tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounde-b-lg"
-          onValueChange={(value) => setNovelOriginal(value)}
+          onValueChange={(value) => {}}
           items={[
             {
               value: "upload",
@@ -226,7 +227,7 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
                       multiSelect={false}
                       showSearch={false}
                       showChapterCount={true}
-                      novelClassName="border-orange-500/20 dark:border-orange-500/10 bg-orange-50/10 dark:bg-orange-900/10"
+                      novelClassName="border-orange-500/20 dark:border-orange-400/20 bg-orange-100/10 dark:bg-orange-900/10"
                       chapterClassName="border-none p-0"
                     />
                     <div className="flex justify-center">
@@ -234,9 +235,10 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
                         variant="default"
                         size="lg"
                         onClick={generateScenes}
-                        className="bg-primary-gradient"
+                        className="bg-primary"
                       >
-                        生成场景描述
+                        下一步
+                        <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>
                   </div>

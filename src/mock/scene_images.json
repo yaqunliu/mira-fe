@@ -1,0 +1,72 @@
+{
+    "data": [
+        {
+            "scene_id": "1-1",
+            "scene_title": "咸阳原血战",
+            "images": [
+                {
+                    "image_id": "1",
+                    "title": "项羽观战",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-1.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳原战场山坡，广阔战场护城河鲜血染红箭矢乱飞尸骸遍地远山夕阳血色，项羽站立山坡制高点，手持虎头盘龙戟朝天，表情凝重眺望战场",
+                    "narration": "这个西楚霸王在咸阳原血战三天，眼看就要攻破秦军防线！"
+                },
+                {
+                    "image_id": "2",
+                    "title": "义军冲锋",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-2.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳原战场山坡，广阔战场护城河鲜血染红箭矢乱飞尸骸遍地远山夕阳血色，项羽高举虎头盘龙戟指向天空，张口怒吼，表情激昂威武",
+                    "narration": "他一声怒吼'伐无道、诛暴秦'，瞬间点燃了全军斗志！"
+                },
+                {
+                    "image_id": "3",
+                    "title": "咸阳城头",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-3.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳城城头，高大城墙青砖建筑远山夕阳血色天空，嬴政站立城头最高处，双手负后，表情冷漠傲视天下",
+                    "narration": "可下一秒，咸阳城头竟然出现了一个让所有人绝望的身影！"
+                },
+                {
+                    "image_id": "4",
+                    "title": "项羽惊愕",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-4.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳原战场山坡，广阔战场护城河鲜血染红箭矢乱飞尸骸遍地远山夕阳血色，项羽站立山坡，瞪大眼睛望向远方，表情震惊不敢置信",
+                    "narration": "项羽一眼认出那个华美冕旒黑袍加身的男人，当场倒吸凉气！"
+                },
+                {
+                    "image_id": "5",
+                    "title": "始皇帝挥手",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-5.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳城城头，高大城墙青砖建筑远山夕阳血色天空，嬴政站立城头，右手向前一挥，嘴角带着胜券在握的冷笑",
+                    "narration": "始皇帝嘴角冷笑一挥手，两侧山头瞬间涌出上万秦军！"
+                },
+                {
+                    "image_id": "6",
+                    "title": "义军败退",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-6.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳原战场山坡，广阔战场护城河鲜血染红箭矢乱飞尸骸遍地远山夕阳血色，项羽紧握虎头盘龙戟，表情愤怒不甘望着溃败的战场",
+                    "narration": "义军这才发现早就中了埋伏，在恐惧中节节败退！"
+                }
+            ]
+        },
+        {
+            "scene_id": "1-2",
+            "scene_title": "黑龙突袭",
+            "images": [
+                {
+                    "image_id": "7",
+                    "title": "黑龙突袭",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-1.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳原战场山坡，广阔战场护城河鲜血染红箭矢乱飞尸骸遍地远山夕阳血色，项羽站立山坡制高点，手持虎头盘龙戟朝天，表情凝重眺望战场",
+                    "narration": "这个西楚霸王在咸阳原血战三天，眼看就要攻破秦军防线！"
+                },
+                {
+                    "image_id": "8",
+                    "title": "黑龙突袭",
+                    "image_url": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/img1-1.png",
+                    "prompt": "古代写实动漫风格，anime style，咸阳原战场山坡，广阔战场护城河鲜血染红箭矢乱飞尸骸遍地远山夕阳血色，项羽站立山坡制高点，手持虎头盘龙戟朝天，表情凝重眺望战场",
+                    "narration": "这个西楚霸王在咸阳原血战三天，眼看就要攻破秦军防线！"
+                }
+            ]
+        }
+    ]
+}

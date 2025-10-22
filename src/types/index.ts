@@ -149,3 +149,22 @@ export interface Scene {
 export interface SceneData {
   data: Scene[]
 }
+
+// AI生图结果类型
+export interface AIGeneratedImage {
+  image_id: string;
+  title: string;
+  image_url: string;
+  prompt: string;
+  narration: string;
+  status?: 'generating' | 'completed' | 'failed';
+  progress?: number;
+  createdAt?: string;
+}
+
+// 场景分组类型
+export interface SceneGroup {
+  scene_id: string;
+  scene_title: string;
+  images: AIGeneratedImage[];
+}
