@@ -48,21 +48,21 @@ export default function RootPage() {
         <div className="flex flex-col gap-4">
           <div className="space-y-3">
             <div className="flex items-center gap-1">
-              <BookOpenText className="w-4 h-4 text-amber-800 dark:text-amber-400" />
-              <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
-                {t("home.我的小说")}
-              </h2>
-            </div>
-            <NovelOverview />
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-1">
               <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" />
               <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
                 {t("home.我的创作")}
               </h2>
             </div>
             <VideoOverview />
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-1">
+              <BookOpenText className="w-4 h-4 text-amber-800 dark:text-amber-400" />
+              <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
+                {t("home.我的小说")}
+              </h2>
+            </div>
+            <NovelOverview />
           </div>
         </div>
       </div>

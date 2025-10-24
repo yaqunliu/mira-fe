@@ -86,7 +86,7 @@ export function VideoOverview() {
   return (
     <div className="space-y-3">
       {/* 视频网格布局 */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {displayVideos.map((video: VideoOverviewItem) => (
           <div
             key={video.id}
@@ -132,19 +132,26 @@ export function VideoOverview() {
             </div>
           </div>
         ))}
+        
+        {/* 查看更多卡片 */}
+        {videos.length > 3 && (
+          <div
+            onClick={handleViewMore}
+            className="group cursor-pointer"
+          >
+            <div className="relative aspect-[16/9] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-2 border-dashed border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-700/50">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ChevronRight className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+                </div>
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                  {t("home.查看更多")}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      
-      {videos.length > 3 && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleViewMore}
-          className="w-full text-xs text-muted-foreground hover:text-foreground"
-        >
-          {t("home.查看更多")}
-          <ChevronRight className="h-3 w-3 ml-1" />
-        </Button>
-      )}
     </div>
   );
 }

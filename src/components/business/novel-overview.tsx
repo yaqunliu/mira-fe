@@ -85,7 +85,8 @@ export function NovelOverview() {
             {/* 书籍封面 */}
             <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
               {/* 封面背景渐变 */}
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-400/90 via-orange-500/90 to-red-600/90 dark:from-amber-600/90 dark:via-orange-700/90 dark:to-red-800/90" />
+              <div className="absolute inset-0 bg-radial-[at_25%_15%] from-amber-300/20 via-orange-400/60 to-orange-800/90 dark:from-amber-400/80 dark:via-amber-600/90 dark:to-orange-900/70" />
+              <div className="absolute opacity-50 inset-0 blur-md dark:bg-zinc-500/50"/>
               
               {/* 封面装饰线条 */}
               <div className="absolute inset-0 border-2 border-amber-200/30 dark:border-amber-400/20 m-2 rounded-sm" />
