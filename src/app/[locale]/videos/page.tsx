@@ -26,7 +26,8 @@ export default function VideosPage() {
     queryFn: () => videoApi.getVideos(),
   })
 
-  const videos = videosResponse?.data || []
+  console.log('videosResponse:', videosResponse);
+  const videos = (videosResponse as any)?.data?.data || []
 
   const filteredVideos = videos.filter((video) =>
     video.title.toLowerCase().includes(searchTerm.toLowerCase())

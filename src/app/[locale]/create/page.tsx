@@ -16,6 +16,7 @@ import { ScriptSetting } from "@/components/business/script-setting";
 import { CharacterSetting } from "@/components/business/character-setting";
 import { StoryboardImages } from "@/components/business/storyboard-images";
 import sceneImages from "@/mock/scene_images.json";
+import { VideoGenerator } from "@/components/business/video-generator";
 
 export default function createVideo() {
   const t = useTranslations();
@@ -64,6 +65,55 @@ export default function createVideo() {
     // 这里可以添加完成后的逻辑，比如跳转到结果页面
   };
 
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <StorySetting
+            onComplete={(_scenes: any[]) => {
+              setScenes(_scenes);
+              nextStep();
+            }}
+          />
+        );
+      case 1:
+        return (
+          <CharacterSetting
+            onComplete={() => {
+              nextStep();
+            }}
+          />
+        );
+
+      case 2:
+        return (
+          <ScriptSetting
+            data={scenes}
+            onComplete={() => {
+              nextStep();
+            }}
+          />
+        );
+      case 3:
+        return (
+          <StoryboardImages
+            data={sceneImages.data}
+            onComplete={() => {
+              nextStep();
+            }}
+          />
+        );
+      case 4:
+        return (
+          <VideoGenerator
+            onVideoGenerated={() => {
+              nextStep();
+            }}
+          />
+        );
+    }
+  };
+
   return (
     <div className="container mx-auto overflow-y-hidden">
       <div
@@ -89,37 +139,7 @@ export default function createVideo() {
         className="px-6"
       />
       <div>
-        {currentStep === 0 && (
-          <StorySetting
-            onComplete={(_scenes: any[]) => {
-              setScenes(_scenes);
-              nextStep();
-            }}
-          />
-        )}
-        {currentStep === 1 && (
-          <CharacterSetting
-            onComplete={() => {
-              nextStep();
-            }}
-          />
-        )}
-        {currentStep === 2 && (
-          <ScriptSetting
-            data={scenes}
-            onComplete={() => {
-              nextStep();
-            }}
-          />
-        )}
-        {currentStep === 3 && (
-          <StoryboardImages
-            data={sceneImages.data}
-            onComplete={() => {
-              nextStep();
-            }}
-          />
-        )}
+        {renderStepContent()}
       </div>
     </div>
   );

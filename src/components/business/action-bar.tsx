@@ -2,7 +2,7 @@
 
 import { LanguageToggle } from './language-toggle'
 import { ThemeToggle } from './theme-toggle'
-import { Separator } from '../ui/separator'
+import { UserAvatar } from './user-avatar'
 
 interface ActionBarProps {
   className?: string
@@ -14,6 +14,8 @@ export function ActionBar({ className = '' }: ActionBarProps) {
       <LanguageToggle />
       <div className='divider-primary h-4 w-[1px]' />
       <ThemeToggle />
+      <div className='divider-primary h-4 w-[1px]' />
+      <UserAvatar />
     </div>
   )
 }

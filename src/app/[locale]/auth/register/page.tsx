@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,7 +20,8 @@ export default function RegisterPage() {
   const { login, setLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
+  const params = useParams()
+  const locale = params?.locale as string   
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -54,7 +55,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <Card>
+        <Card className='border-none bg-zinc-800'>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Register</CardTitle>
             <CardDescription className="text-center">
@@ -174,7 +175,7 @@ export default function RegisterPage() {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Already have an account? </span>
-              <Link href="/auth/login" className="text-primary hover:underline">
+              <Link href={`/${locale}/auth/login`} className="text-primary hover:underline">
                 Login
               </Link>
             </div>

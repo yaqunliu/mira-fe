@@ -26,7 +26,23 @@ export const novelApi = {
 
   // 获取单个小说详情
   getNovel: async (id: string) => {
-    return apiClient.get<Novel>(`/novels/${id}`)
+    // 模拟API调用
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const novel = mockNovels.find((n: Novel) => n.id === id)
+        if (novel) {
+          resolve({
+            success: true,
+            data: novel
+          })
+        } else {
+          resolve({
+            success: false,
+            error: 'Novel not found'
+          })
+        }
+      }, 300)
+    })
   },
 
   // 上传小说

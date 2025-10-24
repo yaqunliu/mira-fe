@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,7 +19,8 @@ export default function LoginPage() {
   const router = useRouter()
   const { login, setLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
-
+  const params = useParams()
+  const locale = params?.locale as string   
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -51,7 +52,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <Card>
+        <Card className='border-none bg-zinc-800'>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Login</CardTitle>
             <CardDescription className="text-center">
@@ -114,7 +115,7 @@ export default function LoginPage() {
 
                 <div className="flex items-center justify-between">
                   <Link
-                    href="/auth/forgot-password"
+                    href={`/${locale}/auth/forgot-password`}
                     className="text-sm text-primary hover:underline"
                   >
                     Forgot Password?
@@ -129,7 +130,7 @@ export default function LoginPage() {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">Don't have an account? </span>
-              <Link href="/auth/register" className="text-primary hover:underline">
+              <Link href={`/${locale}/auth/register`} className="text-primary hover:underline">
                 Register
               </Link>
             </div>

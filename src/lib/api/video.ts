@@ -1,6 +1,6 @@
 import { apiClient } from './client'
 import type { Video, Character, Storyboard, PaginatedResponse, PaginationParams, GenerationOptions } from '@/types'
-import { mockVideos, mockCharacters } from '@/lib/mock-data'
+import { mockVideos } from '@/lib/mock-video-data'
 
 export const videoApi = {
   // 获取视频列表

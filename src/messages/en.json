@@ -4,5 +4,9 @@
     "createVideo": "制作动画",
     "myNovels": "我的小说",
     "myVideos": "我的创作"
+  },
+  "user": {
+    "用户菜单": "User Menu",
+    "退出登录": "Logout"
   }
 }
