@@ -24,7 +24,7 @@ export function NovelOverview() {
   const locale = params?.locale as string;
 
   const { data: novelsResponse, isLoading } = useQuery({
-    queryKey: ['novels'],
+    queryKey: ["novels"],
     queryFn: () => novelApi.getNovels(),
   });
 
@@ -41,14 +41,9 @@ export function NovelOverview() {
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-3">
         {[...Array(3)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-3">
-              <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-              <div className="h-3 bg-muted rounded w-1/2"></div>
-            </CardContent>
-          </Card>
+          <div key={i} className="rounded-md aspect-[3/4] w-full skeleton" />
         ))}
       </div>
     );
@@ -61,8 +56,8 @@ export function NovelOverview() {
         <p className="text-sm text-muted-foreground mb-3">
           暂无小说，点击上传第一本小说
         </p>
-        <Button 
-          size="sm" 
+        <Button
+          size="sm"
           onClick={() => router.push(`/${locale}/novels/upload`)}
           className="text-xs"
         >
@@ -85,8 +80,9 @@ export function NovelOverview() {
             {/* 书籍封面 */}
             <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
               {/* 封面背景渐变 */}
-              <div className="absolute inset-0 bg-radial-[at_25%_15%] from-amber-300/20 via-orange-400/60 to-orange-800/90 dark:from-amber-400/80 dark:via-amber-600/90 dark:to-orange-900/70" />
-              <div className="absolute opacity-50 inset-0 blur-md dark:bg-zinc-500/50"/>
+              {/* <div className="absolute inset-0 bg-radial-[at_25%_15%] from-amber-300/20 via-orange-400/60 to-orange-800/90 dark:from-amber-400/80 dark:via-amber-600/90 dark:to-orange-900/70" /> */}
+              <div className="absolute inset-0" style={{ background: 'url(/novel-cover.png) no-repeat center center / cover'}} />
+              <div className="absolute backdrop-opacity-10 inset-0 blur-lg backdrop-blur-md bg-gradient-to-br from-orange-500/40 to-stone-500/70"/>
               
               {/* 封面装饰线条 */}
               <div className="absolute inset-0 border-2 border-amber-200/30 dark:border-amber-400/20 m-2 rounded-sm" />
@@ -99,37 +95,36 @@ export function NovelOverview() {
                     {novel.title}
                   </h3>
                 </div>
-                
-                {/* 作者和章节信息 */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center gap-1 text-white/90">
-                    <User className="h-3 w-3" />
-                    <span className="text-xs font-medium line-clamp-1">{novel.author}</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-1 text-white/80">
-                    <BookOpen className="h-3 w-3" />
-                    <span className="text-xs">{novel.chapters.length} {t("home.章节")}</span>
-                  </div>
+
+              {/* 作者和章节信息 */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-center gap-1 text-white/90">
+                  <User className="h-3 w-3" />
+                  <span className="text-xs font-medium line-clamp-1">
+                    {novel.author}
+                  </span>
+                </div>
+                <div className="flex items-center justify-center gap-1 text-white/80">
+                  <BookOpen className="h-3 w-3" />
+                  <span className="text-xs">
+                    {novel.chapters.length} {t("home.章节")}
+                  </span>
                 </div>
               </div>
-              
-              {/* 书脊效果 */}
-              <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-r from-black/20 to-transparent" />
+            </div>
             </div>
           </div>
         ))}
       </div>
-      
+
       {novels.length > 3 && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <button
           onClick={handleViewMore}
-          className="w-full text-xs text-muted-foreground hover:text-foreground"
+          className="w-full text-xs text-secondary underline flex items-center justify-center gap-1 py-2 rounded-md hover:bg-accent transition-colors"
         >
           {t("home.查看更多")}
-          <ChevronRight className="h-3 w-3 ml-1" />
-        </Button>
+          <ChevronRight className="h-3 w-3" />
+        </button>
       )}
     </div>
   );

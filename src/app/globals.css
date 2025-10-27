@@ -81,10 +81,10 @@
     @apply bg-gray-50 dark:bg-gray-600/30;
   }
   .text-primary {
-    @apply text-orange-600;
+    @apply text-orange-600 dark:text-orange-400;
   }
-  .dark .text-primary {
-    @apply text-orange-400;
+  .text-secondary {
+    @apply text-gray-600 dark:text-gray-400;
   }
   .text-gradient-primary {
     @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-700 to-amber-400;
@@ -130,6 +130,14 @@
   }
   .dark .bg-popover {
     @apply bg-neutral-800;
+  }
+
+  .skeleton {
+    @apply bg-zinc-200 dark:bg-zinc-800 rounded-md animate-pulse;
+  }
+
+  .bg-card-custom {
+    @apply bg-zinc-300 dark:bg-zinc-800;
   }
 }
 

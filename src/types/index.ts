@@ -72,6 +72,7 @@ export interface Video {
   subtitles?: Subtitle[]
   createdAt: string
   updatedAt: string
+  step?: string
 }
 
 export interface Subtitle {

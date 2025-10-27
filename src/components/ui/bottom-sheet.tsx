@@ -36,6 +36,8 @@ export interface BottomSheetProps {
   className?: string;
   /** 内容区域自定义类名 */
   contentClassName?: string;
+  /** 自定义样式 */
+  style?: React.CSSProperties;
 }
 
 /**
@@ -73,6 +75,7 @@ export function BottomSheet({
   actions,
   showCloseButton = true,
   className,
+  style,
   contentClassName,
 }: BottomSheetProps) {
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
@@ -178,6 +181,7 @@ export function BottomSheet({
             height: `${sheetHeight}px`,
             maxHeight: `${sheetHeight}px`,
             transition: "height 0.3s ease, max-height 0.3s ease",
+            ...style,
           }}
         >
           {/* 顶部拖动指示条 */}

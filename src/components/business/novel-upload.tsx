@@ -9,29 +9,9 @@ import {
   type NovelUploadFormData,
 } from "@/lib/validations/novel";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Upload,
-  FileText,
   X,
   CheckCircle,
   AlertCircle,
@@ -40,10 +20,9 @@ import {
   RotateCcw,
   CloudUpload,
 } from "lucide-react";
-import { cn, formatFileSize } from "@/lib/utils";
+import { formatFileSize } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { CustomTabs, type TabItem } from "@/components/ui/custom-tabs";
 
 // 分片上传配置
 const CHUNK_SIZE = 1024 * 1024; // 1MB per chunk
@@ -415,6 +394,7 @@ export function NovelUpload({
       toast.error("请选择要上传的小说");
       return;
     }
+    startUpload(form.getValues());
     onUpload([selectedFile]);
   };
 
@@ -422,14 +402,16 @@ export function NovelUpload({
     <div className="space-y-6">
       {/* 文件上传区域 */}
       <div
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        className={`border-1 border-dashed border-orange-400/40 rounded-lg p-6 text-center cursor-pointer transition-colors ${
-          selectedFile
-            ? "border-green-500 bg-green-50 dark:bg-green-950/30 dark:border-green-400/30"
-            : "border-muted-foreground/25 hover:border-primary/50"
+        onDrop={isUploading ? undefined : handleDrop}
+        onDragOver={isUploading ? undefined : handleDragOver}
+        className={`border-1 border-dashed border-orange-400/40 rounded-lg p-6 text-center transition-colors ${
+          isUploading
+            ? "cursor-not-allowed opacity-60 border-muted-foreground/25"
+            : selectedFile
+            ? "border-green-500 bg-green-50 dark:bg-green-950/30 dark:border-green-400/30 cursor-pointer"
+            : "border-muted-foreground/25 hover:border-primary/50 cursor-pointer"
         }`}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={isUploading ? undefined : () => fileInputRef.current?.click()}
       >
         <input
           ref={fileInputRef}
@@ -437,30 +419,44 @@ export function NovelUpload({
           accept=".txt"
           onChange={handleFileInputChange}
           className="hidden"
+          disabled={isUploading}
         />
 
         {selectedFile ? (
           <div className="space-y-4">
-            <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
+            {isUploading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+              </div>
+            ) : (
+              <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
+            )}
             <div className="space-y-1">
               <p className="text-md font-medium">{selectedFile.name}</p>
               <p className="text-sm text-muted-foreground">
                 {formatFileSize(selectedFile.size)}
               </p>
+              {isUploading && (
+                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                  正在上传中，请稍候...
+                </p>
+              )}
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                removeFile();
-              }}
-              className="text-gray-400 underline"
-            >
-              <X className="h-4 w-4 text-red-700" />
-              移除文件
-            </Button>
+            {!isUploading && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFile();
+                }}
+                className="text-gray-400 underline"
+              >
+                <X className="h-4 w-4 text-red-700" />
+                移除文件
+              </Button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
@@ -556,9 +552,10 @@ export function NovelUpload({
         <Button
           variant="secondary"
           onClick={handleUpload}
+          disabled={isUploading || !selectedFile}
           className="text-primary tracking-wide w-[120px]"
         >
-          上传解析
+          {isUploading ? "上传中..." : "上传解析"}
         </Button>
       </div>
     </div>

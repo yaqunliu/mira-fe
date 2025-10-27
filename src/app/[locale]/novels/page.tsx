@@ -1,188 +1,171 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
-import { Plus, BookOpen, Calendar, User, MoreHorizontal } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
-import { novelApi } from '@/lib/api/novel'
-import { formatDate } from '@/lib/utils'
-import type { Novel } from '@/types'
-import { NovelUploadModal } from '@/components/modals/novel-upload-modal'
+import { useState } from "react";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import {
+  Plus,
+  BookOpen,
+  Calendar,
+  User,
+  MoreHorizontal,
+  ChevronLeft,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { novelApi } from "@/lib/api/novel";
+import { formatDate } from "@/lib/utils";
+import type { Novel } from "@/types";
+import { NovelUploadModal } from "@/components/modals/novel-upload-modal";
+import { useTranslations } from "next-intl";
+import { useParams, useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
 export default function NovelsPage() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [uploadModalOpen, setUploadModalOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const router = useRouter();
+  const params = useParams();
+  const locale = params?.locale as string;
 
-  const { data: novelsResponse, isLoading, error } = useQuery({
-    queryKey: ['novels'],
+  const {
+    data: novelsResponse,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["novels"],
     queryFn: () => novelApi.getNovels(),
-  })
+  });
 
-  console.log(novelsResponse, 'novelsResponse')
-  const novels = (novelsResponse as any)?.data?.data || []
+  const novels = (novelsResponse as any)?.data?.data || [];
 
-  const filteredNovels = novels.filter((novel: any) =>
-    novel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    novel.author.toLowerCase().includes(searchTerm.toLowerCase())
-  )
-
-  const getStatusBadge = (status: Novel['status']) => {
-    const statusMap = {
-      uploading: { label: 'Uploading', variant: 'secondary' as const },
-      processing: { label: 'Processing', variant: 'default' as const },
-      completed: { label: 'Completed', variant: 'default' as const },
-      failed: { label: 'Failed', variant: 'destructive' as const },
-    }
-    
-    const { label, variant } = statusMap[status]
-    return <Badge variant={variant}>{label}</Badge>
-  }
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">My Novels</h1>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader>
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-3 bg-muted rounded w-1/2"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-3 bg-muted rounded w-full mb-2"></div>
-                <div className="h-3 bg-muted rounded w-2/3"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">My Novels</h1>
-          <p className="text-muted-foreground">Failed to load novels. Please try again.</p>
-        </div>
-      </div>
-    )
-  }
+  const filteredNovels = novels.filter(
+    (novel: any) =>
+      novel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      novel.author.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">My Novels</h1>
-        <Button onClick={() => setUploadModalOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Upload Novel
-        </Button>
-      </div>
-
-      {novels.length === 0 ? (
-        <div className="text-center py-12">
-          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No novels yet</h3>
-          <p className="text-muted-foreground mb-6">
-            Upload your first novel to get started
-          </p>
-          <Button onClick={() => setUploadModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Upload Novel
-          </Button>
+    <div className="h-screen flex flex-col">
+      {/* 页头 - 统一放在最外层 */}
+      <div className="flex justify-between">
+        <div
+          className="flex items-center gap-1 m-3"
+          onClick={() => router.push(`/${params?.locale}`)}
+        >
+          <ChevronLeft className="w-4 h-4 text-primary" />
+          <h1 className="text-lg text-gradient-primary">小说列表</h1>
         </div>
-      ) : (
-        <>
-          <div className="mb-6">
-            <input
-              type="text"
-              placeholder="Search novels..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full max-w-md px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-            />
-          </div>
+      </div>
+      <div className="h-[1px] w-full divider-primary mb-4" />
 
+      {/* 内容区域 - 根据状态显示不同内容 */}
+      {isLoading ? (
+        <div className="flex-1 overflow-y-auto px-4 pb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredNovels.map((novel: any) => (
-              <Card key={novel.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle className="text-lg line-clamp-2">{novel.title}</CardTitle>
-                      <CardDescription className="flex items-center space-x-2">
-                        <User className="h-4 w-4" />
-                        <span>{novel.author}</span>
-                      </CardDescription>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/novels/${novel.id}`}>
-                            View Details
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/create?novel=${novel.id}`}>
-                            Create Video
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {novel.description && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {novel.description}
-                      </p>
-                    )}
-                    
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="h-4 w-4" />
-                        <span>{formatDate(novel.createdAt)}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span>{novel.chapters.length} chapters</span>
-                        {getStatusBadge(novel.status)}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="rounded-lg aspect-[4/3] w-full bg-card-custom skeleton"
+              />
             ))}
           </div>
-        </>
+        </div>
+      ) : error ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground">
+              加载小说列表失败，请稍后重试。
+            </p>
+          </div>
+        </div>
+      ) : novels.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">暂无小说</h3>
+            <p className="text-muted-foreground mb-6">
+              开始上传小说进行视频创作吧
+            </p>
+            <Button onClick={() => setUploadModalOpen(true)}>
+              <Plus className="h-4 w-4" />
+              上传小说
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-4">
+          <div className="flex justify-between items-center gap-4">
+            <Input
+              placeholder="搜索小说..."
+              value={searchTerm}
+              onChange={(e: any) => setSearchTerm(e.target.value)}
+              className="flex-1 h-[36px] max-w-md"
+            />
+            <Button onClick={() => setUploadModalOpen(true)}>
+              <Plus className="h-4 w-4" />
+              上传小说
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredNovels.map((novel: any) => (
+              <div key={novel.id} className="bg-card-custom rounded-lg p-4" onClick={() => router.push(`/${locale}/novels/${novel.id}`)}>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <div className="text-base font-bold line-clamp-2 text-primary">
+                      {novel.title}
+                    </div>
+                    <div className="text-sm flex items-center space-x-2">
+                      <User className="h-4 w-4" />
+                      <span>{novel.author}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {novel.description && (
+                    <p className="text-sm line-clamp-2">{novel.description}</p>
+                  )}
+
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-1 text-secondary">
+                      <Calendar className="h-4 w-4" />
+                      <span>{formatDate(novel.createdAt)}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge
+                        variant="default"
+                        className="bg-amber-800/20 text-amber-600"
+                      >
+                        共 {novel.chapters.length} 章
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* 上传弹窗 */}
-      <NovelUploadModal 
-        open={uploadModalOpen} 
-        onOpenChange={setUploadModalOpen} 
+      <NovelUploadModal
+        open={uploadModalOpen}
+        onOpenChange={setUploadModalOpen}
       />
     </div>
-  )
+  );
 }

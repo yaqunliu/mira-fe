@@ -71,8 +71,6 @@ export function NovelSelect({
   const [novelSearchTerm, setNovelSearchTerm] = useState("");
   const [chapterSearchTerm, setChapterSearchTerm] = useState("");
 
-  console.log(selectedChapters);
-
   // 当前显示的小说（固定小说或选中的小说）
   const currentNovel = fixedNovel || selectedNovel;
 

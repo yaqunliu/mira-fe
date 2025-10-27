@@ -246,20 +246,9 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
             },
             {
               value: "list",
-              label: "选择小说",
+              label: "智能生成",
               content: (
-                <NovelSelect
-                  novels={mockNovels}
-                  selectedNovel={selectedNovel}
-                  selectedChapters={selectedChapters}
-                  onNovelChange={handleNovelChange}
-                  onChaptersChange={handleChaptersChange}
-                  multiSelect={false}
-                  showSearch={false}
-                  showChapterCount={false}
-                  novelClassName="border-orange-500/20 dark:border-orange-500/10 bg-orange-50/10 dark:bg-orange-900/10"
-                  chapterClassName="border-none p-0"
-                />
+                <div>ai剧本创作</div>
               ),
             },
           ]}

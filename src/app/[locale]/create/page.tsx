@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   ProgressWrapper,
   useProgressSteps,
@@ -17,6 +17,7 @@ import { CharacterSetting } from "@/components/business/character-setting";
 import { StoryboardImages } from "@/components/business/storyboard-images";
 import sceneImages from "@/mock/scene_images.json";
 import { VideoGenerator } from "@/components/business/video-generator";
+import { mockVideos } from "@/lib/mock-video-data";
 
 export default function createVideo() {
   const t = useTranslations();
@@ -24,6 +25,13 @@ export default function createVideo() {
   const params = useParams();
   const locale = params?.locale as string;
   const [scenes, setScenes] = useState<any[]>([]);
+  const searchParams = useSearchParams();
+  const videoId = searchParams?.get("videoId") as string;
+  const stepName = searchParams?.get("step") as string;
+  console.log("searchParams:", searchParams);
+  console.log("stepName:", stepName);
+  console.log("videoId:", videoId);
+
 
   // 创建步骤数据（不需要预定义status）
   const initialSteps = [
@@ -49,7 +57,52 @@ export default function createVideo() {
     },
   ];
 
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(initialSteps.findIndex(step => step.id === stepName) || 0);
+
+  useEffect(() => {
+    const uploadedNovel = {
+      id: "uploaded-" + Date.now(),
+      title: mockVideos.find(video => video.id === videoId)?.title || "",
+      author: "未知作者",
+      description: "通过文件上传的小说",
+      status: "completed",
+      chapters: [
+        {
+          id: "chapter1",
+          novelId: "uploaded-" + Date.now(),
+          chapterId: "第一章",
+          title: "咸阳原血战",
+          content: "第一章内容...",
+          order: 1,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: "chapter2",
+          novelId: "uploaded-" + Date.now(),
+          chapterId: "第二章",
+          title: "黑龙突袭",
+          content: "第二章内容...",
+          order: 2,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: "chapter3",
+          novelId: "uploaded-" + Date.now(),
+          chapterId: "第三章",
+          title: "不死帝王与神秘剑客",
+          content: "第三章内容...",
+          order: 3,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setScenes(uploadedNovel.chapters.slice(0, 1));
+  }, [videoId]);
 
   const { steps, nextStep } = useProgressSteps(initialSteps, {
     currentStep,

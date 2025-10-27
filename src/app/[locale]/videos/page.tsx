@@ -1,219 +1,197 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
-import { Play, Pause, Download, Share, MoreHorizontal, Clock, Calendar } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
-import { videoApi } from '@/lib/api/video'
-import { formatDate, formatDuration } from '@/lib/utils'
-import type { Video } from '@/types'
+import { useState } from "react";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, Play, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { videoApi } from "@/lib/api/video";
+import { cn } from "@/lib/utils";
+import type { Video } from "@/types";
+import { useParams, useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
 export default function VideosPage() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [playingVideo, setPlayingVideo] = useState<string | null>(null)
-
-  const { data: videosResponse, isLoading, error } = useQuery({
-    queryKey: ['videos'],
+  const [searchTerm, setSearchTerm] = useState("");
+  const params = useParams();
+  const locale = params?.locale as string;
+  const router = useRouter();
+  const {
+    data: videosResponse,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["videos"],
     queryFn: () => videoApi.getVideos(),
-  })
+  });
 
-  console.log('videosResponse:', videosResponse);
-  const videos = (videosResponse as any)?.data?.data || []
+  const videos = (videosResponse as any)?.data?.data || [];
 
-  const filteredVideos = videos.filter((video) =>
+  const filteredVideos = videos.filter((video: Video) =>
     video.title.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  );
 
-  const getStatusBadge = (status: Video['status']) => {
+  const getStatusBadge = (status: Video["status"]) => {
     const statusMap = {
-      generating: { label: 'Generating', variant: 'default' as const },
-      completed: { label: 'Completed', variant: 'default' as const },
-      failed: { label: 'Failed', variant: 'destructive' as const },
+      generating: {
+        label: "进行中",
+        variant: "default" as const,
+        className: "bg-blue-600/80",
+      },
+      completed: {
+        label: "已完成",
+        variant: "default" as const,
+        className: "bg-green-700/80",
+      },
+      failed: {
+        label: "出错了",
+        variant: "destructive" as const,
+        className: "bg-red-500",
+      },
+    };
+
+    const { label, variant, className } = statusMap[status];
+    return (
+      <Badge variant={variant} className={cn("text-xs", className ?? "")}>
+        {label}
+      </Badge>
+    );
+  };
+
+
+  const handleVideoClick = (video: Video) => {
+    if (video.status === "generating") {
+      router.push(`/${locale}/create?video=${video.id}&step=${video.step}`);
     }
-    
-    const { label, variant } = statusMap[status]
-    return <Badge variant={variant}>{label}</Badge>
-  }
-
-  const handlePlayPause = (videoId: string) => {
-    setPlayingVideo(playingVideo === videoId ? null : videoId)
-  }
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">My Videos</h1>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <div className="aspect-video bg-muted rounded-t-lg"></div>
-              <CardHeader>
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-3 bg-muted rounded w-1/2"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-3 bg-muted rounded w-full mb-2"></div>
-                <div className="h-3 bg-muted rounded w-2/3"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">My Videos</h1>
-          <p className="text-muted-foreground">Failed to load videos. Please try again.</p>
-        </div>
-      </div>
-    )
-  }
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">My Videos</h1>
-        <Button asChild>
-          <Link href="/create">
-            Create Video
-          </Link>
-        </Button>
+    <div className="h-screen flex flex-col">
+      {/* 页头 - 统一放在最外层 */}
+      <div className="flex justify-between">
+        <div
+          className="flex items-center gap-1 m-3"
+          onClick={() => router.back()}
+        >
+          <ChevronLeft className="w-4 h-4 text-primary" />
+          <h1 className="text-lg text-gradient-primary">创作列表</h1>
+        </div>
       </div>
+      <div className="h-[1px] w-full divider-primary mb-4" />
 
-      {videos.length === 0 ? (
-        <div className="text-center py-12">
-          <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No videos yet</h3>
-          <p className="text-muted-foreground mb-6">
-            Create your first video from a novel
-          </p>
-          <Button asChild>
+      {/* 内容区域 - 根据状态显示不同内容 */}
+      {isLoading ? (
+        <div className="flex-1 overflow-y-auto px-4 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="rounded-lg aspect-[16/9] w-full skeleton"
+              />
+            ))}
+          </div>
+        </div>
+      ) : error ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-muted-foreground">
+              加载视频列表失败，请稍后重试。
+            </p>
+          </div>
+        </div>
+      ) : videos.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">还没有创作视频</h3>
+            <p className="text-muted-foreground mb-6">
+              点击创作视频，从小说中创作视频
+            </p>
             <Link href="/create">
-              Create Video
+              <Button>创作视频</Button>
             </Link>
-          </Button>
+          </div>
         </div>
       ) : (
-        <>
-          <div className="mb-6">
+        <div className="flex-1 overflow-y-auto px-4 pb-8 space-y-4">
+          {/* <div className="mb-6">
             <input
               type="text"
-              placeholder="Search videos..."
+              placeholder="搜索视频..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full max-w-md px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
             />
+          </div> */}
+          <div className="flex justify-between items-center gap-4">
+            <Input
+              placeholder="搜索视频..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-md"
+            />
+            <Link href={`/${locale}/create`}>
+              <Button icon={<Plus className="h-4 w-4" />}>创作视频</Button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredVideos.map((video) => (
-              <Card key={video.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            {filteredVideos.map((video: Video) => (
+              <div
+                key={video.id}
+                className="overflow-hidden p-0 border-none rounded-lg"
+                onClick={() => handleVideoClick(video)}
+              >
                 {/* 视频缩略图/播放器 */}
-                <div className="aspect-video bg-muted relative group">
-                  {video.thumbnailUrl ? (
+                {video.videoUrl && (
+                  <div className="relative w-full bg-black overflow-hidden aspect-video">
+                    <video
+                      src={video.videoUrl}
+                      controls
+                      className="w-full h-auto aspect-video"
+                    ></video>
+                  </div>
+                )}
+                {!video.videoUrl && (
+                  <div className="relative w-full bg-black overflow-hidden aspect-video">
                     <img
                       src={video.thumbnailUrl}
                       alt={video.title}
-                      className="w-full h-full object-cover"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Play className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                  )}
-                  
-                  {/* 播放按钮覆盖层 */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <Button
-                      size="lg"
-                      variant="secondary"
-                      onClick={() => handlePlayPause(video.id)}
-                    >
-                      {playingVideo === video.id ? (
-                        <Pause className="h-6 w-6" />
-                      ) : (
-                        <Play className="h-6 w-6" />
-                      )}
-                    </Button>
                   </div>
+                )}
 
-                  {/* 时长标签 */}
-                  <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded">
-                    {formatDuration(video.duration)}
-                  </div>
-                </div>
-
-                <CardHeader>
+                <div className="bg-card-custom rounded-lg p-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
-                      <CardTitle className="text-lg line-clamp-2">{video.title}</CardTitle>
+                      <div className="text-base line-clamp-2 font-bold">
+                        {video.title}
+                      </div>
                       {video.description && (
-                        <CardDescription className="line-clamp-2">
+                        <div className="line-clamp-2 text-sm text-secondary">
                           {video.description}
-                        </CardDescription>
+                        </div>
                       )}
                     </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/videos/${video.id}`}>
-                            View Details
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Share className="h-4 w-4 mr-2" />
-                          Share
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="flex items-center">
+                      {getStatusBadge(video.status)}
+                    </div>
                   </div>
-                </CardHeader>
-
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                  {/* <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1">
                       <Calendar className="h-4 w-4" />
                       <span>{formatDate(video.createdAt)}</span>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDuration(video.duration)}</span>
-                      {getStatusBadge(video.status)}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                    
+                  </div> */}
+                </div>
+              </div>
             ))}
           </div>
-        </>
+        </div>
       )}
     </div>
-  )
+  );
 }

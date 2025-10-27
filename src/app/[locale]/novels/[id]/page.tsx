@@ -3,15 +3,16 @@
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  ArrowLeft, 
-  BookOpen, 
-  User, 
-  Calendar, 
+import {
+  ArrowLeft,
+  BookOpen,
+  User,
+  Calendar,
   FileText,
   PlayCircle,
   Edit,
-  Trash2
+  Trash2,
+  ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,15 +29,19 @@ export default function NovelDetailPage() {
   const locale = params?.locale as string;
   const novelId = params?.id as string;
 
-  const { data: novelResponse, isLoading, error } = useQuery({
-    queryKey: ['novel', novelId],
+  const {
+    data: novelResponse,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["novel", novelId],
     queryFn: () => novelApi.getNovel(novelId),
     enabled: !!novelId,
   });
 
-  console.log('novelResponse:', novelResponse);
+  console.log("novelResponse:", novelResponse);
   const novel = (novelResponse as any)?.data as Novel;
-  console.log('novel:', novel);
+  console.log("novel:", novel);
 
   const handleBack = () => {
     router.back();
@@ -72,7 +77,9 @@ export default function NovelDetailPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center">
             <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-bold mb-2">{t("novelDetail.未找到该书籍")}</h2>
+            <h2 className="text-2xl font-bold mb-2">
+              {t("novelDetail.未找到该书籍")}
+            </h2>
             <Button onClick={handleBack} className="mt-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t("novelDetail.返回")}
@@ -84,162 +91,83 @@ export default function NovelDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-purple-50/30 to-slate-50/30 dark:bg-black">
-      <div className="container mx-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
-          {/* 头部导航 */}
-          <div className="flex items-center justify-between mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={handleBack}
-              className="text-slate-700 dark:text-slate-300"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("novelDetail.返回")}
-            </Button>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-xs"
-              >
-                <Edit className="h-3 w-3 mr-1" />
-                {t("novelDetail.编辑")}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-xs text-destructive hover:text-destructive"
-              >
-                <Trash2 className="h-3 w-3 mr-1" />
-                {t("novelDetail.删除")}
-              </Button>
+    <div className="h-screen flex flex-col">
+      {/* 头部导航 */}
+      <div className="flex justify-between flex-shrink-0">
+        <div
+          className="flex items-center gap-1 m-3"
+          onClick={() => router.back()}
+        >
+          <ChevronLeft className="w-4 h-4 text-secondary" />
+          <h1 className="text-base text-secondary">返回</h1>
+        </div>
+      </div>
+      <div className="h-[1px] w-full divider-primary flex-shrink-0" />
+      
+      {/* 主内容区域 */}
+      <div className="flex-1 overflow-hidden flex flex-col space-y-4 pt-4">
+        {/* 书籍信息 */}
+        <div className="flex gap-4 px-6 flex-shrink-0">
+          <div className="w-24 aspect-[3/4] bg-[url('/novel-cover.png')] bg-cover bg-center rounded-lg" />
+          <div className="flex-1 space-y-2">
+            <h1 className="text-xl font-bold text-primary mb-2">
+              {novel.title}
+            </h1>
+            <div className="flex items-center gap-1">
+              <User className="h-3 w-3" />
+              <span className="text-sm">{novel.author}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <BookOpen className="h-3 w-3" />
+              <span className="text-sm">
+                {novel.chapters.length} {t("novelDetail.章节数")}
+              </span>
+            </div>
+            {/* <p className="text-sm text-muted-foreground leading-relaxed text-secondary">
+              {novel.description || t("novelDetail.暂无简介")}
+            </p> */}
+            <div className="flex items-center gap-1 text-secondary">
+              <Calendar className="h-3 w-3" />
+              <span className="text-sm">
+                {t("novelDetail.上传于")}: {formatDate(novel.createdAt)}
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* 书籍信息卡片 */}
-          <Card className="mb-6 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex gap-6">
-                {/* 书籍封面 */}
-                <div className="flex-shrink-0">
-                  <div className="relative w-32 aspect-[3/4] rounded-md overflow-hidden shadow-xl">
-                    {/* 封面背景渐变 */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-400/90 via-orange-500/90 to-red-600/90 dark:from-amber-600/90 dark:via-orange-700/90 dark:to-red-800/90" />
-                    
-                    {/* 封面装饰线条 */}
-                    <div className="absolute inset-0 border-2 border-amber-200/30 dark:border-amber-400/20 m-2 rounded-sm" />
-                    
-                    {/* 封面内容 */}
-                    <div className="relative h-full flex flex-col justify-center p-4">
-                      <h3 className="font-bold text-xs text-center text-white line-clamp-4 leading-relaxed">
-                        {novel.title}
-                      </h3>
+        {/* 章节列表 */}
+        <div className="flex-1 overflow-hidden flex flex-col space-y-2">
+          <div className="flex items-center gap-1 text-base font-bold px-6 flex-shrink-0">
+            <FileText className="h-4 w-4 text-primary" />
+            {t("novelDetail.章节列表")}
+          </div>
+          <div className="bg-card-custom flex-1 overflow-y-auto">
+            <div className="">
+              {novel.chapters.map((chapter: Chapter, index: number) => (
+                <div
+                  key={chapter.id}
+                  className="w-full flex items-center justify-between p-6 group border-b border-slate-200 dark:border-zinc-700"
+                >
+                  <div className="flex flex-col flex-1 gap-1">
+                    <div className="flex items-center bg-amber-800/50 px-1 py-[2px] rounded w-fit">
+                      <h4 className="text-xs font-medium text-primary">
+                        {chapter.title}
+                      </h4>
                     </div>
-                    
-                    {/* 书脊效果 */}
-                    <div className="absolute right-0 top-0 bottom-0 w-2 bg-gradient-to-r from-black/20 to-transparent" />
-                  </div>
-                </div>
-
-                {/* 书籍信息 */}
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-2">
-                      {novel.title}
-                    </h1>
-                    <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        <span>{novel.author}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <BookOpen className="h-4 w-4" />
-                        <span>{novel.chapters.length} {t("novelDetail.章节数")}</span>
-                      </div>
-                      <Badge variant="default">{novel.status}</Badge>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      {t("novelDetail.简介")}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {novel.description || t("novelDetail.暂无简介")}
+                    <p className="text-sm text-secondary line-clamp-1">
+                      {chapter.content.substring(0, 50)}...
                     </p>
                   </div>
-
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{t("novelDetail.创建时间")}: {formatDate(novel.createdAt)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      <span>{t("novelDetail.更新时间")}: {formatDate(novel.updatedAt)}</span>
-                    </div>
-                  </div>
-
-                  <Button 
-                    className="w-full"
-                    onClick={() => handleCreateVideo()}
-                  >
-                    <PlayCircle className="h-4 w-4 mr-2" />
+                  <Button size="sm" variant="secondary" className="text-sm">
+                    {/* <PlayCircle className="h-4 w-4 mr-1" /> */}
                     {t("novelDetail.开始创作")}
                   </Button>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 章节列表 */}
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                {t("novelDetail.章节列表")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {novel.chapters.map((chapter: Chapter, index: number) => (
-                  <div
-                    key={chapter.id}
-                    className="flex items-center justify-between p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900 text-amber-700 dark:text-amber-300 text-xs font-semibold">
-                        {index + 1}
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium text-slate-800 dark:text-slate-200">
-                          {chapter.title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {chapter.content.substring(0, 50)}...
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleCreateVideo(chapter.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <PlayCircle className="h-4 w-4 mr-1" />
-                      {t("novelDetail.开始创作")}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
