@@ -155,7 +155,7 @@ export function VideoOverview() {
   return (
     <div className="space-y-3">
       {/* 视频网格布局 */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {displayVideos.map((video: Video) => (
           <div
             key={video.id}

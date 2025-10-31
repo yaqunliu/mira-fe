@@ -11,12 +11,12 @@ import {
 import { NovelUpload } from "@/components/business/novel-upload";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { StorySetting } from "@/components/business/story-setting";
-import { ScriptSetting } from "@/components/business/script-setting";
-import { CharacterSetting } from "@/components/business/character-setting";
-import { StoryboardImages } from "@/components/business/storyboard-images";
+import { StorySetting } from "@/components/business/create-settings/story-setting";
+import { ScriptSetting } from "@/components/business/create-settings/script-setting";
+import { CharacterSetting } from "@/components/business/create-settings/character-setting";
+import { StoryboardImages } from "@/components/business/create-settings/storyboard-images";
 import sceneImages from "@/mock/scene_images.json";
-import { VideoGenerator } from "@/components/business/video-generator";
+import { VideoGenerator } from "@/components/business/create-settings/video-generator";
 import { mockVideos } from "@/lib/mock-video-data";
 
 export default function createVideo() {
@@ -57,7 +57,8 @@ export default function createVideo() {
     },
   ];
 
-  const [currentStep, setCurrentStep] = useState(initialSteps.findIndex(step => step.id === stepName) || 0);
+  const [currentStep, setCurrentStep] = useState(initialSteps.findIndex(step => step.id === stepName) !== -1 ? initialSteps.findIndex(step => step.id === stepName) : 0);
+  console.log("currentStep:", currentStep);
 
   useEffect(() => {
     const uploadedNovel = {
@@ -101,7 +102,7 @@ export default function createVideo() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-    setScenes(uploadedNovel.chapters.slice(0, 1));
+    videoId && setScenes(uploadedNovel.chapters.slice(0, 1));
   }, [videoId]);
 
   const { steps, nextStep } = useProgressSteps(initialSteps, {

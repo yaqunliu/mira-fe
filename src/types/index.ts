@@ -8,17 +8,22 @@ export interface User {
   updatedAt: string
 }
 
-// 小说相关类型
+
+// 小说列表类型（用于mock数据）
 export interface Novel {
-  id: string
+  novelId: string
   title: string
-  description?: string
-  coverImage?: string
   author: string
-  status: 'uploading' | 'processing' | 'completed' | 'failed'
-  chapters: Chapter[]
-  createdAt: string
-  updatedAt: string
+  uploadTime: string
+  chapterList: ChapterListItem[]
+  relatedCreations: string[]
+  characterLibrary: string[]
+}
+
+export interface ChapterListItem {
+  chapterId: string
+  title: string
+  order: number
 }
 
 export interface Chapter {
@@ -32,16 +37,30 @@ export interface Chapter {
   updatedAt: string
 }
 
-// 角色相关类型
+// 章节详情类型（用于mock数据）
+export interface ChapterDetail {
+  chapterId: string
+  associatedNovelId: string
+  content: string
+  associatedCreation: string | null
+}
+
+// 角色详情类型（用于mock数据）
 export interface Character {
-  id: string
+  characterId: string
   name: string
-  description: string
-  imageUrl: string
-  prompt: string
-  style: string
-  createdAt: string
-  updatedAt: string
+  status: 'new' | 'old'
+  basicInfo: string
+  featureDescription: {
+    appearance: string
+    body: string
+    hair: string
+    clothing: string
+    tags: string[]
+  }
+  imagePrompt: string
+  visualStyle: string
+  characterImage: string
 }
 
 // 分镜相关类型
@@ -55,6 +74,17 @@ export interface Storyboard {
   prompt?: string
   createdAt: string
   updatedAt: string
+}
+
+// 分镜详情类型（用于mock数据）
+export interface Shot {
+  shotId: string
+  title: string
+  associatedCharacters: string[]
+  sceneDescription: string
+  narration: string
+  imagePrompt: string
+  shotImage: string
 }
 
 // 视频相关类型
@@ -130,6 +160,14 @@ export interface SceneSetting {
   atmosphere: string
 }
 
+// 场景设置类型（用于mock数据）
+export interface SceneSettingDetail {
+  time: string
+  location: string
+  space: string
+  atmosphere: string
+}
+
 export interface StoryboardItem {
   storyboard_id: string
   storyboard_name: string
@@ -145,6 +183,15 @@ export interface Scene {
   scene_duration: string
   scene_setting: SceneSetting
   storyboard_list: StoryboardItem[]
+}
+
+// 场景详情类型（用于mock数据）
+export interface SceneDetail {
+  sceneId: string
+  title: string
+  duration: string
+  sceneSetting: SceneSettingDetail
+  shotList: string[]
 }
 
 export interface SceneData {
@@ -168,4 +215,23 @@ export interface SceneGroup {
   scene_id: string;
   scene_title: string;
   images: AIGeneratedImage[];
+}
+
+
+export interface AssociatedNovelChapter {
+  chapterId: string
+  novelId: string
+}
+
+export interface Creation {
+  creationId: string
+  title: string
+  status: 'completed' | 'generating' | 'draft' | 'failed'
+  createdAt: string
+  updatedAt: string
+  associatedNovelChapters: AssociatedNovelChapter[]
+  characterLibrary: string[]
+  sceneList: string[]
+  videoUrl: string | null
+  audioUrl: string | null
 }

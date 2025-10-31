@@ -1,0 +1,101 @@
+[
+  {
+    "creationId": "creation-1",
+    "title": "不死之帝王视频创作",
+    "status": "completed",
+    "createdAt": "2024-01-10T10:00:00Z",
+    "updatedAt": "2024-01-15T12:00:00Z",
+    "associatedNovelChapters": [
+      {
+        "chapterId": "chapter-1",
+        "novelId": "novel-1"
+      }
+    ],
+    "characterLibrary": [
+      "character-1",
+      "character-2"
+    ],
+    "sceneList": [
+      "scene-1",
+      "scene-2",
+      "scene-3"
+    ],
+    "videoUrl": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/video.mp4",
+    "audioUrl": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/audio.mp3"
+  },
+  {
+    "creationId": "creation-2",
+    "title": "修仙传视频创作",
+    "status": "generating",
+    "createdAt": "2024-01-12T08:00:00Z",
+    "updatedAt": "2024-01-16T14:00:00Z",
+    "associatedNovelChapters": [
+      {
+        "chapterId": "chapter-1",
+        "novelId": "novel-2"
+      },
+      {
+        "chapterId": "chapter-2",
+        "novelId": "novel-2"
+      }
+    ],
+    "characterLibrary": [
+      "character-3",
+      "character-4",
+      "character-5"
+    ],
+    "sceneList": [
+      "scene-4",
+      "scene-5"
+    ],
+    "videoUrl": "",
+    "audioUrl": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/audio.mp3"
+  },
+  {
+    "creationId": "creation-3",
+    "title": "武侠小说视频创作",
+    "status": "generating",
+    "createdAt": "2024-01-14T09:00:00Z",
+    "updatedAt": "2024-01-14T09:00:00Z",
+    "associatedNovelChapters": [
+      {
+        "chapterId": "chapter-1",
+        "novelId": "novel-3"
+      }
+    ],
+    "characterLibrary": [
+      "character-6"
+    ],
+    "sceneList": [
+      "scene-6"
+    ],
+    "video": null,
+    "audio": null
+  },
+  {
+    "creationId": "creation-4",
+    "title": "哪吒传奇视频创作",
+    "status": "completed",
+    "createdAt": "2024-01-08T11:00:00Z",
+    "updatedAt": "2024-01-18T16:00:00Z",
+    "associatedNovelChapters": [
+      {
+        "chapterId": "chapter-1",
+        "novelId": "novel-4"
+      }
+    ],
+    "characterLibrary": [
+      "character-7",
+      "character-8"
+    ],
+    "sceneList": [
+      "scene-7",
+      "scene-8",
+      "scene-9",
+      "scene-10"
+    ],
+    "videoUrl": "",
+    "audioUrl": "https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/audio.mp3"
+  }
+]
+

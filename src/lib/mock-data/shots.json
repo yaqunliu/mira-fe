@@ -1,0 +1,267 @@
+[
+  {
+    "shotId": "shot-1",
+    "title": "帝王登基仪式开始",
+    "associatedCharacters": [
+      "character-1",
+      "character-2"
+    ],
+    "sceneDescription": "宏大的宫殿内，文武百官跪拜，帝王缓缓走向龙椅",
+    "narration": "在众臣的见证下，这位年轻的帝王终于登上了至高无上的宝座",
+    "imagePrompt": "宏大的宫殿内，文武百官跪拜，年轻的帝王身穿黄色龙袍，缓缓走向龙椅，光线从上方洒下，营造出庄严的氛围",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-2",
+    "title": "帝王坐在龙椅上",
+    "associatedCharacters": [
+      "character-1"
+    ],
+    "sceneDescription": "帝王端坐在龙椅上，目光威严地扫视群臣",
+    "narration": "他端坐在龙椅上，目光如炬，扫视着跪拜的群臣",
+    "imagePrompt": "帝王端坐在金碧辉煌的龙椅上，身穿黄色龙袍，头戴金冠，目光威严地扫视群臣，背景是华丽的宫殿",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-3",
+    "title": "百官齐呼",
+    "associatedCharacters": [],
+    "sceneDescription": "文武百官齐声高呼万岁",
+    "narration": "万岁！万岁！万万岁！",
+    "imagePrompt": "文武百官齐声高呼，声音响彻整个宫殿，场面壮观，光线明亮",
+    "shotImage": "/atian.png"
+  },
+  {
+    "shotId": "shot-4",
+    "title": "朝堂议政",
+    "associatedCharacters": [
+      "character-1"
+    ],
+    "sceneDescription": "帝王在朝堂上听取大臣们的奏报",
+    "narration": "朝堂之上，帝王认真听取着每一位大臣的奏报",
+    "imagePrompt": "金銮殿内，帝王端坐在龙椅上，群臣分列两侧，正在议事，气氛严肃紧张",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-5",
+    "title": "大臣奏报",
+    "associatedCharacters": [],
+    "sceneDescription": "一位大臣上前奏报国事",
+    "narration": "启禀陛下，边关传来急报",
+    "imagePrompt": "一位大臣手持奏折，上前奏报，帝王和群臣都在认真聆听，气氛紧张",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-6",
+    "title": "御花园漫步",
+    "associatedCharacters": [
+      "character-1",
+      "character-2"
+    ],
+    "sceneDescription": "帝王和皇后在御花园中漫步，欣赏美景",
+    "narration": "忙碌了一天的帝王，与皇后在御花园中漫步，享受着难得的宁静时光",
+    "imagePrompt": "傍晚时分的御花园，帝王和皇后手牵手漫步，周围是盛开的鲜花和翠绿的树木，夕阳西下，光线柔和",
+    "shotImage": "/atian.png"
+  },
+  {
+    "shotId": "shot-7",
+    "title": "修仙者进入洞府",
+    "associatedCharacters": [
+      "character-3"
+    ],
+    "sceneDescription": "年轻的修仙者走进神秘的修仙洞府",
+    "narration": "他推开洞府的石门，一股神秘的灵气扑面而来",
+    "imagePrompt": "黎明时分，一位年轻的修仙者推开石门，走进神秘的修仙洞府，洞府内灵气缭绕，墙壁上刻着古老的符文",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-8",
+    "title": "开始修炼",
+    "associatedCharacters": [
+      "character-3"
+    ],
+    "sceneDescription": "修仙者盘腿而坐，开始修炼",
+    "narration": "他盘腿而坐，闭上双眼，开始运转功法",
+    "imagePrompt": "修仙者盘腿坐在洞府中央，周围灵气缭绕，他的身体散发着淡淡的光芒，表情专注",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-9",
+    "title": "仙师指导",
+    "associatedCharacters": [
+      "character-3",
+      "character-4"
+    ],
+    "sceneDescription": "仙师在一旁指导修仙者修炼",
+    "narration": "仙师在一旁观察，不时指点一二",
+    "imagePrompt": "仙师站在一旁，白发飘飘，手持拂尘，正在指导年轻的修仙者修炼，洞府内仙气缭绕",
+    "shotImage": "/atian.png"
+  },
+  {
+    "shotId": "shot-10",
+    "title": "修炼突破",
+    "associatedCharacters": [
+      "character-3"
+    ],
+    "sceneDescription": "修仙者即将突破境界，周身光芒大盛",
+    "narration": "突然，他感觉到体内的灵力汹涌澎湃，这是突破的前兆",
+    "imagePrompt": "深夜的修炼密室，修仙者盘腿而坐，周身光芒大盛，灵力汹涌，墙壁上的符文被点亮，气氛紧张激烈",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-11",
+    "title": "突破成功",
+    "associatedCharacters": [
+      "character-3"
+    ],
+    "sceneDescription": "修仙者成功突破，气息更加强大",
+    "narration": "轰！一股强大的气息从他体内爆发而出，他终于突破了！",
+    "imagePrompt": "修仙者成功突破，周身光芒四射，气息强大，密室内的物品被强大的气息震得颤抖，画面震撼",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-12",
+    "title": "侠客进入客栈",
+    "associatedCharacters": [
+      "character-6"
+    ],
+    "sceneDescription": "侠客推门进入热闹的客栈",
+    "narration": "他推开客栈的门，一股酒香和喧闹声扑面而来",
+    "imagePrompt": "正午时分，一位侠客推开客栈的门，客栈内热闹非凡，有人在喝酒，有人在聊天，光线明亮",
+    "shotImage": "/atian.png"
+  },
+  {
+    "shotId": "shot-13",
+    "title": "坐下点菜",
+    "associatedCharacters": [
+      "character-6"
+    ],
+    "sceneDescription": "侠客在角落坐下，点了几个小菜",
+    "narration": "他在角落找了个位置坐下，点了一壶酒和几个小菜",
+    "imagePrompt": "侠客坐在客栈的角落，桌上摆着一壶酒和几个小菜，他正在观察周围的环境，表情警惕",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-14",
+    "title": "听到消息",
+    "associatedCharacters": [
+      "character-6"
+    ],
+    "sceneDescription": "侠客竖起耳朵，听到邻桌讨论重要消息",
+    "narration": "突然，他听到邻桌的人在讨论一件重要的事情",
+    "imagePrompt": "侠客竖起耳朵，表情专注，邻桌的人正在低声讨论，整个客栈的气氛变得紧张",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-15",
+    "title": "哪吒降生",
+    "associatedCharacters": [
+      "character-7"
+    ],
+    "sceneDescription": "一道红光从天而降，哪吒降生了",
+    "narration": "天空突然出现一道红光，一个神奇的婴儿降生了",
+    "imagePrompt": "夜晚的陈塘关，天空中出现一道红光，一个神奇的婴儿从红光中降生，周围的人们都惊呆了，画面神奇震撼",
+    "shotImage": "/atian.png"
+  },
+  {
+    "shotId": "shot-16",
+    "title": "李靖夫妇惊讶",
+    "associatedCharacters": [],
+    "sceneDescription": "李靖夫妇看着降生的哪吒，既惊讶又担忧",
+    "narration": "李靖夫妇看着这个神奇的婴儿，心中既惊讶又担忧",
+    "imagePrompt": "李靖夫妇站在床边，看着刚刚降生的哪吒，表情既惊讶又担忧，房间内光线昏暗",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-17",
+    "title": "哪吒进入龙宫",
+    "associatedCharacters": [
+      "character-7"
+    ],
+    "sceneDescription": "哪吒脚踩风火轮，冲进龙宫",
+    "narration": "哪吒脚踩风火轮，手持火尖枪，冲进了龙宫",
+    "imagePrompt": "哪吒脚踩风火轮，手持火尖枪，冲进龙宫，龙宫内金碧辉煌，但气氛紧张，虾兵蟹将惊慌失措",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-18",
+    "title": "龙王出现",
+    "associatedCharacters": [
+      "character-7",
+      "character-8"
+    ],
+    "sceneDescription": "龙王从宝座上站起，怒视哪吒",
+    "narration": "龙王从宝座上站起，怒视着这个闯入者",
+    "imagePrompt": "龙王从宝座上站起，龙首人身，身穿金色龙袍，怒视着哪吒，龙宫内气氛紧张，虾兵蟹将瑟瑟发抖",
+    "shotImage": "/atian.png"
+  },
+  {
+    "shotId": "shot-19",
+    "title": "对峙",
+    "associatedCharacters": [
+      "character-7",
+      "character-8"
+    ],
+    "sceneDescription": "哪吒和龙王对峙，气氛剑拔弩张",
+    "narration": "两人对峙，气氛剑拔弩张，一场大战即将爆发",
+    "imagePrompt": "哪吒和龙王对峙，两人都气势汹汹，龙宫内气氛紧张，周围的虾兵蟹将都远远避开",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-20",
+    "title": "大战开始",
+    "associatedCharacters": [
+      "character-7",
+      "character-8"
+    ],
+    "sceneDescription": "哪吒和龙王在海边展开激战",
+    "narration": "战斗开始了！哪吒和龙王在海边展开了激烈的战斗",
+    "imagePrompt": "黄昏时分，东海之滨，哪吒和龙王展开激战，海浪翻涌，天空中电闪雷鸣，画面激烈壮观",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-21",
+    "title": "哪吒攻击",
+    "associatedCharacters": [
+      "character-7"
+    ],
+    "sceneDescription": "哪吒手持火尖枪，向龙王发起攻击",
+    "narration": "哪吒手持火尖枪，向龙王刺去",
+    "imagePrompt": "哪吒手持火尖枪，脚踩风火轮，向龙王发起攻击，动作迅猛，画面动感十足",
+    "shotImage": "/atian.png"
+  },
+  {
+    "shotId": "shot-22",
+    "title": "龙王反击",
+    "associatedCharacters": [
+      "character-8"
+    ],
+    "sceneDescription": "龙王挥动龙爪，反击哪吒",
+    "narration": "龙王挥动巨大的龙爪，反击哪吒",
+    "imagePrompt": "龙王挥动巨大的龙爪，向哪吒反击，海浪翻涌，画面震撼",
+    "shotImage": "/amu.png"
+  },
+  {
+    "shotId": "shot-23",
+    "title": "哪吒获胜",
+    "associatedCharacters": [
+      "character-7"
+    ],
+    "sceneDescription": "哪吒最终战胜了龙王",
+    "narration": "经过一番激战，哪吒最终战胜了龙王",
+    "imagePrompt": "哪吒站在海边，手持火尖枪，脚踩风火轮，周围是翻涌的海浪，夕阳西下，画面壮观",
+    "shotImage": "/anduming.png"
+  },
+  {
+    "shotId": "shot-24",
+    "title": "凯旋归来",
+    "associatedCharacters": [
+      "character-7"
+    ],
+    "sceneDescription": "哪吒凯旋归来，受到百姓的欢迎",
+    "narration": "哪吒凯旋归来，受到了百姓的热烈欢迎",
+    "imagePrompt": "正午时分，陈塘关，哪吒凯旋归来，百姓们夹道欢迎，场面欢庆热烈，阳光明媚",
+    "shotImage": "/atian.png"
+  }
+]
+

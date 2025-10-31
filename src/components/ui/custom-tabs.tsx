@@ -31,7 +31,7 @@ const variants = {
   },
   grid: {
     list: "grid w-full bg-gray-100 dark:bg-gray-700/30 rounded-lg",
-    trigger: "py-3 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm dark:data-[state=active]:bg-zinc-800 text-center transition-all duration-200",
+    trigger: "!py-3 !rounded-t-lg data-[state=active]:!shadow-sm dark:data-[state=active]:!bg-zinc-800 !text-center !transition-all !duration-200 data-[state=active]:!text-orange-600 dark:data-[state=active]:!text-orange-400",
   },
   underline: {
     list: "w-full border-b border-gray-200 dark:border-gray-700 bg-transparent",
@@ -70,7 +70,16 @@ export function CustomTabs({
   variant = "default",
   size = "md",
 }: CustomTabsProps) {
-  const gridCols = variant === "grid" ? `grid-cols-${items.length}` : "";
+  // 使用明确的 grid 列数类名，避免动态类名问题
+  const gridColsMap: Record<number, string> = {
+    1: "grid-cols-1",
+    2: "grid-cols-2",
+    3: "grid-cols-3",
+    4: "grid-cols-4",
+    5: "grid-cols-5",
+    6: "grid-cols-6",
+  };
+  const gridCols = variant === "grid" ? gridColsMap[items.length] || `grid-cols-${items.length}` : "";
 
   return (
     <Tabs

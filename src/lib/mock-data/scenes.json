@@ -1,0 +1,157 @@
+[
+  {
+    "sceneId": "scene-1",
+    "title": "帝王登基",
+    "duration": "00:00:30",
+    "sceneSetting": {
+      "time": "正午",
+      "location": "皇宫大殿",
+      "space": "室内",
+      "atmosphere": "庄严隆重"
+    },
+    "shotList": [
+      "shot-1",
+      "shot-2",
+      "shot-3"
+    ]
+  },
+  {
+    "sceneId": "scene-2",
+    "title": "朝堂议政",
+    "duration": "00:00:45",
+    "sceneSetting": {
+      "time": "清晨",
+      "location": "金銮殿",
+      "space": "室内",
+      "atmosphere": "严肃紧张"
+    },
+    "shotList": [
+      "shot-4",
+      "shot-5"
+    ]
+  },
+  {
+    "sceneId": "scene-3",
+    "title": "后宫漫步",
+    "duration": "00:00:25",
+    "sceneSetting": {
+      "time": "傍晚",
+      "location": "御花园",
+      "space": "室外",
+      "atmosphere": "宁静优雅"
+    },
+    "shotList": [
+      "shot-6"
+    ]
+  },
+  {
+    "sceneId": "scene-4",
+    "title": "修仙入门",
+    "duration": "00:00:35",
+    "sceneSetting": {
+      "time": "黎明",
+      "location": "修仙洞府",
+      "space": "半室内",
+      "atmosphere": "神秘玄妙"
+    },
+    "shotList": [
+      "shot-7",
+      "shot-8",
+      "shot-9"
+    ]
+  },
+  {
+    "sceneId": "scene-5",
+    "title": "修炼突破",
+    "duration": "00:00:50",
+    "sceneSetting": {
+      "time": "深夜",
+      "location": "修炼密室",
+      "space": "室内",
+      "atmosphere": "紧张激烈"
+    },
+    "shotList": [
+      "shot-10",
+      "shot-11"
+    ]
+  },
+  {
+    "sceneId": "scene-6",
+    "title": "江湖相遇",
+    "duration": "00:00:40",
+    "sceneSetting": {
+      "time": "正午",
+      "location": "客栈",
+      "space": "室内",
+      "atmosphere": "热闹喧嚣"
+    },
+    "shotList": [
+      "shot-12",
+      "shot-13",
+      "shot-14"
+    ]
+  },
+  {
+    "sceneId": "scene-7",
+    "title": "哪吒降生",
+    "duration": "00:00:55",
+    "sceneSetting": {
+      "time": "夜晚",
+      "location": "陈塘关",
+      "space": "室外",
+      "atmosphere": "神奇震撼"
+    },
+    "shotList": [
+      "shot-15",
+      "shot-16"
+    ]
+  },
+  {
+    "sceneId": "scene-8",
+    "title": "龙宫闹事",
+    "duration": "00:01:00",
+    "sceneSetting": {
+      "time": "午后",
+      "location": "东海龙宫",
+      "space": "室内",
+      "atmosphere": "紧张刺激"
+    },
+    "shotList": [
+      "shot-17",
+      "shot-18",
+      "shot-19"
+    ]
+  },
+  {
+    "sceneId": "scene-9",
+    "title": "大战龙王",
+    "duration": "00:01:20",
+    "sceneSetting": {
+      "time": "黄昏",
+      "location": "东海之滨",
+      "space": "室外",
+      "atmosphere": "激烈壮观"
+    },
+    "shotList": [
+      "shot-20",
+      "shot-21",
+      "shot-22",
+      "shot-23"
+    ]
+  },
+  {
+    "sceneId": "scene-10",
+    "title": "凯旋归来",
+    "duration": "00:00:30",
+    "sceneSetting": {
+      "time": "正午",
+      "location": "陈塘关",
+      "space": "室外",
+      "atmosphere": "欢庆热烈"
+    },
+    "shotList": [
+      "shot-24"
+    ]
+  }
+]
+

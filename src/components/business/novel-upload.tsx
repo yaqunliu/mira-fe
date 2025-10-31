@@ -394,7 +394,7 @@ export function NovelUpload({
       toast.error("请选择要上传的小说");
       return;
     }
-    startUpload(form.getValues());
+    // startUpload(form.getValues());
     onUpload([selectedFile]);
   };
 

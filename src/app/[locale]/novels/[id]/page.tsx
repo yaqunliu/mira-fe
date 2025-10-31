@@ -8,19 +8,18 @@ import {
   BookOpen,
   User,
   Calendar,
-  FileText,
-  PlayCircle,
-  Edit,
-  Trash2,
   ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { novelApi } from "@/lib/api/novel";
 import { formatDate } from "@/lib/utils";
-import type { Novel, Chapter } from "@/types";
+import type { Novel, Chapter, ChapterListItem, Character, Creation } from "@/types";
+import LoadingIcon from "@/components/ui/loading-icon";
+import { CustomTabs } from "@/components/ui/custom-tabs";
+
+import CharactorCard from "@/components/business/charactor-card";
+import VideoCard from "@/components/business/creation-card";
+import CreationCard from "@/components/business/creation-card";
 
 export default function NovelDetailPage() {
   const router = useRouter();
@@ -39,9 +38,40 @@ export default function NovelDetailPage() {
     enabled: !!novelId,
   });
 
-  console.log("novelResponse:", novelResponse);
+  const {
+    data: chaptersResponse,
+    isLoading: isChaptersLoading,
+    error: chaptersError,
+  } = useQuery({
+    queryKey: ["chapters", novelId],
+    queryFn: () => novelApi.getChapters(novelId),
+    enabled: !!novelId,
+  });
+
+  const {
+    data: charactersResponse,
+    isLoading: isCharactersLoading,
+    error: charactersError,
+  } = useQuery({
+    queryKey: ["characters", novelId],
+    queryFn: () => novelApi.getCharacters(novelId),
+    enabled: !!novelId,
+  });
+
+  const {
+    data: creationsResponse,
+    isLoading: isCreationsLoading,
+    error: creationsError,
+  } = useQuery({
+    queryKey: ["creations", novelId],
+    queryFn: () => novelApi.getCreationsByNovelId(novelId),
+    enabled: !!novelId,
+  });
+
   const novel = (novelResponse as any)?.data as Novel;
-  console.log("novel:", novel);
+  const chapters = (chaptersResponse as any)?.data?.data as ChapterListItem[];
+  const characters = (charactersResponse as any)?.data?.data as Character[];
+  const creations = (creationsResponse as any)?.data?.data as Creation[];
 
   const handleBack = () => {
     router.back();
@@ -70,6 +100,100 @@ export default function NovelDetailPage() {
       </div>
     );
   }
+
+  const renderLoading = () => {
+    return (
+      <div className="flex items-center justify-center gap-2 h-full">
+        <LoadingIcon />
+        <span className="text-sm text-secondary">加载中...</span>
+      </div>
+    );
+  };
+
+  const renderChapters = () => {
+    if (isChaptersLoading) {
+      return renderLoading();
+    }
+    if (chaptersError) {
+      return (
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-sm text-secondary">加载失败...</span>
+        </div>
+      );
+    }
+    return (
+      <div className="bg-card-custom flex-1">
+        <div className="">
+          {chapters?.map((chapter: ChapterListItem, index: number) => (
+            <div
+              key={chapter.chapterId}
+              className="w-full flex items-end justify-between p-4 group border-b border-slate-200 dark:border-zinc-700 gap-3"
+            >
+              <div className="flex flex-col flex-1 gap-2">
+                <div className="flex items-center bg-amber-800/50 px-1 py-[2px] rounded w-fit">
+                  <h4 className="text-xs font-medium text-orange-500">
+                    {chapter.title}
+                  </h4>
+                </div>
+                <p className="text-sm text-secondary line-clamp-1">
+                  {chapter?.content?.substring(0, 50)}...
+                </p>
+              </div>
+              <Button size="sm" variant="secondary" className="text-xs">
+                {/* <PlayCircle className="h-4 w-4 mr-1" /> */}
+                {t("novelDetail.去创作")}
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCharacters = () => {
+    if (isCharactersLoading) {
+      return renderLoading();
+    }
+    if (charactersError) {
+      return (
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-sm text-secondary">加载失败...</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-card-custom flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+          {characters.map((character: Character, index: number) => (
+            <CharactorCard key={character.characterId} character={character} />
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderCreations = () => {
+    if (isCreationsLoading) {
+      return renderLoading();
+    }
+    if (creationsError) {
+      return (
+        <div className="flex items-center justify-center gap-2">
+          <span className="text-sm text-secondary">加载失败...</span>
+        </div>
+      );
+    }
+    return (
+      <div className="bg-card-custom flex-1">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+          {creations.map((creation: Creation, index: number) => (
+            <CreationCard key={creation.creationId} creation={creation} />
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   if (error || !novel) {
     return (
@@ -103,25 +227,27 @@ export default function NovelDetailPage() {
         </div>
       </div>
       <div className="h-[1px] w-full divider-primary flex-shrink-0" />
-      
+
       {/* 主内容区域 */}
-      <div className="flex-1 overflow-hidden flex flex-col space-y-4 pt-4">
+      <div className="flex-1 overflow-scroll flex flex-col space-y-4 pt-4 h-[calc(100vh-56px)]">
         {/* 书籍信息 */}
         <div className="flex gap-4 px-6 flex-shrink-0">
-          <div className="w-24 aspect-[3/4] bg-[url('/novel-cover.png')] bg-cover bg-center rounded-lg" />
-          <div className="flex-1 space-y-2">
-            <h1 className="text-xl font-bold text-primary mb-2">
-              {novel.title}
-            </h1>
-            <div className="flex items-center gap-1">
-              <User className="h-3 w-3" />
-              <span className="text-sm">{novel.author}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <BookOpen className="h-3 w-3" />
-              <span className="text-sm">
-                {novel.chapters.length} {t("novelDetail.章节数")}
-              </span>
+          <div className="w-24 md:w-36 lg:w-42 aspect-[3/4] bg-[url('/novel-cover.png')] bg-cover bg-center rounded-lg" />
+          <div className="flex-1 flex flex-col justify-between py-2">
+            <div className="flex flex-col gap-2 lg:gap-3">
+              <h1 className="text-xl font-bold text-primary mb-2">
+                {novel.title}
+              </h1>
+              <div className="flex items-center gap-1">
+                <User className="h-3 w-3" />
+                <span className="text-sm">{novel.author}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <BookOpen className="h-3 w-3" />
+                <span className="text-sm">
+                  {novel?.chapterList?.length} {t("novelDetail.章节数")}
+                </span>
+              </div>
             </div>
             {/* <p className="text-sm text-muted-foreground leading-relaxed text-secondary">
               {novel.description || t("novelDetail.暂无简介")}
@@ -129,44 +255,39 @@ export default function NovelDetailPage() {
             <div className="flex items-center gap-1 text-secondary">
               <Calendar className="h-3 w-3" />
               <span className="text-sm">
-                {t("novelDetail.上传于")}: {formatDate(novel.createdAt)}
+                {t("novelDetail.上传于")}: {formatDate(novel.uploadTime)}
               </span>
             </div>
           </div>
         </div>
 
-        {/* 章节列表 */}
-        <div className="flex-1 overflow-hidden flex flex-col space-y-2">
-          <div className="flex items-center gap-1 text-base font-bold px-6 flex-shrink-0">
-            <FileText className="h-4 w-4 text-primary" />
-            {t("novelDetail.章节列表")}
-          </div>
-          <div className="bg-card-custom flex-1 overflow-y-auto">
-            <div className="">
-              {novel.chapters.map((chapter: Chapter, index: number) => (
-                <div
-                  key={chapter.id}
-                  className="w-full flex items-center justify-between p-6 group border-b border-slate-200 dark:border-zinc-700"
-                >
-                  <div className="flex flex-col flex-1 gap-1">
-                    <div className="flex items-center bg-amber-800/50 px-1 py-[2px] rounded w-fit">
-                      <h4 className="text-xs font-medium text-primary">
-                        {chapter.title}
-                      </h4>
-                    </div>
-                    <p className="text-sm text-secondary line-clamp-1">
-                      {chapter.content.substring(0, 50)}...
-                    </p>
-                  </div>
-                  <Button size="sm" variant="secondary" className="text-sm">
-                    {/* <PlayCircle className="h-4 w-4 mr-1" /> */}
-                    {t("novelDetail.开始创作")}
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <CustomTabs
+          variant="grid"
+          size="md"
+          defaultValue="chapters"
+          className="gap-0"
+          tabsListClassName="p-0 rounded-b-none"
+          tabsTriggerClassName="rounded-b-none"
+          tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 p-0 mt-[-1px] min-h-[200px]"
+          onValueChange={(value) => {}}
+          items={[
+            {
+              value: "chapters",
+              label: "章节列表",
+              content: renderChapters(),
+            },
+            {
+              value: "characters",
+              label: "角色库",
+              content: renderCharacters(),
+            },
+            {
+              value: "creations",
+              label: "关联创作",
+              content: renderCreations(),
+            },
+          ]}
+        />
       </div>
     </div>
   );

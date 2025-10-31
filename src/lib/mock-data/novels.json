@@ -1,0 +1,153 @@
+[
+  {
+    "novelId": "novel-1",
+    "title": "不死之帝王",
+    "author": "作者A",
+    "uploadTime": "2024-01-01T00:00:00Z",
+    "chapterList": [
+      {
+        "chapterId": "chapter-1",
+        "title": "第一章 登基",
+        "order": 1
+      },
+      {
+        "chapterId": "chapter-2",
+        "title": "第二章 朝政",
+        "order": 2
+      },
+      {
+        "chapterId": "chapter-3",
+        "title": "第三章 后宫",
+        "order": 3
+      },
+      {
+        "chapterId": "chapter-4",
+        "title": "第四章 征战",
+        "order": 4
+      },
+      {
+        "chapterId": "chapter-5",
+        "title": "第五章 封禅",
+        "order": 5
+      },
+      {
+        "chapterId": "chapter-6",
+        "title": "第六章 驾崩",
+        "order": 6
+      },
+      {
+        "chapterId": "chapter-7",
+        "title": "第七章 葬礼",
+        "order": 7
+      },
+      {
+        "chapterId": "chapter-8",
+        "title": "第八章 遗诏",
+        "order": 8
+      },
+      {
+        "chapterId": "chapter-9",
+        "title": "第九章 继位",
+        "order": 9
+      }
+    ],
+    "relatedCreations": [
+      "creation-1"
+    ],
+    "characterLibrary": [
+      "character-1",
+      "character-2"
+    ]
+  },
+  {
+    "novelId": "novel-2",
+    "title": "修仙传",
+    "author": "作者B",
+    "uploadTime": "2024-01-02T00:00:00Z",
+    "chapterList": [
+      {
+        "chapterId": "chapter-1",
+        "title": "第一章 入门",
+        "order": 1
+      },
+      {
+        "chapterId": "chapter-2",
+        "title": "第二章 突破",
+        "order": 2
+      },
+      {
+        "chapterId": "chapter-3",
+        "title": "第三章 历练",
+        "order": 3
+      }
+    ],
+    "relatedCreations": [
+      "creation-2"
+    ],
+    "characterLibrary": [
+      "character-3",
+      "character-4",
+      "character-5"
+    ]
+  },
+  {
+    "novelId": "novel-3",
+    "title": "武侠小说",
+    "author": "作者C",
+    "uploadTime": "2024-01-03T00:00:00Z",
+    "chapterList": [
+      {
+        "chapterId": "chapter-1",
+        "title": "第一章 江湖",
+        "order": 1
+      },
+      {
+        "chapterId": "chapter-2",
+        "title": "第二章 相遇",
+        "order": 2
+      }
+    ],
+    "relatedCreations": [
+      "creation-3"
+    ],
+    "characterLibrary": [
+      "character-6"
+    ]
+  },
+  {
+    "novelId": "novel-4",
+    "title": "哪吒传奇",
+    "author": "作者D",
+    "uploadTime": "2024-01-04T00:00:00Z",
+    "chapterList": [
+      {
+        "chapterId": "chapter-1",
+        "title": "第一章 降生",
+        "order": 1
+      },
+      {
+        "chapterId": "chapter-2",
+        "title": "第二章 闹海",
+        "order": 2
+      },
+      {
+        "chapterId": "chapter-3",
+        "title": "第三章 大战",
+        "order": 3
+      },
+      {
+        "chapterId": "chapter-4",
+        "title": "第四章 凯旋",
+        "order": 4
+      }
+    ],
+    "relatedCreations": [
+      "creation-4"
+    ],
+    "characterLibrary": [
+      "character-7",
+      "character-8"
+    ]
+  }
+]
+

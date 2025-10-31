@@ -1,0 +1,87 @@
+[
+  {
+    "chapterId": "chapter-1",
+    "title": "第一章 登基",
+    "associatedNovelId": "novel-1",
+    "content": "在众臣的见证下，这位年轻的帝王终于登上了至高无上的宝座。他端坐在龙椅上，目光如炬，扫视着跪拜的群臣。万岁！万岁！万万岁！声音响彻整个宫殿。\n\n朝堂之上，帝王认真听取着每一位大臣的奏报。启禀陛下，边关传来急报。一位大臣手持奏折，上前奏报。\n\n忙碌了一天的帝王，与皇后在御花园中漫步，享受着难得的宁静时光。傍晚时分的御花园，盛开的鲜花和翠绿的树木，夕阳西下，光线柔和。",
+    "associatedCreation": "creation-1"
+  },
+  {
+    "chapterId": "chapter-2",
+    "title": "第二章 朝政",
+    "associatedNovelId": "novel-1",
+    "content": "朝堂之上，文武百官分列两侧，气氛严肃。帝王端坐在龙椅上，认真听取着每一位大臣的奏报。\n\n一位大臣上前奏报：启禀陛下，边关传来急报，需要立即处理。\n\n帝王沉思片刻，下令立即调兵遣将，前往边关支援。",
+    "associatedCreation": null
+  },
+  {
+    "chapterId": "chapter-3",
+    "title": "第三章 后宫",
+    "associatedNovelId": "novel-1",
+    "content": "忙碌了一天的帝王，与皇后在御花园中漫步。两人手牵手，欣赏着园中的美景。\n\n皇后轻声说道：陛下，您已经很久没有这样放松过了。\n\n帝王笑了笑：是啊，难得有这样的宁静时光。",
+    "associatedCreation": null
+  },
+  {
+    "chapterId": "chapter-1",
+    "title": "第四章 修仙入门",
+    "associatedNovelId": "novel-2",
+    "content": "他推开洞府的石门，一股神秘的灵气扑面而来。洞府内灵气缭绕，墙壁上刻着古老的符文。\n\n他盘腿而坐，闭上双眼，开始运转功法。周围的灵气开始向他汇聚。\n\n仙师站在一旁，白发飘飘，手持拂尘，正在指导年轻的修仙者修炼。洞府内仙气缭绕，一切都显得那么神秘。",
+    "associatedCreation": "creation-2"
+  },
+  {
+    "chapterId": "chapter-2",
+    "title": "第五章 突破",
+    "associatedNovelId": "novel-2",
+    "content": "深夜的修炼密室，他盘腿而坐，周身光芒大盛。突然，他感觉到体内的灵力汹涌澎湃，这是突破的前兆。\n\n轰！一股强大的气息从他体内爆发而出，他终于突破了！\n\n密室内光芒四射，墙壁上的符文被点亮，整个密室都在颤抖。",
+    "associatedCreation": "creation-2"
+  },
+  {
+    "chapterId": "chapter-3",
+    "title": "第六章 历练",
+    "associatedNovelId": "novel-2",
+    "content": "突破后的他，感觉自己变得更加强大了。他决定离开洞府，前往外面历练。\n\n仙师送他到洞口，嘱咐道：外面世界危险，你要小心。\n\n他点了点头，踏上了历练之路。",
+    "associatedCreation": null
+  },
+  {
+    "chapterId": "chapter-1",
+    "title": "第七章 入门",
+    "associatedNovelId": "novel-3",
+    "content": "他推开客栈的门，一股酒香和喧闹声扑面而来。客栈内热闹非凡，有人在喝酒，有人在聊天。\n\n他在角落找了个位置坐下，点了一壶酒和几个小菜。\n\n突然，他听到邻桌的人在讨论一件重要的事情。他竖起耳朵，仔细聆听着。",
+    "associatedCreation": "creation-3"
+  },
+  {
+    "chapterId": "chapter-2",
+    "title": "第八章 突破",
+    "associatedNovelId": "novel-3",
+    "content": "邻桌的人正在低声讨论着一件江湖大事。他不动声色地听着，心中已经有了计划。\n\n夜幕降临，他离开客栈，踏上了前往目的地的路。",
+    "associatedCreation": null
+  },
+  {
+    "chapterId": "chapter-1",
+    "title": "第九章 入门",
+    "associatedNovelId": "novel-4",
+    "content": "天空突然出现一道红光，一个神奇的婴儿降生了。夜晚的陈塘关，所有人都被这奇异的一幕惊呆了。\n\n李靖夫妇站在床边，看着刚刚降生的哪吒，心中既惊讶又担忧。这个孩子看起来和普通的孩子不一样，他的眼神中透露着一种神奇的力量。",
+    "associatedCreation": "creation-4"
+  },
+  {
+    "chapterId": "chapter-2",
+    "title": "第十章 突破",
+    "associatedNovelId": "novel-4",
+    "content": "哪吒脚踩风火轮，手持火尖枪，冲进了龙宫。龙宫内金碧辉煌，但气氛紧张，虾兵蟹将惊慌失措。\n\n龙王从宝座上站起，龙首人身，身穿金色龙袍，怒视着这个闯入者。\n\n两人对峙，气氛剑拔弩张，一场大战即将爆发。",
+    "associatedCreation": "creation-4"
+  },
+  {
+    "chapterId": "chapter-3",
+    "title": "第十一章 大战",
+    "associatedNovelId": "novel-4",
+    "content": "战斗开始了！哪吒和龙王在海边展开了激烈的战斗。黄昏时分，东海之滨，海浪翻涌，天空中电闪雷鸣。\n\n哪吒手持火尖枪，向龙王刺去。龙王挥动巨大的龙爪，反击哪吒。\n\n经过一番激战，哪吒最终战胜了龙王。",
+    "associatedCreation": "creation-4"
+  },
+  {
+    "chapterId": "chapter-4",
+    "title": "第十二章 凯旋",
+    "associatedNovelId": "novel-4",
+    "content": "哪吒凯旋归来，受到了百姓的热烈欢迎。正午时分，陈塘关，百姓们夹道欢迎，场面欢庆热烈。\n\n李靖夫妇也终于放下了心中的担忧，为儿子的勇敢感到骄傲。",
+    "associatedCreation": "creation-4"
+  }
+]
+

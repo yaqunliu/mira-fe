@@ -139,6 +139,122 @@
   .bg-card-custom {
     @apply bg-zinc-300 dark:bg-zinc-800;
   }
+
+  /* 覆盖 Tailwind 原生字体大小，使其响应式 */
+  /* 移动端较小，随着屏幕变大字体也适当增大 */
+  
+  .text-xs {
+    font-size: 0.75rem !important;    /* 移动端 ~11.2px */
+  }
+  @media (min-width: 640px) {
+    .text-xs {
+      font-size: 0.75rem !important; /* 平板 12px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-xs {
+      font-size: 0.8125rem !important; /* 桌面 ~13px */
+    }
+  }
+
+  .text-sm {
+    font-size: 0.8125rem !important; /* 移动端 ~13px */
+  }
+  @media (min-width: 640px) {
+    .text-sm {
+      font-size: 0.875rem !important; /* 平板 14px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-sm {
+      font-size: 0.9375rem !important; /* 桌面 ~15px */
+    }
+  }
+
+  .text-base {
+    font-size: 0.9375rem !important; /* 移动端 ~15px */
+  }
+  @media (min-width: 640px) {
+    .text-base {
+      font-size: 1rem !important;     /* 平板 16px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-base {
+      font-size: 1.0625rem !important; /* 桌面 ~17px */
+    }
+  }
+
+  .text-lg {
+    font-size: 1.0625rem !important; /* 移动端 ~17px */
+  }
+  @media (min-width: 640px) {
+    .text-lg {
+      font-size: 1.125rem !important; /* 平板 18px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-lg {
+      font-size: 1.1875rem !important; /* 桌面 ~19px */
+    }
+  }
+
+  .text-xl {
+    font-size: 1.1875rem !important; /* 移动端 ~19px */
+  }
+  @media (min-width: 640px) {
+    .text-xl {
+      font-size: 1.25rem !important;  /* 平板 20px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-xl {
+      font-size: 1.375rem !important; /* 桌面 22px */
+    }
+  }
+
+  .text-2xl {
+    font-size: 1.375rem !important;  /* 移动端 22px */
+  }
+  @media (min-width: 640px) {
+    .text-2xl {
+      font-size: 1.5rem !important;   /* 平板 24px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-2xl {
+      font-size: 1.625rem !important; /* 桌面 26px */
+    }
+  }
+
+  .text-3xl {
+    font-size: 1.625rem !important;  /* 移动端 26px */
+  }
+  @media (min-width: 640px) {
+    .text-3xl {
+      font-size: 1.875rem !important; /* 平板 30px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-3xl {
+      font-size: 2.125rem !important; /* 桌面 34px */
+    }
+  }
+
+  .text-4xl {
+    font-size: 1.875rem !important;  /* 移动端 30px */
+  }
+  @media (min-width: 640px) {
+    .text-4xl {
+      font-size: 2.25rem !important;  /* 平板 36px */
+    }
+  }
+  @media (min-width: 768px) {
+    .text-4xl {
+      font-size: 2.5rem !important;   /* 桌面 40px */
+    }
+  }
+
 }
 
 /* BottomSheet 相关样式 */
@@ -159,3 +275,18 @@
     transform: translateY(100%);
   }
 }
+
+/* Loading 图标慢速旋转动画 */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+

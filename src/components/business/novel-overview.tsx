@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { novelApi } from "@/lib/api/novel";
 import { useQuery } from "@tanstack/react-query";
+import { Novel } from "@/types";
 
 interface NovelOverviewItem {
   id: string;
@@ -23,7 +24,7 @@ export function NovelOverview() {
   const params = useParams();
   const locale = params?.locale as string;
 
-  const { data: novelsResponse, isLoading } = useQuery({
+  const { data: novelsResponse, isFetching: isNovelsLoading } = useQuery({
     queryKey: ["novels"],
     queryFn: () => novelApi.getNovels(),
   });
@@ -39,9 +40,9 @@ export function NovelOverview() {
     router.push(`/${locale}/novels/${novelId}`);
   };
 
-  if (isLoading) {
+  if (isNovelsLoading) {
     return (
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {[...Array(3)].map((_, i) => (
           <div key={i} className="rounded-md aspect-[3/4] w-full skeleton" />
         ))}
@@ -70,11 +71,11 @@ export function NovelOverview() {
   return (
     <div className="space-y-3">
       {/* 书籍网格布局 */}
-      <div className="grid grid-cols-3 gap-3">
-        {displayNovels.map((novel: NovelOverviewItem) => (
+      <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3">
+        {displayNovels.map((novel: Novel) => (
           <div
-            key={novel.id}
-            onClick={() => handleNovelClick(novel.id)}
+            key={novel.novelId}
+            onClick={() => handleNovelClick(novel.novelId)}
             className="group cursor-pointer"
           >
             {/* 书籍封面 */}
@@ -107,7 +108,7 @@ export function NovelOverview() {
                 <div className="flex items-center justify-center gap-1 text-white/80">
                   <BookOpen className="h-3 w-3" />
                   <span className="text-xs">
-                    {novel.chapters.length} {t("home.章节")}
+                    {novel?.chapterList?.length || 0} {t("home.章节")}
                   </span>
                 </div>
               </div>

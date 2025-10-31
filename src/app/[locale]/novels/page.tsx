@@ -12,25 +12,11 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { novelApi } from "@/lib/api/novel";
 import { formatDate } from "@/lib/utils";
 import type { Novel } from "@/types";
 import { NovelUploadModal } from "@/components/modals/novel-upload-modal";
-import { useTranslations } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 
@@ -45,6 +31,7 @@ export default function NovelsPage() {
     data: novelsResponse,
     isLoading,
     error,
+    refetch: refetchNovels,
   } = useQuery({
     queryKey: ["novels"],
     queryFn: () => novelApi.getNovels(),
@@ -123,7 +110,7 @@ export default function NovelsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredNovels.map((novel: any) => (
-              <div key={novel.id} className="bg-card-custom rounded-lg p-4" onClick={() => router.push(`/${locale}/novels/${novel.id}`)}>
+              <div key={novel.id} className="bg-card-custom rounded-lg p-4" onClick={() => router.push(`/${locale}/novels/${novel.novelId}`)}>
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="text-base font-bold line-clamp-2 text-primary">
@@ -143,14 +130,14 @@ export default function NovelsPage() {
                   <div className="flex items-center justify-between text-sm text-muted-foreground">
                     <div className="flex items-center space-x-1 text-secondary">
                       <Calendar className="h-4 w-4" />
-                      <span>{formatDate(novel.createdAt)}</span>
+                      <span>{formatDate(novel.uploadTime)}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge
                         variant="default"
                         className="bg-amber-800/20 text-amber-600"
                       >
-                        共 {novel.chapters.length} 章
+                        共 {novel?.chapterList?.length} 章
                       </Badge>
                     </div>
                   </div>
@@ -165,6 +152,7 @@ export default function NovelsPage() {
       <NovelUploadModal
         open={uploadModalOpen}
         onOpenChange={setUploadModalOpen}
+        onUpload={() => refetchNovels()}
       />
     </div>
   );

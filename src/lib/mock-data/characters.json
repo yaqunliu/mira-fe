@@ -1,0 +1,131 @@
+[
+  {
+    "characterId": "character-1",
+    "name": "帝王",
+    "status": "new",
+      "basicInfo": "35岁男性皇帝",
+    "featureDescription": {
+      "appearance": "威严庄重，眉宇间透露着王者之气",
+      "body": "高大魁梧，身材挺拔",
+      "hair": "黑色长发，束冠",
+      "clothing": "黄色龙袍，金线绣龙",
+      "tags": ["威严", "庄重", "王者"]
+    },
+    "imagePrompt": "一位威严的中年皇帝，身穿黄色龙袍，头戴金冠，面容庄重，背景是华丽的宫殿，光线从上方洒下，营造出庄严的氛围",
+    "visualStyle": "写实风格，中国古代宫廷风格",
+    "characterImage": "/amu.png"
+  },
+  {
+    "characterId": "character-2",
+    "name": "皇后",
+    "status": "new",
+    "basicInfo": "30岁女性皇后",
+    "featureDescription": {
+      "appearance": "美丽端庄，气质高雅",
+      "body": "身材修长，体态优雅",
+      "hair": "黑色盘发，佩戴凤冠",
+      "clothing": "红色凤袍，金色凤凰图案",
+      "tags": ["美丽", "端庄", "高雅"]
+    },
+    "imagePrompt": "一位美丽的皇后，身穿红色凤袍，头戴凤冠，面容端庄美丽，气质高雅，背景是华丽的宫殿，柔和的灯光",
+    "visualStyle": "写实风格，中国古代宫廷风格",
+    "characterImage": "/anduming.png"
+  },
+  {
+    "characterId": "character-3",
+    "name": "修仙者",
+    "status": "new",
+    "basicInfo": "25岁男性修仙者",
+    "featureDescription": {
+      "appearance": "清秀俊朗，眼神深邃",
+      "body": "身材匀称，身姿飘逸",
+      "hair": "黑色长发，飘逸自然",
+      "clothing": "白色道袍，仙气飘飘",
+      "tags": ["清秀", "飘逸", "仙气"]
+    },
+    "imagePrompt": "一位年轻的修仙者，身穿白色道袍，长发飘逸，面容清秀俊朗，眼神深邃，站在云雾缭绕的山峰上，背景是远山和云海",
+    "visualStyle": "中国风，仙侠风格",
+    "characterImage": "/atian.png"
+  },
+  {
+    "characterId": "character-4",
+    "name": "仙师",
+    "status": "old",
+    "basicInfo": "60岁男性仙师",
+    "featureDescription": {
+      "appearance": "鹤发童颜，仙风道骨",
+      "body": "清瘦矍铄，身姿挺拔",
+      "hair": "白色长发，飘逸如仙",
+      "clothing": "灰色道袍，朴素自然",
+      "tags": ["仙风道骨", "智慧", "威严"]
+    },
+    "imagePrompt": "一位年长的仙师，白发飘飘，身穿灰色道袍，面容慈祥但眼神深邃，手拿拂尘，站在仙山之巅，云雾环绕",
+    "visualStyle": "中国风，仙侠风格",
+    "characterImage": ""
+  },
+  {
+    "characterId": "character-5",
+    "name": "仙子",
+    "status": "new",
+    "basicInfo": "22岁女性仙子",
+    "featureDescription": {
+      "appearance": "绝美倾城，气质超凡",
+      "body": "身材婀娜，体态轻盈",
+      "hair": "黑色长发，如瀑布般垂落",
+      "clothing": "粉色仙裙，仙气缭绕",
+      "tags": ["绝美", "超凡", "仙气"]
+    },
+    "imagePrompt": "一位美丽的仙子，身穿粉色仙裙，长发如瀑布般垂落，面容绝美倾城，气质超凡脱俗，周围有花瓣飞舞",
+    "visualStyle": "中国风，仙侠风格",
+    "characterImage": "/anduming.png"
+  },
+  {
+    "characterId": "character-6",
+    "name": "侠客",
+    "status": "new",
+    "basicInfo": "28岁男性侠客",
+    "featureDescription": {
+      "appearance": "英气逼人，眼神锐利",
+      "body": "身材健壮，肌肉线条分明",
+      "hair": "黑色短发，干净利落",
+      "clothing": "黑色劲装，腰间佩剑",
+      "tags": ["英气", "侠义", "刚毅"]
+    },
+    "imagePrompt": "一位英俊的侠客，身穿黑色劲装，腰间佩剑，面容英气逼人，眼神锐利，站在客栈门口，背景是古代的江湖场景",
+    "visualStyle": "中国风，武侠风格",
+    "characterImage": "/atian.png"
+  },
+  {
+    "characterId": "character-7",
+    "name": "哪吒",
+    "status": "new",
+    "basicInfo": "7岁男性神仙",
+    "featureDescription": {
+      "appearance": "孩童模样，眉清目秀",
+      "body": "身材娇小，灵活敏捷",
+      "hair": "黑色短发，扎成两个小髻",
+      "clothing": "红色肚兜，金色项圈",
+      "tags": ["顽皮", "勇敢", "神奇"]
+    },
+    "imagePrompt": "一个小男孩哪吒，身穿红色肚兜，脖子上戴着金色项圈，脚踩风火轮，手拿火尖枪，面容顽皮可爱但眼神坚定",
+    "visualStyle": "中国风，神话风格",
+    "characterImage": "/amu.png"
+  },
+  {
+    "characterId": "character-8",
+    "name": "龙王",
+    "status": "old",
+    "basicInfo": "1000岁男性龙王",
+    "featureDescription": {
+      "appearance": "威严霸气，龙首人身",
+      "body": "身材高大，气势磅礴",
+      "hair": "龙须飘飘",
+      "clothing": "金色龙袍，龙鳞闪烁",
+      "tags": ["威严", "霸气", "神秘"]
+    },
+    "imagePrompt": "一位威严的龙王，龙首人身，身穿金色龙袍，龙鳞闪烁，身材高大，气势磅礴，周围有海浪翻涌",
+    "visualStyle": "中国风，神话风格",
+    "characterImage": "/anduming.png"
+  }
+]
+

@@ -19,7 +19,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Scene, SceneData } from "@/types";
-import { StoryboardItem } from "./storyboard-item";
+import { StoryboardItem } from "../storyboard-item";
 import { cn } from "@/lib/utils";
 
 interface ScriptSettingProps {

@@ -37,11 +37,13 @@ import { BottomSheet } from "../ui/bottom-sheet";
 interface NovelUploadModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUpload: (files: File[]) => void;
 }
 
 export function NovelUploadModal({
   open,
   onOpenChange,
+  onUpload,
 }: NovelUploadModalProps) {
   const [isUploading, setIsUploading] = useState(false);
 
@@ -59,7 +61,7 @@ export function NovelUploadModal({
       style={{ height: "fit-content", paddingBottom: "40px" }}
       contentClassName="p-6"
     >
-      <NovelUpload onUpload={console.log} />
+      <NovelUpload onUpload={onUpload} />
     </BottomSheet>
   );
 }

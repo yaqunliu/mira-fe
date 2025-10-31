@@ -9,104 +9,27 @@ import {
   type NovelUploadFormData,
 } from "@/lib/validations/novel";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Card,
-  CardContent
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import { useTranslations } from "next-intl";
 import { CustomTabs } from "@/components/ui/custom-tabs";
-import { NovelUpload } from "./novel-upload";
-import { NovelSelect } from "./novel-select";
+import { NovelUpload } from "../novel-upload";
+import { NovelSelect } from "../novel-select";
 import { Novel, Chapter } from "@/types";
 import scene from "@/mock/scene.json";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 
-export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: any[]) => void }) {
+export function StorySetting({
+  onComplete = () => {},
+}: {
+  onComplete: (scenes: any[]) => void;
+}) {
   const t = useTranslations("createVideo");
   const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([]);
   const [uploadState, setUploadState] = useState<"pending" | "completed">(
     "pending"
   );
-
-  // 模拟小说列表数据
-  const mockNovels: Novel[] = [
-    {
-      id: "1",
-      title: "不死之帝王",
-      author: "作者A",
-      description: "一个关于不死帝王的奇幻故事",
-      status: "completed",
-      chapters: [
-        {
-          id: "chapter1",
-          novelId: "1",
-          chapterId: "第一章",
-          title: "咸阳原血战",
-          content: "第一章内容...",
-          order: 1,
-          createdAt: "2024-01-01",
-          updatedAt: "2024-01-01",
-        },
-        {
-          id: "chapter2",
-          novelId: "1",
-          chapterId: "第二章",
-          title: "黑龙突袭",
-          content: "第二章内容...",
-          order: 2,
-          createdAt: "2024-01-01",
-          updatedAt: "2024-01-01",
-        },
-        {
-          id: "chapter3",
-          novelId: "1",
-          chapterId: "第三章",
-          title: "不死帝王与神秘剑客",
-          content: "第三章内容...",
-          order: 3,
-          createdAt: "2024-01-01",
-          updatedAt: "2024-01-01",
-        },
-      ],
-      createdAt: "2024-01-01",
-      updatedAt: "2024-01-01",
-    },
-    {
-      id: "2",
-      title: "修仙传",
-      author: "作者B",
-      description: "一个修仙者的成长历程",
-      status: "completed",
-      chapters: [
-        {
-          id: "chapter1",
-          novelId: "2",
-          chapterId: "第一章",
-          title: "初入仙门",
-          content: "第一章内容...",
-          order: 1,
-          createdAt: "2024-01-01",
-          updatedAt: "2024-01-01",
-        },
-        {
-          id: "chapter2",
-          novelId: "2",
-          chapterId: "第二章",
-          title: "修炼之路",
-          content: "第二章内容...",
-          order: 2,
-          createdAt: "2024-01-01",
-          updatedAt: "2024-01-01",
-        },
-      ],
-      createdAt: "2024-01-01",
-      updatedAt: "2024-01-01",
-    },
-  ];
 
   const form = useForm<NovelUploadFormData>({
     resolver: zodResolver(novelUploadSchema),
@@ -162,7 +85,7 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
       updatedAt: new Date().toISOString(),
     };
     setSelectedNovel(uploadedNovel);
-    setSelectedChapters(uploadedNovel.chapters.slice(0, 1));
+    setSelectedChapters(uploadedNovel.chapterList.slice(0, 1));
   };
 
   const handleNovelChange = (novel: Novel | null) => {
@@ -184,6 +107,11 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
     onComplete(scene.data);
   };
 
+  const handleResetNovel = () => {
+    setSelectedNovel(null);
+    setSelectedChapters([]);
+  };
+
   return (
     <Card className="w-full max-w-4xl mx-auto border-none p-0 gap-3">
       <CardContent className="space-y-4">
@@ -192,44 +120,38 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
         <CustomTabs
           variant="grid"
           size="md"
-          defaultValue="upload"
+          defaultValue="novel"
           className="gap-0"
           tabsListClassName="p-0 rounded-b-none"
           tabsTriggerClassName="rounded-b-none"
-          tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounde-b-lg"
+          tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounded-b-lg"
           onValueChange={(value) => {}}
           items={[
             {
-              value: "upload",
-              label: "上传小说",
-              content:
-                uploadState === "pending" ? (
-                  <NovelUpload
-                    onUpload={(files: File[]) => handleUpload(files)}
+              value: "novel",
+              label: "小说改编",
+              content: (
+                <div className="space-y-4">
+                  <NovelSelect
+                    selectedNovel={selectedNovel}
+                    selectedChapters={selectedChapters}
+                    onNovelChange={handleNovelChange}
+                    onChaptersChange={handleChaptersChange}
+                    novelFixedClassName="border-none bg-stone-700/60"
+                    chapterClassName="border-none p-0"
+                    fixedAction={
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleResetNovel}
+                        className="text-secondary text-xs"
+                      >
+                        <X className="w-3 h-3" />
+                        重置
+                      </Button>
+                    }
                   />
-                ) : (
-                  <div className="space-y-3">
-                    <NovelSelect
-                      novels={[]}
-                      fixedNovel={selectedNovel || undefined}
-                      fixedAction={
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={handleResetUpload}
-                          className="text-xs bg-secondary px-2 py-1"
-                        >
-                          重新上传
-                        </Button>
-                      }
-                      selectedChapters={selectedChapters}
-                      onChaptersChange={handleChaptersChange}
-                      multiSelect={false}
-                      showSearch={false}
-                      showChapterCount={true}
-                      novelClassName="border-orange-500/20 dark:border-orange-400/20 bg-orange-100/10 dark:bg-orange-900/10"
-                      chapterClassName="border-none p-0"
-                    />
+                  {selectedChapters.length > 0 && (
                     <div className="flex justify-center">
                       <Button
                         variant="default"
@@ -241,15 +163,14 @@ export function StorySetting({ onComplete = () => {} }: { onComplete: (scenes: a
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>
-                  </div>
-                ),
+                  )}
+                </div>
+              ),
             },
             {
               value: "list",
               label: "智能生成",
-              content: (
-                <div>ai剧本创作</div>
-              ),
+              content: <div>规划中...</div>,
             },
           ]}
         />

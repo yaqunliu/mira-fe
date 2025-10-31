@@ -1,6 +1,9 @@
 import { apiClient } from './client'
-import type { Novel, Chapter, PaginatedResponse, PaginationParams } from '@/types'
-import { mockNovels } from '@/lib/mock-data'
+import type { Novel, Chapter, PaginatedResponse, PaginationParams, Character } from '@/types'
+import mockNovels from '@/lib/mock-data/novels.json'
+import mockChapters from '@/lib/mock-data/chapters.json'
+import mockCharacters from '@/lib/mock-data/characters.json'
+import mockCreations from '@/lib/mock-data/creations.json'
 
 export const novelApi = {
   // 获取小说列表
@@ -20,7 +23,55 @@ export const novelApi = {
             }
           }
         })
-      }, 500)
+      }, 1000)
+    })
+  },
+
+  getChapters: async (novelId: string) => {
+    // 模拟API调用
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          data: {
+            data: mockChapters,
+            pagination: {
+              page: 1,
+              limit: 10,
+              total: mockChapters.length,
+              totalPages: 1,
+            }
+          }
+        })
+      }, 1000)
+    })
+  },
+
+  getCharacters: async (novelId: string) => {
+    // 模拟API调用
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          data: {
+            data: mockCharacters,
+          }
+        })
+      }, 1000)
+    })
+  },
+
+  getCreationsByNovelId: async (novelId: string) => {
+    // 模拟API调用
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({
+          success: true,
+          data: {
+            data: mockCreations,
+          }
+        })
+      }, 1000)
     })
   },
 
@@ -29,7 +80,7 @@ export const novelApi = {
     // 模拟API调用
     return new Promise((resolve) => {
       setTimeout(() => {
-        const novel = mockNovels.find((n: Novel) => n.id === id)
+        const novel = mockNovels.find((n: Novel) => n.novelId === id)
         if (novel) {
           resolve({
             success: true,
@@ -73,9 +124,9 @@ export const novelApi = {
   },
 
   // 获取章节列表
-  getChapters: async (novelId: string) => {
-    return apiClient.get<Chapter[]>(`/novels/${novelId}/chapters`)
-  },
+  // getChapters: async (novelId: string) => {
+  //   return apiClient.get<Chapter[]>(`/novels/${novelId}/chapters`)
+  // },
 
   // 获取单个章节
   getChapter: async (novelId: string, chapterId: string) => {

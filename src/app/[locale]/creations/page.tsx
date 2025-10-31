@@ -140,7 +140,7 @@ export default function VideosPage() {
             {filteredVideos.map((video: Video) => (
               <div
                 key={video.id}
-                className="overflow-hidden p-0 border-none rounded-lg"
+                className="overflow-hidden p-0 border-none rounded-t-lg"
                 onClick={() => handleVideoClick(video)}
               >
                 {/* 视频缩略图/播放器 */}
@@ -163,7 +163,7 @@ export default function VideosPage() {
                   </div>
                 )}
 
-                <div className="bg-card-custom rounded-lg p-4">
+                <div className="bg-card-custom rounded-b-lg p-4">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
                       <div className="text-base line-clamp-2 font-bold">

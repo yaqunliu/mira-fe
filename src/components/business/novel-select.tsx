@@ -15,13 +15,16 @@ import {
   ChevronRight,
   Loader2,
   Smile,
+  Upload,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Novel, Chapter } from "@/types";
+import { Novel, Chapter, ChapterListItem } from "@/types";
+import { NovelUploadModal } from "../modals/novel-upload-modal";
+import { novelApi } from "@/lib/api/novel";
+import { useQuery } from "@tanstack/react-query";
+import LoadingIcon from "../ui/loading-icon";
 
 export interface NovelSelectProps {
-  // 小说列表
-  novels: Novel[];
   // 章节列表（可选，如果不传则从选中的小说中获取）
   chapters?: Chapter[];
   // 固定小说（如果传入则不显示小说选择）
@@ -46,18 +49,18 @@ export interface NovelSelectProps {
   // 自定义样式
   className?: string;
   novelClassName?: string;
+  novelFixedClassName?: string;
   chapterClassName?: string;
 }
 
 export function NovelSelect({
-  novels = [],
   chapters,
   fixedNovel,
   fixedAction,
   selectedNovel,
   selectedChapters = [],
-  multiSelect = true,
-  showSearch = true,
+  multiSelect = false,
+  showSearch = false,
   showChapterCount = true,
   loading = false,
   onNovelChange,
@@ -65,19 +68,30 @@ export function NovelSelect({
   onChapterToggle,
   className,
   novelClassName,
+  novelFixedClassName,
   chapterClassName,
 }: NovelSelectProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [novelSearchTerm, setNovelSearchTerm] = useState("");
   const [chapterSearchTerm, setChapterSearchTerm] = useState("");
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
+  const {
+    data: novelsResponse,
+    isFetching: isNovelsLoading,
+    refetch: refetchNovels,
+  } = useQuery({
+    queryKey: ["novels"],
+    queryFn: () => novelApi.getNovels(),
+  });
+  const novels = (novelsResponse as any)?.data?.data || [];
   // 当前显示的小说（固定小说或选中的小说）
   const currentNovel = fixedNovel || selectedNovel;
 
   // 当前显示的章节列表
   const currentChapters = useMemo(() => {
     if (chapters) return chapters;
-    if (currentNovel?.chapters) return currentNovel.chapters;
+    if (currentNovel?.chapterList) return currentNovel.chapterList;
     return [];
   }, [chapters, currentNovel]);
 
@@ -93,7 +107,7 @@ export function NovelSelect({
   const filteredNovels = useMemo(() => {
     if (!novelSearchTerm) return novels;
     return novels.filter(
-      (novel) =>
+      (novel: Novel) =>
         novel.title.toLowerCase().includes(novelSearchTerm.toLowerCase()) ||
         novel.author.toLowerCase().includes(novelSearchTerm.toLowerCase())
     );
@@ -132,8 +146,13 @@ export function NovelSelect({
     if (selectedChapters.length === filteredChapters.length) {
       onChaptersChange?.([]);
     } else {
-      onChaptersChange?.(filteredChapters);
+      onChaptersChange?.(filteredChapters as Chapter[]);
     }
+  };
+
+  const handleUpload = (files: File[]) => {
+    setShowUploadModal(false);
+    refetchNovels();
   };
 
   if (loading) {
@@ -149,14 +168,17 @@ export function NovelSelect({
 
   const renderFixNovelArea = () => {
     return (
-      <Card className={cn("w-full", novelClassName)}>
-        <CardContent>
+      <Card className={cn("w-full py-4", novelFixedClassName)}>
+        <CardContent className="px-4">
           <div className="flex items-center gap-3">
             <BookOpen className="w-5 h-5 text-primary" />
             <div className="flex-1 space-y-1">
-              <h3 className="font-medium text-primary">{fixedNovel?.title}</h3>
-              <p className="text-xs text-gray-500/80">
-                作者：{fixedNovel?.author}
+              <h3 className="font-medium text-primary">{currentNovel?.title}</h3>
+              {/* <p className="text-xs text-secondary">
+                作者：{currentNovel?.author}
+              </p> */}
+              <p className="text-xs text-secondary">
+                共 {currentNovel?.chapterList?.length} 章
               </p>
             </div>
             {fixedAction}
@@ -167,81 +189,107 @@ export function NovelSelect({
   };
 
   const renderNovelSelect = () => {
+    if (isNovelsLoading) {
+      return (
+        <div className="w-full h-[200px] flex flex-col justify-center items-center gap-2">
+          <LoadingIcon />
+          <span className="text-sm text-secondary">加载中...</span>
+        </div>
+      );
+    }
     return (
-      <Card className={cn("w-full", novelClassName)}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
-            选择小说
-          </CardTitle>
-          {showSearch && (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="搜索小说标题或作者..."
-                value={novelSearchTerm}
-                onChange={(e) => setNovelSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+      <div className={cn("w-full", novelClassName)}>
+        {showSearch && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              placeholder="搜索小说标题或作者..."
+              value={novelSearchTerm}
+              onChange={(e) => setNovelSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        )}
+        <ScrollArea className="h-[300px]">
+          {filteredNovels.length === 0 ? (
+            <div className="text-center py-8 text-gray-300">
+              <div>还未上传小说</div>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setShowUploadModal(true)}
+                className="mt-4"
+              >
+                <Upload className="w-4 h-4" />
+                立即上传
+              </Button>
             </div>
-          )}
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-64">
-            <div className="space-y-2">
-              {filteredNovels.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  没有找到小说
-                </div>
-              ) : (
-                filteredNovels.map((novel) => {
-                  const isSelected = selectedNovel?.id === novel.id;
-                  return (
-                    <div
-                      key={novel.id}
-                      className={cn(
-                        "p-4 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50",
-                        isSelected && "border-primary bg-primary/5"
-                      )}
-                      onClick={() => handleNovelSelect(novel)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h3 className="font-medium text-sm">{novel.title}</h3>
-                          <p
-                            className={cn(
-                              "text-xs text-muted-foreground mt-1",
-                              isSelected && "text-primary"
-                            )}
-                          >
-                            作者：{novel.author}
-                          </p>
-                          {novel.description && (
-                            <p className="text-xs text-secondary mt-4 line-clamp-2">
-                              {novel.description}
+          ) : (
+            <div className="space-y-3">
+              <div className="text-base text-gray-300">
+                选择小说进行视频创作:
+              </div>
+              <div className="space-y-2">
+                {filteredNovels.length > 0 &&
+                  filteredNovels.map((novel: Novel) => {
+                    const isSelected = selectedNovel?.novelId === novel.novelId;
+                    return (
+                      <div
+                        key={novel.novelId}
+                        className={cn(
+                          "p-4 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 border-gray-500/20 dark:border-gray-500/70",
+                          isSelected && "border-primary bg-primary/5"
+                        )}
+                        onClick={() => handleNovelSelect(novel)}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h3 className="font-medium text-base">
+                              {novel.title}
+                            </h3>
+                            <p
+                              className={cn(
+                                "text-xs text-muted-foreground mt-1 text-secondary",
+                                isSelected && "text-primary"
+                              )}
+                            >
+                              作者：{novel.author}
                             </p>
-                          )}
-                          {showChapterCount && (
-                            <div className="flex items-center gap-2 mt-2">
-                              <FileText className="w-3 h-3 text-muted-foreground" />
-                              <span className="text-xs text-muted-foreground">
-                                {novel.chapters?.length || 0} 章节
-                              </span>
+                            {showChapterCount && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <FileText className="w-3 h-3 text-secondary" />
+                                <span className="text-xs text-secondary">
+                                  {novel.chapterList?.length || 0} 章节
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          {isSelected && (
+                            <div className="flex items-center justify-center rounded-full bg-orange-500/70 p-1">
+                              <Check className="w-3 h-3" />
                             </div>
                           )}
                         </div>
-                        {isSelected && (
-                          <Check className="w-5 h-5 text-primary" />
-                        )}
                       </div>
-                    </div>
-                  );
-                })
-              )}
+                    );
+                  })}
+              </div>
             </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+          )}
+        </ScrollArea>
+        {filteredNovels.length > 0 && (
+          <div className="flex justify-center items-center text-secondary mt-4">
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => setShowUploadModal(true)}
+            >
+              <Upload className="w-4 h-4" />
+              上传小说
+            </Button>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -278,25 +326,25 @@ export function NovelSelect({
           )}
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="max-h-80">
+          <ScrollArea className="h-[300px]">
             <div className="space-y-2">
               {filteredChapters.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   {chapterSearchTerm ? "没有找到匹配的章节" : "该小说暂无章节"}
                 </div>
               ) : (
-                filteredChapters.map((chapter) => {
+                filteredChapters.map((chapter: Chapter) => {
                   const isSelected = selectedChapters.some(
-                    (c) => c.id === chapter.id
+                    (c: Chapter) => c.chapterId === chapter.chapterId
                   );
                   return (
                     <div
-                      key={chapter.id}
+                      key={chapter.chapterId}
                       className={cn(
-                        "p-3 border-[1px] rounded-lg border-gray-500/20 dark:border-gray-500/10 cursor-pointer transition-colors hover:bg-muted/50",
+                        "p-3 border-[1px] rounded-lg border-gray-500/20 dark:border-gray-500/20 cursor-pointer transition-colors hover:bg-muted/50",
                         isSelected && "bg-stone-600/10 dark:bg-stone-600/20"
                       )}
-                      onClick={() => handleChapterToggle(chapter)}
+                      onClick={() => handleChapterToggle(chapter as Chapter)}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -345,9 +393,14 @@ export function NovelSelect({
   return (
     <div className={cn("space-y-6", className)}>
       {/* 小说选择区域 */}
-      {!fixedNovel ? renderNovelSelect() : renderFixNovelArea()}
+      {!currentNovel ? renderNovelSelect() : renderFixNovelArea()}
       {/* 章节选择区域 */}
       {currentNovel && renderChapterSelect()}
+      <NovelUploadModal
+        open={showUploadModal}
+        onOpenChange={setShowUploadModal}
+        onUpload={handleUpload}
+      />
     </div>
   );
 }

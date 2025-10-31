@@ -1,0 +1,49 @@
+# 依赖
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 构建产物
+.next
+out
+dist
+build
+
+# 环境变量
+.env*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 日志
+logs
+*.log
+
+# 上传文件（通常通过 volume 挂载）
+uploads
+!/uploads/.gitkeep
+
+# 测试
+coverage
+.nyc_output
+
+# 其他
+README.md
+*.md
+.eslintcache
+

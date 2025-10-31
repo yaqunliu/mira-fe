@@ -156,6 +156,16 @@ pnpm build
 pnpm start
 ```
 
+### 部署到服务器
+
+**详细的部署指南请查看 [DEPLOYMENT.md](./DEPLOYMENT.md)**
+
+部署方式包括：
+- 🚀 Vercel 部署（推荐，最简单）
+- 🖥️ 传统服务器部署（自有服务器/VPS）
+- 🐳 Docker 部署（容器化）
+- 📊 PM2 进程管理（生产环境推荐）
+
 ### 静态导出 (可选)
 ```bash
 pnpm build && pnpm export
