@@ -1,6 +1,6 @@
 /**
  * PM2 进程管理配置文件
- * 使用方法: pm2 start ecosystem.config.js
+ * 使用方法: pm2 start ecosystem.config.cjs
  * 
  * PM2 是一个强大的 Node.js 进程管理器，提供：
  * - 自动重启应用

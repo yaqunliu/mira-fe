@@ -166,7 +166,7 @@ $SSH_CMD "cd $REMOTE_DIR && \
     if pm2 list | grep -q novel2video; then \
         pm2 restart novel2video; \
     else \
-        pm2 start ecosystem.config.js; \
+        pm2 start ecosystem.config.cjs; \
     fi && \
     pm2 save"
 
