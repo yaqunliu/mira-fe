@@ -14,11 +14,12 @@ module.exports = {
   apps: [
     {
       name: 'novel2video',
-      script: 'node_modules/.bin/next',
+      script: 'node_modules/next/dist/bin/next',
       args: 'start',
       cwd: './',
       instances: 1, // 运行实例数量，1 表示单实例，'max' 表示使用所有 CPU 核心
       exec_mode: 'fork', // fork 模式（单实例），cluster 模式（多实例）
+      interpreter: 'node', // 明确指定使用 node 解释器
       
       // 环境变量
       env: {
