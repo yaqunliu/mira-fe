@@ -44,48 +44,34 @@ export function StorySetting({
     setUploadState("completed");
     // 创建上传的小说对象
     const uploadedNovel: Novel = {
-      id: "uploaded-" + Date.now(),
+      novelId: "uploaded-" + Date.now(),
       title: file?.[0]?.name.replace(/\.[^/.]+$/, ""), // 移除文件扩展名
       author: "未知作者",
-      description: "通过文件上传的小说",
-      status: "completed",
-      chapters: [
+      uploadTime: new Date().toISOString(),
+      chapterList: [
         {
-          id: "chapter1",
-          novelId: "uploaded-" + Date.now(),
-          chapterId: "第一章",
+          chapterId: "chapter1",
           title: "咸阳原血战",
-          content: "第一章内容...",
           order: 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         },
         {
-          id: "chapter2",
-          novelId: "uploaded-" + Date.now(),
-          chapterId: "第二章",
+          chapterId: "chapter2",
           title: "黑龙突袭",
-          content: "第二章内容...",
           order: 2,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         },
         {
-          id: "chapter3",
-          novelId: "uploaded-" + Date.now(),
-          chapterId: "第三章",
+          chapterId: "chapter3",
           title: "不死帝王与神秘剑客",
-          content: "第三章内容...",
           order: 3,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         },
       ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      relatedCreations: [],
+      characterLibrary: [],
     };
     setSelectedNovel(uploadedNovel);
-    setSelectedChapters(uploadedNovel.chapterList.slice(0, 1));
+    // Note: chapterList contains ChapterListItem, not full Chapter objects
+    // This may need adjustment based on how selectedChapters is used
+    setSelectedChapters([]);
   };
 
   const handleNovelChange = (novel: Novel | null) => {

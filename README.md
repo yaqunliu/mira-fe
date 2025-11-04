@@ -192,6 +192,7 @@ DEPLOY_PORT=22
 DEPLOY_SSH_KEY=~/.ssh/id_rsa  # 本地私钥路径（可选，留空使用默认）
 DEPLOY_DIR=/var/www/novel2video
 DEPLOY_BRANCH=master
+DEPLOY_GIT_REPO_URL=git@github.com:username/repo.git  # Git 仓库地址（首次部署时需要）
 ```
 
 **方式2: 使用环境变量**
@@ -205,6 +206,7 @@ export DEPLOY_PORT="22"                   # SSH 端口（可选，默认 22）
 export DEPLOY_DIR="/var/www/novel2video"  # 远程项目目录（必填）
 export DEPLOY_BRANCH="master"             # Git 分支（可选，默认 master）
 export DEPLOY_SSH_KEY="$HOME/.ssh/id_rsa" # 本地私钥路径（可选，留空使用默认）
+export DEPLOY_GIT_REPO_URL="git@github.com:username/repo.git"  # Git 仓库地址（首次部署时需要）
 
 # 然后在本地运行部署脚本
 ./deploy-remote.sh
@@ -219,6 +221,10 @@ export DEPLOY_SSH_KEY="$HOME/.ssh/id_rsa" # 本地私钥路径（可选，留空
 **团队协作**：如何与团队成员同步部署配置？请查看 [TEAM-DEPLOY-SYNC.md](./TEAM-DEPLOY-SYNC.md)
 
 **SSH 密钥**：如何生成和使用 SSH 密钥？请查看 [SSH-KEY-GUIDE.md](./SSH-KEY-GUIDE.md)
+
+**Git SSH 配置**：遇到 Git HTTPS 认证问题？请查看 [GIT-SSH-SETUP.md](./GIT-SSH-SETUP.md)
+
+**服务器 SSH 配置**：如何配置服务器上的 SSH 密钥？请查看 [SERVER-SSH-CONFIG.md](./SERVER-SSH-CONFIG.md)
 
 ### 静态导出 (可选)
 ```bash

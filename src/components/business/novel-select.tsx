@@ -121,24 +121,24 @@ export function NovelSelect({
   };
 
   // 处理章节选择
-  const handleChapterToggle = (chapter: Chapter) => {
-    const isSelected = selectedChapters.some((c) => c.id === chapter.id);
+  const handleChapterToggle = (chapter: Chapter | ChapterListItem) => {
+    const isSelected = selectedChapters.some((c) => c.chapterId === chapter.chapterId);
 
     if (multiSelect) {
       let newSelectedChapters;
       if (isSelected) {
         newSelectedChapters = selectedChapters.filter(
-          (c) => c.id !== chapter.id
+          (c) => c.chapterId !== chapter.chapterId
         );
       } else {
-        newSelectedChapters = [...selectedChapters, chapter];
+        newSelectedChapters = [...selectedChapters, chapter as Chapter];
       }
       onChaptersChange?.(newSelectedChapters);
     } else {
-      onChaptersChange?.(isSelected ? [] : [chapter]);
+      onChaptersChange?.(isSelected ? [] : [chapter as Chapter]);
     }
 
-    onChapterToggle?.(chapter, !isSelected);
+    onChapterToggle?.(chapter as Chapter, !isSelected);
   };
 
   // 全选/取消全选章节
@@ -146,7 +146,7 @@ export function NovelSelect({
     if (selectedChapters.length === filteredChapters.length) {
       onChaptersChange?.([]);
     } else {
-      onChaptersChange?.(filteredChapters as Chapter[]);
+      onChaptersChange?.(filteredChapters.map(ch => ch as Chapter));
     }
   };
 
@@ -333,7 +333,7 @@ export function NovelSelect({
                   {chapterSearchTerm ? "没有找到匹配的章节" : "该小说暂无章节"}
                 </div>
               ) : (
-                filteredChapters.map((chapter: Chapter) => {
+                filteredChapters.map((chapter: ChapterListItem | Chapter) => {
                   const isSelected = selectedChapters.some(
                     (c: Chapter) => c.chapterId === chapter.chapterId
                   );
@@ -367,7 +367,7 @@ export function NovelSelect({
                               {chapter.title}
                             </span>
                           </div>
-                          {chapter.content && (
+                          {'content' in chapter && chapter.content && (
                             <p className="text-xs text-gray-300 mt-2 line-clamp-2">
                               {chapter.content.substring(0, 100)}...
                             </p>

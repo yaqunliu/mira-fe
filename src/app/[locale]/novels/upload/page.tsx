@@ -79,7 +79,7 @@ export default function NovelUploadPage() {
 
       if (response.success && response.data) {
         toast.success('Novel uploaded successfully!')
-        router.push(`/novels/${response.data.id}`)
+        router.push(`/novels/${response.data.novelId}`)
       } else {
         toast.error(response.message || 'Upload failed')
       }

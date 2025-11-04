@@ -135,9 +135,6 @@ export default function NovelDetailPage() {
                     {chapter.title}
                   </h4>
                 </div>
-                <p className="text-sm text-secondary line-clamp-1">
-                  {chapter?.content?.substring(0, 50)}...
-                </p>
               </div>
               <Button size="sm" variant="secondary" className="text-xs">
                 {/* <PlayCircle className="h-4 w-4 mr-1" /> */}
