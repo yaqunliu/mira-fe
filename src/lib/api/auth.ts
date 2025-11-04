@@ -1,5 +1,6 @@
 import { apiClient } from './client'
-import type { User, LoginFormData, RegisterFormData } from '@/types'
+import type { User } from '@/types'
+import type { LoginFormData, RegisterFormData } from '@/lib/validations/auth'
 
 export const authApi = {
   // 登录

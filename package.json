@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack -H 0.0.0.0",
     "build:with-check": "next build --turbopack",
-    "build": "SKIP_TYPE_CHECK=true next build --turbopack --no-lint",
+    "build": "next build --turbopack --no-lint",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
