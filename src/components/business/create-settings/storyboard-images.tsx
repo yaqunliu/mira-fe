@@ -248,7 +248,7 @@ export function StoryboardImages({
                               alt={`${image.title} - 分镜图片 ${
                                 imageIndex + 1
                               }`}
-                              className="w-full object-cover cursor-pointer transition-transform group-hover:scale-1"
+                              className="w-full object-cover cursor-pointer"
                               onClick={() => handlePreviewImage(image.image_id)}
                             />
 

@@ -32,6 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env*.example
+
+# 部署配置文件（包含敏感信息，不能提交）
+deploy.env
+.env.deploy
 
 # vercel
 .vercel

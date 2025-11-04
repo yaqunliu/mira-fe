@@ -165,6 +165,60 @@ pnpm start
 - 🖥️ 传统服务器部署（自有服务器/VPS）
 - 🐳 Docker 部署（容器化）
 - 📊 PM2 进程管理（生产环境推荐）
+- 🔄 远程自动部署（使用 `deploy-remote.sh` 脚本）
+
+#### 远程自动部署脚本
+
+使用 `deploy-remote.sh` 脚本可以一键将应用部署到远程服务器：
+
+**方式1: 使用配置文件（推荐）**
+
+```bash
+# 复制配置文件
+cp deploy.env.example deploy.env
+
+# 编辑配置
+vim deploy.env
+
+# 运行部署脚本
+./deploy-remote.sh
+```
+
+配置文件 `deploy.env` 示例：
+```bash
+DEPLOY_HOST=your-server.com
+DEPLOY_USER=root
+DEPLOY_PORT=22
+DEPLOY_SSH_KEY=~/.ssh/id_rsa  # 本地私钥路径（可选，留空使用默认）
+DEPLOY_DIR=/var/www/novel2video
+DEPLOY_BRANCH=master
+```
+
+**方式2: 使用环境变量**
+
+```bash
+# 注意：这些环境变量在本地设置，不是服务器上！
+# 在本地项目目录执行：
+export DEPLOY_HOST="your-server.com"      # 服务器地址（必填）
+export DEPLOY_USER="root"                 # SSH 用户名（可选，默认 root）
+export DEPLOY_PORT="22"                   # SSH 端口（可选，默认 22）
+export DEPLOY_DIR="/var/www/novel2video"  # 远程项目目录（必填）
+export DEPLOY_BRANCH="master"             # Git 分支（可选，默认 master）
+export DEPLOY_SSH_KEY="$HOME/.ssh/id_rsa" # 本地私钥路径（可选，留空使用默认）
+
+# 然后在本地运行部署脚本
+./deploy-remote.sh
+```
+
+部署脚本功能：
+- ✅ 自动 SSH 连接测试
+- ✅ Git 代码同步
+- ✅ 自动构建和部署
+- ✅ PM2 进程管理
+
+**团队协作**：如何与团队成员同步部署配置？请查看 [TEAM-DEPLOY-SYNC.md](./TEAM-DEPLOY-SYNC.md)
+
+**SSH 密钥**：如何生成和使用 SSH 密钥？请查看 [SSH-KEY-GUIDE.md](./SSH-KEY-GUIDE.md)
 
 ### 静态导出 (可选)
 ```bash

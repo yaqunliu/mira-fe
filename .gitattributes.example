@@ -1,0 +1,8 @@
+# Git-crypt 加密配置
+# 如果使用 git-crypt 加密敏感文件，取消下面的注释
+
+# 部署配置文件加密
+# deploy.env filter=git-crypt diff=git-crypt
+# .env.deploy filter=git-crypt diff=git-crypt
+# .env.production filter=git-crypt diff=git-crypt
+
