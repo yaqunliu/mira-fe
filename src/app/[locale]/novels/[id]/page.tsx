@@ -13,7 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { novelApi } from "@/lib/api/novel";
 import { formatDate } from "@/lib/utils";
-import type { Novel, Chapter, ChapterListItem, Character, Creation } from "@/types";
+import type { Novel, Chapter, ChapterListItem, Character } from "@/types";
+import { Creation } from "@/types/Creation";
 import LoadingIcon from "@/components/ui/loading-icon";
 import { CustomTabs } from "@/components/ui/custom-tabs";
 

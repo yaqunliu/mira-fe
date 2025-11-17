@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { novelApi } from "@/lib/api/novel";
 import { useQuery } from "@tanstack/react-query";
 import { Novel } from "@/types";
+import { NovelUploadModal } from "../modals/novel-upload-modal";
 
 interface NovelOverviewItem {
   id: string;
@@ -23,13 +24,18 @@ export function NovelOverview() {
   const t = useTranslations();
   const params = useParams();
   const locale = params?.locale as string;
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
-  const { data: novelsResponse, isFetching: isNovelsLoading } = useQuery({
+  const {
+    data: novelsResponse,
+    isFetching: isNovelsLoading,
+    refetch: refetchNovels,
+  } = useQuery({
     queryKey: ["novels"],
     queryFn: () => novelApi.getNovels(),
   });
 
-  const novels = (novelsResponse as any)?.data?.data || [];
+  const novels = (novelsResponse as any)?.items || [];
   const displayNovels = novels.slice(0, 3); // 只显示前3本小说
 
   const handleViewMore = () => {
@@ -59,7 +65,7 @@ export function NovelOverview() {
         </p>
         <Button
           size="sm"
-          onClick={() => router.push(`/${locale}/novels/upload`)}
+          onClick={() => setShowUploadModal(true)}
           className="text-xs"
         >
           上传小说
@@ -74,20 +80,26 @@ export function NovelOverview() {
       <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3">
         {displayNovels.map((novel: Novel) => (
           <div
-            key={novel.novelId}
-            onClick={() => handleNovelClick(novel.novelId)}
+            key={novel.novel_id}
+            onClick={() => handleNovelClick(novel.novel_id)}
             className="group cursor-pointer"
           >
             {/* 书籍封面 */}
             <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
               {/* 封面背景渐变 */}
               {/* <div className="absolute inset-0 bg-radial-[at_25%_15%] from-amber-300/20 via-orange-400/60 to-orange-800/90 dark:from-amber-400/80 dark:via-amber-600/90 dark:to-orange-900/70" /> */}
-              <div className="absolute inset-0" style={{ background: 'url(/novel-cover.png) no-repeat center center / cover'}} />
-              <div className="absolute backdrop-opacity-10 inset-0 blur-lg backdrop-blur-md bg-gradient-to-br from-orange-500/40 to-stone-500/70"/>
-              
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "url(/novel-cover.png) no-repeat center center / cover",
+                }}
+              />
+              <div className="absolute backdrop-opacity-10 inset-0 blur-lg backdrop-blur-md bg-gradient-to-br from-orange-500/40 to-stone-500/70" />
+
               {/* 封面装饰线条 */}
               <div className="absolute inset-0 border-2 border-amber-200/30 dark:border-amber-400/20 m-2 rounded-sm" />
-              
+
               {/* 封面内容 */}
               <div className="relative h-full flex flex-col justify-between p-3">
                 {/* 书名 */}
@@ -97,22 +109,22 @@ export function NovelOverview() {
                   </h3>
                 </div>
 
-              {/* 作者和章节信息 */}
-              <div className="space-y-1">
-                <div className="flex items-center justify-center gap-1 text-white/90">
-                  <User className="h-3 w-3" />
-                  <span className="text-xs font-medium line-clamp-1">
-                    {novel.author}
-                  </span>
-                </div>
-                <div className="flex items-center justify-center gap-1 text-white/80">
-                  <BookOpen className="h-3 w-3" />
-                  <span className="text-xs">
-                    {novel?.chapterList?.length || 0} {t("home.章节")}
-                  </span>
+                {/* 作者和章节信息 */}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center gap-1 text-white/90">
+                    <User className="h-3 w-3" />
+                    <span className="text-xs font-medium line-clamp-1">
+                      {novel.author}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center gap-1 text-white/80">
+                    <BookOpen className="h-3 w-3" />
+                    <span className="text-xs">
+                      {novel?.chapter_count || 0} {t("home.章节")}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
             </div>
           </div>
         ))}
@@ -127,6 +139,12 @@ export function NovelOverview() {
           <ChevronRight className="h-3 w-3" />
         </button>
       )}
+
+      <NovelUploadModal
+        open={showUploadModal}
+        onOpenChange={setShowUploadModal}
+        onComplete={() => refetchNovels()}
+      />
     </div>
   );
 }

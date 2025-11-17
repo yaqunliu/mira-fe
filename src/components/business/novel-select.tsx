@@ -84,14 +84,14 @@ export function NovelSelect({
     queryKey: ["novels"],
     queryFn: () => novelApi.getNovels(),
   });
-  const novels = (novelsResponse as any)?.data?.data || [];
+  const novels = (novelsResponse as any)?.items || [];
   // 当前显示的小说（固定小说或选中的小说）
   const currentNovel = fixedNovel || selectedNovel;
 
   // 当前显示的章节列表
   const currentChapters = useMemo(() => {
     if (chapters) return chapters;
-    if (currentNovel?.chapterList) return currentNovel.chapterList;
+    if (currentNovel?.chapters) return currentNovel.chapters;
     return [];
   }, [chapters, currentNovel]);
 
@@ -122,13 +122,15 @@ export function NovelSelect({
 
   // 处理章节选择
   const handleChapterToggle = (chapter: Chapter | ChapterListItem) => {
-    const isSelected = selectedChapters.some((c) => c.chapterId === chapter.chapterId);
+    const isSelected = selectedChapters.some(
+      (c) => c.chapter_id === chapter.chapter_id
+    );
 
     if (multiSelect) {
       let newSelectedChapters;
       if (isSelected) {
         newSelectedChapters = selectedChapters.filter(
-          (c) => c.chapterId !== chapter.chapterId
+          (c) => c.chapter_id !== chapter.chapter_id
         );
       } else {
         newSelectedChapters = [...selectedChapters, chapter as Chapter];
@@ -146,11 +148,11 @@ export function NovelSelect({
     if (selectedChapters.length === filteredChapters.length) {
       onChaptersChange?.([]);
     } else {
-      onChaptersChange?.(filteredChapters.map(ch => ch as Chapter));
+      onChaptersChange?.(filteredChapters.map((ch) => ch as Chapter));
     }
   };
 
-  const handleUpload = (files: File[]) => {
+  const handleUpload = (novelId: string) => {
     setShowUploadModal(false);
     refetchNovels();
   };
@@ -173,12 +175,14 @@ export function NovelSelect({
           <div className="flex items-center gap-3">
             <BookOpen className="w-5 h-5 text-primary" />
             <div className="flex-1 space-y-1">
-              <h3 className="font-medium text-primary">{currentNovel?.title}</h3>
+              <h3 className="font-medium text-primary">
+                {currentNovel?.title}
+              </h3>
               {/* <p className="text-xs text-secondary">
                 作者：{currentNovel?.author}
               </p> */}
               <p className="text-xs text-secondary">
-                共 {currentNovel?.chapterList?.length} 章
+                共 {currentNovel?.chapter_count} 章
               </p>
             </div>
             {fixedAction}
@@ -210,21 +214,21 @@ export function NovelSelect({
             />
           </div>
         )}
-        <ScrollArea className="h-[300px]">
-          {filteredNovels.length === 0 ? (
-            <div className="text-center py-8 text-gray-300">
-              <div>还未上传小说</div>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setShowUploadModal(true)}
-                className="mt-4"
-              >
-                <Upload className="w-4 h-4" />
-                立即上传
-              </Button>
-            </div>
-          ) : (
+        {filteredNovels.length === 0 ? (
+          <div className="py-8 text-gray-300 h-full flex items-center justify-center flex-col">
+            <div className="text-base text-gray-300">还未上传小说</div>
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setShowUploadModal(true)}
+              className="mt-4"
+            >
+              <Upload className="w-4 h-4" />
+              立即上传
+            </Button>
+          </div>
+        ) : (
+          <ScrollArea className="h-full">
             <div className="space-y-3">
               <div className="text-base text-gray-300">
                 选择小说进行视频创作:
@@ -232,10 +236,10 @@ export function NovelSelect({
               <div className="space-y-2">
                 {filteredNovels.length > 0 &&
                   filteredNovels.map((novel: Novel) => {
-                    const isSelected = selectedNovel?.novelId === novel.novelId;
+                    const isSelected = selectedNovel?.novel_id === novel.novel_id;
                     return (
                       <div
-                        key={novel.novelId}
+                        key={novel.novel_id}
                         className={cn(
                           "p-4 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 border-gray-500/20 dark:border-gray-500/70",
                           isSelected && "border-primary bg-primary/5"
@@ -259,7 +263,7 @@ export function NovelSelect({
                               <div className="flex items-center gap-2 mt-2">
                                 <FileText className="w-3 h-3 text-secondary" />
                                 <span className="text-xs text-secondary">
-                                  {novel.chapterList?.length || 0} 章节
+                                  {novel.chapter_count || 0} 章节
                                 </span>
                               </div>
                             )}
@@ -275,8 +279,8 @@ export function NovelSelect({
                   })}
               </div>
             </div>
-          )}
-        </ScrollArea>
+          </ScrollArea>
+        )}
         {filteredNovels.length > 0 && (
           <div className="flex justify-center items-center text-secondary mt-4">
             <Button
@@ -333,13 +337,13 @@ export function NovelSelect({
                   {chapterSearchTerm ? "没有找到匹配的章节" : "该小说暂无章节"}
                 </div>
               ) : (
-                filteredChapters.map((chapter: ChapterListItem | Chapter) => {
+                filteredChapters.map((chapter: Chapter) => {
                   const isSelected = selectedChapters.some(
-                    (c: Chapter) => c.chapterId === chapter.chapterId
+                    (c: Chapter) => c.chapter_id === chapter.chapter_id
                   );
                   return (
                     <div
-                      key={chapter.chapterId}
+                      key={chapter.chapter_id}
                       className={cn(
                         "p-3 border-[1px] rounded-lg border-gray-500/20 dark:border-gray-500/20 cursor-pointer transition-colors hover:bg-muted/50",
                         isSelected && "bg-stone-600/10 dark:bg-stone-600/20"
@@ -356,7 +360,7 @@ export function NovelSelect({
                                 isSelected && "bg-orange-800/10 text-primary"
                               )}
                             >
-                              {chapter.chapterId}
+                              {`第${chapter.chapter_number}章`}
                             </Badge>
                             <span
                               className={cn(
@@ -367,9 +371,9 @@ export function NovelSelect({
                               {chapter.title}
                             </span>
                           </div>
-                          {'content' in chapter && chapter.content && (
+                          {"preview" in chapter && chapter.preview && (
                             <p className="text-xs text-gray-300 mt-2 line-clamp-2">
-                              {chapter.content.substring(0, 100)}...
+                              {chapter.preview.substring(0, 100)}...
                             </p>
                           )}
                         </div>
@@ -399,7 +403,7 @@ export function NovelSelect({
       <NovelUploadModal
         open={showUploadModal}
         onOpenChange={setShowUploadModal}
-        onUpload={handleUpload}
+        onComplete={handleUpload}
       />
     </div>
   );

@@ -30,7 +30,7 @@ export default function RootPage() {
       <div className="flex-shrink-0">
         <div className="flex items-center justify-between p-4">
           <h1 className="text-2xl font-bold text-gradient-primary">
-            {t("AI动画短剧")}
+            AI动画短剧
           </h1>
           {/* 操作栏 */}
           <ActionBar />

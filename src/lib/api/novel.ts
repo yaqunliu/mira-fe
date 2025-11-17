@@ -9,22 +9,7 @@ export const novelApi = {
   // 获取小说列表
   getNovels: async (params?: PaginationParams) => {
     // 模拟API调用
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            data: mockNovels,
-            pagination: {
-              page: 1,
-              limit: 10,
-              total: mockNovels.length,
-              totalPages: 1,
-            }
-          }
-        })
-      }, 1000)
-    })
+    return apiClient.get<Novel[]>('/api/v1/novels/?page=1&page_size=100')
   },
 
   getChapters: async (novelId: string) => {
@@ -79,20 +64,6 @@ export const novelApi = {
   getNovel: async (id: string) => {
     // 模拟API调用
     return new Promise((resolve) => {
-      setTimeout(() => {
-        const novel = mockNovels.find((n: Novel) => n.novelId === id)
-        if (novel) {
-          resolve({
-            success: true,
-            data: novel
-          })
-        } else {
-          resolve({
-            success: false,
-            error: 'Novel not found'
-          })
-        }
-      }, 300)
     })
   },
 
@@ -100,13 +71,13 @@ export const novelApi = {
   uploadNovel: async (file: File, metadata: { title: string; author: string; description?: string }) => {
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('title', metadata.title)
-    formData.append('author', metadata.author)
-    if (metadata.description) {
-      formData.append('description', metadata.description)
-    }
+    // formData.append('title', metadata.title)
+    // formData.append('author', metadata.author)
+    // if (metadata.description) {
+    //   formData.append('description', metadata.description)
+    // }
 
-    return apiClient.post<Novel>('/novels/upload', formData, {
+    return apiClient.post<Novel>('/api/v1/novels/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

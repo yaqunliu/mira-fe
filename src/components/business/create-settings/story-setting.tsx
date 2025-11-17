@@ -13,16 +13,18 @@ import { Card, CardContent } from "@/components/ui/card";
 
 import { useTranslations } from "next-intl";
 import { CustomTabs } from "@/components/ui/custom-tabs";
-import { NovelUpload } from "../novel-upload";
 import { NovelSelect } from "../novel-select";
 import { Novel, Chapter } from "@/types";
-import scene from "@/mock/scene.json";
 import { ArrowRight, X } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import creationApi from "@/lib/api/creation";
+import { toast } from "sonner";
+import { useCreationPolling } from "@/hooks/use-creation-polling";
 
 export function StorySetting({
   onComplete = () => {},
 }: {
-  onComplete: (scenes: any[]) => void;
+  onComplete: (creationId: string) => void;
 }) {
   const t = useTranslations("createVideo");
   const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
@@ -30,6 +32,12 @@ export function StorySetting({
   const [uploadState, setUploadState] = useState<"pending" | "completed">(
     "pending"
   );
+  const [creationId, setCreationId] = useState<string | null>(null);
+  const { isPolling } = useCreationPolling(creationId, {
+    onSuccess: (creation) => {
+      onComplete(creation.creation_id);
+    },
+  })
 
   const form = useForm<NovelUploadFormData>({
     resolver: zodResolver(novelUploadSchema),
@@ -40,40 +48,6 @@ export function StorySetting({
     },
   });
 
-  const handleUpload = (file: File[]) => {
-    setUploadState("completed");
-    // 创建上传的小说对象
-    const uploadedNovel: Novel = {
-      novelId: "uploaded-" + Date.now(),
-      title: file?.[0]?.name.replace(/\.[^/.]+$/, ""), // 移除文件扩展名
-      author: "未知作者",
-      uploadTime: new Date().toISOString(),
-      chapterList: [
-        {
-          chapterId: "chapter1",
-          title: "咸阳原血战",
-          order: 1,
-        },
-        {
-          chapterId: "chapter2",
-          title: "黑龙突袭",
-          order: 2,
-        },
-        {
-          chapterId: "chapter3",
-          title: "不死帝王与神秘剑客",
-          order: 3,
-        },
-      ],
-      relatedCreations: [],
-      characterLibrary: [],
-    };
-    setSelectedNovel(uploadedNovel);
-    // Note: chapterList contains ChapterListItem, not full Chapter objects
-    // This may need adjustment based on how selectedChapters is used
-    setSelectedChapters([]);
-  };
-
   const handleNovelChange = (novel: Novel | null) => {
     setSelectedNovel(novel);
     setSelectedChapters([]); // 清空章节选择
@@ -83,14 +57,38 @@ export function StorySetting({
     setSelectedChapters(chapters);
   };
 
-  const handleResetUpload = () => {
-    setUploadState("pending");
-    setSelectedNovel(null);
-    setSelectedChapters([]);
-  };
+  // 创建视频创作的 mutation
+  const createCreationMutation = useMutation({
+    mutationFn: ({ novelId, chapterIds }: { novelId: string; chapterIds: string[] }) =>
+      creationApi.createCreation({ novelId, chapterId: chapterIds[0] }),
+    onSuccess: (response: any) => {
+      toast.success("创作初始化成功，正在进行内容分析！");
+      console.log("Creation response:", response);
+      setCreationId(response?.creation_id || response);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "创建失败，请重试");
+      console.error("Creation error:", error);
+    },
+  });
 
-  const generateScenes = () => {
-    onComplete(scene.data);
+  const analyseContent = () => {
+    // 验证是否选择了小说和章节
+    if (!selectedNovel) {
+      toast.error("请先选择小说");
+      return;
+    }
+
+    if (selectedChapters.length === 0) {
+      toast.error("请至少选择一个章节");
+      return;
+    }
+
+    // 调用创建接口
+    createCreationMutation.mutate({
+      novelId: selectedNovel.novel_id,
+      chapterIds: selectedChapters.map((chapter) => chapter.chapter_id),
+    });
   };
 
   const handleResetNovel = () => {
@@ -142,10 +140,11 @@ export function StorySetting({
                       <Button
                         variant="default"
                         size="lg"
-                        onClick={generateScenes}
+                        onClick={analyseContent}
+                        disabled={createCreationMutation.isPending || isPolling}
                         className="bg-primary"
                       >
-                        下一步
+                        {createCreationMutation.isPending || isPolling ? "内容分析中..." : "下一步"}
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>

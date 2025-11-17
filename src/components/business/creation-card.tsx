@@ -1,4 +1,4 @@
-import { Creation, Video } from "@/types";
+import { Creation } from "@/types/Creation";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
