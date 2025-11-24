@@ -26,10 +26,11 @@ import { Badge } from "@/components/ui/badge";
 import { PencilLine, Save, X } from "lucide-react";
 import { StoryboardItem as StoryboardItemType } from "@/types";
 import { toast } from "sonner";
+import { IShot } from "@/types/scene";
 
 const editStoryboardSchema = z.object({
-  storyboard_description: z.string().min(1, "画面描述不能为空"),
-  storyboard_narration: z.string().min(1, "旁白不能为空"),
+  description: z.string().min(1, "画面描述不能为空"),
+  narration: z.string().min(1, "旁白不能为空"),
 });
 
 type EditStoryboardFormData = z.infer<typeof editStoryboardSchema>;
@@ -37,14 +38,14 @@ type EditStoryboardFormData = z.infer<typeof editStoryboardSchema>;
 interface StoryboardEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  storyboard: StoryboardItemType;
-  onSave: (updatedStoryboard: StoryboardItemType) => void;
+  shot: IShot;
+  onSave: (updatedShot: IShot) => void;
 }
 
 export function StoryboardEditModal({
   isOpen,
   onClose,
-  storyboard,
+  shot,
   onSave,
 }: StoryboardEditModalProps) {
   const [isLoading, setIsLoading] = useState(false);
@@ -52,21 +53,21 @@ export function StoryboardEditModal({
   const form = useForm<EditStoryboardFormData>({
     resolver: zodResolver(editStoryboardSchema),
     defaultValues: {
-      storyboard_description: storyboard.storyboard_description,
-      storyboard_narration: storyboard.storyboard_narration || storyboard.storyboard_description,
+      description: shot.description,
+      narration: shot.narration || shot.description,
     },
   });
 
   const handleSave = async (data: EditStoryboardFormData) => {
     setIsLoading(true);
     try {
-      const updatedStoryboard: StoryboardItemType = {
-        ...storyboard,
-        storyboard_description: data.storyboard_description,
-        storyboard_narration: data.storyboard_narration,
+      const updatedShot: IShot = {
+        ...shot,
+        description: data.description,
+        narration: data.narration,
       };
       
-      onSave(updatedStoryboard);
+      onSave(updatedShot);
       toast.success("分镜修改成功");
       onClose();
     } catch (error) {
@@ -96,10 +97,10 @@ export function StoryboardEditModal({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="text-xs">
-                  {`分镜 ${storyboard.storyboard_id}`}
+                  {`分镜 ${shot.shot_id}`}
                 </Badge>
                 <span className="text-md font-medium text-orange-900 dark:text-orange-500/70">
-                  {storyboard.storyboard_name}
+                  {shot.title}
                 </span>
               </div>
             </div>
@@ -107,7 +108,7 @@ export function StoryboardEditModal({
             {/* 画面描述 */}
             <FormField
               control={form.control}
-              name="storyboard_description"
+              name="description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-gray-800 dark:text-gray-300">画面描述</FormLabel>
@@ -127,7 +128,7 @@ export function StoryboardEditModal({
             {/* 旁白 */}
             <FormField
               control={form.control}
-              name="storyboard_narration"
+              name="narration"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-gray-800 dark:text-gray-300">旁白</FormLabel>

@@ -18,12 +18,12 @@ import {
   Layers,
   ArrowRight,
 } from "lucide-react";
-import { Scene, SceneData } from "@/types";
-import { StoryboardItem } from "../storyboard-item";
 import { cn } from "@/lib/utils";
+import { IScene, IShot } from "@/types/scene";
+import { ShotItem } from "../shot-item";
 
 interface ScriptSettingProps {
-  data: any;
+  data: IScene[];
   className?: string;
   onComplete: () => void;
 }
@@ -33,12 +33,12 @@ export function ScriptSetting({
   className,
   onComplete,
 }: ScriptSettingProps) {
-  const [expandedScenes, setExpandedScenes] = useState<Set<string>>(
+  const [expandedScenes, setExpandedScenes] = useState<Set<number>>(
     new Set(data.length > 0 ? [data[0].scene_id] : [])
   );
   const [scenes, setScenes] = useState(data);
 
-  const toggleScene = (sceneId: string) => {
+  const toggleScene = (sceneId: number) => {
     const newExpanded = new Set(expandedScenes);
     if (newExpanded.has(sceneId)) {
       newExpanded.delete(sceneId);
@@ -48,17 +48,17 @@ export function ScriptSetting({
     setExpandedScenes(newExpanded);
   };
 
-  const isExpanded = (sceneId: string) => expandedScenes.has(sceneId);
+  const isExpanded = (sceneId: number) => expandedScenes.has(sceneId);
 
-  const handleStoryboardUpdate = (sceneId: string, updatedStoryboard: any) => {
+  const handleStoryboardUpdate = (sceneId: number, updatedShot: IShot) => {
     setScenes((prevScenes: any) =>
       prevScenes.map((scene: any) =>
         scene.scene_id === sceneId
           ? {
               ...scene,
               storyboard_list: scene.storyboard_list.map((sb: any) =>
-                sb.storyboard_id === updatedStoryboard.storyboard_id
-                  ? updatedStoryboard
+                sb.shot_id === updatedShot.shot_id
+                  ? updatedShot
                   : sb
               ),
             }
@@ -71,7 +71,7 @@ export function ScriptSetting({
     <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>
       <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
         <h3 className="text-base font-semib100">{`故事分为${scenes.length}个场景`}</h3>
-        {scenes.map((scene: any) => (
+        {scenes.map((scene: IScene, index: number) => (
           <Card
             key={scene.scene_id}
             className={cn(
@@ -90,20 +90,20 @@ export function ScriptSetting({
                         variant="secondary"
                         className="text-xs bg-gray-400/50"
                       >
-                        {`场景 ${scene.scene_id}`}
+                        {`场景 ${index + 1}`}
                       </Badge>
                       <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        {scene.scene_title}
+                        {scene.title}
                       </CardTitle>
                     </div>
                     <div className="flex items-center gap-4 mt-1">
                       <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                         <Clock className="h-4 w-4" />
-                        {scene.scene_duration}
+                        {scene.duration}
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                         <Layers className="h-4 w-4" />
-                        {scene.storyboard_list.length} 个分镜
+                        {scene.shots.length} 个分镜
                       </div>
                     </div>
                   </div>
@@ -129,25 +129,25 @@ export function ScriptSetting({
                     <Badge variant="destructive" className="text-xs">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        {`${scene.scene_setting.time}`}
+                        {`${scene.time_setting}`}
                       </div>
                     </Badge>
                     <Badge variant="destructive" className="text-xs">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
-                        {`${scene.scene_setting.address}`}
+                        {`${scene.location}`}
                       </div>
                     </Badge>
                     <Badge variant="destructive" className="text-xs">
                       <div className="flex items-center gap-1">
                         <Building className="h-3 w-3" />
-                        {`${scene.scene_setting.space}`}
+                        {`${scene.space_type}`}
                       </div>
                     </Badge>
                     <Badge variant="destructive" className="text-xs">
                       <div className="flex items-center gap-1">
                         <Eye className="h-3 w-3" />
-                        {`${scene.scene_setting.atmosphere}`}
+                        {`${scene.atmosphere}`}
                       </div>
                     </Badge>
                   </div>
@@ -200,7 +200,7 @@ export function ScriptSetting({
                 {/* 分镜列表 */}
                 <div className="space-y-3">
                   <div className="text-md font-semibold text-gray-900 dark:text-stone-400 flex items-center gap-2">
-                    分镜列表 ({scene.storyboard_list.length} 个)
+                    分镜列表 ({scene.shots.length} 个)
                   </div>
 
                   <div className="w-full overflow-x-auto">
@@ -208,19 +208,19 @@ export function ScriptSetting({
                       className="flex space-x-3 pb-4"
                       style={{ width: "max-content" }}
                     >
-                      {scene.storyboard_list.map(
-                        (storyboard: any, index: number) => (
+                      {scene.shots.map(
+                        (shot: IShot, index: number) => (
                           <div
-                            key={storyboard.storyboard_id}
+                            key={shot.shot_id}
                             className="w-[65vw] md:w-[240px] lg:w-[300px] flex-shrink-0"
                           >
-                            <StoryboardItem
-                              storyboard={storyboard}
+                            <ShotItem
+                              shot={shot}
                               index={index}
-                              onUpdate={(updatedStoryboard) =>
+                              onUpdate={(updatedShot: IShot) =>
                                 handleStoryboardUpdate(
                                   scene.scene_id,
-                                  updatedStoryboard
+                                  updatedShot
                                 )
                               }
                             />

@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { novelApi } from "@/lib/api/novel";
 import { formatDate } from "@/lib/utils";
 import type { Novel, Chapter, ChapterListItem, Character } from "@/types";
-import { Creation } from "@/types/Creation";
+import { ICreation } from "@/types/creation";
 import LoadingIcon from "@/components/ui/loading-icon";
 import { CustomTabs } from "@/components/ui/custom-tabs";
 
@@ -72,7 +72,7 @@ export default function NovelDetailPage() {
   const novel = (novelResponse as any)?.data as Novel;
   const chapters = (chaptersResponse as any)?.data?.data as ChapterListItem[];
   const characters = (charactersResponse as any)?.data?.data as Character[];
-  const creations = (creationsResponse as any)?.data?.data as Creation[];
+  const creations = (creationsResponse as any)?.data?.data as ICreation[];
 
   const handleBack = () => {
     router.back();
@@ -185,7 +185,7 @@ export default function NovelDetailPage() {
     return (
       <div className="bg-card-custom flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-          {creations.map((creation: Creation, index: number) => (
+          {creations.map((creation: ICreation, index: number) => (
             <CreationCard key={creation.creationId} creation={creation} />
           ))}
         </div>

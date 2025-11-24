@@ -43,7 +43,8 @@ class ApiClient {
           useAuthStore.getState().logout()
           // 可以在这里添加重定向到登录页的逻辑
         }
-        return Promise.reject(error)
+        const errorMessage = error.response?.data?.message || error.message || '服务异常'
+        return Promise.reject(new Error(errorMessage))
       }
     )
   }

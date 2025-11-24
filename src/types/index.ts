@@ -45,17 +45,6 @@ export interface ChapterDetail {
   associatedCreation: string | null;
 }
 
-// 角色详情类型（用于mock数据）
-export interface Character {
-  characterId: string;
-  name: string;
-  basic_info: string;
-  feature_description: string;
-  image_prompt: string;
-  visual_style: string;
-  character_image: string;
-}
-
 // 分镜相关类型
 export interface Storyboard {
   id: string;
@@ -116,7 +105,7 @@ export interface ApiResponse<T = any> {
 // 分页类型
 export interface PaginationParams {
   page: number;
-  limit: number;
+  page_size: number;
 }
 
 export interface PaginatedResponse<T> {

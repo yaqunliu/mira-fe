@@ -8,7 +8,7 @@ import { useParams } from "next/navigation";
 import { useTheme } from "next-themes";
 import { ActionBar } from "@/components/business/action-bar";
 import { NovelOverview } from "@/components/business/novel-overview";
-import { VideoOverview } from "@/components/business/video-overview";
+import { CreationOverview } from "@/components/business/creation-overview";
 import { useAuthStore } from "@/stores/auth";
 
 export default function RootPage() {
@@ -53,13 +53,13 @@ export default function RootPage() {
         <div className="px-4 pb-6">
           <div className="flex flex-col gap-6">
             <div className="space-y-3">
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1" onClick={() => router.push(`/${locale}/creations`)}>
                 <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" />
                 <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
                   {t("home.我的创作")}
                 </h2>
               </div>
-              <VideoOverview />
+              <CreationOverview />
             </div>
             <div className="space-y-3">
               <div className="flex items-center gap-1">

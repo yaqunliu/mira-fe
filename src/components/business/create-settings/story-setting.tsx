@@ -1,13 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  novelUploadSchema,
-  type NovelUploadFormData,
-} from "@/lib/validations/novel";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -16,37 +9,37 @@ import { CustomTabs } from "@/components/ui/custom-tabs";
 import { NovelSelect } from "../novel-select";
 import { Novel, Chapter } from "@/types";
 import { ArrowRight, X } from "lucide-react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import creationApi from "@/lib/api/creation";
 import { toast } from "sonner";
-import { useCreationPolling } from "@/hooks/use-creation-polling";
+import { CreationStatus } from "@/types/creation";
+import { useParams, useRouter } from "next/navigation";
 
-export function StorySetting({
-  onComplete = () => {},
-}: {
-  onComplete: (creationId: string) => void;
-}) {
-  const t = useTranslations("createVideo");
+export function StorySetting() {
+  const t = useTranslations("");
+  const router = useRouter();
+  const params = useParams();
+  const locale = params?.locale as string;
   const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([]);
-  const [uploadState, setUploadState] = useState<"pending" | "completed">(
-    "pending"
-  );
   const [creationId, setCreationId] = useState<string | null>(null);
-  const { isPolling } = useCreationPolling(creationId, {
-    onSuccess: (creation) => {
-      onComplete(creation.creation_id);
-    },
-  })
-
-  const form = useForm<NovelUploadFormData>({
-    resolver: zodResolver(novelUploadSchema),
-    defaultValues: {
-      title: "",
-      author: "",
-      description: "",
+  const {data: creation, isLoading} = useQuery({
+    queryKey: ["creation", creationId],
+    queryFn: () => creationApi.queryCreationById(creationId as string),
+    enabled: !!creationId,
+    refetchInterval: (query) => {
+      if (query.state.data?.data?.status === CreationStatus.CREATED) {
+        return false;
+      }
+      return 2000;
     },
   });
+
+  useEffect(() => {
+    if (creation?.data?.status === CreationStatus.CREATED) {
+      router.replace(`/${locale}/create?creationId=${creation?.data?.creation_id}`);
+    }
+  }, [creation]);
 
   const handleNovelChange = (novel: Novel | null) => {
     setSelectedNovel(novel);
@@ -63,12 +56,12 @@ export function StorySetting({
       creationApi.createCreation({ novelId, chapterId: chapterIds[0] }),
     onSuccess: (response: any) => {
       toast.success("创作初始化成功，正在进行内容分析！");
-      console.log("Creation response:", response);
-      setCreationId(response?.creation_id || response);
+      console.log("ICreation response:", response);
+      setCreationId(response?.data?.creation_id || response);
     },
     onError: (error: Error) => {
       toast.error(error.message || "创建失败，请重试");
-      console.error("Creation error:", error);
+      console.error("ICreation error:", error);
     },
   });
 
@@ -141,10 +134,10 @@ export function StorySetting({
                         variant="default"
                         size="lg"
                         onClick={analyseContent}
-                        disabled={createCreationMutation.isPending || isPolling}
+                        disabled={createCreationMutation.isPending || isLoading}
                         className="bg-primary"
                       >
-                        {createCreationMutation.isPending || isPolling ? "内容分析中..." : "下一步"}
+                        {createCreationMutation.isPending || isLoading ? "内容分析中..." : "下一步"}
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>

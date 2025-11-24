@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useParams, useSearchParams } from "next/navigation";
 import {
@@ -18,20 +18,31 @@ import { StoryboardImages } from "@/components/business/create-settings/storyboa
 import sceneImages from "@/mock/scene_images.json";
 import { VideoGenerator } from "@/components/business/create-settings/video-generator";
 import { mockVideos } from "@/lib/mock-video-data";
+import creationApi from "@/lib/api/creation";
+import { useQuery } from "@tanstack/react-query";
+import { ICreation, CreationStatus } from "@/types/creation";
+import { ICharacter } from "@/types/character";
+import ModuleLoading from "@/components/ui/module-loading";
 
-export default function createVideo() {
+export default function CreateCreation() {
   const t = useTranslations();
   const router = useRouter();
   const params = useParams();
   const locale = params?.locale as string;
-  const [scenes, setScenes] = useState<any[]>([]);
   const searchParams = useSearchParams();
-  const videoId = searchParams?.get("videoId") as string;
-  const stepName = searchParams?.get("step") as string;
-  console.log("searchParams:", searchParams);
-  console.log("stepName:", stepName);
-  console.log("videoId:", videoId);
+  const creationIdFromUrl = searchParams?.get("creationId") || "";
+  const [creationId, setCreationId] = useState<string>(creationIdFromUrl);
 
+  // 同步 URL 参数到 state
+  useEffect(() => {
+    if (creationIdFromUrl && creationIdFromUrl !== creationId) {
+      console.log(
+        `[Create Page] URL creationId 变化: ${creationId} -> ${creationIdFromUrl}`
+      );
+      setCreationId(creationIdFromUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [creationIdFromUrl]); // 只依赖 URL 参数，不依赖 creationId state
 
   // 创建步骤数据（不需要预定义status）
   const initialSteps = [
@@ -57,53 +68,49 @@ export default function createVideo() {
     },
   ];
 
-  const [currentStep, setCurrentStep] = useState(initialSteps.findIndex(step => step.id === stepName) !== -1 ? initialSteps.findIndex(step => step.id === stepName) : 0);
-  console.log("currentStep:", currentStep);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const { data: curCreationResponse, isLoading, refetch: refetchCreation } = useQuery({
+    queryKey: ["creation", creationId],
+    queryFn: () => creationApi.queryCreationById(creationId),
+    enabled: !!creationId,
+    refetchInterval: (query) => {
+      if (query.state.data?.data?.current_task_id) {
+        return 4000;
+      }
+      return false;
+    },
+  });
+  const curCreation = useMemo(() => curCreationResponse?.data as ICreation, [curCreationResponse]);
 
   useEffect(() => {
-    const uploadedNovel = {
-      id: "uploaded-" + Date.now(),
-      title: mockVideos.find(video => video.id === videoId)?.title || "",
-      author: "未知作者",
-      description: "通过文件上传的小说",
-      status: "completed",
-      chapters: [
-        {
-          id: "chapter1",
-          novelId: "uploaded-" + Date.now(),
-          chapterId: "第一章",
-          title: "咸阳原血战",
-          content: "第一章内容...",
-          order: 1,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: "chapter2",
-          novelId: "uploaded-" + Date.now(),
-          chapterId: "第二章",
-          title: "黑龙突袭",
-          content: "第二章内容...",
-          order: 2,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-        {
-          id: "chapter3",
-          novelId: "uploaded-" + Date.now(),
-          chapterId: "第三章",
-          title: "不死帝王与神秘剑客",
-          content: "第三章内容...",
-          order: 3,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    videoId && setScenes(uploadedNovel.chapters.slice(0, 1));
-  }, [videoId]);
+    switch (curCreation?.status) {
+      case CreationStatus.CREATED:
+        setCurrentStep(1);
+        break;
+      case CreationStatus.PLAYBOOK_GENERATED:
+        setCurrentStep(1);
+        break;
+      case CreationStatus.CHARACTER_GENERATED:
+        setCurrentStep(2);
+        break;
+      case CreationStatus.SCENE_GENERATED:
+        setCurrentStep(3);
+        break;
+      case CreationStatus.AUDIO_GENERATED:
+        setCurrentStep(4);
+        break;
+      case CreationStatus.VIDEO_GENERATED:
+        setCurrentStep(4);
+        break;
+      case CreationStatus.COMPLETED:
+        setCurrentStep(4);
+        break;
+      default:
+        setCurrentStep(0);
+        break;
+    }
+  }, [curCreation]);
 
   const { steps, nextStep } = useProgressSteps(initialSteps, {
     currentStep,
@@ -112,6 +119,7 @@ export default function createVideo() {
 
   const handleStepChange = (stepIndex: number, step: ProgressStep) => {
     console.log(`切换到步骤 ${stepIndex}:`, step.title);
+    setCurrentStep(stepIndex);
   };
 
   const handleComplete = () => {
@@ -122,27 +130,22 @@ export default function createVideo() {
   const renderStepContent = () => {
     switch (currentStep) {
       case 0:
-        return (
-          <StorySetting
-            onComplete={(_scenes: any[]) => {
-              setScenes(_scenes);
-              nextStep();
-            }}
-          />
-        );
+        return <StorySetting />;
       case 1:
         return (
           <CharacterSetting
+            characters={curCreation?.characters as ICharacter[] || []}
             onComplete={() => {
               nextStep();
             }}
+            handleUpdate={refetchCreation}
           />
         );
 
       case 2:
         return (
           <ScriptSetting
-            data={scenes}
+            data={curCreation?.scenes || []}
             onComplete={() => {
               nextStep();
             }}
@@ -180,21 +183,20 @@ export default function createVideo() {
         </h1>
       </div>
       <div className="h-[1px] w-full divider-primary mb-4" />
-
-      <ProgressWrapper
-        steps={steps}
-        currentStep={currentStep}
-        orientation="horizontal"
-        variant="default"
-        size="sm"
-        showNavigation={false}
-        onStepChange={handleStepChange}
-        onComplete={handleComplete}
-        className="px-6"
-      />
-      <div>
-        {renderStepContent()}
-      </div>
+      <ModuleLoading loading={isLoading}>
+        <ProgressWrapper
+          steps={steps}
+          currentStep={currentStep}
+          orientation="horizontal"
+          variant="default"
+          size="sm"
+          showNavigation={false}
+          onStepChange={handleStepChange}
+          onComplete={handleComplete}
+          className="px-6"
+        />
+        <div>{renderStepContent()}</div>
+      </ModuleLoading>
     </div>
   );
 }

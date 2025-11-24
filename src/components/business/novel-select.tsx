@@ -84,7 +84,7 @@ export function NovelSelect({
     queryKey: ["novels"],
     queryFn: () => novelApi.getNovels(),
   });
-  const novels = (novelsResponse as any)?.items || [];
+  const novels = (novelsResponse as any)?.data?.items || [];
   // 当前显示的小说（固定小说或选中的小说）
   const currentNovel = fixedNovel || selectedNovel;
 

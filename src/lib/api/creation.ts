@@ -1,6 +1,6 @@
-import { Creation } from "@/types/Creation";
+import { ICreation } from "@/types/creation";
 import { apiClient } from "./client";
-import { ApiResponse } from "@/types";
+import { ApiResponse, PaginationParams } from "@/types";
 
 const creationApi = {
   // 创建创作
@@ -16,8 +16,17 @@ const creationApi = {
       chapter_id: chapterId,
     });
   },
-  queryCreationById: async (creationId: string): Promise<Creation> => {
-    return apiClient.get<ApiResponse<Creation>>(`/api/v1/creations/${creationId}`) as unknown as Promise<Creation>;
+  queryCreations: async (params?: PaginationParams): Promise<ICreation[]> => {
+    return apiClient.get<ApiResponse<ICreation[]>>(
+      `/api/v1/creations?page=${params?.page}&page_size=${params?.page_size}`
+    ) as unknown as Promise<ICreation[]>;
+  },
+  queryCreationById: async (
+    creationId: string
+  ): Promise<{ data: ICreation; message: string }> => {
+    return apiClient.get<ApiResponse<ICreation>>(
+      `/api/v1/creations/${creationId}`
+    ) as unknown as Promise<{ data: ICreation; message: string }>;
   },
 };
 

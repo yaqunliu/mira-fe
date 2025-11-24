@@ -8,30 +8,32 @@ import { Clock, Users, FileText, Palette, PencilLine, Mic } from "lucide-react";
 import { StoryboardItem as StoryboardItemType } from "@/types";
 import { cn } from "@/lib/utils";
 import { StoryboardEditModal } from "@/components/modals/storyboard-edit-modal";
+import { IShot } from "@/types/scene";
+import { ICharacter } from "@/types/character";
 
-interface StoryboardItemProps {
-  storyboard: StoryboardItemType;
+interface ShotItemProps {
+  shot: IShot;
   index: number;
   className?: string;
-  onUpdate?: (updatedStoryboard: StoryboardItemType) => void;
+  onUpdate?: (updatedShot: IShot) => void;
 }
 
-export function StoryboardItem({
-  storyboard,
+export function ShotItem({
+  shot,
   index,
   className,
   onUpdate,
-}: StoryboardItemProps) {
+}: ShotItemProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [currentStoryboard, setCurrentStoryboard] = useState(storyboard);
+  const [currentShot, setCurrentShot] = useState(shot);
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleSave = (updatedStoryboard: StoryboardItemType) => {
-    setCurrentStoryboard(updatedStoryboard);
-    onUpdate?.(updatedStoryboard);
+  const handleSave = (updatedShot: IShot) => {
+    setCurrentShot(updatedShot);
+    onUpdate?.(updatedShot);
   };
 
   const handleClose = () => {
@@ -48,7 +50,7 @@ export function StoryboardItem({
                     {`分镜 ${index + 1}`} 
                   </Badge>
                 <div className="text-md font-semibold text-gray-900 dark:text-gray-100">
-                  {currentStoryboard.storyboard_name}
+                  {currentShot.title}
                 </div>
               </div>
             </CardTitle>
@@ -61,16 +63,16 @@ export function StoryboardItem({
 
         <CardContent className="space-y-3 p-0">
           {/* 角色信息 */}
-          {currentStoryboard.storyboard_characters.length > 0 && (
+          {currentShot.characters?.length > 0 && (
             <div className="space-y-1">
               <div className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
                 <Users className="h-3 w-3" />
                 角色
               </div>
               <div className="flex flex-wrap gap-2">
-                {currentStoryboard.storyboard_characters.map((character, idx) => (
+                {currentShot.characters.map((character: ICharacter, idx: number) => (
                   <Badge key={idx} variant="outline" className="text-xs">
-                    {character}
+                    {character.name}
                   </Badge>
                 ))}
               </div>
@@ -84,7 +86,7 @@ export function StoryboardItem({
               画面描述
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              {currentStoryboard.storyboard_description}
+              {currentShot.description}
             </p>
           </div>
           
@@ -95,7 +97,7 @@ export function StoryboardItem({
               旁白
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              {currentStoryboard.storyboard_narration || currentStoryboard.storyboard_description}
+              {currentShot.narration || currentShot.description}
             </p>
           </div>
         </CardContent>
@@ -104,8 +106,8 @@ export function StoryboardItem({
       <StoryboardEditModal
         isOpen={isEditModalOpen}
         onClose={handleClose}
-        storyboard={currentStoryboard}
-        onSave={handleSave}
+        shot={currentShot as IShot}
+        onSave={(updatedShot: IShot) => handleSave(updatedShot)}
       />
     </>
   );

@@ -1,13 +1,13 @@
-import { Creation } from "@/types/Creation";
+import { ICreation } from "@/types/creation";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 
-function VideoCard({ creation }: { creation: Creation }) {
+function VideoCard({ creation }: { creation: ICreation }) {
   const router = useRouter();
   const params = useParams();
   const locale = params?.locale as string;
-  const getStatusBadge = (status: Creation["status"]) => {
+  const getStatusBadge = (status: ICreation["status"]) => {
     const statusMap = {
       generating: {
         label: "进行中",
@@ -34,7 +34,7 @@ function VideoCard({ creation }: { creation: Creation }) {
     );
   };
 
-  const handleCreationClick = (creation: Creation) => {
+  const handleCreationClick = (creation: ICreation) => {
     if (creation.status === "generating") {
       router.push(`/${locale}/create?creation=${creation.creationId}`);
     }

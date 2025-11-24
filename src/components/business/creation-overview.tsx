@@ -3,54 +3,46 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { Play, Clock, ChevronRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Play, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { videoApi } from "@/lib/api/video";
+import creationApi from "@/lib/api/creation";
 import { useQuery } from "@tanstack/react-query";
-import { cn, formatDuration } from "@/lib/utils";
-import { Video } from "@/types";
+import { cn } from "@/lib/utils";
+import { ICreation, CreationStatus, CreationStatusMap } from "@/types/creation";
 
-interface VideoOverviewItem {
-  id: string;
-  title: string;
-  thumbnailUrl?: string;
-  duration: number;
-  status: "generating" | "completed" | "failed";
-}
-
-export function VideoOverview() {
+export function CreationOverview() {
   const router = useRouter();
   const t = useTranslations();
   const params = useParams();
   const locale = params?.locale as string;
 
-  const { data: videosResponse, isLoading } = useQuery({
-    queryKey: ["videos"],
-    queryFn: () => videoApi.getVideos(),
+  const { data: creationsResponse, isLoading } = useQuery({
+    queryKey: ["creations"],
+    queryFn: () => creationApi.queryCreations({ page: 1, page_size: 100 }),
   });
-
-  const videos = (videosResponse as any)?.data?.data || [];
-  const displayVideos = videos.slice(0, 3); // 只显示前3个视频
+  const creations = (creationsResponse as any)?.items || [];
+  const displayCreations = creations.slice(0, 3); // 只显示前3个视频
 
   const handleViewMore = () => {
-    router.push(`/${locale}/videos`);
+    router.push(`/${locale}/creations`);
   };
 
-  const handleVideoClick = (video: Video) => {
-    if (video.status === "generating") {
-      router.push(`/${locale}/create?video=${video.id}&step=${video.step}`);
+  const handleCreationClick = (creation: ICreation) => {
+    console.log(creation, "creation");
+    if (creation.status !== CreationStatus.COMPLETED && creation.status !== CreationStatus.FAILED) {
+      router.push(`/${locale}/create?creationId=${creation.creation_id}`);
     }
   };
 
-  const getStatusBadgeVideo = (status: Video["status"]) => {
-    const statusMap = {
-      generating: { label: "生成中", color: "bg-blue-500" },
-      completed: { label: "已完成", color: "bg-green-500" },
-      failed: { label: "失败", color: "bg-red-500" },
-    };
-    return statusMap[status];
+  const getStatusBadge = (status: ICreation["status"]) => {
+    const { label, color } =
+      CreationStatusMap[status as keyof typeof CreationStatusMap];
+    return (
+      <Badge variant="default" className={cn("text-xs", color ?? "")}>
+        {label}
+      </Badge>
+    );
   };
 
   if (isLoading) {
@@ -63,7 +55,7 @@ export function VideoOverview() {
     );
   }
 
-  if (videos.length === 0) {
+  if (creations.length === 0) {
     return (
       <div className="text-center py-6">
         <Play className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
@@ -81,38 +73,11 @@ export function VideoOverview() {
     );
   }
 
-  const getStatusBadge = (status: Video["status"]) => {
-    const statusMap = {
-      generating: {
-        label: "进行中",
-        variant: "default" as const,
-        className: "bg-blue-600/50",
-      },
-      completed: {
-        label: "已完成",
-        variant: "default" as const,
-        className: "bg-green-700/80",
-      },
-      failed: {
-        label: "出错了",
-        variant: "destructive" as const,
-        className: "bg-red-500",
-      },
-    };
-
-    const { label, variant, className } = statusMap[status];
-    return (
-      <Badge variant={variant} className={cn("text-xs", className ?? "")}>
-        {label}
-      </Badge>
-    );
-  };  
-
-  const renderVideoContent = (video: Video) => {
-    if (video.videoUrl) {
+  const renderCreationContent = (creation: ICreation) => {
+    if (creation.video_url) {
       return (
         <video
-          src={video.videoUrl}
+          src={creation.video_url}
           controls
           className="w-full h-full object-cover rounded-md"
         />
@@ -121,15 +86,13 @@ export function VideoOverview() {
     return (
       <div className="relative aspect-[16/9] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
         {/* 缩略图背景 */}
-        {video.thumbnailUrl ? (
+        {/* {creation.thumbnail_url ? (
           <img
-            src={video.thumbnailUrl}
-            alt={video.title}
+            src={creation.thumbnail_url}
+            alt={creation.title}
             className="absolute inset-0 w-full h-full object-cover"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-400/90 via-pink-500/90 to-red-500/90 dark:from-purple-600/90 dark:via-pink-700/90 dark:to-red-800/90" />
-        )}
+          /> */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-400/90 via-pink-500/90 to-red-500/90 dark:from-purple-600/90 dark:via-pink-700/90 dark:to-red-800/90" />
 
         {/* 遮罩层 */}
         <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
@@ -144,9 +107,9 @@ export function VideoOverview() {
         {/* 视频信息 */}
         <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between">
           <h3 className="text-xs font-semibold text-white line-clamp-1">
-            {video.title}
+            {creation.title}
           </h3>
-          {getStatusBadge(video.status)}
+          {getStatusBadge(creation.status)}
         </div>
       </div>
     );
@@ -156,18 +119,18 @@ export function VideoOverview() {
     <div className="space-y-3">
       {/* 视频网格布局 */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-        {displayVideos.map((video: Video) => (
+        {displayCreations.map((creationItem: ICreation) => (
           <div
-            key={video.id}
-            onClick={() => handleVideoClick(video)}
+            key={creationItem.creation_id}
+            onClick={() => handleCreationClick(creationItem)}
             className="group cursor-pointer"
           >
-            {renderVideoContent(video)}
+            {renderCreationContent(creationItem)}
           </div>
         ))}
 
         {/* 查看更多卡片 */}
-        {videos.length > 3 && (
+        {creations.length > 3 && (
           <div onClick={handleViewMore} className="group cursor-pointer">
             <div className="relative aspect-[16/9] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-2 border-dashed border-slate-300 dark:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-700/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-700/50">
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">

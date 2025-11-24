@@ -17,26 +17,17 @@ import {
 } from "@/components/ui/form";
 import { Save, X } from "lucide-react";
 import { toast } from "sonner";
-
-interface CharacterInfo {
-  姓名: string;
-  基础信息: string;
-  容貌特征: string;
-  身材特征: string;
-  头发: string;
-  服装: string;
-  特征标签: string;
-  图片链接: string;
-}
+import { ICharacter } from "@/types/character";
+import characterApi from "@/lib/api/character";
 
 const editCharacterSchema = z.object({
-  姓名: z.string().min(1, "姓名不能为空"),
-  基础信息: z.string().min(1, "基础信息不能为空"),
-  容貌特征: z.string().min(1, "容貌特征不能为空"),
-  身材特征: z.string().min(1, "身材特征不能为空"),
-  头发: z.string().min(1, "头发不能为空"),
-  服装: z.string().min(1, "服装不能为空"),
-  特征标签: z.string().min(1, "特征标签不能为空"),
+  name: z.string().min(1, "姓名不能为空"),
+  basicInfo: z.string().min(1, "基础信息不能为空"),
+  appearance: z.string().min(1, "容貌特征不能为空"),
+  body: z.string().min(1, "身材特征不能为空"),
+  hair: z.string().min(1, "头发不能为空"),
+  clothing: z.string().min(1, "服装不能为空"),
+  tags: z.string().min(1, "特征标签不能为空"),
 });
 
 type EditCharacterFormData = z.infer<typeof editCharacterSchema>;
@@ -44,8 +35,8 @@ type EditCharacterFormData = z.infer<typeof editCharacterSchema>;
 interface CharacterEditModalProps {
   isOpen: boolean;
   onClose: () => void;
-  character: CharacterInfo;
-  onSave: (updatedCharacter: CharacterInfo) => void;
+  character: ICharacter;
+  onSuccess: () => void;
 }
 
 /**
@@ -57,33 +48,36 @@ export function CharacterEditModal({
   isOpen,
   onClose,
   character,
-  onSave,
+  onSuccess,
 }: CharacterEditModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  console.log(character?.tags, "character");
 
   const form = useForm<EditCharacterFormData>({
     resolver: zodResolver(editCharacterSchema),
     defaultValues: {
-      姓名: character.姓名,
-      基础信息: character.基础信息,
-      容貌特征: character.容貌特征,
-      身材特征: character.身材特征,
-      头发: character.头发,
-      服装: character.服装,
-      特征标签: character.特征标签,
+      name: character.name,
+      basicInfo: character.basic_info,
+      appearance: character.appearance,
+      body: character.body,
+      hair: character.hair,
+      clothing: character.clothing,
+      tags: character.tags.join(","),
     },
   });
 
   const handleSave = async (data: EditCharacterFormData) => {
     setIsLoading(true);
     try {
-      const updatedCharacter: CharacterInfo = {
+      const updatedCharacter: ICharacter = {
         ...character,
         ...data,
+        tags: data.tags.split(","),
       };
       
-      onSave(updatedCharacter);
+      await characterApi.updateCharacter(character.character_id, updatedCharacter);
       toast.success("角色信息修改成功");
+      onSuccess();
       onClose();
     } catch (error) {
       toast.error("保存失败，请重试");
@@ -125,7 +119,7 @@ export function CharacterEditModal({
           {/* 姓名 */}
           <FormField
             control={form.control}
-            name="姓名"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
@@ -146,7 +140,7 @@ export function CharacterEditModal({
           {/* 基础信息 */}
           <FormField
             control={form.control}
-            name="基础信息"
+            name="basicInfo"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
@@ -168,7 +162,7 @@ export function CharacterEditModal({
           {/* 容貌特征 */}
           <FormField
             control={form.control}
-            name="容貌特征"
+            name="appearance"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
@@ -190,7 +184,7 @@ export function CharacterEditModal({
           {/* 身材特征 */}
           <FormField
             control={form.control}
-            name="身材特征"
+            name="body"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
@@ -212,7 +206,7 @@ export function CharacterEditModal({
           {/* 头发 */}
           <FormField
             control={form.control}
-            name="头发"
+            name="hair"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
@@ -233,7 +227,7 @@ export function CharacterEditModal({
           {/* 服装 */}
           <FormField
             control={form.control}
-            name="服装"
+            name="clothing"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
@@ -255,7 +249,7 @@ export function CharacterEditModal({
           {/* 特征标签 */}
           <FormField
             control={form.control}
-            name="特征标签"
+            name="tags"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">

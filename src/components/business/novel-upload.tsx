@@ -15,8 +15,9 @@ import { formatFileSize } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { novelApi } from "@/lib/api/novel";
-import { useTaskPolling } from "@/hooks/use-task-polling";
 import { TaskStatus } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import taskApi from "@/lib/api/task";
 
 // 文件上传配置
 const MAX_FILE_SIZE = 50 * 1024 * 1024; // 100MB max file size
@@ -44,28 +45,22 @@ export function NovelUpload({
     };
   }, []);
 
-  const { data: task, isPolling } = useTaskPolling(taskId, {
-    interval: 3000,
-    immediate: true, // taskId 变化时自动开始轮询
-    onSuccess: (task) => {
-      // toast.success("小说解析完成！");
-      setIsUploading(false);
-      setUploadCompleted(true);
-      setNovelId(task.resource?.novelId);
-      timer.current = setTimeout(() => {
-        onComplete(task.resource?.novelId as string);
-      }, 2000);
-      // 可以跳转到小说详情页或执行其他操作
-      // router.push(`/novels/${task.resource?.novelId}`);
+  const {data: task, isLoading} = useQuery({
+    queryKey: ["task", taskId],
+    queryFn: () => taskApi.queryTaskStatus(taskId as string),
+    enabled: !!taskId,
+    refetchInterval: (query) => {
+      console.log(query.state.data, "task query");
+      const taskStatus = query.state.data?.data?.status;
+      if ([TaskStatus.SUCCESS, TaskStatus.FAILURE].includes(taskStatus)) {
+        setIsUploading(false);
+        setUploadCompleted(true);
+        setNovelId(query.state.data?.data?.novel_id);
+        onComplete(query.state.data?.data?.novel_id as string);
+        return false;
+      }
+      return 2000;
     },
-    onFailure: (task) => {
-      toast.error("解析失败：" + task.message);
-      setIsUploading(false);
-    },
-    // onProgress: (task) => {
-    //   // 实时显示进度
-    //   console.log(`解析进度: ${task.progress.percent}%`);
-    // },
   });
 
   const form = useForm<NovelUploadFormData>({
@@ -150,7 +145,7 @@ export function NovelUpload({
 
       // 后端返回的数据中包含 taskId
       // @ts-ignore - 后端可能返回不同的数据结构
-      const uploadTaskId = response?.task_id;
+      const uploadTaskId = response?.data?.task_id;
 
       if (uploadTaskId) {
         toast.success("文件上传成功，开始解析...");
@@ -244,7 +239,7 @@ export function NovelUpload({
       )}
 
       {/* 任务完成或失败提示 */}
-      {task && !isPolling && (
+      {task && !isLoading && (
         <div
           className={`p-4 border rounded-lg ${
             task.status === TaskStatus.SUCCESS

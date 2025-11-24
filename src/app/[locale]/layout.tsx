@@ -25,7 +25,7 @@ export default async function LocaleLayout({
           <QueryProvider>
             <NextIntlClientProvider messages={messages}>
               {children}
-              <Toaster />
+              <Toaster position="top-right" visibleToasts={2} richColors closeButton />
             </NextIntlClientProvider>
           </QueryProvider>
         </ThemeProvider>
