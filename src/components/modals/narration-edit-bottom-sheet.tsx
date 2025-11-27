@@ -29,7 +29,7 @@ interface NarrationEditBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   image: AIGeneratedImage | null;
-  onSave: (imageId: string, newNarration: string) => void;
+  onSave: (imageId: string, newNarration: string) => Promise<void>;
 }
 
 /**
@@ -66,11 +66,11 @@ export function NarrationEditBottomSheet({
     
     setIsLoading(true);
     try {
-      onSave(image.image_id, data.narration);
+      await onSave(image.image_id, data.narration);
       toast.success("旁白修改成功");
       onClose();
     } catch (error) {
-      toast.error("保存失败，请重试");
+      toast.error(error instanceof Error ? error.message : "保存失败，请重试");
     } finally {
       setIsLoading(false);
     }

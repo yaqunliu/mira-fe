@@ -15,14 +15,52 @@ import { StorySetting } from "@/components/business/create-settings/story-settin
 import { ScriptSetting } from "@/components/business/create-settings/script-setting";
 import { CharacterSetting } from "@/components/business/create-settings/character-setting";
 import { StoryboardImages } from "@/components/business/create-settings/storyboard-images";
-import sceneImages from "@/mock/scene_images.json";
 import { VideoGenerator } from "@/components/business/create-settings/video-generator";
 import { mockVideos } from "@/lib/mock-video-data";
 import creationApi from "@/lib/api/creation";
+import taskApi from "@/lib/api/task";
 import { useQuery } from "@tanstack/react-query";
 import { ICreation, CreationStatus } from "@/types/creation";
 import { ICharacter } from "@/types/character";
 import ModuleLoading from "@/components/ui/module-loading";
+import { toast } from "sonner";
+import { TaskStatus, SceneGroup, ShotsTaskResponse } from "@/types";
+import { IScene } from "@/types/scene";
+
+// 将轮询任务返回的分镜数据转换为 StoryboardImages 组件需要的格式
+function transformShotsToSceneGroups(shotsData: ShotsTaskResponse): SceneGroup[] {
+  return shotsData.scenes.map((scene) => ({
+    scene_id: String(scene.scene_id),
+    scene_title: scene.title,
+    images: scene.shots.map((shot) => ({
+      image_id: String(shot.shot_id),
+      title: shot.title,
+      image_url: shot.image_url || "",
+      prompt: shot.image_prompt || shot.prompt || "", // 优先使用 image_prompt
+      narration: shot.narration || "",
+      status: shot.status === "completed" ? "completed" 
+            : shot.status === "failed" ? "failed" 
+            : shot.status === "generating" ? "generating" 
+            : "generating",
+    })),
+  }));
+}
+
+// 将 Creation 中的 scenes 数据转换为 StoryboardImages 组件需要的格式
+function transformCreationScenesToSceneGroups(scenes: IScene[]): SceneGroup[] {
+  return scenes.map((scene) => ({
+    scene_id: String(scene.scene_id),
+    scene_title: scene.title,
+    images: scene.shots.map((shot) => ({
+      image_id: String(shot.shot_id),
+      title: shot.title,
+      image_url: shot.image_url || "",
+      prompt: shot.image_prompt || "", // 注意：IShot 中字段名是 image_prompt
+      narration: shot.narration || "",
+      status: (shot.image_url ? "completed" : "pending") as "pending" | "generating" | "completed" | "failed",
+    })),
+  }));
+}
 
 export default function CreateCreation() {
   const t = useTranslations();
@@ -32,6 +70,11 @@ export default function CreateCreation() {
   const searchParams = useSearchParams();
   const creationIdFromUrl = searchParams?.get("creationId") || "";
   const [creationId, setCreationId] = useState<string>(creationIdFromUrl);
+
+  // 分镜生成任务相关状态
+  const [shotsTaskId, setShotsTaskId] = useState<string | null>(null);
+  const [isGeneratingShots, setIsGeneratingShots] = useState(false);
+  const [storyboardData, setStoryboardData] = useState<SceneGroup[]>([]);
 
   // 同步 URL 参数到 state
   useEffect(() => {
@@ -82,6 +125,89 @@ export default function CreateCreation() {
     },
   });
   const curCreation = useMemo(() => curCreationResponse?.data as ICreation, [curCreationResponse]);
+
+  // 轮询分镜生成任务状态
+  const { data: shotsTaskData } = useQuery({
+    queryKey: ["shotsTask", shotsTaskId],
+    queryFn: () => taskApi.queryShotsTask(shotsTaskId as string),
+    enabled: !!shotsTaskId && isGeneratingShots,
+    retry: 2, // 失败时最多重试2次
+    refetchInterval: (query) => {
+      // 如果查询出错，停止轮询
+      if (query.state.error) {
+        console.error("查询任务状态失败:", query.state.error);
+        setIsGeneratingShots(false);
+        setShotsTaskId(null);
+        toast.error("查询任务状态失败，请刷新页面重试");
+        refetchCreation(); // 刷新创作数据
+        return false;
+      }
+      
+      const taskStatus = query.state.data?.data?.status;
+      if (taskStatus === TaskStatus.SUCCESS || taskStatus === TaskStatus.FAILURE) {
+        setIsGeneratingShots(false);
+        if (taskStatus === TaskStatus.SUCCESS) {
+          toast.success("分镜图片生成完成！");
+        } else {
+          toast.error("分镜图片生成失败，请重试");
+        }
+        return false;
+      }
+      return 2000; // 每2秒轮询一次
+    },
+  });
+
+  // 当分镜任务数据更新时，更新 storyboardData
+  useEffect(() => {
+    if (shotsTaskData?.data?.scenes) {
+      const transformedData = transformShotsToSceneGroups(shotsTaskData.data);
+      setStoryboardData(transformedData);
+    }
+  }, [shotsTaskData]);
+
+  // 当 curCreation 加载完成且进入分镜步骤时，从 scenes 初始化 storyboardData
+  useEffect(() => {
+    // 只有在分镜数据为空，且 creation 有 scenes 数据，且不在生成中时才初始化
+    if (
+      storyboardData.length === 0 &&
+      !isGeneratingShots &&
+      curCreation?.scenes &&
+      curCreation.scenes.length > 0 &&
+      curCreation.scenes.some(scene => scene.shots && scene.shots.length > 0)
+    ) {
+      const transformedData = transformCreationScenesToSceneGroups(curCreation.scenes);
+      setStoryboardData(transformedData);
+      console.log("[Create Page] 从 curCreation.scenes 初始化分镜数据", transformedData);
+    }
+  }, [curCreation?.scenes, storyboardData.length, isGeneratingShots]);
+
+  // 触发分镜生成
+  const handleGenerateShots = async () => {
+    if (!creationId) {
+      toast.error("创作ID不存在");
+      return;
+    }
+
+    try {
+      setIsGeneratingShots(true);
+      toast.info("开始生成分镜图片...");
+      
+      const response = await creationApi.generateShots(creationId);
+      const taskId = response?.data?.task_id;
+      
+      if (taskId) {
+        setShotsTaskId(taskId);
+        nextStep(); // 先跳转到分镜页面
+      } else {
+        toast.error("未能获取任务ID");
+        setIsGeneratingShots(false);
+      }
+    } catch (error) {
+      console.error("Generate shots error:", error);
+      toast.error(error instanceof Error ? error.message : "分镜生成失败，请重试");
+      setIsGeneratingShots(false);
+    }
+  };
 
   useEffect(() => {
     switch (curCreation?.status) {
@@ -146,15 +272,16 @@ export default function CreateCreation() {
         return (
           <ScriptSetting
             data={curCreation?.scenes || []}
-            onComplete={() => {
-              nextStep();
-            }}
+            onComplete={handleGenerateShots}
+            isLoading={isGeneratingShots}
           />
         );
       case 3:
         return (
           <StoryboardImages
-            data={sceneImages.data}
+            data={storyboardData}
+            isGenerating={isGeneratingShots}
+            progress={shotsTaskData?.data?.progress}
             onComplete={() => {
               nextStep();
             }}

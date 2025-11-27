@@ -5,36 +5,44 @@ import type { LoginFormData, RegisterFormData } from '@/lib/validations/auth'
 export const authApi = {
   // 登录
   login: async (data: LoginFormData) => {
-    return apiClient.post<{ user: User; token: string }>('/auth/login', data)
+    const formData = new URLSearchParams()
+    formData.append('username', data.username)
+    formData.append('password', data.password)
+    
+    return apiClient.post<{ access_token: string; token_type: string }>('/api/v1/auth/login', formData, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
   },
 
   // 注册
   register: async (data: RegisterFormData) => {
-    return apiClient.post<{ user: User; token: string }>('/auth/register', data)
+    return apiClient.post<{ user: User; token: string }>('/api/v1/auth/register', data)
   },
 
   // 获取当前用户信息
   getCurrentUser: async () => {
-    return apiClient.get<User>('/auth/me')
+    return apiClient.get<User>('/api/v1/auth/me')
   },
 
   // 刷新token
   refreshToken: async () => {
-    return apiClient.post<{ token: string }>('/auth/refresh')
+    return apiClient.post<{ token: string }>('/api/v1/auth/refresh')
   },
 
   // 登出
   logout: async () => {
-    return apiClient.post('/auth/logout')
+    return apiClient.post('/api/v1/auth/logout')
   },
 
   // 忘记密码
   forgotPassword: async (email: string) => {
-    return apiClient.post('/auth/forgot-password', { email })
+    return apiClient.post('/api/v1/auth/forgot-password', { email })
   },
 
   // 重置密码
   resetPassword: async (token: string, password: string) => {
-    return apiClient.post('/auth/reset-password', { token, password })
+    return apiClient.post('/api/v1/auth/reset-password', { token, password })
   },
 }

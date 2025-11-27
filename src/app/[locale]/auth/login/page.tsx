@@ -24,7 +24,7 @@ export default function LoginPage() {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   })
@@ -34,16 +34,27 @@ export default function LoginPage() {
       setLoading(true)
       const response = await authApi.login(data)
       
-      if (response.success && response.data) {
-        login(response.data.user, response.data.token)
-        toast.success('Login successful!')
-        router.push('/')
+      if (response.data?.access_token) {
+        // 登录成功，保存 token
+        const token = response.data.access_token
+        // 用用户名作为临时用户信息，后续可以调用 getCurrentUser 获取完整信息
+        const user = {
+          id: data.username, // 用用户名作为临时 ID
+          username: data.username,
+          email: '',
+          avatar: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+        login(user, token)
+        toast.success(response.message || '登录成功！')
+        router.push(`/${locale}`)
       } else {
-        toast.error(response.message || 'Server error')
+        toast.error(response.message || '服务器错误')
       }
     } catch (error) {
       console.error('Login error:', error)
-      toast.error('Network error')
+      toast.error('网络错误，请稍后重试')
     } finally {
       setLoading(false)
     }
@@ -56,7 +67,7 @@ export default function LoginPage() {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">Login</CardTitle>
             <CardDescription className="text-center">
-              Enter your email and password to sign in
+              Enter your username and password to sign in
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -64,14 +75,14 @@ export default function LoginPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
                         <Input
-                          type="email"
-                          placeholder="Enter your email"
+                          type="text"
+                          placeholder="Enter your username"
                           {...field}
                         />
                       </FormControl>

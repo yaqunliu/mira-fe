@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,24 +22,34 @@ import {
   PenLine,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AIGeneratedImage, SceneGroup } from "@/types";
+import { AIGeneratedImage, SceneGroup, ShotGenerationProgress, TaskStatus } from "@/types";
 import { StoryboardEditBottomSheet } from "@/components/modals/storyboard-edit-bottom-sheet";
 import { NarrationEditBottomSheet } from "@/components/modals/narration-edit-bottom-sheet";
+import shotApi from "@/lib/api/shot";
+import taskApi from "@/lib/api/task";
+import { toast } from "sonner";
 
 interface StoryboardImagesProps {
   data: SceneGroup[];
-  onRegenerateImage?: (imageId: string, newPrompt: string) => Promise<void>;
   onUpdateNarration?: (imageId: string, newNarration: string) => Promise<void>;
+  onImageUpdated?: (imageId: string, newImageUrl: string) => void;
   className?: string;
   onComplete: () => void;
+  isGenerating?: boolean;
+  progress?: ShotGenerationProgress;
 }
+
+// 轮询间隔
+const POLL_INTERVAL = 2000;
 
 export function StoryboardImages({
   data,
-  onRegenerateImage,
   onUpdateNarration,
+  onImageUpdated,
   onComplete,
   className,
+  isGenerating = false,
+  progress,
 }: StoryboardImagesProps) {
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<string>("");
@@ -55,6 +65,22 @@ export function StoryboardImages({
     useState(false);
   const [currentNarrationImage, setCurrentNarrationImage] =
     useState<AIGeneratedImage | null>(null);
+  
+  // 本地图片数据状态（用于更新重新生成的图片）
+  const [localImageUpdates, setLocalImageUpdates] = useState<Record<string, string>>({});
+  
+  // 本地旁白数据状态（用于更新旁白）
+  const [localNarrationUpdates, setLocalNarrationUpdates] = useState<Record<string, string>>({});
+  
+  // 轮询定时器引用
+  const pollTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
+  
+  // 清理轮询定时器
+  useEffect(() => {
+    return () => {
+      Object.values(pollTimersRef.current).forEach(timer => clearTimeout(timer));
+    };
+  }, []);
 
   console.log(data, "data");
   // 获取所有图片的扁平数组
@@ -74,12 +100,28 @@ export function StoryboardImages({
 
   // 保存旁白编辑
   const handleSaveNarration = useCallback(
-    (imageId: string, newNarration: string) => {
-      if (onUpdateNarration) {
-        onUpdateNarration(imageId, newNarration);
+    async (imageId: string, newNarration: string) => {
+      try {
+        // 调用 API 更新旁白
+        await shotApi.updateNarration(imageId, newNarration);
+        
+        // 更新本地状态
+        setLocalNarrationUpdates(prev => ({
+          ...prev,
+          [imageId]: newNarration,
+        }));
+        
+        // 通知父组件（如果有回调）
+        if (onUpdateNarration) {
+          onUpdateNarration(imageId, newNarration);
+        }
+        
+        setIsNarrationEditModalOpen(false);
+        setCurrentNarrationImage(null);
+      } catch (error) {
+        console.error("更新旁白失败:", error);
+        throw error; // 重新抛出错误让弹窗处理
       }
-      setIsNarrationEditModalOpen(false);
-      setCurrentNarrationImage(null);
     },
     [onUpdateNarration]
   );
@@ -90,23 +132,125 @@ export function StoryboardImages({
     setCurrentNarrationImage(null);
   }, []);
 
+  // 轮询任务状态
+  const pollTaskStatus = useCallback(async (taskId: string, imageId: string) => {
+    try {
+      const response = await taskApi.queryTaskStatus(taskId);
+      const taskData = response?.data;
+      
+      if (!taskData) {
+        throw new Error("无法获取任务状态");
+      }
+      
+      const status = taskData.status;
+      
+      if (status === TaskStatus.SUCCESS) {
+        // 从 resource.shot.image_url 获取新图片
+        const newImageUrl = taskData.resource?.shot?.image_url;
+        
+        if (newImageUrl) {
+          // 更新本地图片
+          setLocalImageUpdates(prev => ({
+            ...prev,
+            [imageId]: newImageUrl,
+          }));
+          
+          // 通知父组件
+          if (onImageUpdated) {
+            onImageUpdated(imageId, newImageUrl);
+          }
+          
+          toast.success("图片重新生成成功！");
+        } else {
+          toast.error("生成成功但未获取到图片地址");
+        }
+        
+        // 停止加载状态
+        setRegeneratingIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(imageId);
+          return newSet;
+        });
+        
+        // 清除定时器
+        if (pollTimersRef.current[imageId]) {
+          clearTimeout(pollTimersRef.current[imageId]);
+          delete pollTimersRef.current[imageId];
+        }
+      } else if (status === TaskStatus.FAILURE) {
+        // 生成失败
+        toast.error("图片重新生成失败，请重试");
+        
+        setRegeneratingIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(imageId);
+          return newSet;
+        });
+        
+        // 清除定时器
+        if (pollTimersRef.current[imageId]) {
+          clearTimeout(pollTimersRef.current[imageId]);
+          delete pollTimersRef.current[imageId];
+        }
+      } else {
+        // 继续轮询
+        pollTimersRef.current[imageId] = setTimeout(() => {
+          pollTaskStatus(taskId, imageId);
+        }, POLL_INTERVAL);
+      }
+    } catch (error) {
+      console.error("轮询任务状态失败:", error);
+      toast.error("查询任务状态失败");
+      
+      setRegeneratingIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(imageId);
+        return newSet;
+      });
+      
+      // 清除定时器
+      if (pollTimersRef.current[imageId]) {
+        clearTimeout(pollTimersRef.current[imageId]);
+        delete pollTimersRef.current[imageId];
+      }
+    }
+  }, [onImageUpdated]);
+
   // 重新生成图片
   const handleRegenerateImage = useCallback(
     async (imageId: string, newPrompt: string) => {
-      if (onRegenerateImage) {
-        setRegeneratingIds((prev) => new Set(prev).add(imageId));
-        try {
-          await onRegenerateImage(imageId, newPrompt);
-        } finally {
-          setRegeneratingIds((prev) => {
-            const newSet = new Set(prev);
-            newSet.delete(imageId);
-            return newSet;
-          });
+      // 添加到正在生成的列表
+      setRegeneratingIds(prev => new Set(prev).add(imageId));
+      
+      try {
+        // 调用 API 开始生成
+        const response = await shotApi.regenerateShot(imageId, newPrompt);
+        const taskId = response?.data?.task_id;
+        
+        if (!taskId) {
+          throw new Error("未能获取任务ID");
         }
+        
+        toast.info("开始重新生成图片...");
+        
+        // 开始轮询任务状态
+        pollTimersRef.current[imageId] = setTimeout(() => {
+          pollTaskStatus(taskId, imageId);
+        }, POLL_INTERVAL);
+        
+      } catch (error) {
+        console.error("重新生成图片失败:", error);
+        toast.error(error instanceof Error ? error.message : "重新生成失败，请重试");
+        
+        // 移除加载状态
+        setRegeneratingIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(imageId);
+          return newSet;
+        });
       }
     },
-    [onRegenerateImage]
+    [pollTaskStatus]
   );
 
   // 关闭编辑弹窗
@@ -123,40 +267,80 @@ export function StoryboardImages({
   // 获取当前预览的图片
   const previewImage = allImages.find((img) => img.image_id === previewImageId);
 
-  // 计算整体生成进度
-  const totalImages = allImages.length;
-  const completedImages = allImages.filter(
+  // 计算整体生成进度（优先使用 API 返回的进度数据）
+  const totalImages = progress?.total || allImages.length;
+  const completedImages = progress?.completed || allImages.filter(
     (img) => img.status === "completed"
   ).length;
-  const generatingImages = allImages.filter(
+  const generatingImages = isGenerating ? (totalImages - completedImages) : allImages.filter(
     (img) => img.status === "generating"
   ).length;
   const overallProgress =
     totalImages > 0 ? (completedImages / totalImages) * 100 : 0;
+  const successCount = progress?.success_count || completedImages;
+  const failedCount = progress?.failed_count || 0;
 
   return (
     <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>
       <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
         <h3 className="text-base font-semib100">{`分镜图列表`}</h3>
         {/* 整体进度条 */}
-        {generatingImages > 0 && (
+        {(isGenerating || generatingImages > 0) && (
           <Card className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    正在生成图片 ({completedImages}/{totalImages})
+                    正在生成分镜图片 ({completedImages}/{totalImages})
                   </span>
                 </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
-                >
-                  {generatingImages} 张生成中
-                </Badge>
+                <div className="flex gap-2">
+                  {successCount > 0 && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                    >
+                      {successCount} 张成功
+                    </Badge>
+                  )}
+                  {failedCount > 0 && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                    >
+                      {failedCount} 张失败
+                    </Badge>
+                  )}
+                  <Badge
+                    variant="secondary"
+                    className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+                  >
+                    {generatingImages} 张生成中
+                  </Badge>
+                </div>
               </div>
               <Progress value={overallProgress} className="h-2" />
+            </div>
+          </Card>
+        )}
+
+        {/* 初始加载状态 */}
+        {isGenerating && data.length === 0 && (
+          <Card className="p-8">
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+                <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-orange-500" />
+              </div>
+              <div className="text-center space-y-2">
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                  正在生成分镜图片
+                </p>
+                <p className="text-sm text-gray-500">
+                  请稍候，AI 正在根据脚本创作分镜图片...
+                </p>
+              </div>
             </div>
           </Card>
         )}
@@ -184,6 +368,7 @@ export function StoryboardImages({
                   const isEditing = editingImageId === image.image_id;
                   const isRegenerating = regeneratingIds.has(image.image_id);
                   const isGenerating = image.status === "generating";
+                  const isPending = image.status === "pending";
 
                   return (
                     <div key={image.image_id} className="space-y-4">
@@ -209,10 +394,16 @@ export function StoryboardImages({
                         </h5>
                       </div>
                       {/* 图片容器 */}
-                      <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden group">
-                        {isGenerating ? (
+                      <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden group min-h-[120px]">
+                        {isPending ? (
+                          // 待生成状态
+                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6">
+                            <ImageIcon className="w-10 h-10 text-gray-400" />
+                            <p className="text-sm text-gray-500">待生成</p>
+                          </div>
+                        ) : isGenerating ? (
                           // 生成中状态
-                          <div className="flex flex-col items-center justify-center h-full space-y-4">
+                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 py-6">
                             <div className="relative">
                               <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
                               <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-orange-500" />
@@ -236,7 +427,7 @@ export function StoryboardImages({
                           </div>
                         ) : image.status === "failed" ? (
                           // 生成失败状态
-                          <div className="flex flex-col items-center justify-center h-full space-y-4 text-red-500">
+                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 text-red-500 py-6">
                             <X className="w-12 h-12" />
                             <p className="text-sm font-medium">生成失败</p>
                           </div>
@@ -244,13 +435,25 @@ export function StoryboardImages({
                           // 正常图片显示
                           <>
                             <img
-                              src={image.image_url}
+                              src={localImageUpdates[image.image_id] || image.image_url}
                               alt={`${image.title} - 分镜图片 ${
                                 imageIndex + 1
                               }`}
-                              className="w-full object-cover cursor-pointer"
+                              className={cn(
+                                "w-full object-cover cursor-pointer",
+                                isRegenerating && "opacity-50"
+                              )}
                               onClick={() => handlePreviewImage(image.image_id)}
                             />
+                            {/* 重新生成中的遮罩 */}
+                            {isRegenerating && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                <div className="flex flex-col items-center gap-2">
+                                  <Loader2 className="w-8 h-8 animate-spin text-white" />
+                                  <span className="text-white text-sm">重新生成中...</span>
+                                </div>
+                              </div>
+                            )}
 
                             {/* 操作按钮 */}
                             <div className="absolute top-2 right-2">
@@ -281,23 +484,19 @@ export function StoryboardImages({
 
                       {/* 内容区域 */}
                       <div className="space-y-3">
-                        {image.narration && (
+                        {(localNarrationUpdates[image.image_id] || image.narration) && (
                           <div className="flex items-start gap-2 text-white">
-                            <Mic className="w-4 h-4 mt-1 flex-shrink-0" />
-                            <div className="flex-1">
-                              <p className="text-sm leading-relaxed line-clamp-2">
-                                {image.narration}
-                                <button
-                                  onClick={() =>
-                                    handleStartEditNarration(image)
-                                  }
-                                  className="flex-shrink-0 p-1 hover:bg-white/20 rounded transition-colors inline p-0"
-                                  title="编辑旁白"
-                                >
-                                  <PenLine className="w-3 h-3 text-zinc-400 dark:text-gray-500" />
-                                </button>
-                              </p>
-                            </div>
+                            <Mic className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                            <p className="text-sm leading-relaxed line-clamp-2 flex-1 min-w-0">
+                              {localNarrationUpdates[image.image_id] || image.narration}
+                            </p>
+                            <button
+                              onClick={() => handleStartEditNarration(image)}
+                              className="flex-shrink-0 p-1 hover:bg-white/20 rounded transition-colors"
+                              title="编辑旁白"
+                            >
+                              <PenLine className="w-3 h-3 text-zinc-400 dark:text-gray-500" />
+                            </button>
                           </div>
                         )}
                         {/* 提示词编辑 */}
@@ -427,10 +626,20 @@ export function StoryboardImages({
                 // 下一步操作
                 onComplete();
               }}
+              disabled={isGenerating || data.length === 0}
               className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
             >
-              下一步
-              <ArrowRight className="w-4 h-4 mr-1" />
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  生成中...
+                </>
+              ) : (
+                <>
+                  下一步
+                  <ArrowRight className="w-4 h-4 mr-1" />
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -440,7 +649,7 @@ export function StoryboardImages({
         <ImagePreview
           open={!!previewImageId}
           onOpenChange={(open) => !open && setPreviewImageId(null)}
-          src={previewImage.image_url}
+          src={localImageUpdates[previewImage.image_id] || previewImage.image_url}
           alt={`分镜图片预览`}
         />
       )}
@@ -457,7 +666,10 @@ export function StoryboardImages({
       <NarrationEditBottomSheet
         isOpen={isNarrationEditModalOpen}
         onClose={handleCloseNarrationEdit}
-        image={currentNarrationImage}
+        image={currentNarrationImage ? {
+          ...currentNarrationImage,
+          narration: localNarrationUpdates[currentNarrationImage.image_id] || currentNarrationImage.narration,
+        } : null}
         onSave={handleSaveNarration}
       />
     </div>

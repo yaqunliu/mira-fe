@@ -21,7 +21,9 @@ export function CreationOverview() {
     queryKey: ["creations"],
     queryFn: () => creationApi.queryCreations({ page: 1, page_size: 100 }),
   });
-  const creations = (creationsResponse as any)?.items || [];
+  // API 返回格式: { success: true, data: { items: [...] } } 或 { success: true, data: [...] }
+  const responseData = (creationsResponse as any)?.data;
+  const creations = responseData?.items || (Array.isArray(responseData) ? responseData : []);
   const displayCreations = creations.slice(0, 3); // 只显示前3个视频
 
   const handleViewMore = () => {

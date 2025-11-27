@@ -1,7 +1,7 @@
 import { z } from "zod"
 
 export const loginSchema = z.object({
-  email: z.string().email("请输入有效的邮箱地址"),
+  username: z.string().min(2, "用户名至少需要2个字符").max(20, "用户名不能超过20个字符"),
   password: z.string().min(6, "密码至少需要6个字符"),
 })
 

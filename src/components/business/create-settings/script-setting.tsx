@@ -17,6 +17,7 @@ import {
   Film,
   Layers,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IScene, IShot } from "@/types/scene";
@@ -26,12 +27,14 @@ interface ScriptSettingProps {
   data: IScene[];
   className?: string;
   onComplete: () => void;
+  isLoading?: boolean;
 }
 
 export function ScriptSetting({
   data,
   className,
   onComplete,
+  isLoading = false,
 }: ScriptSettingProps) {
   const [expandedScenes, setExpandedScenes] = useState<Set<number>>(
     new Set(data.length > 0 ? [data[0].scene_id] : [])
@@ -246,10 +249,20 @@ export function ScriptSetting({
                 // 下一步操作
                 onComplete();
               }}
+              disabled={isLoading}
               className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
             >
-              下一步
-              <ArrowRight className="w-4 h-4 mr-1" />
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  生成中...
+                </>
+              ) : (
+                <>
+                  下一步
+                  <ArrowRight className="w-4 h-4 mr-1" />
+                </>
+              )}
             </Button>
           </div>
         </div>
