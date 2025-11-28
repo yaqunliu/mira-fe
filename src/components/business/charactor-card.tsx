@@ -11,6 +11,7 @@ import { ImagePreview } from "@/components/ui/image-preview";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 function CharactorCard({
   character,
@@ -21,6 +22,7 @@ function CharactorCard({
   canRegenerateImage?: boolean;
   onRegenerateImage?: (characterId: string) => void;
 }) {
+  const t = useTranslations();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const handleImageClick = (imageUrl: string) => {
     setPreviewImage(imageUrl);
@@ -39,7 +41,7 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2 w-[66px]">
-              {"基础信息"}
+              {tFunc("character.basicInfo")}
             </Badge>
           </div>
           <DropdownMenu>
@@ -59,7 +61,7 @@ function CharactorCard({
         <div className="flex gap-2 items-start">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {"容貌特征"}
+              {tFunc("character.appearanceFeatures")}
             </Badge>
           </div>
           <DropdownMenu>
@@ -79,7 +81,7 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {"身材特征"}
+              {tFunc("character.bodyFeatures")}
             </Badge>
           </div>
           <DropdownMenu>
@@ -99,7 +101,7 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {"头发"}
+              {tFunc("character.hair")}
             </Badge>
           </div>
           <DropdownMenu>
@@ -119,7 +121,7 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {"服装"}
+              {tFunc("character.clothing")}
             </Badge>
           </div>
           <DropdownMenu>
@@ -139,7 +141,7 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {"特征标签"}
+              {tFunc("character.featureTags")}
             </Badge>
           </div>
           <DropdownMenu>
@@ -184,7 +186,7 @@ function CharactorCard({
                   onClick={() => handleRegenerateImage()}
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span className="text-xs">{"重新生成"}</span>
+                  <span className="text-xs">{tFunc("character.regenerate")}</span>
                 </div>)}
               </div>
             </div>
@@ -192,7 +194,7 @@ function CharactorCard({
             <div className="flex justify-center">
               <div className="flex justify-center items-center w-[150px] aspect-[3/4] rounded-lg bg-slate-200 dark:bg-zinc-700">
                 <span className="text-sm tracking-wider font-bold text-secondary">
-                  暂无角色形象
+                  {tFunc("character.characterImage")}
                 </span>
               </div>
             </div>

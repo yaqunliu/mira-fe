@@ -37,19 +37,21 @@ import taskApi from "@/lib/api/task";
 import { TaskStatus } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
-const STYLE_OPTIONS = [
-  { value: "anime", label: "动漫风格" },
-  { value: "realistic", label: "写实风格" },
-  { value: "watercolor", label: "水彩风格" },
-  { value: "oil_painting", label: "油画风格" },
+const getStyleOptions = (t: any) => [
+  { value: "anime", label: t("animeStyle") },
+  { value: "realistic", label: t("realisticStyle") },
+  { value: "watercolor", label: t("watercolorStyle") },
+  { value: "oil_painting", label: t("oilPaintingStyle") },
 ];
 
 export function CharacterSetting({
   characters,
+  currentTaskId,
   onComplete,
   handleUpdate,
 }: {
   characters: ICharacter[];
+  currentTaskId?: string;
   onComplete: () => void;
   handleUpdate: () => void;
 }) {
@@ -89,17 +91,17 @@ export function CharacterSetting({
     try {
       const response = await characterApi.generateCharacterImages(
         characterIds,
-        STYLE_OPTIONS.find((option) => option.value === selectedStyle)?.label ||
-          "动漫风格"
+        getStyleOptions(t).find((option) => option.value === selectedStyle)?.label ||
+          t("animeStyle")
       );
       if (response.data && response.data.task_id) {
         setTaskId(response.data.task_id);
       } else {
-        toast.error("未获取到任务ID");
+        toast.error(t("taskIdNotFound"));
       }
     } catch (error) {
       console.log(error);
-      toast.error(error instanceof Error ? error.message : "生成失败，请重试");
+      toast.error(error instanceof Error ? error.message : t("generationFailed"));
       setIsGenerating(false);
     }
   };
@@ -121,12 +123,16 @@ export function CharacterSetting({
 
   console.log(isGenerating, "isGenerating");
 
+  // 只有在有任务在进行或者正在生成时才显示loading
+  // 如果characters为空但没有任务在进行，说明数据已经加载完成，只是没有角色数据，不应该显示loading
+  const shouldShowLoading = isGenerating || (characters?.length === 0 && !!currentTaskId);
+
   return (
     <div className="h-[calc(100vh-136px)]">
-      <ModuleLoading loading={isGenerating || characters?.length === 0} className="h-full" text={characters?.length === 0 ? "角色信息分析中..." : "角色形象生成中..."}>
+      <ModuleLoading loading={shouldShowLoading} className="h-full" text={characters?.length === 0 ? t("analyzingCharacterInfo") : t("generatingCharacterImage")}>
         <div className="space-y-4 px-6 h-full overflow-y-auto pb-20">
           <div className="flex justify-between items-center">
-            <h3 className="text-base font-semibold">{`故事包含${characters.length}个角色`}</h3>
+            <h3 className="text-base font-semibold">{t("characterSettings")} ({characters.length})</h3>
             {/* 生成按钮 */}
             <Button
               onClick={() => gengerateCharacterImages(characters)}
@@ -135,7 +141,7 @@ export function CharacterSetting({
               variant="secondary"
             >
               <WandSparkles className="w-3 h-3" />
-              {isGenerating ? t("生成中") : t("生成角色形象")}
+              {isGenerating ? t("generating") : t("generateCharacterImage")}
             </Button>
           </div>
           {/* 生成进度 */}
@@ -148,16 +154,16 @@ export function CharacterSetting({
           {/* 风格选择 */}
           <div className="space-y-3">
             <h3 className="text-base text-gray-900 dark:text-gray-400">
-              {t("视觉风格")}
+              {t("visualStyle")}
             </h3>
             <div className="flex items-center space-x-4">
               {/* <label className="text-sm font-medium">{t("风格选择")}:</label> */}
               <Select value={selectedStyle} onValueChange={setSelectedStyle}>
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder={t("风格选择")} />
+                  <SelectValue placeholder={t("styleSelection")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {STYLE_OPTIONS.map((option) => (
+                  {getStyleOptions(t).map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -169,7 +175,7 @@ export function CharacterSetting({
           {/* 角色信息展示 */}
           <div className="space-y-3">
             <h3 className="text-base text-gray-900 dark:text-gray-400">
-              {t("角色设定")}
+              {t("characterSettings")}
             </h3>
             <div className="w-full overflow-x-auto">
               <div className="flex space-x-3 pb-4">
@@ -193,7 +199,7 @@ export function CharacterSetting({
                         <div className="flex gap-2">
                           <div className="w-[66px] flex justify-end">
                             <Badge variant="outline" className="mb-2 w-[66px]">
-                              {t("基础信息")}
+                              {t("basicInfo")}
                             </Badge>
                           </div>
                           <DropdownMenu>
@@ -213,7 +219,7 @@ export function CharacterSetting({
                         <div className="flex gap-2 items-start">
                           <div className="w-[66px] flex justify-end">
                             <Badge variant="outline" className="mb-2">
-                              {t("容貌特征")}
+                              {t("appearanceFeatures")}
                             </Badge>
                           </div>
                           <DropdownMenu>
@@ -233,7 +239,7 @@ export function CharacterSetting({
                         <div className="flex gap-2">
                           <div className="w-[66px] flex justify-end">
                             <Badge variant="outline" className="mb-2">
-                              {t("身材特征")}
+                              {t("bodyFeatures")}
                             </Badge>
                           </div>
                           <DropdownMenu>
@@ -253,7 +259,7 @@ export function CharacterSetting({
                         <div className="flex gap-2">
                           <div className="w-[66px] flex justify-end">
                             <Badge variant="outline" className="mb-2">
-                              {t("头发")}
+                              {t("hair")}
                             </Badge>
                           </div>
                           <DropdownMenu>
@@ -273,7 +279,7 @@ export function CharacterSetting({
                         <div className="flex gap-2">
                           <div className="w-[66px] flex justify-end">
                             <Badge variant="outline" className="mb-2">
-                              {t("服装")}
+                              {t("clothing")}
                             </Badge>
                           </div>
                           <DropdownMenu>
@@ -293,7 +299,7 @@ export function CharacterSetting({
                         <div className="flex gap-2">
                           <div className="w-[66px] flex justify-end">
                             <Badge variant="outline" className="mb-2">
-                              {t("特征标签")}
+                              {t("featureTags")}
                             </Badge>
                           </div>
                           <DropdownMenu>
@@ -345,7 +351,7 @@ export function CharacterSetting({
                                 >
                                   <RotateCcw className="w-3 h-3" />
                                   <span className="text-xs">
-                                    {t("重新生成")}
+                                    {t("regenerate")}
                                   </span>
                                 </div>
                               </div>
@@ -395,7 +401,7 @@ export function CharacterSetting({
               disabled={characters.some((character) => !character.image_url)}
               className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
             >
-              下一步
+              {t("next")}
               <ArrowRight className="w-4 h-4 mr-1" />
             </Button>
           </div>

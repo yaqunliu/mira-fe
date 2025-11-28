@@ -14,14 +14,16 @@ import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/lib/api/auth'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { login, setLoading } = useAuthStore()
+  const { setLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const params = useParams()
-  const locale = params?.locale as string   
+  const locale = params?.locale as string
+  const t = useTranslations('auth')
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -38,15 +40,14 @@ export default function RegisterPage() {
       const response = await authApi.register(data)
       
       if (response.success && response.data) {
-        login(response.data.user, response.data.token)
-        toast.success('Registration successful!')
-        router.push('/')
+        toast.success(t('registerSuccess'))
+        router.push(`/${locale}/auth/login`)
       } else {
-        toast.error(response.message || 'Server error')
+        toast.error(response.message || t('serverError'))
       }
     } catch (error) {
       console.error('Register error:', error)
-      toast.error('Network error')
+      toast.error(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -55,11 +56,11 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <Card className='border-none bg-zinc-800'>
+        <Card className='border-none bg-card dark:bg-zinc-800'>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Register</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('registerTitle')}</CardTitle>
             <CardDescription className="text-center">
-              Create your account to get started
+              {t('registerDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -70,11 +71,11 @@ export default function RegisterPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>{t('username')}</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="Enter your username"
+                          placeholder={t('usernamePlaceholder')}
                           {...field}
                         />
                       </FormControl>
@@ -88,11 +89,11 @@ export default function RegisterPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('email')}</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter your email"
+                          placeholder={t('emailPlaceholder')}
                           {...field}
                         />
                       </FormControl>
@@ -106,12 +107,12 @@ export default function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="Enter your password"
+                            placeholder={t('passwordPlaceholder')}
                             {...field}
                           />
                           <Button
@@ -139,12 +140,12 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>{t('confirmPassword')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showConfirmPassword ? 'text' : 'password'}
-                            placeholder="Confirm your password"
+                            placeholder={t('confirmPasswordPlaceholder')}
                             {...field}
                           />
                           <Button
@@ -168,15 +169,15 @@ export default function RegisterPage() {
                 />
 
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Registering...' : 'Register'}
+                  {form.formState.isSubmitting ? t('registerButtonLoading') : t('registerButton')}
                 </Button>
               </form>
             </Form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Already have an account? </span>
+              <span className="text-muted-foreground">{t('hasAccount')}</span>
               <Link href={`/${locale}/auth/login`} className="text-primary hover:underline">
-                Login
+                {t('login')}
               </Link>
             </div>
           </CardContent>

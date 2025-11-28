@@ -17,22 +17,27 @@ import {
   Film,
   Layers,
   ArrowRight,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IScene, IShot } from "@/types/scene";
 import { ShotItem } from "../shot-item";
+import { useTranslations } from "next-intl";
 
 interface ScriptSettingProps {
   data: IScene[];
   className?: string;
   onComplete: () => void;
+  isLoading?: boolean;
 }
 
 export function ScriptSetting({
   data,
   className,
   onComplete,
+  isLoading = false,
 }: ScriptSettingProps) {
+  const t = useTranslations();
   const [expandedScenes, setExpandedScenes] = useState<Set<number>>(
     new Set(data.length > 0 ? [data[0].scene_id] : [])
   );
@@ -70,7 +75,7 @@ export function ScriptSetting({
   return (
     <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>
       <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
-        <h3 className="text-base font-semib100">{`故事分为${scenes.length}个场景`}</h3>
+        <h3 className="text-base font-semib100">{t("scene.totalScenes", { count: scenes.length })}</h3>
         {scenes.map((scene: IScene, index: number) => (
           <Card
             key={scene.scene_id}
@@ -90,7 +95,7 @@ export function ScriptSetting({
                         variant="secondary"
                         className="text-xs bg-gray-400/50"
                       >
-                        {`场景 ${index + 1}`}
+                        {t("scene.sceneDisplay")} {index + 1}
                       </Badge>
                       <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                         {scene.title}
@@ -103,7 +108,7 @@ export function ScriptSetting({
                       </div>
                       <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
                         <Layers className="h-4 w-4" />
-                        {scene.shots.length} 个分镜
+                        {scene.shots.length} {t("scene.shots")}
                       </div>
                     </div>
                   </div>
@@ -123,7 +128,7 @@ export function ScriptSetting({
                 {/* 场景设置信息 */}
                 <div className="space-y-3">
                   <h3 className="text-base font-semibold text-gray-900 dark:text-stone-400 flex items-center gap-2">
-                    场景设置
+                    {t("scene.sceneSettings")}
                   </h3>
                   <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
                     <Badge variant="destructive" className="text-xs">
@@ -246,10 +251,20 @@ export function ScriptSetting({
                 // 下一步操作
                 onComplete();
               }}
+              disabled={isLoading}
               className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
             >
-              下一步
-              <ArrowRight className="w-4 h-4 mr-1" />
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                  {t("common.generating")}
+                </>
+              ) : (
+                <>
+                  {t("common.next")}
+                  <ArrowRight className="w-4 h-4 mr-1" />
+                </>
+              )}
             </Button>
           </div>
         </div>

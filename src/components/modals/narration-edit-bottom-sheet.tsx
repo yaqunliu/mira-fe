@@ -18,9 +18,10 @@ import { Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { AIGeneratedImage } from "@/types";
 import React from "react";
+import { useTranslations } from "next-intl";
 
-const editNarrationSchema = z.object({
-  narration: z.string().min(1, "旁白不能为空"),
+const getEditNarrationSchema = (t: any) => z.object({
+  narration: z.string().min(1, t("storyboard.editNarration") + " " + t("common.error")),
 });
 
 type EditNarrationFormData = z.infer<typeof editNarrationSchema>;
@@ -29,7 +30,7 @@ interface NarrationEditBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   image: AIGeneratedImage | null;
-  onSave: (imageId: string, newNarration: string) => void;
+  onSave: (imageId: string, newNarration: string) => Promise<void>;
 }
 
 /**
@@ -43,10 +44,11 @@ export function NarrationEditBottomSheet({
   image,
   onSave,
 }: NarrationEditBottomSheetProps) {
+  const t = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<EditNarrationFormData>({
-    resolver: zodResolver(editNarrationSchema),
+    resolver: zodResolver(getEditNarrationSchema(t)),
     defaultValues: {
       narration: image?.narration || "",
     },
@@ -66,11 +68,11 @@ export function NarrationEditBottomSheet({
     
     setIsLoading(true);
     try {
-      onSave(image.image_id, data.narration);
-      toast.success("旁白修改成功");
+      await onSave(image.image_id, data.narration);
+      toast.success(t("common.success"));
       onClose();
     } catch (error) {
-      toast.error("保存失败，请重试");
+      toast.error(error instanceof Error ? error.message : t("storyboard.updateNarrationFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -87,18 +89,18 @@ export function NarrationEditBottomSheet({
     <BottomSheet
       open={isOpen}
       onOpenChange={onClose}
-      title="编辑旁白"
-      description={`${image.title} - 修改旁白内容`}
+      title={t("storyboard.editNarrationTitle")}
+      description={`${image.title} - ${t("storyboard.editNarration")}`}
       actions={[
         {
-          label: "取消",
+          label: t("storyboard.cancel"),
           onClick: handleCancel,
           variant: "secondary",
           icon: <X className="h-4 w-4" />,
           disabled: isLoading,
         },
         {
-          label: "保存",
+          label: t("storyboard.save"),
           onClick: form.handleSubmit(handleSave),
           variant: "default",
           icon: <Save className="h-4 w-4" />,
@@ -119,7 +121,7 @@ export function NarrationEditBottomSheet({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-500">
-                  暂无图片
+                  {t("storyboard.noImage")}
                 </div>
               )}
             </div>
@@ -132,11 +134,11 @@ export function NarrationEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  旁白
+                  {t("storyboard.editNarration")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="输入图片对应的旁白内容..."
+                    placeholder={t("storyboard.editNarration") + "..."}
                     className="min-h-[120px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}
@@ -144,7 +146,7 @@ export function NarrationEditBottomSheet({
                 </FormControl>
                 <FormMessage />
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  旁白将显示在图片上，用于视频配音
+                  {t("storyboard.editNarration")}
                 </p>
               </FormItem>
             )}

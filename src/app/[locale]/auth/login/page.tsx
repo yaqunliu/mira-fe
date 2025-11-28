@@ -14,17 +14,19 @@ import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/lib/api/auth'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login, setLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const params = useParams()
-  const locale = params?.locale as string   
+  const locale = params?.locale as string
+  const t = useTranslations('auth')
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      username: '',
       password: '',
     },
   })
@@ -34,16 +36,27 @@ export default function LoginPage() {
       setLoading(true)
       const response = await authApi.login(data)
       
-      if (response.success && response.data) {
-        login(response.data.user, response.data.token)
-        toast.success('Login successful!')
-        router.push('/')
+      if (response.data?.access_token) {
+        // 登录成功，保存 token
+        const token = response.data.access_token
+        // 用用户名作为临时用户信息，后续可以调用 getCurrentUser 获取完整信息
+        const user = {
+          id: data.username, // 用用户名作为临时 ID
+          username: data.username,
+          email: '',
+          avatar: '',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+        login(user, token)
+        toast.success(response.message || t('loginSuccess'))
+        router.push(`/${locale}`)
       } else {
-        toast.error(response.message || 'Server error')
+        toast.error(response.message || t('serverError'))
       }
     } catch (error) {
       console.error('Login error:', error)
-      toast.error('Network error')
+      toast.error(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -52,11 +65,11 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <Card className='border-none bg-zinc-800'>
+        <Card className='border-none bg-card dark:bg-zinc-800'>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Login</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('loginTitle')}</CardTitle>
             <CardDescription className="text-center">
-              Enter your email and password to sign in
+              {t('loginDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -64,14 +77,14 @@ export default function LoginPage() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>{t('username')}</FormLabel>
                       <FormControl>
                         <Input
-                          type="email"
-                          placeholder="Enter your email"
+                          type="text"
+                          placeholder={t('usernamePlaceholder')}
                           {...field}
                         />
                       </FormControl>
@@ -85,12 +98,12 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="Enter your password"
+                            placeholder={t('passwordPlaceholder')}
                             {...field}
                           />
                           <Button
@@ -118,20 +131,20 @@ export default function LoginPage() {
                     href={`/${locale}/auth/forgot-password`}
                     className="text-sm text-primary hover:underline"
                   >
-                    Forgot Password?
+                    {t('forgotPassword')}
                   </Link>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Logging in...' : 'Login'}
+                  {form.formState.isSubmitting ? t('loginButtonLoading') : t('loginButton')}
                 </Button>
               </form>
             </Form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
+              <span className="text-muted-foreground">{t('noAccount')}</span>
               <Link href={`/${locale}/auth/register`} className="text-primary hover:underline">
-                Register
+                {t('register')}
               </Link>
             </div>
           </CardContent>

@@ -55,12 +55,12 @@ export function StorySetting() {
     mutationFn: ({ novelId, chapterIds }: { novelId: string; chapterIds: string[] }) =>
       creationApi.createCreation({ novelId, chapterId: chapterIds[0] }),
     onSuccess: (response: any) => {
-      toast.success("创作初始化成功，正在进行内容分析！");
+      toast.success(t("creation.shotsGenerationStart"));
       console.log("ICreation response:", response);
       setCreationId(response?.data?.creation_id || response);
     },
     onError: (error: Error) => {
-      toast.error(error.message || "创建失败，请重试");
+      toast.error(error.message || t("errors.generationFailed"));
       console.error("ICreation error:", error);
     },
   });
@@ -68,12 +68,12 @@ export function StorySetting() {
   const analyseContent = () => {
     // 验证是否选择了小说和章节
     if (!selectedNovel) {
-      toast.error("请先选择小说");
+      toast.error(t("novel.noNovels"));
       return;
     }
 
     if (selectedChapters.length === 0) {
-      toast.error("请至少选择一个章节");
+      toast.error(t("novel.chapters"));
       return;
     }
 
@@ -93,7 +93,7 @@ export function StorySetting() {
     <Card className="w-full max-w-4xl mx-auto border-none p-0 gap-3">
       <CardContent className="space-y-4">
         {/** 添加Tabs切换，有两个选项"从小说列表中选择"和"上传小说" */}
-        <div className="text-base font-bold text-gray-300">选择剧本</div>
+        <div className="text-base font-bold text-gray-300">{t("createVideo.selectScript")}</div>
         <CustomTabs
           variant="grid"
           size="md"
@@ -106,7 +106,7 @@ export function StorySetting() {
           items={[
             {
               value: "novel",
-              label: "小说改编",
+              label: t("createVideo.novelAdaptation"),
               content: (
                 <div className="space-y-4">
                   <NovelSelect
@@ -124,7 +124,7 @@ export function StorySetting() {
                         className="text-secondary text-xs"
                       >
                         <X className="w-3 h-3" />
-                        重置
+                        {t("createVideo.reset")}
                       </Button>
                     }
                   />
@@ -137,7 +137,7 @@ export function StorySetting() {
                         disabled={createCreationMutation.isPending || isLoading}
                         className="bg-primary"
                       >
-                        {createCreationMutation.isPending || isLoading ? "内容分析中..." : "下一步"}
+                        {createCreationMutation.isPending || isLoading ? t("createVideo.analyzingContent") : t("createVideo.next")}
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>
@@ -147,8 +147,8 @@ export function StorySetting() {
             },
             {
               value: "list",
-              label: "智能生成",
-              content: <div>规划中...</div>,
+              label: t("createVideo.aiGeneration"),
+              content: <div>{t("createVideo.planning")}</div>,
             },
           ]}
         />

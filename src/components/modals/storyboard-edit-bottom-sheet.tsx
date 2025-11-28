@@ -18,9 +18,10 @@ import { Save, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { AIGeneratedImage } from "@/types";
 import React from "react";
+import { useTranslations } from "next-intl";
 
-const editStoryboardSchema = z.object({
-  prompt: z.string().min(1, "提示词不能为空"),
+const getEditStoryboardSchema = (t: any) => z.object({
+  prompt: z.string().min(1, t("storyboard.promptRequired")),
 });
 
 type EditStoryboardFormData = z.infer<typeof editStoryboardSchema>;
@@ -43,11 +44,12 @@ export function StoryboardEditBottomSheet({
   image,
   onRegenerate,
 }: StoryboardEditBottomSheetProps) {
+  const t = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
 
   const form = useForm<EditStoryboardFormData>({
-    resolver: zodResolver(editStoryboardSchema),
+    resolver: zodResolver(getEditStoryboardSchema(t)),
     defaultValues: {
       prompt: image?.prompt || "",
     },
@@ -67,17 +69,17 @@ export function StoryboardEditBottomSheet({
     
     const formData = form.getValues();
     if (!formData.prompt.trim()) {
-      toast.error("请先输入提示词");
+      toast.error(t("storyboard.promptRequired"));
       return;
     }
 
     setIsRegenerating(true);
     try {
       await onRegenerate(image.image_id, formData.prompt);
-      toast.success("开始重新生成图片");
+      toast.success(t("storyboard.regenerateStart"));
       onClose();
     } catch (error) {
-      toast.error("重新生成失败，请重试");
+      toast.error(t("storyboard.regenerateImageError"));
     } finally {
       setIsRegenerating(false);
     }
@@ -94,18 +96,18 @@ export function StoryboardEditBottomSheet({
     <BottomSheet
       open={isOpen}
       onOpenChange={onClose}
-      title="重新生成分镜图"
-      description={`${image.title} - 修改提示词重新生成图片`}
+      title={t("storyboard.regenerateStoryboard")}
+      description={`${image.title} - ${t("storyboard.regenerateStoryboardDesc")}`}
       actions={[
         {
-          label: "取消",
+          label: t("storyboard.cancel"),
           onClick: handleCancel,
           variant: "secondary",
           icon: <X className="h-4 w-4" />,
           disabled: isRegenerating,
         },
         {
-          label: "重新生成",
+          label: t("storyboard.regenerateImage"),
           onClick: handleRegenerate,
           variant: "default",
           icon: <RefreshCw className="h-4 w-4" />,
@@ -127,7 +129,7 @@ export function StoryboardEditBottomSheet({
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-500">
-                  暂无图片
+                  {t("storyboard.noImage")}
                 </div>
               )}
             </div>
@@ -140,11 +142,11 @@ export function StoryboardEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  提示词
+                  {t("storyboard.prompt")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="输入图片生成的提示词..."
+                    placeholder={t("storyboard.promptPlaceholder")}
                     className="min-h-[120px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}
@@ -152,7 +154,7 @@ export function StoryboardEditBottomSheet({
                 </FormControl>
                 <FormMessage />
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  修改提示词后点击"重新生成"可以生成新的图片
+                  {t("storyboard.promptHint")}
                 </p>
               </FormItem>
             )}

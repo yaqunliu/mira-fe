@@ -187,7 +187,7 @@ export interface AIGeneratedImage {
   image_url: string;
   prompt: string;
   narration: string;
-  status?: "generating" | "completed" | "failed";
+  status?: "pending" | "generating" | "completed" | "failed";
   progress?: number;
   createdAt?: string;
 }
@@ -239,3 +239,38 @@ export enum TaskStatus {
   RETRY = "RETRY",
   REVOKED = "REVOKED",
 }
+
+// 分镜生成任务相关类型
+export interface ShotGenerationProgress {
+  total: number;
+  completed: number;
+  success_count: number;
+  failed_count: number;
+}
+
+export interface GeneratedShot {
+  shot_id: number;
+  title: string;
+  image_url: string;
+  status: "pending" | "generating" | "completed" | "failed";
+  narration?: string;
+  prompt?: string;
+  image_prompt?: string; // API 可能返回 image_prompt 字段
+}
+
+export interface GeneratedScene {
+  scene_id: number;
+  title: string;
+  shots: GeneratedShot[];
+}
+
+export interface ShotsTaskResponse {
+  task_id: string;
+  status: TaskStatus;
+  progress: ShotGenerationProgress;
+  creation_id: number;
+  scenes: GeneratedScene[];
+}
+
+// 导出语音相关类型
+export * from './voice';
