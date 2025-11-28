@@ -65,9 +65,9 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <Card className='border-none bg-zinc-800'>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Login</CardTitle>
+            <CardTitle className="text-2xl text-center">登录</CardTitle>
             <CardDescription className="text-center">
-              Enter your username and password to sign in
+              输入用户名和密码登录
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -78,11 +78,11 @@ export default function LoginPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>用户名</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="Enter your username"
+                          placeholder="请输入用户名"
                           {...field}
                         />
                       </FormControl>
@@ -96,12 +96,12 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>密码</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="Enter your password"
+                            placeholder="请输入密码"
                             {...field}
                           />
                           <Button
@@ -129,20 +129,20 @@ export default function LoginPage() {
                     href={`/${locale}/auth/forgot-password`}
                     className="text-sm text-primary hover:underline"
                   >
-                    Forgot Password?
+                    忘记密码？
                   </Link>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Logging in...' : 'Login'}
+                  {form.formState.isSubmitting ? '登录中...' : '登录'}
                 </Button>
               </form>
             </Form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
+              <span className="text-muted-foreground">没有账号？</span>
               <Link href={`/${locale}/auth/register`} className="text-primary hover:underline">
-                Register
+                注册
               </Link>
             </div>
           </CardContent>

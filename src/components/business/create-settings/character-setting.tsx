@@ -46,10 +46,12 @@ const STYLE_OPTIONS = [
 
 export function CharacterSetting({
   characters,
+  currentTaskId,
   onComplete,
   handleUpdate,
 }: {
   characters: ICharacter[];
+  currentTaskId?: string;
   onComplete: () => void;
   handleUpdate: () => void;
 }) {
@@ -121,9 +123,13 @@ export function CharacterSetting({
 
   console.log(isGenerating, "isGenerating");
 
+  // 只有在有任务在进行或者正在生成时才显示loading
+  // 如果characters为空但没有任务在进行，说明数据已经加载完成，只是没有角色数据，不应该显示loading
+  const shouldShowLoading = isGenerating || (characters?.length === 0 && !!currentTaskId);
+
   return (
     <div className="h-[calc(100vh-136px)]">
-      <ModuleLoading loading={isGenerating || characters?.length === 0} className="h-full" text={characters?.length === 0 ? "角色信息分析中..." : "角色形象生成中..."}>
+      <ModuleLoading loading={shouldShowLoading} className="h-full" text={characters?.length === 0 ? "角色信息分析中..." : "角色形象生成中..."}>
         <div className="space-y-4 px-6 h-full overflow-y-auto pb-20">
           <div className="flex justify-between items-center">
             <h3 className="text-base font-semibold">{`故事包含${characters.length}个角色`}</h3>

@@ -91,7 +91,7 @@ export const novelApi = {
 
   // 删除小说
   deleteNovel: async (id: string) => {
-    return apiClient.delete(`/novels/${id}`)
+    return apiClient.delete(`/api/v1/novels/${id}`)
   },
 
   // 获取章节列表

@@ -17,7 +17,7 @@ import { Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const { login, setLoading } = useAuthStore()
+  const { setLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const params = useParams()
@@ -38,15 +38,14 @@ export default function RegisterPage() {
       const response = await authApi.register(data)
       
       if (response.success && response.data) {
-        login(response.data.user, response.data.token)
-        toast.success('Registration successful!')
-        router.push('/')
+        toast.success('注册成功！请登录')
+        router.push(`/${locale}/auth/login`)
       } else {
-        toast.error(response.message || 'Server error')
+        toast.error(response.message || '服务器错误')
       }
     } catch (error) {
       console.error('Register error:', error)
-      toast.error('Network error')
+      toast.error('网络错误，请稍后重试')
     } finally {
       setLoading(false)
     }
@@ -57,9 +56,9 @@ export default function RegisterPage() {
       <div className="max-w-md w-full space-y-8">
         <Card className='border-none bg-zinc-800'>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Register</CardTitle>
+            <CardTitle className="text-2xl text-center">注册</CardTitle>
             <CardDescription className="text-center">
-              Create your account to get started
+              创建账号开始使用
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -70,11 +69,11 @@ export default function RegisterPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>用户名</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="Enter your username"
+                          placeholder="请输入用户名"
                           {...field}
                         />
                       </FormControl>
@@ -88,11 +87,11 @@ export default function RegisterPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
+                      <FormLabel>邮箱</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="Enter your email"
+                          placeholder="请输入邮箱"
                           {...field}
                         />
                       </FormControl>
@@ -106,12 +105,12 @@ export default function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>密码</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="Enter your password"
+                            placeholder="请输入密码"
                             {...field}
                           />
                           <Button
@@ -139,12 +138,12 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>确认密码</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showConfirmPassword ? 'text' : 'password'}
-                            placeholder="Confirm your password"
+                            placeholder="请再次输入密码"
                             {...field}
                           />
                           <Button
@@ -168,15 +167,15 @@ export default function RegisterPage() {
                 />
 
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Registering...' : 'Register'}
+                  {form.formState.isSubmitting ? '注册中...' : '注册'}
                 </Button>
               </form>
             </Form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Already have an account? </span>
+              <span className="text-muted-foreground">已有账号？</span>
               <Link href={`/${locale}/auth/login`} className="text-primary hover:underline">
-                Login
+                登录
               </Link>
             </div>
           </CardContent>

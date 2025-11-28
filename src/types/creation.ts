@@ -7,6 +7,7 @@ export enum CreationStatus {
   PLAYBOOK_GENERATED = "playbook_generated",
   CHARACTER_GENERATED = "character_generated",
   SCENE_GENERATED = "scene_generated",
+  VOICE_SELECTED = "voice_selected",
   AUDIO_GENERATED = "audio_generated",
   VIDEO_GENERATED = "video_generated",
   COMPLETED = "completed",
@@ -27,6 +28,7 @@ export const CreationStatusMap: Record<
     color: "bg-blue-500",
   },
   [CreationStatus.SCENE_GENERATED]: { label: "进行中", color: "bg-blue-500" },
+  [CreationStatus.VOICE_SELECTED]: { label: "进行中", color: "bg-blue-500" },
   [CreationStatus.AUDIO_GENERATED]: { label: "进行中", color: "bg-blue-500" },
   [CreationStatus.VIDEO_GENERATED]: { label: "进行中", color: "bg-blue-500" },
   [CreationStatus.COMPLETED]: { label: "已完成", color: "bg-green-500" },
@@ -45,6 +47,7 @@ export interface ICreation {
   novel_id: string;
   chapter_id: string;
   current_task_id?: string;
+  voice_id?: string;
   characters: ICharacter[];
   scenes: IScene[];
 }

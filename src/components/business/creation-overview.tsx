@@ -24,17 +24,15 @@ export function CreationOverview() {
   // API 返回格式: { success: true, data: { items: [...] } } 或 { success: true, data: [...] }
   const responseData = (creationsResponse as any)?.data;
   const creations = responseData?.items || (Array.isArray(responseData) ? responseData : []);
-  const displayCreations = creations.slice(0, 3); // 只显示前3个视频
+  const displayCreations = creations.slice(0, 3); // 只显示前3个
 
   const handleViewMore = () => {
     router.push(`/${locale}/creations`);
   };
 
+  // 所有创作都可以点击进入详情
   const handleCreationClick = (creation: ICreation) => {
-    console.log(creation, "creation");
-    if (creation.status !== CreationStatus.COMPLETED && creation.status !== CreationStatus.FAILED) {
-      router.push(`/${locale}/create?creationId=${creation.creation_id}`);
-    }
+    router.push(`/${locale}/create?creationId=${creation.creation_id}`);
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
@@ -75,40 +73,30 @@ export function CreationOverview() {
     );
   }
 
+  // 统一渲染创作卡片（不直接播放视频）
   const renderCreationContent = (creation: ICreation) => {
-    if (creation.video_url) {
-      return (
-        <video
-          src={creation.video_url}
-          controls
-          className="w-full h-full object-cover rounded-md"
-        />
-      );
-    }
+    // 获取封面图：优先使用场景的第一张分镜图
+    const coverImage = creation.scenes?.[0]?.shots?.[0]?.image_url;
+    
     return (
       <div className="relative aspect-[16/9] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
-        {/* 缩略图背景 */}
-        {/* {creation.thumbnail_url ? (
+        {/* 封面背景 */}
+        {coverImage ? (
           <img
-            src={creation.thumbnail_url}
+            src={coverImage}
             alt={creation.title}
             className="absolute inset-0 w-full h-full object-cover"
-          /> */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-400/90 via-pink-500/90 to-red-500/90 dark:from-purple-600/90 dark:via-pink-700/90 dark:to-red-800/90" />
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-400/90 via-pink-500/90 to-red-500/90 dark:from-purple-600/90 dark:via-pink-700/90 dark:to-red-800/90" />
+        )}
 
         {/* 遮罩层 */}
-        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
-
-        {/* 播放按钮 */}
-        {/* <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 rounded-full bg-white/90 dark:bg-white/80 flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
-            <Play className="w-4 h-4 text-slate-800 ml-1" fill="currentColor" />
-          </div>
-        </div> */}
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
 
         {/* 视频信息 */}
         <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent flex items-center justify-between">
-          <h3 className="text-xs font-semibold text-white line-clamp-1">
+          <h3 className="text-xs font-semibold text-white line-clamp-1 flex-1 min-w-0 mr-2">
             {creation.title}
           </h3>
           {getStatusBadge(creation.status)}
@@ -119,7 +107,7 @@ export function CreationOverview() {
 
   return (
     <div className="space-y-3">
-      {/* 视频网格布局 */}
+      {/* 创作网格布局 */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {displayCreations.map((creationItem: ICreation) => (
           <div

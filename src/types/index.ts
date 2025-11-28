@@ -271,3 +271,6 @@ export interface ShotsTaskResponse {
   creation_id: number;
   scenes: GeneratedScene[];
 }
+
+// 导出语音相关类型
+export * from './voice';

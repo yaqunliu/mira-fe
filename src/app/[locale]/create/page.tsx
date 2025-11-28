@@ -24,7 +24,7 @@ import { ICreation, CreationStatus } from "@/types/creation";
 import { ICharacter } from "@/types/character";
 import ModuleLoading from "@/components/ui/module-loading";
 import { toast } from "sonner";
-import { TaskStatus, SceneGroup, ShotsTaskResponse } from "@/types";
+import { TaskStatus, TaskType, SceneGroup, ShotsTaskResponse } from "@/types";
 import { IScene } from "@/types/scene";
 
 // 将轮询任务返回的分镜数据转换为 StoryboardImages 组件需要的格式
@@ -209,32 +209,68 @@ export default function CreateCreation() {
     }
   };
 
+  // 根据 current_task_id 恢复任务状态
   useEffect(() => {
-    switch (curCreation?.status) {
-      case CreationStatus.CREATED:
-        setCurrentStep(1);
-        break;
-      case CreationStatus.PLAYBOOK_GENERATED:
-        setCurrentStep(1);
-        break;
-      case CreationStatus.CHARACTER_GENERATED:
-        setCurrentStep(2);
-        break;
-      case CreationStatus.SCENE_GENERATED:
-        setCurrentStep(3);
-        break;
-      case CreationStatus.AUDIO_GENERATED:
-        setCurrentStep(4);
-        break;
-      case CreationStatus.VIDEO_GENERATED:
-        setCurrentStep(4);
-        break;
-      case CreationStatus.COMPLETED:
-        setCurrentStep(4);
-        break;
-      default:
-        setCurrentStep(0);
-        break;
+    const restoreTaskState = async () => {
+      // 如果有正在执行的任务，查询任务类型并跳转到对应步骤
+      if (curCreation?.current_task_id) {
+        try {
+          const taskResponse = await taskApi.queryTaskStatus(curCreation.current_task_id);
+          const task = taskResponse?.data;
+          
+          if (task) {
+            const taskType = task.taskType;
+            const taskStatus = task.status;
+            
+            console.log(`[Create Page] 恢复任务状态: taskType=${taskType}, status=${taskStatus}`);
+            
+            // 如果任务还在进行中，根据任务类型跳转到对应步骤
+            if (taskStatus !== TaskStatus.SUCCESS && taskStatus !== TaskStatus.FAILURE) {
+              if (taskType === TaskType.SHOT_IMAGE_GENERATION) {
+                // 分镜生成任务，跳转到分镜步骤并恢复轮询
+                setShotsTaskId(curCreation.current_task_id);
+                setIsGeneratingShots(true);
+                setCurrentStep(3);
+                return; // 有任务时直接返回，不走 status 逻辑
+              } else if (taskType === TaskType.AUDIO_GENERATION || taskType === TaskType.VIDEO_SYNTHESIS) {
+                // 音频/视频生成任务，跳转到视频步骤
+                setCurrentStep(4);
+                return;
+              }
+            }
+          }
+        } catch (error) {
+          console.error("查询任务状态失败:", error);
+        }
+      }
+      
+      // 没有任务或任务已完成，根据 status 设置步骤
+      switch (curCreation?.status) {
+        case CreationStatus.CREATED:
+        case CreationStatus.PLAYBOOK_GENERATED:
+          setCurrentStep(1);
+          break;
+        case CreationStatus.CHARACTER_GENERATED:
+          setCurrentStep(2);
+          break;
+        case CreationStatus.SCENE_GENERATED:
+          setCurrentStep(3);
+          break;
+        // voice_selected 及之后的状态都跳转到视频步骤
+        case CreationStatus.VOICE_SELECTED:
+        case CreationStatus.AUDIO_GENERATED:
+        case CreationStatus.VIDEO_GENERATED:
+        case CreationStatus.COMPLETED:
+          setCurrentStep(4);
+          break;
+        default:
+          setCurrentStep(0);
+          break;
+      }
+    };
+
+    if (curCreation) {
+      restoreTaskState();
     }
   }, [curCreation]);
 
@@ -261,6 +297,7 @@ export default function CreateCreation() {
         return (
           <CharacterSetting
             characters={curCreation?.characters as ICharacter[] || []}
+            currentTaskId={curCreation?.current_task_id}
             onComplete={() => {
               nextStep();
             }}
@@ -290,6 +327,11 @@ export default function CreateCreation() {
       case 4:
         return (
           <VideoGenerator
+            creationId={creationId}
+            creationStatus={curCreation?.status}
+            initialAudioUrl={curCreation?.audio_url}
+            initialVideoUrl={curCreation?.video_url}
+            currentTaskId={curCreation?.current_task_id}
             onVideoGenerated={() => {
               nextStep();
             }}
