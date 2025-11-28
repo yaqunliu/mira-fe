@@ -181,33 +181,18 @@ export default function CreateCreation() {
     }
   }, [curCreation?.scenes, storyboardData.length, isGeneratingShots]);
 
-  // 触发分镜生成
-  const handleGenerateShots = async () => {
-    if (!creationId) {
-      toast.error(t("creation.creationIdNotFound"));
-      return;
+  // 检查所有分镜是否都有图片
+  const checkAllShotsHaveImages = useCallback(() => {
+    if (!curCreation?.scenes || curCreation.scenes.length === 0) {
+      return false;
     }
-
-    try {
-      setIsGeneratingShots(true);
-      toast.info(t("creation.shotsGenerationStart"));
-      
-      const response = await creationApi.generateShots(creationId);
-      const taskId = response?.data?.task_id;
-      
-      if (taskId) {
-        setShotsTaskId(taskId);
-        nextStep(); // 先跳转到分镜页面
-      } else {
-        toast.error(t("creation.taskIdNotFound"));
-        setIsGeneratingShots(false);
-      }
-    } catch (error) {
-      console.error("Generate shots error:", error);
-      toast.error(error instanceof Error ? error.message : t("creation.shotsGenerationError"));
-      setIsGeneratingShots(false);
-    }
-  };
+    
+    // 检查所有场景的所有分镜是否都有图片
+    return curCreation.scenes.every(scene => 
+      scene.shots && scene.shots.length > 0 && 
+      scene.shots.every(shot => shot.image_url && shot.image_url.trim() !== "")
+    );
+  }, [curCreation?.scenes]);
 
   // 根据 current_task_id 恢复任务状态
   useEffect(() => {
@@ -279,6 +264,47 @@ export default function CreateCreation() {
     onStepChange: setCurrentStep,
   });
 
+  // 触发分镜生成
+  const handleGenerateShots = useCallback(async () => {
+    if (!creationId) {
+      toast.error(t("creation.creationIdNotFound"));
+      return;
+    }
+
+    try {
+      setIsGeneratingShots(true);
+      toast.info(t("creation.shotsGenerationStart"));
+      
+      const response = await creationApi.generateShots(creationId);
+      const taskId = response?.data?.task_id;
+      
+      if (taskId) {
+        setShotsTaskId(taskId);
+        nextStep(); // 先跳转到分镜页面
+      } else {
+        toast.error(t("creation.taskIdNotFound"));
+        setIsGeneratingShots(false);
+      }
+    } catch (error) {
+      console.error("Generate shots error:", error);
+      toast.error(error instanceof Error ? error.message : t("creation.shotsGenerationError"));
+      setIsGeneratingShots(false);
+    }
+  }, [creationId, nextStep, t]);
+
+  // 处理脚本步骤完成（点击下一步）
+  const handleScriptComplete = useCallback(() => {
+    // 检查所有分镜是否都有图片
+    if (checkAllShotsHaveImages()) {
+      // 如果所有分镜都有图片，直接进入下一步，不提交生成请求
+      console.log("[Create Page] 所有分镜都有图片，直接进入下一步");
+      nextStep();
+    } else {
+      // 如果有分镜没有图片，提交生成分镜图请求
+      handleGenerateShots();
+    }
+  }, [checkAllShotsHaveImages, handleGenerateShots, nextStep]);
+
   const handleStepChange = (stepIndex: number, step: ProgressStep) => {
     console.log(`切换到步骤 ${stepIndex}:`, step.title);
     setCurrentStep(stepIndex);
@@ -309,7 +335,7 @@ export default function CreateCreation() {
         return (
           <ScriptSetting
             data={curCreation?.scenes || []}
-            onComplete={handleGenerateShots}
+            onComplete={handleScriptComplete}
             isLoading={isGeneratingShots}
           />
         );
