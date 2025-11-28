@@ -14,6 +14,7 @@ import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/lib/api/auth'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -21,7 +22,8 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const params = useParams()
-  const locale = params?.locale as string   
+  const locale = params?.locale as string
+  const t = useTranslations('auth')
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -38,14 +40,14 @@ export default function RegisterPage() {
       const response = await authApi.register(data)
       
       if (response.success && response.data) {
-        toast.success('注册成功！请登录')
+        toast.success(t('registerSuccess'))
         router.push(`/${locale}/auth/login`)
       } else {
-        toast.error(response.message || '服务器错误')
+        toast.error(response.message || t('serverError'))
       }
     } catch (error) {
       console.error('Register error:', error)
-      toast.error('网络错误，请稍后重试')
+      toast.error(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -56,9 +58,9 @@ export default function RegisterPage() {
       <div className="max-w-md w-full space-y-8">
         <Card className='border-none bg-card dark:bg-zinc-800'>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">注册</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('registerTitle')}</CardTitle>
             <CardDescription className="text-center">
-              创建账号开始使用
+              {t('registerDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -69,11 +71,11 @@ export default function RegisterPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>用户名</FormLabel>
+                      <FormLabel>{t('username')}</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="请输入用户名"
+                          placeholder={t('usernamePlaceholder')}
                           {...field}
                         />
                       </FormControl>
@@ -87,11 +89,11 @@ export default function RegisterPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>邮箱</FormLabel>
+                      <FormLabel>{t('email')}</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="请输入邮箱"
+                          placeholder={t('emailPlaceholder')}
                           {...field}
                         />
                       </FormControl>
@@ -105,12 +107,12 @@ export default function RegisterPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>密码</FormLabel>
+                      <FormLabel>{t('password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="请输入密码"
+                            placeholder={t('passwordPlaceholder')}
                             {...field}
                           />
                           <Button
@@ -138,12 +140,12 @@ export default function RegisterPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>确认密码</FormLabel>
+                      <FormLabel>{t('confirmPassword')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showConfirmPassword ? 'text' : 'password'}
-                            placeholder="请再次输入密码"
+                            placeholder={t('confirmPasswordPlaceholder')}
                             {...field}
                           />
                           <Button
@@ -167,15 +169,15 @@ export default function RegisterPage() {
                 />
 
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? '注册中...' : '注册'}
+                  {form.formState.isSubmitting ? t('registerButtonLoading') : t('registerButton')}
                 </Button>
               </form>
             </Form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">已有账号？</span>
+              <span className="text-muted-foreground">{t('hasAccount')}</span>
               <Link href={`/${locale}/auth/login`} className="text-primary hover:underline">
-                登录
+                {t('login')}
               </Link>
             </div>
           </CardContent>

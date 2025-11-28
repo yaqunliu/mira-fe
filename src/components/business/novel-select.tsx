@@ -24,6 +24,7 @@ import { NovelUploadModal } from "../modals/novel-upload-modal";
 import { novelApi } from "@/lib/api/novel";
 import { useQuery } from "@tanstack/react-query";
 import LoadingIcon from "../ui/loading-icon";
+import { useTranslations } from "next-intl";
 
 export interface NovelSelectProps {
   // 章节列表（可选，如果不传则从选中的小说中获取）
@@ -72,6 +73,7 @@ export function NovelSelect({
   novelFixedClassName,
   chapterClassName,
 }: NovelSelectProps) {
+  const t = useTranslations();
   const [searchTerm, setSearchTerm] = useState("");
   const [novelSearchTerm, setNovelSearchTerm] = useState("");
   const [chapterSearchTerm, setChapterSearchTerm] = useState("");
@@ -176,7 +178,7 @@ export function NovelSelect({
       <Card className={cn("w-full", className)}>
         <CardContent className="flex items-center justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin mr-2" />
-          <span>加载中...</span>
+          <span>{t("common.loading")}</span>
         </CardContent>
       </Card>
     );
@@ -196,7 +198,7 @@ export function NovelSelect({
                 作者：{currentNovel?.author}
               </p> */}
               <p className="text-xs text-secondary">
-                共 {currentNovel?.chapter_count} 章
+                {t("novel.totalChapters", { count: currentNovel?.chapter_count || 0 })}
               </p>
             </div>
             {fixedAction}
@@ -211,7 +213,7 @@ export function NovelSelect({
       return (
         <div className="w-full h-[200px] flex flex-col justify-center items-center gap-2">
           <LoadingIcon />
-          <span className="text-sm text-secondary">加载中...</span>
+          <span className="text-sm text-secondary">{t("common.loading")}</span>
         </div>
       );
     }
@@ -230,7 +232,7 @@ export function NovelSelect({
         )}
         {filteredNovels.length === 0 ? (
           <div className="py-8 text-gray-300 h-full flex items-center justify-center flex-col px-4">
-            <div className="text-sm sm:text-base text-gray-300 text-center">还未上传小说</div>
+            <div className="text-sm sm:text-base text-gray-300 text-center">{t("novel.noNovels")}</div>
             <Button
               variant="default"
               size="sm"
@@ -238,13 +240,13 @@ export function NovelSelect({
               className="mt-4 text-xs sm:text-sm whitespace-nowrap"
             >
               <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              <span>立即上传</span>
+              <span>{t("novel.uploadNovel")}</span>
             </Button>
           </div>
         ) : (
           <div className="space-y-3">
             <div className="text-base text-gray-300">
-              选择小说进行视频创作:
+              {t("createVideo.uploadNovel")}:
             </div>
             <div className="space-y-2 min-h-[200px]">
               {currentNovels.length > 0 &&
@@ -273,7 +275,7 @@ export function NovelSelect({
                             <div className="flex items-center gap-1.5 mt-1.5">
                               <FileText className="w-3 h-3 text-secondary flex-shrink-0" />
                               <span className="text-xs text-secondary">
-                                {novel.chapter_count || 0} 章节
+                                {novel.chapter_count || 0} {t("novel.chapters")}
                               </span>
                             </div>
                           )}
@@ -303,7 +305,7 @@ export function NovelSelect({
                   className="text-xs sm:text-sm whitespace-nowrap"
                 >
                   <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                  <span>上一页</span>
+                  <span>{t("novel.previousPage")}</span>
                 </Button>
                 <div className="flex items-center gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -334,7 +336,7 @@ export function NovelSelect({
                   disabled={currentPage === totalPages}
                   className="text-xs sm:text-sm whitespace-nowrap"
                 >
-                  <span>下一页</span>
+                  <span>{t("novel.nextPage")}</span>
                   <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
                 </Button>
               </div>
@@ -350,7 +352,7 @@ export function NovelSelect({
               className="text-xs sm:text-sm whitespace-nowrap min-w-fit"
             >
               <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              <span>上传小说</span>
+              <span>{t("novel.uploadNovel")}</span>
             </Button>
           </div>
         )}
@@ -364,7 +366,7 @@ export function NovelSelect({
         <CardHeader className="p-0">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-sm text-gray-300">
-              选择章节
+              {t("novel.chapters")}
             </CardTitle>
             {multiSelect && filteredChapters.length > 0 && (
               <Button
@@ -373,8 +375,8 @@ export function NovelSelect({
                 onClick={handleSelectAllChapters}
               >
                 {selectedChapters.length === filteredChapters.length
-                  ? "取消全选"
-                  : "全选"}
+                  ? t("common.cancel") + " " + t("common.selectAll")
+                  : t("common.selectAll")}
               </Button>
             )}
           </div>
@@ -382,7 +384,7 @@ export function NovelSelect({
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder="搜索章节标题..."
+                placeholder={t("novel.chapterTitle") + "..."}
                 value={chapterSearchTerm}
                 onChange={(e) => setChapterSearchTerm(e.target.value)}
                 className="pl-10"
@@ -395,7 +397,7 @@ export function NovelSelect({
             <div className="space-y-2">
               {filteredChapters.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  {chapterSearchTerm ? "没有找到匹配的章节" : "该小说暂无章节"}
+                  {chapterSearchTerm ? t("novel.noNovels") : t("novel.chapters")}
                 </div>
               ) : (
                 filteredChapters.map((chapter: Chapter) => {
@@ -421,7 +423,7 @@ export function NovelSelect({
                                 isSelected && "bg-orange-800/10 text-primary"
                               )}
                             >
-                              {`第${chapter.chapter_number}章`}
+                              {t("novelDetail.chapterNumber", { number: chapter.chapter_number })}
                             </Badge>
                             <span
                               className={cn(

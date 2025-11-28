@@ -36,11 +36,25 @@ export function CreationOverview() {
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
-    const { label, color } =
-      CreationStatusMap[status as keyof typeof CreationStatusMap];
+    const statusInfo = CreationStatusMap[status as keyof typeof CreationStatusMap] || { label: t("common.unknown"), color: "bg-gray-500" };
+    
+    let displayLabel = statusInfo.label;
+    let bgColor = statusInfo.color;
+    
+    if (status === CreationStatus.COMPLETED) {
+      displayLabel = t("common.completed");
+      bgColor = "bg-green-600";
+    } else if (status === CreationStatus.FAILED) {
+      displayLabel = t("common.error");
+      bgColor = "bg-red-500";
+    } else {
+      displayLabel = t("common.inProgress");
+      bgColor = "bg-blue-500";
+    }
+
     return (
-      <Badge variant="default" className={cn("text-xs", color ?? "")}>
-        {label}
+      <Badge variant="default" className={cn("text-xs text-white", bgColor ?? "")}>
+        {displayLabel}
       </Badge>
     );
   };
@@ -60,14 +74,14 @@ export function CreationOverview() {
       <div className="text-center py-6">
         <Play className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
         <p className="text-sm text-muted-foreground mb-3">
-          {t("home.暂无视频")}
+          {t("home.noVideos")}
         </p>
         <Button
           size="sm"
           onClick={() => router.push(`/${locale}/create`)}
           className="text-xs"
         >
-          {t("home.开始制作")}
+          {t("home.startCreating")}
         </Button>
       </div>
     );
@@ -128,7 +142,7 @@ export function CreationOverview() {
                   <ChevronRight className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
                 </div>
                 <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                  {t("home.查看更多")}
+                  {t("home.viewMore")}
                 </span>
               </div>
             </div>

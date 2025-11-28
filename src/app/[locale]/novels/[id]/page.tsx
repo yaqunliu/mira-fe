@@ -106,7 +106,7 @@ export default function NovelDetailPage() {
     return (
       <div className="flex items-center justify-center gap-2 h-full">
         <LoadingIcon />
-        <span className="text-sm text-secondary">加载中...</span>
+        <span className="text-sm text-secondary">{t("novelDetail.loading")}</span>
       </div>
     );
   };
@@ -139,7 +139,7 @@ export default function NovelDetailPage() {
               </div>
               <Button size="sm" variant="secondary" className="text-xs">
                 {/* <PlayCircle className="h-4 w-4 mr-1" /> */}
-                {t("novelDetail.去创作")}
+                {t("novelDetail.goToCreate")}
               </Button>
             </div>
           ))}
@@ -164,7 +164,7 @@ export default function NovelDetailPage() {
       <div className="bg-card-custom flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           {characters.map((character: Character, index: number) => (
-            <CharactorCard key={character.characterId} character={character} />
+            <CharactorCard key={character.characterId} character={character} t={t} />
           ))}
         </div>
       </div>
@@ -200,11 +200,11 @@ export default function NovelDetailPage() {
           <div className="max-w-4xl mx-auto text-center">
             <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
             <h2 className="text-2xl font-bold mb-2">
-              {t("novelDetail.未找到该书籍")}
+              {t("novelDetail.bookNotFound")}
             </h2>
             <Button onClick={handleBack} className="mt-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              {t("novelDetail.返回")}
+              {t("novelDetail.back")}
             </Button>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function NovelDetailPage() {
           onClick={() => router.back()}
         >
           <ChevronLeft className="w-4 h-4 text-secondary" />
-          <h1 className="text-base text-secondary">返回</h1>
+          <h1 className="text-base text-secondary">{t("novelDetail.返回")}</h1>
         </div>
       </div>
       <div className="h-[1px] w-full divider-primary flex-shrink-0" />
@@ -243,17 +243,17 @@ export default function NovelDetailPage() {
               <div className="flex items-center gap-1">
                 <BookOpen className="h-3 w-3" />
                 <span className="text-sm">
-                  {novel?.chapterList?.length} {t("novelDetail.章节数")}
+                  {novel?.chapterList?.length} {t("novelDetail.chapterCount")}
                 </span>
               </div>
             </div>
             {/* <p className="text-sm text-muted-foreground leading-relaxed text-secondary">
-              {novel.description || t("novelDetail.暂无简介")}
+              {novel.description || t("novelDetail.noDescription")}
             </p> */}
             <div className="flex items-center gap-1 text-secondary">
               <Calendar className="h-3 w-3" />
               <span className="text-sm">
-                {t("novelDetail.上传于")}: {formatDate(novel.uploadTime)}
+                {t("novelDetail.uploadedOn")}: {formatDate(novel.uploadTime)}
               </span>
             </div>
           </div>
@@ -271,17 +271,17 @@ export default function NovelDetailPage() {
           items={[
             {
               value: "chapters",
-              label: "章节列表",
+              label: t("novelDetail.chapterList"),
               content: renderChapters(),
             },
             {
               value: "characters",
-              label: "角色库",
+              label: t("novelDetail.characterLibrary"),
               content: renderCharacters(),
             },
             {
               value: "creations",
-              label: "关联创作",
+              label: t("novelDetail.relatedCreations"),
               content: renderCreations(),
             },
           ]}

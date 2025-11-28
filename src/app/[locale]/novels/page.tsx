@@ -22,6 +22,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 // 格式化日期
 function formatDateTime(dateString: string): string {
@@ -44,12 +45,20 @@ function SwipeableNovelCard({
   onClick,
   onDelete,
   isDeleting,
+  t,
 }: {
   novel: Novel;
   onClick: () => void;
-  onDelete: () => void;
+  onDelete: (e: React.MouseEvent) => void;
   isDeleting: boolean;
+  t: any;
 }) {
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(t("novel.deleteConfirm"))) {
+      onDelete(e);
+    }
+  };
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef(0);
@@ -117,9 +126,9 @@ function SwipeableNovelCard({
     }
   };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent, t: any) => {
     e.stopPropagation();
-    if (confirm("确定要删除这本小说吗？删除后无法恢复。")) {
+    if (confirm(t("novel.deleteConfirm"))) {
       onDelete();
     }
   };
@@ -133,12 +142,12 @@ function SwipeableNovelCard({
       {/* 删除按钮背景 */}
       <div className="absolute inset-y-0 right-0 w-20 bg-red-500 flex items-center justify-center">
         <button
-          onClick={handleDelete}
+          onClick={handleDeleteClick}
           disabled={isDeleting}
           className="w-full h-full flex flex-col items-center justify-center text-white"
         >
           <Trash2 className="w-5 h-5 mb-1" />
-          <span className="text-xs">{isDeleting ? "删除中" : "删除"}</span>
+          <span className="text-xs">{isDeleting ? t("novel.deleteInProgress") : t("novel.delete")}</span>
         </button>
       </div>
 
@@ -175,11 +184,11 @@ function SwipeableNovelCard({
               <Calendar className="h-4 w-4" />
               <span>{formatDateTime((novel as any).created_at)}</span>
             </div>
-            <Badge
+              <Badge
               variant="default"
               className="bg-amber-800/20 text-amber-600"
             >
-              共 {novel.chapter_count || 0} 章
+              {t("novel.totalChapters", { count: novel.chapter_count || 0 })}
             </Badge>
           </div>
         </div>
@@ -195,6 +204,7 @@ export default function NovelsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const pageSize = 12;
+  const t = useTranslations();
 
   const router = useRouter();
   const params = useParams();
@@ -220,12 +230,12 @@ export default function NovelsPage() {
   const deleteMutation = useMutation({
     mutationFn: (novelId: string) => novelApi.deleteNovel(novelId),
     onSuccess: () => {
-      toast.success("删除成功");
+      toast.success(t("novel.deleteSuccess"));
       queryClient.invalidateQueries({ queryKey: ["novels"] });
       setDeletingId(null);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "删除失败");
+      toast.error(error instanceof Error ? error.message : t("novel.deleteFailed"));
       setDeletingId(null);
     },
   });
@@ -274,7 +284,7 @@ export default function NovelsPage() {
           onClick={() => router.push(`/${locale}`)}
         >
           <ChevronLeft className="w-4 h-4 text-primary" />
-          <h1 className="text-lg text-gradient-primary">小说列表</h1>
+          <h1 className="text-lg text-gradient-primary">{t("novel.novelList")}</h1>
         </div>
       </div>
       <div className="h-[1px] w-full divider-primary mb-4" />
@@ -295,7 +305,7 @@ export default function NovelsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <p className="text-muted-foreground">
-              加载小说列表失败，请稍后重试。
+              {t("novel.loadingFailed")}
             </p>
           </div>
         </div>
@@ -303,13 +313,13 @@ export default function NovelsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">暂无小说</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("novel.noNovels")}</h3>
             <p className="text-muted-foreground mb-6">
-              开始上传小说进行视频创作吧
+              {t("novel.noNovelsDescription")}
             </p>
             <Button onClick={() => setUploadModalOpen(true)} className="gap-1">
               <Upload className="h-4 w-4" />
-              上传小说
+              {t("novel.uploadNovel")}
             </Button>
           </div>
         </div>
@@ -319,14 +329,14 @@ export default function NovelsPage() {
             {/* 搜索和上传 */}
             <div className="flex justify-between items-center gap-4">
               <Input
-                placeholder="搜索小说..."
+                placeholder={t("novel.searchNovel")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1 h-[36px] max-w-md"
               />
               <Button onClick={() => setUploadModalOpen(true)} className="gap-1">
                 <Plus className="h-4 w-4" />
-                上传小说
+                {t("novel.uploadNovel")}
               </Button>
             </div>
 
@@ -337,8 +347,12 @@ export default function NovelsPage() {
                   key={novel.novel_id}
                   novel={novel}
                   onClick={() => handleNovelClick(novel.novel_id)}
-                  onDelete={() => handleDelete(novel.novel_id)}
+                  onDelete={(e) => {
+                    e.stopPropagation();
+                    handleDelete(novel.novel_id);
+                  }}
                   isDeleting={deletingId === novel.novel_id}
+                  t={t}
                 />
               ))}
             </div>
@@ -353,11 +367,11 @@ export default function NovelsPage() {
                   disabled={currentPage <= 1}
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  上一页
+                  {t("novel.previousPage")}
                 </Button>
 
                 <span className="text-sm text-muted-foreground px-4">
-                  第 {currentPage} 页 / 共 {totalPages} 页
+                  {t("novel.pageInfo", { current: currentPage, total: totalPages })}
                 </span>
 
                 <Button
@@ -366,7 +380,7 @@ export default function NovelsPage() {
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
                 >
-                  下一页
+                  {t("novel.nextPage")}
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -374,7 +388,7 @@ export default function NovelsPage() {
 
             {/* 总数 */}
             <div className="text-center text-sm text-muted-foreground">
-              共 {total} 本小说
+              {t("novel.totalNovels", { total })}
             </div>
           </div>
         </PullToRefresh>

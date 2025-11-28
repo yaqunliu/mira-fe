@@ -28,6 +28,7 @@ import { NarrationEditBottomSheet } from "@/components/modals/narration-edit-bot
 import shotApi from "@/lib/api/shot";
 import taskApi from "@/lib/api/task";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface StoryboardImagesProps {
   data: SceneGroup[];
@@ -51,6 +52,7 @@ export function StoryboardImages({
   isGenerating = false,
   progress,
 }: StoryboardImagesProps) {
+  const t = useTranslations();
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<string>("");
   const [editingNarration, setEditingNarration] = useState<string>("");
@@ -160,9 +162,9 @@ export function StoryboardImages({
             onImageUpdated(imageId, newImageUrl);
           }
           
-          toast.success("图片重新生成成功！");
+          toast.success(t("storyboard.regenerateImageSuccess"));
         } else {
-          toast.error("生成成功但未获取到图片地址");
+          toast.error(t("storyboard.imageUrlNotFound"));
         }
         
         // 停止加载状态
@@ -179,7 +181,7 @@ export function StoryboardImages({
         }
       } else if (status === TaskStatus.FAILURE) {
         // 生成失败
-        toast.error("图片重新生成失败，请重试");
+        toast.error(t("storyboard.regenerateImageFailed"));
         
         setRegeneratingIds(prev => {
           const newSet = new Set(prev);
@@ -231,7 +233,7 @@ export function StoryboardImages({
           throw new Error("未能获取任务ID");
         }
         
-        toast.info("开始重新生成图片...");
+        toast.info(t("storyboard.regenerateImageStart"));
         
         // 开始轮询任务状态
         pollTimersRef.current[imageId] = setTimeout(() => {
@@ -240,7 +242,7 @@ export function StoryboardImages({
         
       } catch (error) {
         console.error("重新生成图片失败:", error);
-        toast.error(error instanceof Error ? error.message : "重新生成失败，请重试");
+        toast.error(error instanceof Error ? error.message : t("storyboard.regenerateImageError"));
         
         // 移除加载状态
         setRegeneratingIds(prev => {
@@ -292,7 +294,7 @@ export function StoryboardImages({
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    正在生成分镜图片 ({completedImages}/{totalImages})
+                    {t("storyboard.generatingShots", { completed: completedImages, total: totalImages })}
                   </span>
                 </div>
                 <div className="flex gap-2">
@@ -301,7 +303,7 @@ export function StoryboardImages({
                       variant="secondary"
                       className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
                     >
-                      {successCount} 张成功
+                      {successCount} {t("common.success")}
                     </Badge>
                   )}
                   {failedCount > 0 && (
@@ -309,14 +311,14 @@ export function StoryboardImages({
                       variant="secondary"
                       className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
                     >
-                      {failedCount} 张失败
+                      {failedCount} {t("common.failed")}
                     </Badge>
                   )}
                   <Badge
                     variant="secondary"
                     className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
                   >
-                    {generatingImages} 张生成中
+                    {t("storyboard.generatingCountShots", { count: generatingImages })}
                   </Badge>
                 </div>
               </div>
@@ -335,10 +337,10 @@ export function StoryboardImages({
               </div>
               <div className="text-center space-y-2">
                 <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
-                  正在生成分镜图片
+                  {t("storyboard.generatingShotsTitle")}
                 </p>
                 <p className="text-sm text-gray-500">
-                  请稍候，AI 正在根据脚本创作分镜图片...
+                  {t("common.loading")}
                 </p>
               </div>
             </div>
@@ -379,12 +381,12 @@ export function StoryboardImages({
                             variant="secondary"
                             className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
                           >
-                            分镜 {imageIndex + 1}
+                            {t("storyboard.shotNumber", { number: imageIndex + 1 })}
                           </Badge>
                           {isRegenerating && (
                             <div className="flex items-center gap-1 text-orange-500">
                               <Loader2 className="w-4 h-4 animate-spin" />
-                              <span className="text-xs">重新生成中...</span>
+                              <span className="text-xs">{t("storyboard.regenerating")}</span>
                             </div>
                           )}
                         </div>
@@ -399,7 +401,7 @@ export function StoryboardImages({
                           // 待生成状态
                           <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6">
                             <ImageIcon className="w-10 h-10 text-gray-400" />
-                            <p className="text-sm text-gray-500">待生成</p>
+                            <p className="text-sm text-gray-500">{t("storyboard.pending")}</p>
                           </div>
                         ) : isGenerating ? (
                           // 生成中状态
@@ -410,7 +412,7 @@ export function StoryboardImages({
                             </div>
                             <div className="text-center space-y-2">
                               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                生成中...
+                                {t("storyboard.generating")}
                               </p>
                               {image.progress !== undefined && (
                                 <div className="w-32">
@@ -429,7 +431,7 @@ export function StoryboardImages({
                           // 生成失败状态
                           <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 text-red-500 py-6">
                             <X className="w-12 h-12" />
-                            <p className="text-sm font-medium">生成失败</p>
+                            <p className="text-sm font-medium">{t("storyboard.generationFailed")}</p>
                           </div>
                         ) : (
                           // 正常图片显示
@@ -450,7 +452,7 @@ export function StoryboardImages({
                               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                                 <div className="flex flex-col items-center gap-2">
                                   <Loader2 className="w-8 h-8 animate-spin text-white" />
-                                  <span className="text-white text-sm">重新生成中...</span>
+                                  <span className="text-white text-sm">{t("storyboard.regenerating")}</span>
                                 </div>
                               </div>
                             )}
@@ -493,7 +495,7 @@ export function StoryboardImages({
                             <button
                               onClick={() => handleStartEditNarration(image)}
                               className="flex-shrink-0 p-1 hover:bg-white/20 rounded transition-colors"
-                              title="编辑旁白"
+                              title={t("storyboard.editNarration")}
                             >
                               <PenLine className="w-3 h-3 text-zinc-400 dark:text-gray-500" />
                             </button>
@@ -603,7 +605,7 @@ export function StoryboardImages({
                             disabled={isRegenerating}
                           >
                             <RefreshCw className="w-4 h-4 mr-2" />
-                            重新生成
+                            {t("storyboard.regenerateImage")}
                           </Button>
                         )}
                       </div>
@@ -632,11 +634,11 @@ export function StoryboardImages({
               {isGenerating ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  生成中...
+                  {t("storyboard.generating")}
                 </>
               ) : (
                 <>
-                  下一步
+                  {t("common.next")}
                   <ArrowRight className="w-4 h-4 mr-1" />
                 </>
               )}

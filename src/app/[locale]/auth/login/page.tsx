@@ -14,13 +14,15 @@ import { useAuthStore } from '@/stores/auth'
 import { authApi } from '@/lib/api/auth'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 export default function LoginPage() {
   const router = useRouter()
   const { login, setLoading } = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
   const params = useParams()
-  const locale = params?.locale as string   
+  const locale = params?.locale as string
+  const t = useTranslations('auth')
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -47,14 +49,14 @@ export default function LoginPage() {
           updatedAt: new Date().toISOString(),
         }
         login(user, token)
-        toast.success(response.message || '登录成功！')
+        toast.success(response.message || t('loginSuccess'))
         router.push(`/${locale}`)
       } else {
-        toast.error(response.message || '服务器错误')
+        toast.error(response.message || t('serverError'))
       }
     } catch (error) {
       console.error('Login error:', error)
-      toast.error('网络错误，请稍后重试')
+      toast.error(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -65,9 +67,9 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <Card className='border-none bg-card dark:bg-zinc-800'>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">登录</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('loginTitle')}</CardTitle>
             <CardDescription className="text-center">
-              输入用户名和密码登录
+              {t('loginDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -78,11 +80,11 @@ export default function LoginPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>用户名</FormLabel>
+                      <FormLabel>{t('username')}</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
-                          placeholder="请输入用户名"
+                          placeholder={t('usernamePlaceholder')}
                           {...field}
                         />
                       </FormControl>
@@ -96,12 +98,12 @@ export default function LoginPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>密码</FormLabel>
+                      <FormLabel>{t('password')}</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
                             type={showPassword ? 'text' : 'password'}
-                            placeholder="请输入密码"
+                            placeholder={t('passwordPlaceholder')}
                             {...field}
                           />
                           <Button
@@ -129,20 +131,20 @@ export default function LoginPage() {
                     href={`/${locale}/auth/forgot-password`}
                     className="text-sm text-primary hover:underline"
                   >
-                    忘记密码？
+                    {t('forgotPassword')}
                   </Link>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? '登录中...' : '登录'}
+                  {form.formState.isSubmitting ? t('loginButtonLoading') : t('loginButton')}
                 </Button>
               </form>
             </Form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">没有账号？</span>
+              <span className="text-muted-foreground">{t('noAccount')}</span>
               <Link href={`/${locale}/auth/register`} className="text-primary hover:underline">
-                注册
+                {t('register')}
               </Link>
             </div>
           </CardContent>

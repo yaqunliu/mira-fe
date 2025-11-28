@@ -13,6 +13,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { ICreation, CreationStatus, CreationStatusMap } from "@/types/creation";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 // 左滑删除创作卡片组件
 function SwipeableCreationCard({
@@ -21,13 +22,21 @@ function SwipeableCreationCard({
   onDelete,
   isDeleting,
   getStatusBadge,
+  t,
 }: {
   creation: ICreation;
   onClick: () => void;
-  onDelete: () => void;
+  onDelete: (e: React.MouseEvent) => void;
   isDeleting: boolean;
   getStatusBadge: (status: CreationStatus) => React.ReactNode;
+  t: any;
 }) {
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(t("creation.deleteConfirm"))) {
+      onDelete(e);
+    }
+  };
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef(0);
@@ -97,8 +106,8 @@ function SwipeableCreationCard({
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm("确定要删除这个创作吗？删除后无法恢复。")) {
-      onDelete();
+    if (confirm(t("creation.deleteConfirm"))) {
+      onDelete(e);
     }
   };
 
@@ -107,12 +116,12 @@ function SwipeableCreationCard({
       {/* 删除按钮背景 */}
       <div className="absolute inset-y-0 right-0 w-20 bg-red-500 flex items-center justify-center">
         <button
-          onClick={handleDelete}
+          onClick={handleDeleteClick}
           disabled={isDeleting}
           className="w-full h-full flex flex-col items-center justify-center text-white"
         >
           <Trash2 className="w-5 h-5 mb-1" />
-          <span className="text-xs">{isDeleting ? "删除中" : "删除"}</span>
+          <span className="text-xs">{isDeleting ? t("creation.deleteInProgress") : t("creation.delete")}</span>
         </button>
       </div>
 
@@ -176,6 +185,7 @@ export default function CreationsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const pageSize = 12;
+  const t = useTranslations();
 
   const params = useParams();
   const locale = params?.locale as string;
@@ -207,12 +217,12 @@ export default function CreationsPage() {
   const deleteMutation = useMutation({
     mutationFn: (creationId: string) => creationApi.deleteCreation(creationId),
     onSuccess: () => {
-      toast.success("删除成功");
+      toast.success(t("creation.deleteSuccess"));
       queryClient.invalidateQueries({ queryKey: ["creations"] });
       setDeletingId(null);
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "删除失败");
+      toast.error(error instanceof Error ? error.message : t("creation.deleteFailed"));
       setDeletingId(null);
     },
   });
@@ -229,19 +239,19 @@ export default function CreationsPage() {
   );
 
   const getStatusBadge = (status: CreationStatus) => {
-    const statusInfo = CreationStatusMap[status] || { label: "未知", color: "bg-gray-500" };
+    const statusInfo = CreationStatusMap[status] || { label: t("common.unknown"), color: "bg-gray-500" };
     
     let displayLabel = statusInfo.label;
     let bgColor = statusInfo.color;
     
     if (status === CreationStatus.COMPLETED) {
-      displayLabel = "已完成";
+      displayLabel = t("common.completed");
       bgColor = "bg-green-600";
     } else if (status === CreationStatus.FAILED) {
-      displayLabel = "失败";
+      displayLabel = t("common.failed");
       bgColor = "bg-red-500";
     } else {
-      displayLabel = "进行中";
+      displayLabel = t("common.inProgress");
       bgColor = "bg-blue-500";
     }
 
@@ -270,7 +280,7 @@ export default function CreationsPage() {
           onClick={() => router.back()}
         >
           <ChevronLeft className="w-4 h-4 text-primary" />
-          <h1 className="text-lg text-gradient-primary">创作列表</h1>
+          <h1 className="text-lg text-gradient-primary">{t("creation.creationList")}</h1>
         </div>
       </div>
       <div className="h-[1px] w-full divider-primary mb-4" />
@@ -291,7 +301,7 @@ export default function CreationsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <p className="text-muted-foreground">
-              加载创作列表失败，请稀后重试。
+              {t("creation.loadingFailed")}
             </p>
           </div>
         </div>
@@ -299,12 +309,12 @@ export default function CreationsPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">还没有创作</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("creation.noCreations")}</h3>
             <p className="text-muted-foreground mb-6">
-              点击开始创作，从小说中创作视频
+              {t("creation.noCreationsDescription")}
             </p>
             <Link href={`/${locale}/create`}>
-              <Button>开始创作</Button>
+              <Button>{t("creation.createCreation")}</Button>
             </Link>
           </div>
         </div>
@@ -314,13 +324,13 @@ export default function CreationsPage() {
             {/* 搜索和新建 */}
             <div className="flex justify-between items-center gap-4">
               <Input
-                placeholder="搜索创作..."
+                placeholder={t("creation.searchCreation")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full max-w-md"
               />
               <Link href={`/${locale}/create`}>
-                <Button icon={<Plus className="h-4 w-4" />}>开始创作</Button>
+                <Button icon={<Plus className="h-4 w-4" />}>{t("creation.createCreation")}</Button>
               </Link>
             </div>
 
@@ -331,9 +341,10 @@ export default function CreationsPage() {
                   key={creation.creation_id}
                   creation={creation}
                   onClick={() => handleCreationClick(creation)}
-                  onDelete={() => handleDelete(creation.creation_id)}
+                  onDelete={handleDelete}
                   isDeleting={deletingId === creation.creation_id}
                   getStatusBadge={getStatusBadge}
+                  t={t}
                 />
               ))}
             </div>
@@ -348,11 +359,11 @@ export default function CreationsPage() {
                   disabled={currentPage <= 1}
                 >
                   <ChevronLeft className="w-4 h-4" />
-                  上一页
+                  {t("creation.previousPage")}
                 </Button>
 
                 <span className="text-sm text-muted-foreground px-4">
-                  第 {currentPage} 页 / 共 {totalPages} 页
+                  {t("creation.pageInfo", { current: currentPage, total: totalPages })}
                 </span>
 
                 <Button
@@ -361,7 +372,7 @@ export default function CreationsPage() {
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
                 >
-                  下一页
+                  {t("creation.nextPage")}
                   <ChevronRight className="w-4 h-4" />
                 </Button>
               </div>
@@ -369,7 +380,7 @@ export default function CreationsPage() {
 
             {/* 总数 */}
             <div className="text-center text-sm text-muted-foreground">
-              共 {total} 个创作
+              {t("creation.totalCreations", { total })}
             </div>
           </div>
         </PullToRefresh>

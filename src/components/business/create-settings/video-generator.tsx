@@ -8,6 +8,14 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Loader2,
   Volume2,
   Wand,
@@ -28,6 +36,7 @@ import voiceApi from "@/lib/api/voice";
 import type { VoiceItem } from "@/types/voice";
 import { TaskStatus } from "@/types";
 import { CreationStatus } from "@/types/creation";
+import { useTranslations } from "next-intl";
 
 interface VideoGeneratorProps {
   creationId: string;
@@ -81,6 +90,7 @@ export function VideoGenerator({
   currentTaskId,
   onVideoGenerated,
 }: VideoGeneratorProps) {
+  const t = useTranslations();
   // 语音选择状态
   const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<VoiceItem | null>(null);
@@ -99,6 +109,10 @@ export function VideoGenerator({
   // 音频预览状态
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // 重新生成对话框状态
+  const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
+  const [forceRegenerateAudio, setForceRegenerateAudio] = useState(false);
 
   // 根据 creation 状态初始化组件阶段
   useEffect(() => {
@@ -259,14 +273,14 @@ export function VideoGenerator({
         setVideoUrl(creation.video_url);
         onVideoGenerated?.(creation.video_url);
         setStage("completed");
-        toast.success("视频生成完成！");
+        toast.success(t("video.videoGenerationSuccess"));
       } else {
         // 视频还没生成完，继续保持生成状态
-        toast.info("音频已生成，视频正在合成中...");
+        toast.info(t("video.audioGenerationSuccess"));
       }
     } catch (error) {
       console.error("获取创作数据失败:", error);
-      toast.error("获取数据失败，请刷新页面重试");
+      toast.error(t("errors.serverError"));
     }
   }, [creationId, onVideoGenerated]);
 
@@ -295,8 +309,8 @@ export function VideoGenerator({
       }
       if (status === TaskStatus.FAILURE) {
         setStage("failed");
-        setErrorMessage(query.state.data?.error || "生成失败，请重试");
-        toast.error("生成失败，请重试");
+        setErrorMessage(query.state.data?.error || t("video.generationFailedRetry"));
+        toast.error(t("video.generationFailedRetry"));
         return false;
       }
       return 2000; // 每2秒轮询一次
@@ -313,7 +327,7 @@ export function VideoGenerator({
   // 开始生成
   const handleStartGeneration = async () => {
     if (!selectedVoiceId || !creationId) {
-      toast.error("请先选择语音");
+      toast.error(t("video.selectVoice"));
       return;
     }
 
@@ -322,42 +336,78 @@ export function VideoGenerator({
     setProgress(null);
 
     try {
-      toast.info("开始生成音频...");
+      toast.info(t("video.audioGenerationStart"));
       const response = await creationApi.selectVoiceAndGenerateAudio(
         creationId,
         selectedVoiceId,
-        voiceSpeed
+        voiceSpeed,
+        forceRegenerateAudio
       );
       const newTaskId = response?.data?.task_id;
 
       if (newTaskId) {
         setTaskId(newTaskId);
+        // 重置强制重新生成标志
+        setForceRegenerateAudio(false);
       } else {
-        throw new Error("未能获取任务ID");
+        throw new Error(t("creation.taskIdNotFound"));
       }
     } catch (error) {
       console.error("启动生成任务失败:", error);
       setStage("failed");
-      setErrorMessage(error instanceof Error ? error.message : "启动任务失败，请重试");
-      toast.error(error instanceof Error ? error.message : "启动任务失败");
+      setErrorMessage(error instanceof Error ? error.message : t("video.generationFailedRetry"));
+      toast.error(error instanceof Error ? error.message : t("video.generationFailedRetry"));
     }
   };
 
-  // 重试生成（重新生成时回到选择语音阶段）
-  const handleRetry = async () => {
+  // 重试生成（重新生成时弹出对话框询问是否重新生成音频）
+  const handleRetry = () => {
     console.log(`[VideoGenerator] handleRetry 被调用`);
-    setStage("idle");
+    setShowRegenerateDialog(true);
+  };
+
+  // 确认重新生成（不重新生成音频）
+  const handleConfirmRegenerate = async () => {
+    setShowRegenerateDialog(false);
+    setForceRegenerateAudio(false);
+    
+    // 如果有已选择的语音，直接重新生成，不跳转
+    if (selectedVoiceId) {
+      // 重置状态但保持语音选择
+      setTaskId(null);
+      setProgress(null);
+      setErrorMessage(null);
+      setAudioUrl(null);
+      setVideoUrl(null);
+      // 直接调用生成函数
+      await handleStartGeneration();
+    } else {
+      // 没有已选择的语音，跳转到选择界面
+      setStage("idle");
+      setTaskId(null);
+      setProgress(null);
+      setErrorMessage(null);
+      setAudioUrl(null);
+      setVideoUrl(null);
+      // 强制重新获取creation数据，以便获取最新的voice_id
+      await new Promise(resolve => setTimeout(resolve, 50));
+      refetchCreation();
+    }
+  };
+
+  // 确认重新生成音频（跳转到音频选择界面）
+  const handleConfirmRegenerateAudio = () => {
+    setShowRegenerateDialog(false);
+    setForceRegenerateAudio(true);
+    setStage("selecting");
     setTaskId(null);
     setProgress(null);
     setErrorMessage(null);
     setAudioUrl(null);
     setVideoUrl(null);
-    // 强制重新获取creation数据，以便获取最新的voice_id
-    // 等待stage更新后再触发查询
-    await new Promise(resolve => setTimeout(resolve, 50));
-    refetchCreation();
-    // 不清空selectedVoiceId和selectedVoice，保持显示已选择的语音信息
-    // 这样用户可以看到之前选择的语音，也可以重新选择
+    // 清空已选择的语音，让用户重新选择
+    setSelectedVoiceId(null);
+    setSelectedVoice(null);
   };
 
   // 播放/暂停音频预览
@@ -404,10 +454,10 @@ export function VideoGenerator({
           <div className="space-y-2">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Volume2 className="w-5 h-5 text-orange-500" />
-              选择配音语音
+              {t("video.selectVoice")}
             </h3>
             <p className="text-sm text-muted-foreground">
-              选择一个语音模型用于视频配音，点击可试听效果
+              {t("video.previewAudio")}
             </p>
           </div>
 
@@ -440,7 +490,7 @@ export function VideoGenerator({
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-medium text-foreground">
-                        语速设置
+                        {t("video.voiceSpeed")}
                       </label>
                       <span className="text-sm text-muted-foreground">
                         {voiceSpeed.toFixed(1)}x
@@ -501,9 +551,9 @@ export function VideoGenerator({
                       <Music className="absolute inset-0 m-auto w-5 h-5 text-orange-500" />
                     </div>
                     <div>
-                      <h4 className="font-semibold">正在生成音频和视频</h4>
+                      <h4 className="font-semibold">{t("video.generatingAudio")}</h4>
                       <p className="text-sm text-muted-foreground">
-                        {progress?.status || "准备中..."}
+                        {progress?.status || t("common.loading")}
                       </p>
                     </div>
                   </div>
@@ -535,7 +585,7 @@ export function VideoGenerator({
 
                 {/* 提示 */}
                 <p className="text-xs text-center text-muted-foreground">
-                  正在生成中 请耐心等待
+                  {t("video.generatingPleaseWait")}
                 </p>
               </div>
             </CardContent>
@@ -554,15 +604,15 @@ export function VideoGenerator({
                 </div>
                 <div>
                   <h4 className="font-semibold text-red-700 dark:text-red-400">
-                    生成失败
+                    {t("video.generationFailed")}
                   </h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {errorMessage || "发生未知错误，请重试"}
+                    {errorMessage || t("errors.generationFailed")}
                   </p>
                 </div>
                 <Button onClick={handleRetry} variant="outline" className="gap-2">
                   <RefreshCw className="w-4 h-4" />
-                  重新选择语音
+                  {t("video.retryGeneration")}
                 </Button>
               </div>
             </CardContent>
@@ -607,7 +657,7 @@ export function VideoGenerator({
                       <span className="font-medium text-sm">音频预览</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      点击播放按钮试听配音效果
+                      {t("video.previewAudio")}
                     </p>
                   </div>
                 </div>
@@ -645,10 +695,10 @@ export function VideoGenerator({
           <div className="flex justify-center gap-4 pt-4">
             <Button onClick={handleRetry} variant="outline" className="gap-2">
               <RefreshCw className="w-4 h-4" />
-              重新生成
+              {t("common.regenerate")}
             </Button>
             <Button className="bg-primary-gradient gap-2">
-              去发布
+              {t("common.publish")}
             </Button>
           </div>
         </div>
@@ -664,12 +714,41 @@ export function VideoGenerator({
                 disabled={!selectedVoiceId}
                 className="bg-orange-400/80 hover:bg-orange-600 text-white px-8 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
               >
-                开始生成
+                {t("video.startGenerationButton")}
               </Button>
             </div>
           </div>
         </div>
       )}
+
+      {/* 重新生成对话框 */}
+      <Dialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("video.regenerateVideoTitle")}</DialogTitle>
+            <DialogDescription>
+              {t("video.regenerateAudioQuestion")}
+            </DialogDescription>
+            <p className="text-sm text-muted-foreground mt-2">
+              {t("video.regenerateAudioDescription")}
+            </p>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleConfirmRegenerate}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={handleConfirmRegenerateAudio}
+              className="bg-orange-400/80 hover:bg-orange-600 text-white"
+            >
+              {t("common.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -2,25 +2,27 @@ import { ICreation } from "@/types/creation";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 function VideoCard({ creation }: { creation: ICreation }) {
   const router = useRouter();
   const params = useParams();
   const locale = params?.locale as string;
+  const t = useTranslations();
   const getStatusBadge = (status: ICreation["status"]) => {
     const statusMap = {
       generating: {
-        label: "进行中",
+        label: t("common.inProgress"),
         variant: "default" as const,
         className: "bg-blue-600/80",
       },
       completed: {
-        label: "已完成",
+        label: t("common.completed"),
         variant: "default" as const,
         className: "bg-green-700/80",
       },
       failed: {
-        label: "出错了",
+        label: t("common.error"),
         variant: "destructive" as const,
         className: "bg-red-500",
       },

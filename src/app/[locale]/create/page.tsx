@@ -91,23 +91,23 @@ export default function CreateCreation() {
   const initialSteps = [
     {
       id: "story",
-      title: t("createVideo.故事"),
+      title: t("createVideo.story"),
     },
     {
       id: "character",
-      title: t("createVideo.角色"),
+      title: t("createVideo.character"),
     },
     {
       id: "script",
-      title: t("createVideo.脚本"),
+      title: t("createVideo.script"),
     },
     {
       id: "material",
-      title: t("createVideo.分镜"),
+      title: t("createVideo.storyboard"),
     },
     {
       id: "video",
-      title: t("createVideo.视频"),
+      title: t("createVideo.video"),
     },
   ];
 
@@ -138,21 +138,21 @@ export default function CreateCreation() {
         console.error("查询任务状态失败:", query.state.error);
         setIsGeneratingShots(false);
         setShotsTaskId(null);
-        toast.error("查询任务状态失败，请刷新页面重试");
+        toast.error(t("creation.queryTaskFailed"));
         refetchCreation(); // 刷新创作数据
         return false;
       }
       
       const taskStatus = query.state.data?.data?.status;
-      if (taskStatus === TaskStatus.SUCCESS || taskStatus === TaskStatus.FAILURE) {
-        setIsGeneratingShots(false);
-        if (taskStatus === TaskStatus.SUCCESS) {
-          toast.success("分镜图片生成完成！");
-        } else {
-          toast.error("分镜图片生成失败，请重试");
+        if (taskStatus === TaskStatus.SUCCESS || taskStatus === TaskStatus.FAILURE) {
+          setIsGeneratingShots(false);
+          if (taskStatus === TaskStatus.SUCCESS) {
+            toast.success(t("creation.shotsGenerationSuccess"));
+          } else {
+            toast.error(t("creation.shotsGenerationFailed"));
+          }
+          return false;
         }
-        return false;
-      }
       return 2000; // 每2秒轮询一次
     },
   });
@@ -184,13 +184,13 @@ export default function CreateCreation() {
   // 触发分镜生成
   const handleGenerateShots = async () => {
     if (!creationId) {
-      toast.error("创作ID不存在");
+      toast.error(t("creation.creationIdNotFound"));
       return;
     }
 
     try {
       setIsGeneratingShots(true);
-      toast.info("开始生成分镜图片...");
+      toast.info(t("creation.shotsGenerationStart"));
       
       const response = await creationApi.generateShots(creationId);
       const taskId = response?.data?.task_id;
@@ -199,12 +199,12 @@ export default function CreateCreation() {
         setShotsTaskId(taskId);
         nextStep(); // 先跳转到分镜页面
       } else {
-        toast.error("未能获取任务ID");
+        toast.error(t("creation.taskIdNotFound"));
         setIsGeneratingShots(false);
       }
     } catch (error) {
       console.error("Generate shots error:", error);
-      toast.error(error instanceof Error ? error.message : "分镜生成失败，请重试");
+      toast.error(error instanceof Error ? error.message : t("creation.shotsGenerationError"));
       setIsGeneratingShots(false);
     }
   };
@@ -348,7 +348,7 @@ export default function CreateCreation() {
       >
         <ChevronLeft className="w-4 h-4 text-primary" />
         <h1 className="text-lg text-gradient-primary">
-          {t("createVideo.制作动画")}
+          {t("createVideo.createAnimation")}
         </h1>
       </div>
       <div className="h-[1px] w-full divider-primary mb-4" />

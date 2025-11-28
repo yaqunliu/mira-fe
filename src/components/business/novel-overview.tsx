@@ -77,7 +77,7 @@ export function NovelOverview() {
         <div className="text-center py-6">
           <BookOpen className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm text-muted-foreground mb-3">
-            暂无小说，点击上传第一本小说
+            {t("home.noNovelsEmpty")}
           </p>
           <Button
             size="sm"
@@ -85,7 +85,7 @@ export function NovelOverview() {
             className="text-xs gap-1"
           >
             <Upload className="w-3 h-3" />
-            上传小说
+            {t("novel.uploadNovel")}
           </Button>
         </div>
         
@@ -144,7 +144,7 @@ export function NovelOverview() {
                   <div className="flex items-center justify-center gap-1 text-white/80">
                     <BookOpen className="h-3 w-3" />
                     <span className="text-xs">
-                      {novel?.chapter_count || 0} {t("home.章节")}
+                      {novel?.chapter_count || 0} {t("home.chapters")}
                     </span>
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export function NovelOverview() {
           onClick={handleViewMore}
           className="w-full text-xs text-secondary underline flex items-center justify-center gap-1 py-2 rounded-md hover:bg-accent transition-colors"
         >
-          {t("home.查看更多")}
+          {t("home.viewMore")}
           <ChevronRight className="h-3 w-3" />
         </button>
       )}

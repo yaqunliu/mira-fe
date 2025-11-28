@@ -40,7 +40,7 @@ export default function RootPage() {
       <div className="flex-shrink-0">
         <div className="flex items-center justify-between p-4">
           <h1 className="text-2xl font-bold text-gradient-primary">
-            AI动画短剧
+            {t("home.title")}
           </h1>
           {/* 操作栏 */}
           <ActionBar />
@@ -54,7 +54,7 @@ export default function RootPage() {
           <div className="flex" onClick={() => router.push(`/${locale}/create`)}>
             <div className="w-1/2 lg:w-50 aspect-[7/3] rounded-md flex items-center justify-center gap-3 border border-orange-300 dark:border-orange-600 bg-gradient-to-br from-violet-100/30 to-orange-300/40 to-95% dark:bg-slate-900 hover:from-violet-200/40 hover:to-orange-400/50 dark:hover:bg-slate-800 cursor-pointer transition-all">
               <div className="text-lg font-semibold text-orange-800 dark:text-orange-300">
-                {t("home.制作动画")}
+                {t("home.createAnimation")}
               </div>
               <FileVideoCamera className="w-6 h-6 text-primary" />
             </div>
@@ -66,7 +66,7 @@ export default function RootPage() {
               <div className="flex items-center gap-1 cursor-pointer" onClick={() => router.push(`/${locale}/creations`)}>
                 <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" />
                 <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
-                  {t("home.我的创作")}
+                  {t("home.myCreations")}
                 </h2>
               </div>
               <CreationOverview />
@@ -75,7 +75,7 @@ export default function RootPage() {
               <div className="flex items-center gap-1">
                 <BookOpenText className="w-4 h-4 text-amber-800 dark:text-amber-400" />
                 <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
-                  {t("home.我的小说")}
+                  {t("home.myNovels")}
                 </h2>
               </div>
               <NovelOverview />

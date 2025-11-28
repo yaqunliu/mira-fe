@@ -12,8 +12,10 @@ import {
 import { useAuthStore } from '@/stores/auth'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 
 export function UserAvatar() {
+  const t = useTranslations();
   const { user, logout, isAuthenticated } = useAuthStore()
   const router = useRouter()
   const params = useParams()
@@ -33,7 +35,7 @@ export function UserAvatar() {
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-2 pl-2">
           <User className="h-4 w-4" />
-          <span className="sr-only">用户菜单</span>
+          <span className="sr-only">{t("user.userMenu")}</span>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -49,7 +51,7 @@ export function UserAvatar() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
           <LogOut className="mr-2 h-4 w-4" />
-          退出登录
+          {t("user.logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
