@@ -41,6 +41,7 @@ const creationApi = {
   selectVoiceAndGenerateAudio: async (
     creationId: string,
     voiceId: string,
+    voiceSpeed: number = 1,
     forceRegenerate: boolean = false
   ): Promise<{
     data: { task_id: string; creation_id: number; voice_id: string };
@@ -49,6 +50,7 @@ const creationApi = {
       `/api/v1/creations/${creationId}/select-voice`,
       {
         voice_id: voiceId,
+        voice_speed: voiceSpeed,
         force_regenerate: forceRegenerate,
       }
     ) as unknown as Promise<{

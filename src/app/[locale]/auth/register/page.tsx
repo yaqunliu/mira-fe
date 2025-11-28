@@ -54,7 +54,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <Card className='border-none bg-zinc-800'>
+        <Card className='border-none bg-card dark:bg-zinc-800'>
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">注册</CardTitle>
             <CardDescription className="text-center">

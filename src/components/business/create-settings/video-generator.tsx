@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Loader2,
   Volume2,
@@ -83,6 +84,7 @@ export function VideoGenerator({
   // 语音选择状态
   const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<VoiceItem | null>(null);
+  const [voiceSpeed, setVoiceSpeed] = useState<number>(1);
 
   // 任务状态
   const [taskId, setTaskId] = useState<string | null>(currentTaskId || null);
@@ -184,9 +186,14 @@ export function VideoGenerator({
     }
   }, [creationData?.current_task_id, taskId, stage, creationData?.audio_url, creationData?.video_url, audioUrl, videoUrl]);
 
-  // 自动加载并显示上次使用的语音信息
+  // 自动加载并显示上次使用的语音信息和语速
   useEffect(() => {
     console.log(`[VideoGenerator] useEffect触发 - stage: ${stage}, voice_id: ${creationData?.voice_id}, selectedVoiceId: ${selectedVoiceId}`);
+    
+    // 加载已保存的语速
+    if (creationData?.voice_speed !== undefined && creationData.voice_speed !== null) {
+      setVoiceSpeed(creationData.voice_speed);
+    }
     
     // 在idle或selecting阶段，如果creation数据中有voice_id，就加载并显示
     if ((stage === "idle" || stage === "selecting") && creationData?.voice_id) {
@@ -226,7 +233,7 @@ export function VideoGenerator({
     } else if ((stage === "idle" || stage === "selecting") && !creationData?.voice_id) {
       console.log(`[VideoGenerator] 没有找到voice_id`);
     }
-  }, [creationData?.voice_id, stage, selectedVoiceId, selectedVoice]);
+  }, [creationData?.voice_id, creationData?.voice_speed, stage, selectedVoiceId, selectedVoice]);
 
   // 处理语音选择
   const handleVoiceSelect = useCallback((voiceId: string, voice: VoiceItem) => {
@@ -318,7 +325,8 @@ export function VideoGenerator({
       toast.info("开始生成音频...");
       const response = await creationApi.selectVoiceAndGenerateAudio(
         creationId,
-        selectedVoiceId
+        selectedVoiceId,
+        voiceSpeed
       );
       const newTaskId = response?.data?.task_id;
 
@@ -411,7 +419,7 @@ export function VideoGenerator({
           {/* 已选择的语音信息 */}
           {selectedVoice && (
             <Card className="border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-950/20">
-              <CardContent className="p-4">
+              <CardContent className="p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
                     <Check className="w-5 h-5 text-white" />
@@ -423,6 +431,53 @@ export function VideoGenerator({
                     <p className="text-xs text-muted-foreground">
                       {selectedVoice.author?.nickname || "未知作者"} ·{" "}
                       {selectedVoice.task_count.toLocaleString()} 次使用
+                    </p>
+                  </div>
+                </div>
+                
+                {/* 语速设置 */}
+                <div className="pt-3 border-t border-orange-200 dark:border-orange-800">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-foreground">
+                        语速设置
+                      </label>
+                      <span className="text-sm text-muted-foreground">
+                        {voiceSpeed.toFixed(1)}x
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="flex-1 relative">
+                        <input
+                          type="range"
+                          min="0"
+                          max="2"
+                          step="0.1"
+                          value={voiceSpeed}
+                          onChange={(e) => setVoiceSpeed(parseFloat(e.target.value))}
+                          className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-orange-500 bg-zinc-200 dark:bg-zinc-700"
+                          style={{
+                            background: `linear-gradient(to right, rgb(251 146 60) 0%, rgb(251 146 60) ${(voiceSpeed / 2) * 100}%, transparent ${(voiceSpeed / 2) * 100}%, transparent 100%)`
+                          }}
+                        />
+                      </div>
+                      <Input
+                        type="number"
+                        min="0"
+                        max="2"
+                        step="0.1"
+                        value={voiceSpeed}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value);
+                          if (!isNaN(value) && value >= 0 && value <= 2) {
+                            setVoiceSpeed(value);
+                          }
+                        }}
+                        className="w-20 text-center"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      调整语音播放速度，范围 0-2，默认 1.0
                     </p>
                   </div>
                 </div>

@@ -48,6 +48,7 @@ export interface ICreation {
   chapter_id: string;
   current_task_id?: string;
   voice_id?: string;
+  voice_speed?: number;
   characters: ICharacter[];
   scenes: IScene[];
 }
