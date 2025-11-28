@@ -246,10 +246,9 @@
     "generationFailedRetry": "生成失败，请重试",
     "startGenerationButton": "开始生成",
     "regenerateVideoTitle": "重新生成视频",
-    "regenerateAudioQuestion": "是否重新生成音频？",
-    "regenerateAudioDescription": "如果选择重新生成音频，将跳转到音频选择界面，您可以重新选择语音和语速。",
-    "regenerateVideoOnly": "仅重新生成视频",
-    "regenerateAudioAndVideo": "重新生成音频和视频"
+    "regenerateAudioDescription": "是否重新生成音频？选择后将跳转到音频选择界面。",
+    "regenerateVideoOnly": "只重新生成视频",
+    "regenerateAudioAndVideo": "重新生成视频和音频"
   },
   "storyboard": {
     "title": "分镜",

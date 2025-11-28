@@ -246,10 +246,9 @@
     "generationFailedRetry": "Generation failed, please try again",
     "startGenerationButton": "Start Generation",
     "regenerateVideoTitle": "Regenerate Video",
-    "regenerateAudioQuestion": "Do you want to regenerate audio?",
-    "regenerateAudioDescription": "If you choose to regenerate audio, you will be redirected to the audio selection interface where you can reselect the voice and speed.",
+    "regenerateAudioDescription": "Do you want to regenerate audio? You will be redirected to the audio selection interface.",
     "regenerateVideoOnly": "Regenerate Video Only",
-    "regenerateAudioAndVideo": "Regenerate Audio and Video"
+    "regenerateAudioAndVideo": "Regenerate Video and Audio"
   },
   "storyboard": {
     "title": "Storyboard",

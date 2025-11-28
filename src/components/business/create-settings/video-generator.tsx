@@ -722,33 +722,32 @@ export function VideoGenerator({
       )}
 
       {/* 重新生成对话框 */}
-      <Dialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("video.regenerateVideoTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("video.regenerateAudioQuestion")}
-            </DialogDescription>
-            <p className="text-sm text-muted-foreground mt-2">
-              {t("video.regenerateAudioDescription")}
-            </p>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={handleConfirmRegenerate}
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              onClick={handleConfirmRegenerateAudio}
-              className="bg-orange-400/80 hover:bg-orange-600 text-white"
-            >
-              {t("common.confirm")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {showRegenerateDialog && (
+        <Dialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t("video.regenerateVideoTitle")}</DialogTitle>
+              <DialogDescription>
+                {t("video.regenerateAudioDescription")}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={handleConfirmRegenerate}
+              >
+                {t("video.regenerateVideoOnly")}
+              </Button>
+              <Button
+                onClick={handleConfirmRegenerateAudio}
+                className="bg-orange-400/80 hover:bg-orange-600 text-white"
+              >
+                {t("video.regenerateAudioAndVideo")}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

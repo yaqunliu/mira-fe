@@ -246,10 +246,9 @@
     "generationFailedRetry": "生成に失敗しました。再試行してください",
     "startGenerationButton": "生成を開始",
     "regenerateVideoTitle": "動画を再生成",
-    "regenerateAudioQuestion": "音声も再生成しますか？",
-    "regenerateAudioDescription": "音声を再生成する場合、音声選択画面に移動し、音声と速度を再選択できます。",
+    "regenerateAudioDescription": "音声も再生成しますか？選択すると音声選択画面に移動します。",
     "regenerateVideoOnly": "動画のみ再生成",
-    "regenerateAudioAndVideo": "音声と動画を再生成"
+    "regenerateAudioAndVideo": "動画と音声を再生成"
   },
   "storyboard": {
     "title": "ストーリーボード",
