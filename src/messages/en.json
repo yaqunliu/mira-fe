@@ -73,7 +73,9 @@
     "duration": "Duration",
     "noVideos": "No videos yet, click to create your first video",
     "startCreating": "Start Creating",
-    "noNovelsEmpty": "No novels yet, click to upload your first novel"
+    "noNovelsEmpty": "No novels yet, click to upload your first novel",
+    "dailyCheckin": "Daily Check-in",
+    "checkinDescription": "Check in daily to earn points"
   },
   "createVideo": {
     "createAnimation": "Create Animation",
@@ -133,7 +135,8 @@
   },
   "user": {
     "userMenu": "User Menu",
-    "logout": "Logout"
+    "logout": "Logout",
+    "pointsRecords": "Points Records"
   },
   "novelDetail": {
     "bookDetails": "Book Details",
@@ -307,5 +310,58 @@
     "zh": "中文",
     "en": "English",
     "ja": "日本語"
+  },
+  "points": {
+    "title": "Points Center",
+    "balance": "Points Balance",
+    "availablePoints": "Available Points",
+    "totalPoints": "Total Points",
+    "todayConsumed": "Today Consumed",
+    "monthConsumed": "Month Consumed",
+    "expiringSoon": "Expiring Soon",
+    "statistics": "Statistics",
+    "totalEarned": "Total Earned",
+    "totalConsumed": "Total Consumed",
+    "records": "Points Records",
+    "allRecordTypes": "All Types",
+    "allOperations": "All Operations",
+    "allRecords": "All Records",
+    "earnedRecords": "Earned Records",
+    "consumedRecords": "Consumed Records",
+    "checkinRecords": "Check-in Records",
+    "registerReward": "Register Reward",
+    "noRecords": "No records",
+    "balanceAfter": "Balance",
+    "expiresAt": "Expires At",
+    "dailyCheckinPoints": "Daily Check-in Points",
+    "unknown": "Unknown",
+    "viewDetails": "View Details",
+    "back": "Back",
+    "checkin": "Check-in",
+    "checkedIn": "Checked In",
+    "checkinSuccess": "Check-in successful! Earned {points} points",
+    "alreadyCheckedIn": "Already checked in today, please come back tomorrow",
+    "checkinFailed": "Check-in failed, please try again later",
+    "recordType": {
+      "consume": "Consume",
+      "recharge": "Recharge",
+      "reward": "Reward",
+      "refund": "Refund",
+      "expire": "Expire",
+      "checkin": "Check-in"
+    },
+    "operation": {
+      "create_creation": "Create Creation",
+      "generate_character": "Generate Character",
+      "generate_shot": "Generate Shot",
+      "generate_audio": "Generate Audio",
+      "generate_video": "Generate Video",
+      "upload_novel": "Upload Novel",
+      "llm_call": "LLM Call",
+      "register": "Register Reward",
+      "daily_checkin": "Daily Check-in",
+      "test_add_points": "Test Add Points"
+    },
+    "insufficientPoints": "Insufficient Points"
   }
 }

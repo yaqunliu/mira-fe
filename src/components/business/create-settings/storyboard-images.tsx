@@ -29,6 +29,7 @@ import shotApi from "@/lib/api/shot";
 import taskApi from "@/lib/api/task";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useTaskSubmission } from "@/hooks/use-task-submission";
 
 interface StoryboardImagesProps {
   data: SceneGroup[];
@@ -157,7 +158,8 @@ export function StoryboardImages({
             [imageId]: newImageUrl,
           }));
           
-          // 通知父组件
+          // 通知父组件（单张重新生成成功后，不触发自动跳转）
+          // 注意：这里只更新图片，不会调用 onComplete，确保不会自动跳转到下一步
           if (onImageUpdated) {
             onImageUpdated(imageId, newImageUrl);
           }
@@ -179,6 +181,9 @@ export function StoryboardImages({
           clearTimeout(pollTimersRef.current[imageId]);
           delete pollTimersRef.current[imageId];
         }
+        
+        // 注意：单张重新生成成功后，不调用 onComplete，避免自动跳转到下一步
+        // 只有用户手动点击"下一步"按钮时才会调用 onComplete
       } else if (status === TaskStatus.FAILURE) {
         // 生成失败
         toast.error(t("storyboard.regenerateImageFailed"));
@@ -218,41 +223,78 @@ export function StoryboardImages({
     }
   }, [onImageUpdated]);
 
+  // 正在提交的图片 ID 集合（用于防抖）
+  const submittingIdsRef = useRef<Set<string>>(new Set());
+  const debounceTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
+
   // 重新生成图片
   const handleRegenerateImage = useCallback(
     async (imageId: string, newPrompt: string) => {
-      // 添加到正在生成的列表
-      setRegeneratingIds(prev => new Set(prev).add(imageId));
-      
-      try {
-        // 调用 API 开始生成
-        const response = await shotApi.regenerateShot(imageId, newPrompt);
-        const taskId = response?.data?.task_id;
-        
-        if (!taskId) {
-          throw new Error("未能获取任务ID");
-        }
-        
-        toast.info(t("storyboard.regenerateImageStart"));
-        
-        // 开始轮询任务状态
-        pollTimersRef.current[imageId] = setTimeout(() => {
-          pollTaskStatus(taskId, imageId);
-        }, POLL_INTERVAL);
-        
-      } catch (error) {
-        console.error("重新生成图片失败:", error);
-        toast.error(error instanceof Error ? error.message : t("storyboard.regenerateImageError"));
-        
-        // 移除加载状态
-        setRegeneratingIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(imageId);
-          return newSet;
-        });
+      // 如果已经在生成中或正在提交，直接返回
+      if (regeneratingIds.has(imageId) || submittingIdsRef.current.has(imageId)) {
+        return;
       }
+
+      // 清除之前的防抖定时器
+      if (debounceTimersRef.current[imageId]) {
+        clearTimeout(debounceTimersRef.current[imageId]);
+      }
+
+      // 设置防抖
+      debounceTimersRef.current[imageId] = setTimeout(async () => {
+        // 标记为正在提交
+        submittingIdsRef.current.add(imageId);
+
+        try {
+          // 检查积分是否充足（重新生成单张图片）
+          const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+          const pointsAvailable = await checkAndNotifyPoints(
+            {
+              operation_type: 'generate_image',
+              image_count: 1,
+            },
+            t
+          )
+
+          if (!pointsAvailable) {
+            throw new Error('积分不足')
+          }
+
+          // 添加到正在生成的列表
+          setRegeneratingIds(prev => new Set(prev).add(imageId));
+          
+          // 调用 API 开始生成
+          const response = await shotApi.regenerateShot(imageId, newPrompt);
+          const taskId = response?.data?.task_id;
+          
+          if (!taskId) {
+            throw new Error("未能获取任务ID");
+          }
+          
+          toast.info(t("storyboard.regenerateImageStart"));
+          
+          // 开始轮询任务状态
+          pollTimersRef.current[imageId] = setTimeout(() => {
+            pollTaskStatus(taskId, imageId);
+          }, POLL_INTERVAL);
+        } catch (error) {
+          console.error("重新生成图片失败:", error);
+          toast.error(error instanceof Error ? error.message : t("storyboard.regenerateImageError"));
+          
+          // 移除加载状态
+          setRegeneratingIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(imageId);
+            return newSet;
+          });
+        } finally {
+          // 移除提交标记
+          submittingIdsRef.current.delete(imageId);
+          delete debounceTimersRef.current[imageId];
+        }
+      }, 500); // 500ms 防抖延迟
     },
-    [pollTaskStatus]
+    [pollTaskStatus, regeneratingIds, t]
   );
 
   // 关闭编辑弹窗

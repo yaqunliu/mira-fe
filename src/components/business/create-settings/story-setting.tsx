@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -14,6 +14,7 @@ import creationApi from "@/lib/api/creation";
 import { toast } from "sonner";
 import { CreationStatus } from "@/types/creation";
 import { useParams, useRouter } from "next/navigation";
+import { useTaskSubmission } from "@/hooks/use-task-submission";
 
 export function StorySetting() {
   const t = useTranslations("");
@@ -65,24 +66,62 @@ export function StorySetting() {
     },
   });
 
-  const analyseContent = () => {
+  // 分析内容的内部函数
+  const analyseContentInternal = useCallback(async () => {
     // 验证是否选择了小说和章节
     if (!selectedNovel) {
       toast.error(t("novel.noNovels"));
-      return;
+      throw new Error(t("novel.noNovels"));
     }
 
     if (selectedChapters.length === 0) {
       toast.error(t("novel.chapters"));
-      return;
+      throw new Error(t("novel.chapters"));
+    }
+
+    // 检查LLM调用积分（创建创作会触发LLM调用生成剧本）
+    const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+    const pointsAvailable = await checkAndNotifyPoints(
+      {
+        operation_type: 'llm_call',
+        model_name: 'Qwen/Qwen-Plus',
+        estimated_prompt_tokens: 5000,
+        estimated_completion_tokens: 10000,
+      },
+      t
+    )
+
+    if (!pointsAvailable) {
+      throw new Error('积分不足')
     }
 
     // 调用创建接口
-    createCreationMutation.mutate({
-      novelId: selectedNovel.novel_id,
-      chapterIds: selectedChapters.map((chapter) => chapter.chapter_id),
+    return new Promise<void>((resolve, reject) => {
+      createCreationMutation.mutate(
+        {
+          novelId: selectedNovel.novel_id,
+          chapterIds: selectedChapters.map((chapter) => chapter.chapter_id),
+        },
+        {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error),
+        }
+      );
     });
-  };
+  }, [selectedNovel, selectedChapters, t, createCreationMutation]);
+
+  // 使用任务提交 hook 包装分析函数
+  const { submit: analyseContent, isSubmitting: isSubmittingAnalysis } = useTaskSubmission(
+    analyseContentInternal,
+    {
+      debounceDelay: 500,
+      enableDebounce: true,
+      onError: (error) => {
+        console.error('积分检查失败:', error);
+        // 错误已经在 analyseContentInternal 中处理了
+      },
+    }
+  );
 
   const handleResetNovel = () => {
     setSelectedNovel(null);
@@ -133,11 +172,11 @@ export function StorySetting() {
                       <Button
                         variant="default"
                         size="lg"
-                        onClick={analyseContent}
-                        disabled={createCreationMutation.isPending || isLoading}
+                        onClick={() => analyseContent()}
+                        disabled={createCreationMutation.isPending || isLoading || isSubmittingAnalysis}
                         className="bg-primary"
                       >
-                        {createCreationMutation.isPending || isLoading ? t("createVideo.analyzingContent") : t("createVideo.next")}
+                        {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.next")}
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>

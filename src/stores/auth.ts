@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { User } from '@/types'
+import { usePointsStore } from './points'
 
 interface AuthState {
   user: User | null
@@ -33,6 +34,9 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       
       login: (user: User, token: string, expiresIn?: number) => {
+        // 登录前清空其他 store 的数据，确保新用户数据干净
+        usePointsStore.getState().clearBalance()
+        
         // 如果提供了 expiresIn（秒），计算过期时间戳
         // 如果没有提供，尝试从 JWT token 中解析
         let expiresAt: number | null = null
@@ -61,6 +65,9 @@ export const useAuthStore = create<AuthState>()(
       },
       
       logout: () => {
+        // 退出登录时清空其他 store 的数据
+        usePointsStore.getState().clearBalance()
+        
         set({
           user: null,
           token: null,

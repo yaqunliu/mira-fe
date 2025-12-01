@@ -39,8 +39,10 @@ export default function RegisterPage() {
       setLoading(true)
       const response = await authApi.register(data)
       
-      if (response.success && response.data) {
-        toast.success(t('registerSuccess'))
+      // 检查是否有 data 字段来判断是否成功（实际API返回格式：{ data: {...}, message: "..." }）
+      if (response.data) {
+        toast.success(response.message || t('registerSuccess'))
+        form.reset() // 清空表单
         router.push(`/${locale}/auth/login`)
       } else {
         toast.error(response.message || t('serverError'))

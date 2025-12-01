@@ -37,6 +37,7 @@ import type { VoiceItem } from "@/types/voice";
 import { TaskStatus } from "@/types";
 import { CreationStatus } from "@/types/creation";
 import { useTranslations } from "next-intl";
+import { useTaskSubmission } from "@/hooks/use-task-submission";
 
 interface VideoGeneratorProps {
   creationId: string;
@@ -324,41 +325,81 @@ export function VideoGenerator({
     }
   }, [taskData]);
 
-  // 开始生成
-  const handleStartGeneration = async () => {
+  // 开始生成的内部函数
+  const startGenerationInternal = useCallback(async () => {
     if (!selectedVoiceId || !creationId) {
       toast.error(t("video.selectVoice"));
-      return;
+      throw new Error(t("video.selectVoice"));
+    }
+
+    // 检查音频生成积分
+    // 从创作数据中获取所有旁白文本并计算字节数
+    let totalTextBytes = 0
+    if (creationData?.scenes) {
+      const encoder = new TextEncoder()
+      creationData.scenes.forEach((scene) => {
+        scene.shots?.forEach((shot) => {
+          if (shot.narration) {
+            totalTextBytes += encoder.encode(shot.narration).length
+          }
+        })
+      })
+    }
+    
+    // 如果没有旁白文本，使用默认估算值
+    if (totalTextBytes === 0) {
+      totalTextBytes = 5000
+    }
+    
+    const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+    const pointsAvailable = await checkAndNotifyPoints(
+      {
+        operation_type: 'generate_audio',
+        text_bytes: totalTextBytes,
+      },
+      t
+    )
+
+    if (!pointsAvailable) {
+      throw new Error('积分不足')
     }
 
     setStage("generating");
     setErrorMessage(null);
     setProgress(null);
 
-    try {
-      toast.info(t("video.audioGenerationStart"));
-      const response = await creationApi.selectVoiceAndGenerateAudio(
-        creationId,
-        selectedVoiceId,
-        voiceSpeed,
-        forceRegenerateAudio
-      );
-      const newTaskId = response?.data?.task_id;
+    toast.info(t("video.audioGenerationStart"));
+    const response = await creationApi.selectVoiceAndGenerateAudio(
+      creationId,
+      selectedVoiceId,
+      voiceSpeed,
+      forceRegenerateAudio
+    );
+    const newTaskId = response?.data?.task_id;
 
-      if (newTaskId) {
-        setTaskId(newTaskId);
-        // 重置强制重新生成标志
-        setForceRegenerateAudio(false);
-      } else {
-        throw new Error(t("creation.taskIdNotFound"));
-      }
-    } catch (error) {
-      console.error("启动生成任务失败:", error);
-      setStage("failed");
-      setErrorMessage(error instanceof Error ? error.message : t("video.generationFailedRetry"));
-      toast.error(error instanceof Error ? error.message : t("video.generationFailedRetry"));
+    if (newTaskId) {
+      setTaskId(newTaskId);
+      // 重置强制重新生成标志
+      setForceRegenerateAudio(false);
+    } else {
+      throw new Error(t("creation.taskIdNotFound"));
     }
-  };
+  }, [selectedVoiceId, creationId, creationData, voiceSpeed, forceRegenerateAudio, t]);
+
+  // 使用任务提交 hook 包装生成函数
+  const { submit: handleStartGeneration, isSubmitting: isSubmittingGeneration } = useTaskSubmission(
+    startGenerationInternal,
+    {
+      debounceDelay: 500,
+      enableDebounce: true,
+      onError: (error) => {
+        console.error("启动生成任务失败:", error);
+        setStage("failed");
+        setErrorMessage(error.message || t("video.generationFailedRetry"));
+        toast.error(error.message || t("video.generationFailedRetry"));
+      },
+    }
+  );
 
   // 重试生成（重新生成时弹出对话框询问是否重新生成音频）
   const handleRetry = () => {
@@ -710,7 +751,8 @@ export function VideoGenerator({
           <div className="px-6 py-4">
             <div className="flex items-center justify-center">
               <Button
-                onClick={handleStartGeneration}
+                onClick={() => handleStartGeneration()}
+                disabled={isSubmittingGeneration || stage === "generating"}
                 disabled={!selectedVoiceId}
                 className="bg-orange-400/80 hover:bg-orange-600 text-white px-8 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
               >

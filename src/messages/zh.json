@@ -73,7 +73,9 @@
     "duration": "时长",
     "noVideos": "暂无视频，点击制作第一个视频",
     "startCreating": "开始制作",
-    "noNovelsEmpty": "暂无小说，点击上传第一本小说"
+    "noNovelsEmpty": "暂无小说，点击上传第一本小说",
+    "dailyCheckin": "每日签到",
+    "checkinDescription": "每日签到可获得积分奖励"
   },
   "createVideo": {
     "createAnimation": "制作动画",
@@ -133,7 +135,8 @@
   },
   "user": {
     "userMenu": "用户菜单",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "pointsRecords": "积分记录"
   },
   "novelDetail": {
     "bookDetails": "书籍详情",
@@ -307,5 +310,58 @@
     "zh": "中文",
     "en": "English",
     "ja": "日本語"
+  },
+  "points": {
+    "title": "积分中心",
+    "balance": "积分余额",
+    "availablePoints": "可用积分",
+    "totalPoints": "总积分",
+    "todayConsumed": "今日消耗",
+    "monthConsumed": "本月消耗",
+    "expiringSoon": "即将过期",
+    "statistics": "统计信息",
+    "totalEarned": "总获得",
+    "totalConsumed": "总消耗",
+    "records": "积分记录",
+    "allRecordTypes": "全部类型",
+    "allOperations": "全部操作",
+    "allRecords": "全部记录",
+    "earnedRecords": "获得记录",
+    "consumedRecords": "消耗记录",
+    "checkinRecords": "签到记录",
+    "registerReward": "注册奖励",
+    "noRecords": "暂无记录",
+    "balanceAfter": "余额",
+    "expiresAt": "过期时间",
+    "dailyCheckinPoints": "每日签到积分",
+    "unknown": "未知",
+    "viewDetails": "查看详情",
+    "back": "返回",
+    "checkin": "签到",
+    "checkedIn": "已签到",
+    "checkinSuccess": "签到成功！获得 {points} 积分",
+    "alreadyCheckedIn": "今日已签到，请明天再来",
+    "checkinFailed": "签到失败，请稍后重试",
+    "recordType": {
+      "consume": "消耗",
+      "recharge": "充值",
+      "reward": "奖励",
+      "refund": "退款",
+      "expire": "过期",
+      "checkin": "签到"
+    },
+    "operation": {
+      "create_creation": "创建创作",
+      "generate_character": "生成角色",
+      "generate_shot": "生成分镜",
+      "generate_audio": "生成音频",
+      "generate_video": "生成视频",
+      "upload_novel": "上传小说",
+      "llm_call": "大模型调用",
+      "register": "注册奖励",
+      "daily_checkin": "每日签到",
+      "test_add_points": "测试添加"
+    },
+    "insufficientPoints": "积分不足"
   }
 }

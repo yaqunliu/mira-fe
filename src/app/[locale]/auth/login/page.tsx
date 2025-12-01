@@ -15,6 +15,8 @@ import { authApi } from '@/lib/api/auth'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
+import { clearUserDataCache } from '@/lib/utils/clear-user-data'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,6 +25,7 @@ export default function LoginPage() {
   const params = useParams()
   const locale = params?.locale as string
   const t = useTranslations('auth')
+  const queryClient = useQueryClient()
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,6 +40,9 @@ export default function LoginPage() {
       const response = await authApi.login(data)
       
       if (response.data?.access_token) {
+        // 登录前清空所有用户相关的 React Query 缓存，确保新用户数据干净
+        clearUserDataCache(queryClient)
+        
         // 登录成功，保存 token
         const token = response.data.access_token
         // 用用户名作为临时用户信息，后续可以调用 getCurrentUser 获取完整信息
@@ -48,6 +54,7 @@ export default function LoginPage() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
+        // login 方法内部已经会清空 points store 的数据
         login(user, token)
         toast.success(response.message || t('loginSuccess'))
         router.push(`/${locale}`)

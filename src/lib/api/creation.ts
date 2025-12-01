@@ -30,10 +30,14 @@ const creationApi = {
   },
   // 生成分镜图片
   generateShots: async (
-    creationId: string
+    creationId: string,
+    imageCount: number
   ): Promise<{ data: { task_id: string; message: string } }> => {
     return apiClient.post<{ task_id: string; message: string }>(
-      `/api/v1/creations/${creationId}/generate-shots`
+      `/api/v1/creations/${creationId}/generate-shots`,
+      {
+        image_count: imageCount,
+      }
     ) as unknown as Promise<{ data: { task_id: string; message: string } }>;
   },
 

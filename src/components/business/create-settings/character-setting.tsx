@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +36,7 @@ import characterApi from "@/lib/api/character";
 import taskApi from "@/lib/api/task";
 import { TaskStatus } from "@/types";
 import { useQuery } from "@tanstack/react-query";
+import { useTaskSubmission } from "@/hooks/use-task-submission";
 
 const getStyleOptions = (t: any) => [
   { value: "anime", label: t("animeStyle") },
@@ -84,27 +85,50 @@ export function CharacterSetting({
       return 2000;
     },
   });
-  const gengerateCharacterImages = async (characters: ICharacter[]) => {
+  // 生成角色图片的内部函数
+  const generateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
+    // 检查积分是否充足
+    const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+    const pointsAvailable = await checkAndNotifyPoints(
+      {
+        operation_type: 'generate_image',
+        image_count: characters.length,
+      },
+      t
+    )
+
+    if (!pointsAvailable) {
+      throw new Error('积分不足')
+    }
+
     setIsGenerating(true);
 
     const characterIds = characters.map((character) => character.character_id);
-    try {
-      const response = await characterApi.generateCharacterImages(
-        characterIds,
-        getStyleOptions(t).find((option) => option.value === selectedStyle)?.label ||
-          t("animeStyle")
-      );
-      if (response.data && response.data.task_id) {
-        setTaskId(response.data.task_id);
-      } else {
-        toast.error(t("taskIdNotFound"));
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error instanceof Error ? error.message : t("generationFailed"));
-      setIsGenerating(false);
+    const response = await characterApi.generateCharacterImages(
+      characterIds,
+      getStyleOptions(t).find((option) => option.value === selectedStyle)?.label ||
+        t("animeStyle")
+    );
+    if (response.data && response.data.task_id) {
+      setTaskId(response.data.task_id);
+    } else {
+      throw new Error(t("taskIdNotFound"));
     }
-  };
+  }, [selectedStyle, t]);
+
+  // 使用任务提交 hook 包装生成函数
+  const { submit: gengerateCharacterImages, isSubmitting: isSubmittingCharacters } = useTaskSubmission(
+    generateCharacterImagesInternal,
+    {
+      debounceDelay: 500,
+      enableDebounce: true,
+      onError: (error) => {
+        console.log(error);
+        toast.error(error.message || t("generationFailed"));
+        setIsGenerating(false);
+      },
+    }
+  );
 
   const handleEditCharacter = (index: number) => {
     setEditingCharacterIndex(index);
@@ -136,12 +160,12 @@ export function CharacterSetting({
             {/* 生成按钮 */}
             <Button
               onClick={() => gengerateCharacterImages(characters)}
-              disabled={isGenerating}
+              disabled={isGenerating || isSubmittingCharacters}
               className="px-4 py-4 text-sm text-primary"
               variant="secondary"
             >
               <WandSparkles className="w-3 h-3" />
-              {isGenerating ? t("generating") : t("generateCharacterImage")}
+              {isGenerating || isSubmittingCharacters ? t("generating") : t("generateCharacterImage")}
             </Button>
           </div>
           {/* 生成进度 */}

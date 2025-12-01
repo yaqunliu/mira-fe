@@ -274,3 +274,6 @@ export interface ShotsTaskResponse {
 
 // 导出语音相关类型
 export * from './voice';
+
+// 导出积分相关类型
+export * from './points';

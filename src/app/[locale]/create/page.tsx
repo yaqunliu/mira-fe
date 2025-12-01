@@ -26,6 +26,7 @@ import ModuleLoading from "@/components/ui/module-loading";
 import { toast } from "sonner";
 import { TaskStatus, TaskType, SceneGroup, ShotsTaskResponse } from "@/types";
 import { IScene } from "@/types/scene";
+import { useTaskSubmission } from "@/hooks/use-task-submission";
 
 // 将轮询任务返回的分镜数据转换为 StoryboardImages 组件需要的格式
 function transformShotsToSceneGroups(shotsData: ShotsTaskResponse): SceneGroup[] {
@@ -264,33 +265,68 @@ export default function CreateCreation() {
     onStepChange: setCurrentStep,
   });
 
-  // 触发分镜生成
-  const handleGenerateShots = useCallback(async () => {
+  // 触发分镜生成的内部函数
+  const generateShotsInternal = useCallback(async () => {
     if (!creationId) {
       toast.error(t("creation.creationIdNotFound"));
       return;
     }
 
-    try {
-      setIsGeneratingShots(true);
-      toast.info(t("creation.shotsGenerationStart"));
-      
-      const response = await creationApi.generateShots(creationId);
-      const taskId = response?.data?.task_id;
-      
-      if (taskId) {
-        setShotsTaskId(taskId);
-        nextStep(); // 先跳转到分镜页面
-      } else {
-        toast.error(t("creation.taskIdNotFound"));
-        setIsGeneratingShots(false);
-      }
-    } catch (error) {
-      console.error("Generate shots error:", error);
-      toast.error(error instanceof Error ? error.message : t("creation.shotsGenerationError"));
-      setIsGeneratingShots(false);
+    // 计算分镜数量（每个分镜需要一个图片，所以图片数量等于分镜数量）
+    const shotCount = curCreation?.scenes?.reduce((total, scene) => {
+      return total + (scene.shots?.length || 0)
+    }, 0) || 0
+
+    // 检查积分是否充足
+    const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+    const pointsAvailable = await checkAndNotifyPoints(
+      {
+        operation_type: 'generate_image',
+        image_count: shotCount,
+      },
+      t
+    )
+
+    if (!pointsAvailable) {
+      throw new Error('积分不足')
     }
-  }, [creationId, nextStep, t]);
+
+    setIsGeneratingShots(true);
+    toast.info(t("creation.shotsGenerationStart"));
+    
+    // 传递 image_count 参数，图片数量等于分镜数量
+    const response = await creationApi.generateShots(creationId, shotCount);
+    const taskId = response?.data?.task_id;
+    
+    if (taskId) {
+      setShotsTaskId(taskId);
+      nextStep(); // 先跳转到分镜页面
+    } else {
+      throw new Error(t("creation.taskIdNotFound"));
+    }
+  }, [creationId, nextStep, t, curCreation?.scenes]);
+
+  // 使用任务提交 hook 包装分镜生成函数
+  const { submit: handleGenerateShots, isSubmitting: isSubmittingShots } = useTaskSubmission(
+    generateShotsInternal,
+    {
+      debounceDelay: 500,
+      enableDebounce: true,
+      onError: (error) => {
+        console.error("Generate shots error:", error);
+        toast.error(error.message || t("creation.shotsGenerationError"));
+        setIsGeneratingShots(false);
+      },
+    }
+  );
+
+  // 同步 isSubmittingShots 到 isGeneratingShots（用于向后兼容）
+  useEffect(() => {
+    if (!isSubmittingShots && isGeneratingShots) {
+      // 如果提交完成但 isGeneratingShots 仍为 true，说明任务已启动，保持状态
+      // 这里不需要重置，因为任务已经在进行中
+    }
+  }, [isSubmittingShots, isGeneratingShots]);
 
   // 处理脚本步骤完成（点击下一步）
   const handleScriptComplete = useCallback(() => {

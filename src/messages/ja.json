@@ -73,7 +73,9 @@
     "duration": "再生時間",
     "noVideos": "動画がまだありません。最初の動画を作成してください",
     "startCreating": "制作を開始",
-    "noNovelsEmpty": "小説がまだありません。最初の小説をアップロードしてください"
+    "noNovelsEmpty": "小説がまだありません。最初の小説をアップロードしてください",
+    "dailyCheckin": "毎日チェックイン",
+    "checkinDescription": "毎日チェックインしてポイントを獲得"
   },
   "createVideo": {
     "createAnimation": "アニメ創作",
@@ -133,7 +135,8 @@
   },
   "user": {
     "userMenu": "ユーザーメニュー",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "pointsRecords": "ポイント記録"
   },
   "novelDetail": {
     "bookDetails": "書籍詳細",
@@ -307,5 +310,58 @@
     "zh": "中文",
     "en": "English",
     "ja": "日本語"
+  },
+  "points": {
+    "title": "ポイントセンター",
+    "balance": "ポイント残高",
+    "availablePoints": "利用可能ポイント",
+    "totalPoints": "総ポイント",
+    "todayConsumed": "今日の消費",
+    "monthConsumed": "今月の消費",
+    "expiringSoon": "まもなく期限切れ",
+    "statistics": "統計情報",
+    "totalEarned": "総獲得",
+    "totalConsumed": "総消費",
+    "records": "ポイント記録",
+    "allRecordTypes": "すべてのタイプ",
+    "allOperations": "すべての操作",
+    "allRecords": "すべての記録",
+    "earnedRecords": "獲得記録",
+    "consumedRecords": "消費記録",
+    "checkinRecords": "チェックイン記録",
+    "registerReward": "登録報酬",
+    "noRecords": "記録がありません",
+    "balanceAfter": "残高",
+    "expiresAt": "有効期限",
+    "dailyCheckinPoints": "毎日チェックインポイント",
+    "unknown": "不明",
+    "viewDetails": "詳細を見る",
+    "back": "戻る",
+    "checkin": "チェックイン",
+    "checkedIn": "チェックイン済み",
+    "checkinSuccess": "チェックイン成功！{points} ポイントを獲得しました",
+    "alreadyCheckedIn": "今日はすでにチェックイン済みです。明日またお越しください",
+    "checkinFailed": "チェックインに失敗しました。しばらくしてから再試行してください",
+    "recordType": {
+      "consume": "消費",
+      "recharge": "チャージ",
+      "reward": "報酬",
+      "refund": "返金",
+      "expire": "期限切れ",
+      "checkin": "チェックイン"
+    },
+    "operation": {
+      "create_creation": "創作作成",
+      "generate_character": "キャラクター生成",
+      "generate_shot": "ショット生成",
+      "generate_audio": "音声生成",
+      "generate_video": "動画生成",
+      "upload_novel": "小説アップロード",
+      "llm_call": "LLM呼び出し",
+      "register": "登録報酬",
+      "daily_checkin": "毎日チェックイン",
+      "test_add_points": "テスト追加"
+    },
+    "insufficientPoints": "ポイント不足"
   }
 }
