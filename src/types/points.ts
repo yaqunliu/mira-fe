@@ -17,6 +17,7 @@ export type OperationType =
   | 'llm_call'
   | 'register'
   | 'daily_checkin'
+  | 'temporary_points_expire'
 
 // 积分余额响应
 export interface PointsBalance {

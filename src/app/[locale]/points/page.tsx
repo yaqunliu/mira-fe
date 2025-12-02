@@ -265,6 +265,7 @@ export default function PointsPage() {
                       <SelectItem value="daily_checkin">{t('operation.daily_checkin')}</SelectItem>
                       <SelectItem value="register">{t('operation.register')}</SelectItem>
                       <SelectItem value="llm_call">{t('operation.llm_call')}</SelectItem>
+                      <SelectItem value="temporary_points_expire">{t('operation.temporary_points_expire')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

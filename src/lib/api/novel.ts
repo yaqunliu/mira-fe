@@ -62,9 +62,7 @@ export const novelApi = {
 
   // 获取单个小说详情
   getNovel: async (id: string) => {
-    // 模拟API调用
-    return new Promise((resolve) => {
-    })
+    return apiClient.get<Novel>(`/api/v1/novels/${id}`)
   },
 
   // 上传小说
@@ -85,8 +83,8 @@ export const novelApi = {
   },
 
   // 更新小说信息
-  updateNovel: async (id: string, data: Partial<Novel>) => {
-    return apiClient.put<Novel>(`/novels/${id}`, data)
+  updateNovel: async (id: string, data: { title?: string; author?: string; status?: string }) => {
+    return apiClient.put<Novel>(`/api/v1/novels/${id}`, data)
   },
 
   // 删除小说
@@ -105,12 +103,12 @@ export const novelApi = {
   },
 
   // 更新章节
-  updateChapter: async (novelId: string, chapterId: string, data: Partial<Chapter>) => {
-    return apiClient.put<Chapter>(`/novels/${novelId}/chapters/${chapterId}`, data)
+  updateChapter: async (novelId: string, chapterId: string, data: { title?: string }) => {
+    return apiClient.put<Chapter>(`/api/v1/novels/${novelId}/chapters/${chapterId}`, data)
   },
 
   // 删除章节
   deleteChapter: async (novelId: string, chapterId: string) => {
-    return apiClient.delete(`/novels/${novelId}/chapters/${chapterId}`)
+    return apiClient.delete(`/api/v1/novels/${novelId}/chapters/${chapterId}`)
   },
 }

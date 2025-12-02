@@ -15,6 +15,7 @@ interface AuthState {
   updateUser: (user: Partial<User>) => void
   updateToken: (token: string, expiresIn?: number) => void
   isTokenExpiringSoon: (bufferSeconds?: number) => boolean // 检查 token 是否即将过期
+  isTokenExpired: () => boolean // 检查 token 是否已经过期
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -118,7 +119,16 @@ export const useAuthStore = create<AuthState>()(
         if (!tokenExpiresAt) return false
         const now = Date.now()
         const buffer = bufferSeconds * 1000
+        // 如果已经过期，返回 true（负数 <= buffer 也是 true）
+        // 如果即将过期（剩余时间 <= buffer），返回 true
         return tokenExpiresAt - now <= buffer
+      },
+      
+      isTokenExpired: () => {
+        // 检查 token 是否已经过期
+        const { tokenExpiresAt } = get()
+        if (!tokenExpiresAt) return true // 如果没有过期时间，认为已过期
+        return tokenExpiresAt <= Date.now()
       },
     }),
     {

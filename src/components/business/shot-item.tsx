@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Clock, Users, FileText, Palette, PencilLine, Mic } from "lucide-react";
+import { Clock, Users, PencilLine, Mic } from "lucide-react";
 import { StoryboardItem as StoryboardItemType } from "@/types";
 import { cn } from "@/lib/utils";
 import { StoryboardEditModal } from "@/components/modals/storyboard-edit-modal";
@@ -79,17 +79,6 @@ export function ShotItem({
             </div>
           )}
 
-          {/* 画面描述 */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
-              <FileText className="h-3 w-3" />
-              画面描述
-            </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              {currentShot.description}
-            </p>
-          </div>
-          
           {/* 旁白 */}
           <div className="space-y-1">
             <div className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -97,7 +86,7 @@ export function ShotItem({
               旁白
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              {currentShot.narration || currentShot.description}
+              {currentShot.narration || "暂无旁白"}
             </p>
           </div>
         </CardContent>

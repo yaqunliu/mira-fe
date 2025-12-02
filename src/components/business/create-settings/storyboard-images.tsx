@@ -312,17 +312,28 @@ export function StoryboardImages({
   const previewImage = allImages.find((img) => img.image_id === previewImageId);
 
   // 计算整体生成进度（优先使用 API 返回的进度数据）
-  const totalImages = progress?.total || allImages.length;
-  const completedImages = progress?.completed || allImages.filter(
-    (img) => img.status === "completed"
-  ).length;
-  const generatingImages = isGenerating ? (totalImages - completedImages) : allImages.filter(
-    (img) => img.status === "generating"
-  ).length;
+  // 如果 progress 存在且 total 有值，优先使用 progress 中的数据；否则从 allImages 计算
+  const totalImages = (progress && typeof progress.total === 'number') ? progress.total : allImages.length;
+  const completedImages = (progress && typeof progress.completed === 'number') 
+    ? progress.completed 
+    : allImages.filter((img) => img.status === "completed").length;
+  
+  // 如果 progress 存在，使用 progress 计算生成中的数量
+  // generatingImages = total - completed - failed
+  const generatingImages = (progress && typeof progress.total === 'number')
+    ? Math.max(0, progress.total - completedImages - (progress.failed_count || 0))
+    : (isGenerating 
+      ? Math.max(0, totalImages - completedImages) 
+      : allImages.filter((img) => img.status === "generating").length);
+  
   const overallProgress =
     totalImages > 0 ? (completedImages / totalImages) * 100 : 0;
-  const successCount = progress?.success_count || completedImages;
-  const failedCount = progress?.failed_count || 0;
+  const successCount = (progress && typeof progress.success_count === 'number') 
+    ? progress.success_count 
+    : completedImages;
+  const failedCount = (progress && typeof progress.failed_count === 'number') 
+    ? progress.failed_count 
+    : 0;
 
   return (
     <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>

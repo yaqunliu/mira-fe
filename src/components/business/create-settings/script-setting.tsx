@@ -61,7 +61,7 @@ export function ScriptSetting({
         scene.scene_id === sceneId
           ? {
               ...scene,
-              storyboard_list: scene.storyboard_list.map((sb: any) =>
+              shots: (scene.shots || []).map((sb: any) =>
                 sb.shot_id === updatedShot.shot_id
                   ? updatedShot
                   : sb
@@ -130,26 +130,26 @@ export function ScriptSetting({
                   <h3 className="text-base font-semibold text-gray-900 dark:text-stone-400 flex items-center gap-2">
                     {t("scene.sceneSettings")}
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
-                    <Badge variant="destructive" className="text-xs">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {`${scene.time_setting}`}
                       </div>
                     </Badge>
-                    <Badge variant="destructive" className="text-xs">
+                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
                         {`${scene.location}`}
                       </div>
                     </Badge>
-                    <Badge variant="destructive" className="text-xs">
+                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <Building className="h-3 w-3" />
                         {`${scene.space_type}`}
                       </div>
                     </Badge>
-                    <Badge variant="destructive" className="text-xs">
+                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         <Eye className="h-3 w-3" />
                         {`${scene.atmosphere}`}
@@ -208,31 +208,26 @@ export function ScriptSetting({
                     分镜列表 ({scene.shots.length} 个)
                   </div>
 
-                  <div className="w-full overflow-x-auto">
-                    <div
-                      className="flex space-x-3 pb-4"
-                      style={{ width: "max-content" }}
-                    >
-                      {scene.shots.map(
-                        (shot: IShot, index: number) => (
-                          <div
-                            key={shot.shot_id}
-                            className="w-[65vw] md:w-[240px] lg:w-[300px] flex-shrink-0"
-                          >
-                            <ShotItem
-                              shot={shot}
-                              index={index}
-                              onUpdate={(updatedShot: IShot) =>
-                                handleStoryboardUpdate(
-                                  scene.scene_id,
-                                  updatedShot
-                                )
-                              }
-                            />
-                          </div>
-                        )
-                      )}
-                    </div>
+                  <div className="w-full space-y-3">
+                    {scene.shots.map(
+                      (shot: IShot, index: number) => (
+                        <div
+                          key={shot.shot_id}
+                          className="w-full"
+                        >
+                          <ShotItem
+                            shot={shot}
+                            index={index}
+                            onUpdate={(updatedShot: IShot) =>
+                              handleStoryboardUpdate(
+                                scene.scene_id,
+                                updatedShot
+                              )
+                            }
+                          />
+                        </div>
+                      )
+                    )}
                   </div>
                 </div>
               </CardContent>

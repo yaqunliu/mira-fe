@@ -40,8 +40,14 @@ class ApiClient {
           return config
         }
 
-        // 检查token是否即将过期（提前5分钟刷新）
-        if (authStore.isTokenExpiringSoon(300)) {
+        // 检查token是否即将过期或已经过期（提前5分钟刷新）
+        const { tokenExpiresAt } = authStore
+        const shouldRefresh = 
+          !tokenExpiresAt || // tokenExpiresAt 为 null，需要刷新
+          tokenExpiresAt <= Date.now() || // token 已经过期
+          authStore.isTokenExpiringSoon(300) // token 即将过期（5分钟内）
+
+        if (shouldRefresh) {
           // 如果已经在刷新中，等待刷新完成
           if (this.isRefreshing && this.refreshTokenPromise) {
             try {

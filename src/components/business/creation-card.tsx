@@ -1,4 +1,4 @@
-import { ICreation } from "@/types/creation";
+import { ICreation, CreationStatus } from "@/types/creation";
 import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
@@ -10,54 +10,67 @@ function VideoCard({ creation }: { creation: ICreation }) {
   const locale = params?.locale as string;
   const t = useTranslations();
   const getStatusBadge = (status: ICreation["status"]) => {
-    const statusMap = {
-      generating: {
-        label: t("common.inProgress"),
-        variant: "default" as const,
-        className: "bg-blue-600/80",
-      },
-      completed: {
-        label: t("common.completed"),
-        variant: "default" as const,
-        className: "bg-green-700/80",
-      },
-      failed: {
-        label: t("common.error"),
-        variant: "destructive" as const,
-        className: "bg-red-500",
-      },
-    };
+    // 处理 undefined 或 null 状态
+    if (!status) {
+      return (
+        <Badge variant="default" className={cn("text-xs", "bg-gray-500")}>
+          {t("common.unknown")}
+        </Badge>
+      );
+    }
 
-    const { label, variant, className } = statusMap[status as keyof typeof statusMap];
-    return (
-      <Badge variant={variant} className={cn("text-xs", className ?? "")}>
-        {label}
-      </Badge>
-    );
+    // 根据状态返回对应的徽章
+    if (status === CreationStatus.COMPLETED || status === "completed") {
+      return (
+        <Badge variant="default" className={cn("text-xs", "bg-green-700/80")}>
+          {t("common.completed")}
+        </Badge>
+      );
+    } else if (status === CreationStatus.FAILED || status === "failed") {
+      return (
+        <Badge variant="destructive" className={cn("text-xs", "bg-red-500")}>
+          {t("common.error")}
+        </Badge>
+      );
+    } else {
+      // 所有其他状态都显示为"进行中"
+      return (
+        <Badge variant="default" className={cn("text-xs", "bg-blue-600/80")}>
+          {t("common.inProgress")}
+        </Badge>
+      );
+    }
   };
 
   const handleCreationClick = (creation: ICreation) => {
-    if (creation.status === "generating") {
-      router.push(`/${locale}/create?creation=${creation.creationId}`);
+    // 如果创作未完成，可以点击跳转到创作页面
+    const status = creation.status;
+    if (status && status !== CreationStatus.COMPLETED && status !== "completed" && status !== CreationStatus.FAILED && status !== "failed") {
+      const creationId = (creation as any).creation_id || creation.creationId;
+      router.push(`/${locale}/create?creation=${creationId}`);
     }
   };
+  // 兼容两种字段名格式
+  const creationId = (creation as any).creation_id || creation.creationId || "";
+  const videoUrl = (creation as any).video_url || (creation as any).videoUrl || "";
+
   return (
     <div
-      key={creation.creationId}
+      key={creationId}
       className="overflow-hidden p-0 border-none rounded-t-lg"
       onClick={() => handleCreationClick(creation)}
     >
       {/* 视频缩略图/播放器 */}
-      {creation?.videoUrl && (
+      {videoUrl && (
         <div className="relative w-full bg-black overflow-hidden aspect-video">
           <video
-            src={creation?.videoUrl}
+            src={videoUrl}
             controls
             className="w-full h-auto aspect-video"
           ></video>
         </div>
       )}
-      {!creation?.videoUrl && (
+      {!videoUrl && (
         <div className="relative w-full bg-black overflow-hidden aspect-video">
           <img
             src={"https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/placeholder.png"}

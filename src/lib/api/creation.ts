@@ -7,13 +7,16 @@ const creationApi = {
   createCreation: async ({
     novelId,
     chapterId,
+    creationId,
   }: {
     novelId: string;
     chapterId: string;
+    creationId?: string;
   }) => {
     return apiClient.post("/api/v1/creations/create", {
       novel_id: novelId,
       chapter_id: chapterId,
+      ...(creationId && { creation_id: creationId }),
     });
   },
   queryCreations: async (params?: PaginationParams): Promise<ICreation[]> => {
@@ -26,6 +29,14 @@ const creationApi = {
   ): Promise<{ data: ICreation; message: string }> => {
     return apiClient.get<ApiResponse<ICreation>>(
       `/api/v1/creations/${creationId}`
+    ) as unknown as Promise<{ data: ICreation; message: string }>;
+  },
+  // 快速获取创作信息（简化版，速度更快）
+  queryCreationSimple: async (
+    creationId: string
+  ): Promise<{ data: ICreation; message: string }> => {
+    return apiClient.get<ApiResponse<ICreation>>(
+      `/api/v1/creations/${creationId}/simple`
     ) as unknown as Promise<{ data: ICreation; message: string }>;
   },
   // 生成分镜图片
@@ -104,6 +115,25 @@ const creationApi = {
   // 删除创作
   deleteCreation: async (creationId: string) => {
     return apiClient.delete(`/api/v1/creations/${creationId}`);
+  },
+
+  // 生成角色分析
+  analyzeCharacters: async (
+    creationId: string
+  ): Promise<{ data: { task_id: string; message: string } }> => {
+    return apiClient.post<{ task_id: string; message: string }>(
+      `/api/v1/creations/${creationId}/analyze-characters`
+    ) as unknown as Promise<{ data: { task_id: string; message: string } }>;
+  },
+
+  // 根据章节ID查询创作
+  // 后端总是返回200，如果该章节没有创作，data为null
+  queryCreationByChapterId: async (
+    chapterId: string
+  ): Promise<{ data: ICreation | null; message: string }> => {
+    return apiClient.get<ApiResponse<ICreation | null>>(
+      `/api/v1/creations/by-chapter/${chapterId}`
+    ) as unknown as Promise<{ data: ICreation | null; message: string }>;
   },
 };
 

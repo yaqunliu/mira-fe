@@ -360,7 +360,8 @@
       "llm_call": "LLM Call",
       "register": "Register Reward",
       "daily_checkin": "Daily Check-in",
-      "test_add_points": "Test Add Points"
+      "test_add_points": "Test Add Points",
+      "temporary_points_expire": "Temporary Points Expire"
     },
     "insufficientPoints": "Insufficient Points"
   }

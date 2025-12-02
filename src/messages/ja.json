@@ -360,7 +360,8 @@
       "llm_call": "LLM呼び出し",
       "register": "登録報酬",
       "daily_checkin": "毎日チェックイン",
-      "test_add_points": "テスト追加"
+      "test_add_points": "テスト追加",
+      "temporary_points_expire": "一時ポイント期限切れ"
     },
     "insufficientPoints": "ポイント不足"
   }

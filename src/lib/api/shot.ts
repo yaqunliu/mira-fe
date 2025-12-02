@@ -31,6 +31,23 @@ const shotApi = {
       { narration }
     ) as unknown as Promise<{ data: UpdateShotResponse }>;
   },
+
+  // 更新分镜（支持 title 和 narration）
+  updateShot: async (
+    shotId: string | number,
+    data: {
+      title: string;
+      narration: string;
+    }
+  ): Promise<{ data: UpdateShotResponse }> => {
+    return apiClient.put<UpdateShotResponse>(
+      `/api/v1/shots/${shotId}`,
+      {
+        title: data.title,
+        narration: data.narration,
+      }
+    ) as unknown as Promise<{ data: UpdateShotResponse }>;
+  },
 };
 
 export default shotApi;

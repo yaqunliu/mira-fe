@@ -159,7 +159,19 @@
     "uploadedOn": "上传于",
     "characterLibrary": "角色库",
     "relatedCreations": "关联创作",
-    "loadFailed": "加载失败..."
+    "loadFailed": "加载失败...",
+    "editTitle": "编辑标题",
+    "save": "保存",
+    "cancel": "取消",
+    "editNovelTitle": "编辑小说标题",
+    "editChapterTitle": "编辑章节标题",
+    "updateSuccess": "更新成功",
+    "updateFailed": "更新失败",
+    "preview": "预览",
+    "deleteChapter": "删除章节",
+    "deleteChapterConfirm": "确定要删除章节「{title}」吗？删除后无法恢复。",
+    "deleteChapterSuccess": "章节删除成功",
+    "deleteChapterFailed": "章节删除失败"
   },
   "novel": {
     "title": "小说",
@@ -360,7 +372,8 @@
       "llm_call": "大模型调用",
       "register": "注册奖励",
       "daily_checkin": "每日签到",
-      "test_add_points": "测试添加"
+      "test_add_points": "测试添加",
+      "temporary_points_expire": "临时积分过期"
     },
     "insufficientPoints": "积分不足"
   }
