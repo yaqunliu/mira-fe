@@ -169,7 +169,7 @@
     "updateFailed": "更新失败",
     "preview": "预览",
     "deleteChapter": "删除章节",
-    "deleteChapterConfirm": "确定要删除章节「{title}」吗？删除后无法恢复。",
+    "deleteChapterConfirm": "确定要删除章节「{title}」吗？删除章节会同时删除章节关联的创作，删除后无法恢复。",
     "deleteChapterSuccess": "章节删除成功",
     "deleteChapterFailed": "章节删除失败"
   },

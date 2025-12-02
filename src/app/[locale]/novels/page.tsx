@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
+import { useConfirm } from "@/hooks/use-confirm";
 
 // 格式化日期
 function formatDateTime(dateString: string): string {
@@ -46,16 +47,25 @@ function SwipeableNovelCard({
   onDelete,
   isDeleting,
   t,
+  confirm,
 }: {
   novel: Novel;
   onClick: () => void;
   onDelete: (e: React.MouseEvent) => void;
   isDeleting: boolean;
   t: any;
+  confirm: (options?: any) => Promise<boolean>;
 }) {
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleDeleteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(t("novel.deleteConfirm"))) {
+    const confirmed = await confirm({
+      title: t("novel.delete"),
+      description: t("novel.deleteConfirm"),
+      confirmText: t("common.confirm") || "确认",
+      cancelText: t("common.cancel") || "取消",
+      variant: "destructive",
+    });
+    if (confirmed) {
       onDelete(e);
     }
   };
@@ -126,9 +136,16 @@ function SwipeableNovelCard({
     }
   };
 
-  const handleDelete = (e: React.MouseEvent, t: any) => {
+  const handleDelete = async (e: React.MouseEvent, t: any) => {
     e.stopPropagation();
-    if (confirm(t("novel.deleteConfirm"))) {
+    const confirmed = await confirm({
+      title: t("novel.delete"),
+      description: t("novel.deleteConfirm"),
+      confirmText: t("common.confirm") || "确认",
+      cancelText: t("common.cancel") || "取消",
+      variant: "destructive",
+    });
+    if (confirmed) {
       onDelete();
     }
   };
@@ -205,6 +222,7 @@ export default function NovelsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const pageSize = 12;
   const t = useTranslations();
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm();
 
   const router = useRouter();
   const params = useParams();
@@ -353,6 +371,7 @@ export default function NovelsPage() {
                   }}
                   isDeleting={deletingId === novel.novel_id}
                   t={t}
+                  confirm={confirm}
                 />
               ))}
             </div>
@@ -400,6 +419,7 @@ export default function NovelsPage() {
         onOpenChange={setUploadModalOpen}
         onComplete={handleUploadComplete}
       />
+      <ConfirmDialogComponent />
     </div>
   );
 }

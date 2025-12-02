@@ -159,7 +159,11 @@
     "uploadedOn": "Uploaded on",
     "characterLibrary": "Character Library",
     "relatedCreations": "Related Creations",
-    "loadFailed": "Failed to load"
+    "loadFailed": "Failed to load",
+    "deleteChapter": "Delete Chapter",
+    "deleteChapterConfirm": "Are you sure you want to delete chapter \"{title}\"? Deleting this chapter will also delete all related creations. This action cannot be undone.",
+    "deleteChapterSuccess": "Chapter deleted successfully",
+    "deleteChapterFailed": "Failed to delete chapter"
   },
   "novel": {
     "title": "Novel",

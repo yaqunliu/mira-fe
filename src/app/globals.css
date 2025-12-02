@@ -20,8 +20,8 @@
     --accent-foreground: 24 9.8% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 60 9.1% 97.8%;
-    --border: 20 5.9% 90%;
-    --input: 20 5.9% 90%;
+    --border: 214 32% 75%;
+    --input: 214 32% 75%;
     --ring: 24.6 95% 53.1%;
     --radius: 0.5rem;
   }
@@ -87,7 +87,7 @@
     @apply text-gray-600 dark:text-gray-400;
   }
   .text-gradient-primary {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-700 to-amber-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-800 to-amber-700;
   }
   .dark .text-gradient-primary {
     @apply from-orange-600 to-slate-300;
@@ -118,11 +118,11 @@
   }
 
   .border-input {
-    @apply border-[1px] border-gray-300/40 dark:bg-gray-700/30
+    @apply border-[1.5px] border-gray-400 dark:border-gray-600 dark:bg-gray-700/30
   }
 
   .input {
-    @apply border-[1px] border-gray-300/40 dark:bg-gray-700/30;
+    @apply border-[1.5px] border-gray-400 dark:border-gray-600 dark:bg-gray-700/30;
   }
 
   .bg-popover {

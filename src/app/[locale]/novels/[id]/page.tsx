@@ -29,6 +29,7 @@ import CharactorCard from "@/components/business/charactor-card";
 import VideoCard from "@/components/business/creation-card";
 import CreationCard from "@/components/business/creation-card";
 import creationApi from "@/lib/api/creation";
+import { useConfirm } from "@/hooks/use-confirm";
 
 export default function NovelDetailPage() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function NovelDetailPage() {
   const locale = params?.locale as string;
   const novelId = params?.id as string;
   const queryClient = useQueryClient();
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm();
 
   // 编辑状态
   const [editingNovelTitle, setEditingNovelTitle] = useState(false);
@@ -259,8 +261,15 @@ export default function NovelDetailPage() {
   };
 
   // 删除章节
-  const handleDeleteChapter = (chapterId: string | number, chapterTitle: string) => {
-    if (confirm(t("novelDetail.deleteChapterConfirm", { title: chapterTitle }))) {
+  const handleDeleteChapter = async (chapterId: string | number, chapterTitle: string) => {
+    const confirmed = await confirm({
+      title: t("novelDetail.deleteChapter"),
+      description: t("novelDetail.deleteChapterConfirm", { title: chapterTitle }),
+      confirmText: t("common.confirm") || "确认",
+      cancelText: t("common.cancel") || "取消",
+      variant: "destructive",
+    });
+    if (confirmed) {
       setDeletingChapterId(String(chapterId));
       deleteChapterMutation.mutate(chapterId);
     }
@@ -360,10 +369,10 @@ export default function NovelDetailPage() {
                   ) : (
                     <div className="flex items-center gap-2 group/item">
                       <div
-                        className="flex items-center bg-amber-800/50 px-1 py-[2px] rounded w-fit cursor-pointer hover:bg-amber-800/70 transition-colors"
+                        className="flex items-center bg-orange-100 dark:bg-amber-800/50 px-1 py-[2px] rounded w-fit cursor-pointer hover:bg-orange-200 dark:hover:bg-amber-800/70 transition-colors border border-orange-300 dark:border-transparent"
                         onClick={() => handleStartEditChapterTitle(chapter)}
                       >
-                        <h4 className="text-xs font-medium text-orange-500">
+                        <h4 className="text-xs font-medium text-orange-800 dark:text-orange-500">
                           {chapter.title}
                         </h4>
                       </div>
@@ -648,6 +657,7 @@ export default function NovelDetailPage() {
           ]}
         />
       </div>
+      <ConfirmDialogComponent />
     </div>
   );
 }

@@ -159,7 +159,11 @@
     "uploadedOn": "アップロード日時",
     "characterLibrary": "キャラクターライブラリ",
     "relatedCreations": "関連する創作",
-    "loadFailed": "読み込みに失敗しました"
+    "loadFailed": "読み込みに失敗しました",
+    "deleteChapter": "章を削除",
+    "deleteChapterConfirm": "章「{title}」を削除してもよろしいですか？章を削除すると、この章に関連するすべての創作も削除されます。削除後は復元できません。",
+    "deleteChapterSuccess": "章の削除に成功しました",
+    "deleteChapterFailed": "章の削除に失敗しました"
   },
   "novel": {
     "title": "小説",

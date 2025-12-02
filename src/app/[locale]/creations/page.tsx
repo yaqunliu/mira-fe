@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ICreation, CreationStatus, CreationStatusMap } from "@/types/creation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useConfirm } from "@/hooks/use-confirm";
 
 // 左滑删除创作卡片组件
 function SwipeableCreationCard({
@@ -23,18 +24,27 @@ function SwipeableCreationCard({
   isDeleting,
   getStatusBadge,
   t,
+  confirm,
 }: {
   creation: ICreation;
   onClick: () => void;
-  onDelete: (e: React.MouseEvent) => void;
+  onDelete: (creationId: string) => void;
   isDeleting: boolean;
   getStatusBadge: (status: CreationStatus) => React.ReactNode;
   t: any;
+  confirm: (options?: any) => Promise<boolean>;
 }) {
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleDeleteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(t("creation.deleteConfirm"))) {
-      onDelete(e);
+    const confirmed = await confirm({
+      title: t("creation.delete"),
+      description: t("creation.deleteConfirm"),
+      confirmText: t("common.confirm") || "确认",
+      cancelText: t("common.cancel") || "取消",
+      variant: "destructive",
+    });
+    if (confirmed) {
+      onDelete(creation.creation_id);
     }
   };
   const [translateX, setTranslateX] = useState(0);
@@ -101,13 +111,6 @@ function SwipeableCreationCard({
   const handleClick = () => {
     if (Math.abs(translateX) < 5) {
       onClick();
-    }
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm(t("creation.deleteConfirm"))) {
-      onDelete(e);
     }
   };
 
@@ -186,6 +189,7 @@ export default function CreationsPage() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const pageSize = 12;
   const t = useTranslations();
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm();
 
   const params = useParams();
   const locale = params?.locale as string;
@@ -345,6 +349,7 @@ export default function CreationsPage() {
                   isDeleting={deletingId === creation.creation_id}
                   getStatusBadge={getStatusBadge}
                   t={t}
+                  confirm={confirm}
                 />
               ))}
             </div>
@@ -385,6 +390,7 @@ export default function CreationsPage() {
           </div>
         </PullToRefresh>
       )}
+      <ConfirmDialogComponent />
     </div>
   );
 }
