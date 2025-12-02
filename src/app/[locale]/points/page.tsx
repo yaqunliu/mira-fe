@@ -126,29 +126,29 @@ export default function PointsPage() {
 
       {/* 可滚动内容区域 - 支持下拉刷新 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1">
-        <div className="container mx-auto px-4 py-4 max-w-4xl">
+        <div className="container mx-auto px-4 py-2 max-w-4xl">
           {/* 积分余额卡片 */}
-          <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>{t('balance')}</CardTitle>
+          <Card className="mb-2 !py-0 !gap-0">
+        <CardHeader className="!pb-1 !px-4 !pt-2">
+          <CardTitle className="text-sm font-semibold">{t('balance')}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="!pt-0 !px-4 !pb-2">
           {balanceLoading ? (
-            <div className="space-y-2">
-              <Skeleton className="h-8 w-32" />
-              <Skeleton className="h-4 w-48" />
+            <div className="space-y-1.5">
+              <Skeleton className="h-7 w-32" />
+              <Skeleton className="h-3 w-48" />
             </div>
           ) : balance ? (
-            <div className="space-y-4">
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold text-amber-600">
+            <div className="space-y-1.5">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl font-bold text-amber-600">
                   {balance.available_points}
                 </span>
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs text-muted-foreground">
                   {t('availablePoints')}
                 </span>
               </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-muted-foreground">{t('totalPoints')}: </span>
                   <span className="font-medium">{balance.total_points}</span>
@@ -182,33 +182,33 @@ export default function PointsPage() {
 
           {/* 统计信息 */}
           {statistics && (
-            <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>{t('statistics')}</CardTitle>
+            <Card className="mb-2 !py-0 !gap-0">
+          <CardHeader className="!pb-1 !px-4 !pt-2">
+            <CardTitle className="text-sm font-semibold">{t('statistics')}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <CardContent className="!pt-0 !px-4 !pb-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <div>
-                <div className="text-sm text-muted-foreground">{t('totalEarned')}</div>
-                <div className="text-lg font-semibold text-green-600 flex items-center gap-1">
-                  <TrendingUp className="h-4 w-4" />
+                <div className="text-xs text-muted-foreground mb-0.5">{t('totalEarned')}</div>
+                <div className="text-sm font-semibold text-green-600 flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3" />
                   {statistics.total_earned}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">{t('totalConsumed')}</div>
-                <div className="text-lg font-semibold text-red-600 flex items-center gap-1">
-                  <TrendingDown className="h-4 w-4" />
+                <div className="text-xs text-muted-foreground mb-0.5">{t('totalConsumed')}</div>
+                <div className="text-sm font-semibold text-red-600 flex items-center gap-1">
+                  <TrendingDown className="h-3 w-3" />
                   {statistics.total_consumed}
                 </div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">{t('todayConsumed')}</div>
-                <div className="text-lg font-semibold">{statistics.today_consumed}</div>
+                <div className="text-xs text-muted-foreground mb-0.5">{t('todayConsumed')}</div>
+                <div className="text-sm font-semibold">{statistics.today_consumed}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">{t('monthConsumed')}</div>
-                <div className="text-lg font-semibold">{statistics.month_consumed}</div>
+                <div className="text-xs text-muted-foreground mb-0.5">{t('monthConsumed')}</div>
+                <div className="text-sm font-semibold">{statistics.month_consumed}</div>
               </div>
             </div>
             </CardContent>
@@ -216,14 +216,14 @@ export default function PointsPage() {
           )}
 
           {/* 筛选和记录列表 */}
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col gap-4">
+          <Card className="!py-3 !gap-0">
+            <CardHeader className="!pb-2 !px-4 !pt-3">
+              <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <CardTitle>{t('records')}</CardTitle>
+                  <CardTitle className="text-sm font-semibold">{t('records')}</CardTitle>
                 </div>
                 {/* 筛选 */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   <Select
                     value={recordType || '__all__'}
                     onValueChange={(value) => {
@@ -271,24 +271,24 @@ export default function PointsPage() {
                 </div>
               </div>
             </CardHeader>
-          <CardContent>
+          <CardContent className="!pt-0 !px-4 !pb-3">
             {recordsLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-1.5">
                 {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full" />
+                  <Skeleton key={i} className="h-14 w-full" />
                 ))}
               </div>
             ) : recordsData && recordsData.items.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-1.5">
                 {recordsData.items.map((record) => (
                   <div
                     key={record.record_id}
-                    className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 p-4 border rounded-lg hover:bg-accent/50 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1.5 p-2 border rounded-lg hover:bg-accent/50 transition-colors"
                   >
-                    <div className="flex-1 space-y-2 min-w-0">
+                    <div className="flex-1 space-y-1 min-w-0">
                       {/* 操作名称和记录类型 - 允许换行 */}
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-medium text-sm sm:text-base">
+                      <div className="flex flex-wrap items-center gap-1">
+                        <span className="font-medium text-xs">
                           {getOperationName(record.operation_type)}
                         </span>
                         <Badge 
@@ -311,11 +311,11 @@ export default function PointsPage() {
                         )}
                       </div>
                       {record.description && (
-                        <div className="text-sm text-muted-foreground break-words">
+                        <div className="text-xs text-muted-foreground break-words leading-tight">
                           {record.description}
                         </div>
                       )}
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-3 w-3 shrink-0" />
                           <span>{formatDate(record.created_at)}</span>
@@ -329,23 +329,23 @@ export default function PointsPage() {
                       </div>
                     </div>
                     {/* 积分显示 - 在移动端也显示在右侧 */}
-                    <div className="flex sm:flex-col sm:text-right items-end sm:items-end justify-between sm:justify-start gap-2 sm:space-y-1 shrink-0">
+                    <div className="flex sm:flex-col sm:text-right items-end sm:items-end justify-between sm:justify-start gap-1.5 sm:space-y-0 shrink-0">
                       <div
-                        className={`text-lg font-semibold flex items-center gap-1 ${
+                        className={`text-sm font-semibold flex items-center gap-0.5 ${
                           record.points > 0
                             ? 'text-green-600 dark:text-green-400'
                             : 'text-red-600 dark:text-red-400'
                         }`}
                       >
                         {record.points > 0 ? (
-                          <TrendingUp className="h-4 w-4" />
+                          <TrendingUp className="h-3 w-3" />
                         ) : (
-                          <TrendingDown className="h-4 w-4" />
+                          <TrendingDown className="h-3 w-3" />
                         )}
                         {record.points > 0 ? '+' : ''}
                         {record.points}
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground leading-tight">
                         {t('balanceAfter')}: {record.balance_after}
                       </div>
                     </div>
@@ -353,7 +353,7 @@ export default function PointsPage() {
                 ))}
                 {/* 分页 */}
                 {recordsData.total > pageSize && (
-                  <div className="mt-6 flex justify-center">
+                  <div className="mt-3 flex justify-center">
                     <Pagination>
                       <PaginationContent>
                         <PaginationItem>
@@ -422,7 +422,7 @@ export default function PointsPage() {
                 )}
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-4 text-muted-foreground text-sm">
                 {t('noRecords')}
               </div>
             )}
