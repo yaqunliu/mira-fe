@@ -226,7 +226,7 @@ export function StorySetting() {
     const selectedChapter = selectedChapters[0];
 
     return (
-      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-orange-50/30 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 flex-1 min-w-0">
+      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 flex-1 min-w-0">
         <div className="w-4 h-4 rounded bg-orange-500 flex items-center justify-center flex-shrink-0">
           <Check className="w-2.5 h-2.5 text-white" />
         </div>
@@ -248,7 +248,7 @@ export function StorySetting() {
       <Card className="w-full border-none p-0 gap-3 flex flex-col flex-1 min-h-0">
         <CardContent className="space-y-4 flex flex-col flex-1 min-h-0 overflow-hidden">
           {/** 添加Tabs切换，有两个选项"从小说列表中选择"和"上传小说" */}
-          <div className="text-base font-bold text-gray-300 flex-shrink-0">{t("createVideo.selectScript")}</div>
+          <div className="text-base font-bold text-gray-700 dark:text-gray-300 flex-shrink-0">{t("createVideo.selectScript")}</div>
           
           {/* 显示加载状态 */}
           {isLoadingFromUrl && (
@@ -266,7 +266,7 @@ export function StorySetting() {
               className="gap-0 flex flex-col flex-1 min-h-0"
               tabsListClassName="p-0 rounded-b-none flex-shrink-0"
               tabsTriggerClassName="rounded-b-none"
-              tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounded-b-lg flex-1 min-h-0 overflow-hidden flex flex-col"
+              tabsContentClassName="bg-white dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounded-b-lg flex-1 min-h-0 overflow-hidden flex flex-col"
               onValueChange={(value) => {}}
               items={[
                 {
@@ -280,7 +280,7 @@ export function StorySetting() {
                           selectedChapters={selectedChapters}
                           onNovelChange={handleNovelChange}
                           onChaptersChange={handleChaptersChange}
-                          novelFixedClassName="border-none bg-stone-700/60"
+                          novelFixedClassName="border-none bg-gray-100 dark:bg-stone-700/60"
                           chapterClassName="border-none p-0"
                           fixedAction={
                             <Button

@@ -561,7 +561,7 @@ export function VideoGenerator({
 
           {/* 已选择的语音信息 */}
           {selectedVoice && (
-            <Card className="border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-950/20">
+            <Card className="border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20">
               <CardContent className="p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
@@ -689,7 +689,7 @@ export function VideoGenerator({
       {/* 阶段 3: 生成失败 */}
       {stage === "failed" && (
         <div className="space-y-6 px-6">
-          <Card className="border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/20">
+          <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
             <CardContent className="p-6">
               <div className="flex flex-col items-center text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">

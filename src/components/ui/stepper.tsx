@@ -35,9 +35,9 @@ const stepperVariants = {
 
 const stepVariants = {
   status: {
-    completed: "text-primary bg-primary/10 border-primary",
-    current: "text-primary-foreground bg-primary border-primary",
-    upcoming: "text-muted-foreground bg-muted border-muted-foreground/20",
+    completed: "text-primary bg-orange-100 dark:bg-primary/10 border-primary border-2",
+    current: "text-primary-foreground bg-primary border-primary border-2",
+    upcoming: "text-gray-600 dark:text-muted-foreground bg-gray-200 dark:bg-muted border-gray-300 dark:border-muted-foreground/20 border-2",
   },
   size: {
     sm: "w-6 h-6 text-xs",
@@ -66,8 +66,7 @@ const StepIndicator = ({
     "flex items-center justify-center rounded-full font-medium transition-all duration-200",
     stepVariants.size[size],
     stepVariants.status[step.status],
-    step.disabled && "opacity-50 cursor-not-allowed",
-    "bg-gray-200/20"
+    step.disabled && "opacity-50 cursor-not-allowed"
   );
 
   if (variant === "circular") {
@@ -87,9 +86,9 @@ const StepIndicator = ({
       <div
         className={cn(
           "w-2 h-2 rounded-full transition-all duration-200",
-          step.status === "completed" && "bg-primary",
-          step.status === "current" && "bg-primary scale-125",
-          step.status === "upcoming" && "bg-muted-foreground/30"
+          step.status === "completed" && "bg-orange-500 dark:bg-primary",
+          step.status === "current" && "bg-orange-500 dark:bg-primary scale-125",
+          step.status === "upcoming" && "bg-gray-400 dark:bg-muted-foreground/30"
         )}
       />
     );
@@ -99,15 +98,16 @@ const StepIndicator = ({
     <div
       className={cn(
         baseClasses,
-        step.status === "current" && "border-[1px] border-orange-400/50"
+        step.status === "current" && "border-2 border-orange-500 dark:border-orange-400/50"
       )}
     >
       {step.status === "completed" ? (
-        <Check className="w-4 h-4 text-primary" />
+        <Check className="w-4 h-4 text-orange-600 dark:text-primary" />
       ) : (
         <span
           className={cn(
-            step.status === "current" && "text-primary",
+            step.status === "current" && "text-white dark:text-primary-foreground",
+            step.status === "upcoming" && "text-gray-700 dark:text-muted-foreground",
             "text-sm font-semibold"
           )}
         >
@@ -145,11 +145,12 @@ const StepContent = ({
 
   return (
     <div className="flex-1">
-      <h3
+        <h3
         className={cn(
-          "transition-colors",
-          step.status === "current" && "text-default",
-          step.status === "upcoming" && "dark:text-gray-500 text-gray-600",
+          "transition-colors font-semibold",
+          step.status === "current" && "text-gray-900 dark:text-default",
+          step.status === "completed" && "text-gray-700 dark:text-primary",
+          step.status === "upcoming" && "text-gray-500 dark:text-gray-500",
           stepperVariants.size[size]
         )}
       >
@@ -187,7 +188,7 @@ const Connector = ({
       <div
         className={cn(
           "w-px h-6 ml-4",
-          "border-l border-dashed border-orange-300/30 border-[1px]",
+          "border-l border-dashed border-orange-300 dark:border-orange-300/30 border-[1px]",
           variant === "minimal" && "ml-2"
         )}
       />
@@ -204,7 +205,7 @@ const Connector = ({
       <div
         className={cn(
           "h-px flex-1",
-          "border-t border-dashed border-orange-300/30 border-[1px]",
+          "border-t border-dashed border-orange-300 dark:border-orange-300/30 border-[1px]",
           variant === "minimal" && "mx-2"
         )}
       />

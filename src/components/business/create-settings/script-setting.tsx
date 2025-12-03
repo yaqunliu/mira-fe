@@ -93,20 +93,20 @@ export function ScriptSetting({
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="secondary"
-                        className="text-xs bg-gray-400/50"
+                        className="text-xs bg-white/80 dark:bg-gray-400/50 text-gray-700 dark:text-gray-300"
                       >
                         {t("scene.sceneDisplay")} {index + 1}
                       </Badge>
-                      <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      <CardTitle className="text-lg font-semibold text-white dark:text-gray-100">
                         {scene.title}
                       </CardTitle>
                     </div>
                     <div className="flex items-center gap-4 mt-1">
-                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-sm text-white/90 dark:text-gray-400">
                         <Clock className="h-4 w-4" />
                         {scene.duration}
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-sm text-white/90 dark:text-gray-400">
                         <Layers className="h-4 w-4" />
                         {scene.shots.length} {t("scene.shots")}
                       </div>

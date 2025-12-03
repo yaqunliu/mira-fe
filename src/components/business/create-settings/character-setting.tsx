@@ -203,7 +203,7 @@ export function CharacterSetting({
                     className="flex flex-col w-[65vw] md:w-[240px] lg:w-[300px] flex-shrink-0"
                     key={index}
                   >
-                    <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-b from-orange-400/50 to-gray-600/30 rounded-t tracking-wider font-bold flex items-center gap-1">
+                    <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-b from-orange-200 to-gray-200 dark:from-orange-400/50 dark:to-gray-600/30 rounded-t tracking-wider font-bold flex items-center gap-1">
                       <span>{character.name}</span>
                       <PenLine
                         className="inline-block w-3 h-3 text-stone-400 cursor-pointer hover:text-primary transition-colors"
@@ -212,7 +212,7 @@ export function CharacterSetting({
                     </div>
                     <Card
                       key={index}
-                      className="w-full bg-gray-600/30 rounded-tl-none border-none p-y-3"
+                      className="w-full bg-gray-100 dark:bg-gray-600/30 rounded-tl-none border-none p-y-3"
                     >
                       <CardContent className="space-y-2 px-3">
                         <div className="flex gap-2">
@@ -336,7 +336,7 @@ export function CharacterSetting({
                         </div>
                         {character.image_url && (
                           <div className="flex flex-col gap-1 items-center">
-                            <div className="h-[1px] bg-zinc-700 w-full mb-2" />
+                            <div className="h-[1px] bg-gray-300 dark:bg-zinc-700 w-full mb-2" />
                             <div className="relative">
                               <img
                                 src={character.image_url}
