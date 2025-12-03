@@ -220,7 +220,7 @@ export default function NovelsPage() {
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const pageSize = 12;
+  const pageSize = 9;
   const t = useTranslations();
   const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm();
 

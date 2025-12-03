@@ -8,8 +8,19 @@ import mockCreations from '@/lib/mock-data/creations.json'
 export const novelApi = {
   // 获取小说列表
   getNovels: async (params?: PaginationParams) => {
-    // 模拟API调用
-    return apiClient.get<Novel[]>('/api/v1/novels/?page=1&page_size=100')
+    // 构建查询参数
+    const queryParams = new URLSearchParams()
+    if (params?.page) {
+      queryParams.append('page', params.page.toString())
+    }
+    if (params?.page_size) {
+      queryParams.append('page_size', params.page_size.toString())
+    }
+    
+    const queryString = queryParams.toString()
+    const url = `/api/v1/novels/${queryString ? `?${queryString}` : ''}`
+    
+    return apiClient.get<Novel[]>(url)
   },
 
   getChapters: async (novelId: string) => {
