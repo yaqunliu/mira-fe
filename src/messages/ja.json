@@ -131,7 +131,8 @@
     "analyzingCharacterInfo": "キャラクター情報を分析中...",
     "generatingCharacterImage": "キャラクター画像を生成中...",
     "taskIdNotFound": "タスクIDの取得に失敗しました",
-    "next": "次へ"
+    "next": "次へ",
+    "pleaseGenerateAllCharacterImages": "次のステップに進むには、すべてのキャラクターの画像を生成してください。未生成のキャラクター：{characters}"
   },
   "user": {
     "userMenu": "ユーザーメニュー",
@@ -222,7 +223,8 @@
     "shotsGenerationError": "分鏡生成に失敗しました。再試行してください",
     "creationIdNotFound": "創作IDが見つかりません",
     "taskIdNotFound": "タスクIDの取得に失敗しました",
-    "queryTaskFailed": "タスク状態の確認に失敗しました。ページを更新して再試行してください"
+    "queryTaskFailed": "タスク状態の確認に失敗しました。ページを更新して再試行してください",
+    "characterAnalysisStart": "キャラクター分析を開始しました"
   },
   "video": {
     "title": "動画",

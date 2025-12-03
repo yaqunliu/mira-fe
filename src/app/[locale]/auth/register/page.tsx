@@ -15,6 +15,7 @@ import { authApi } from '@/lib/api/auth'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import axios from 'axios'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -49,7 +50,30 @@ export default function RegisterPage() {
       }
     } catch (error) {
       console.error('Register error:', error)
-      toast.error(t('networkError'))
+      
+      // 检查是否是 axios 错误，并提取错误消息
+      let errorMessage = t('networkError')
+      
+      if (axios.isAxiosError(error)) {
+        // 优先使用 response.data.message（API 返回的错误消息）
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message
+        } 
+        // 如果没有 message，检查 error 字段
+        else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error
+        }
+        // 如果错误对象本身有 message（由 apiClient 拦截器设置的）
+        else if (error.message) {
+          errorMessage = error.message
+        }
+      } 
+      // 如果是普通 Error 对象，使用其 message
+      else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }

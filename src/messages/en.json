@@ -131,7 +131,8 @@
     "analyzingCharacterInfo": "Analyzing character information...",
     "generatingCharacterImage": "Generating character image...",
     "taskIdNotFound": "Failed to get task ID",
-    "next": "Next"
+    "next": "Next",
+    "pleaseGenerateAllCharacterImages": "Please generate images for all characters before proceeding. Characters without images: {characters}"
   },
   "user": {
     "userMenu": "User Menu",
@@ -222,7 +223,8 @@
     "shotsGenerationError": "Storyboard generation failed, please try again",
     "creationIdNotFound": "Creation ID not found",
     "taskIdNotFound": "Failed to get task ID",
-    "queryTaskFailed": "Failed to query task status, please refresh the page and try again"
+    "queryTaskFailed": "Failed to query task status, please refresh the page and try again",
+    "characterAnalysisStart": "Character analysis started"
   },
   "video": {
     "title": "Video",

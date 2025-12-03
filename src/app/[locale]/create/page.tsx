@@ -366,14 +366,29 @@ export default function CreateCreation() {
                 // 音频/视频生成任务，跳转到视频步骤
                 setCurrentStep(4);
                 return;
+              } else if (taskType === TaskType.NOVEL_UPLOAD) {
+                // 小说上传/分析任务，状态是 CREATED 时，跳转到角色设置步骤显示分析进度
+                setCurrentStep(1);
+                return;
               } else if (curCreation?.status === CreationStatus.CREATED && 
                          (!curCreation?.scenes || curCreation.scenes.length === 0)) {
                 // 创建任务（分析阶段），状态是 CREATED 且没有分镜，跳转到角色设置步骤
+                // 这是一个兜底逻辑，处理未知任务类型但状态是 CREATED 的情况
                 setCurrentStep(1);
                 return;
               }
               // 注意：PLAYBOOK_GENERATED 状态如果有任务，应该已经通过上面的任务类型判断处理了
               // 如果任务类型不匹配，继续执行后续的 status 逻辑
+              
+              // 如果状态是 CHARACTER_GENERATED 且有 current_task_id，即使任务类型不匹配，
+              // 也假设是分镜生成任务（因为角色图生成后通常就是分镜生成）
+              if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
+                console.log(`[Create Page] 状态是 CHARACTER_GENERATED 且有 current_task_id，假设是分镜生成任务，跳转到分镜步骤`);
+                setShotsTaskId(curCreation.current_task_id);
+                setIsGeneratingShots(true);
+                setCurrentStep(3);
+                return;
+              }
             } else {
               // 任务已完成（SUCCESS 或 FAILURE），但如果有 current_task_id 且是分镜生成任务，
               // 说明应该跳转到分镜步骤查看结果
@@ -383,19 +398,44 @@ export default function CreateCreation() {
                 setCurrentStep(3);
                 return;
               }
+              
+              // 如果状态是 CHARACTER_GENERATED 且有 current_task_id，即使任务类型不匹配，
+              // 也假设是分镜生成任务，跳转到分镜步骤查看结果
+              if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
+                console.log(`[Create Page] 任务已完成，状态是 CHARACTER_GENERATED 且有 current_task_id，假设是分镜生成任务，跳转到分镜步骤`);
+                setShotsTaskId(curCreation.current_task_id);
+                setIsGeneratingShots(false);
+                setCurrentStep(3);
+                return;
+              }
+            }
+          } else {
+            // 任务查询成功但返回的 task 为空，根据状态进行兜底处理
+            if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
+              console.log(`[Create Page] 任务查询成功但返回数据为空，状态是 CHARACTER_GENERATED 且有 current_task_id，假设是分镜生成任务，跳转到分镜步骤`);
+              setShotsTaskId(curCreation.current_task_id);
+              setIsGeneratingShots(true);
+              setCurrentStep(3);
+              return;
             }
           }
         } catch (error) {
           console.error("查询任务状态失败:", error);
-          // 查询失败时，如果状态是 CHARACTER_GENERATED 且有 current_task_id，
-          // 尝试根据 current_task_id 判断是否为分镜生成任务
-          // 这里我们假设如果有 current_task_id，很可能是分镜生成任务，跳转到分镜步骤
-          if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
-            console.log(`[Create Page] 查询任务失败，但状态是 CHARACTER_GENERATED 且有 current_task_id，跳转到分镜步骤`);
-            setShotsTaskId(curCreation.current_task_id);
-            setIsGeneratingShots(true);
-            setCurrentStep(3);
-            return;
+          // 查询失败时，根据状态和 current_task_id 进行兜底处理
+          if (curCreation?.current_task_id) {
+            if (curCreation?.status === CreationStatus.CHARACTER_GENERATED) {
+              // 状态是 CHARACTER_GENERATED 且有 current_task_id，很可能是分镜生成任务
+              console.log(`[Create Page] 查询任务失败，但状态是 CHARACTER_GENERATED 且有 current_task_id，跳转到分镜步骤`);
+              setShotsTaskId(curCreation.current_task_id);
+              setIsGeneratingShots(true);
+              setCurrentStep(3);
+              return;
+            } else if (curCreation?.status === CreationStatus.CREATED) {
+              // 状态是 CREATED 且有 current_task_id，很可能是初始分析任务
+              console.log(`[Create Page] 查询任务失败，但状态是 CREATED 且有 current_task_id，跳转到角色设置步骤`);
+              setCurrentStep(1);
+              return;
+            }
           }
         }
       }
@@ -437,8 +477,13 @@ export default function CreateCreation() {
       // 注意：如果状态是 CHARACTER_GENERATED 且有 current_task_id，应该已经在上面处理了
       switch (curCreation?.status) {
         case CreationStatus.CREATED:
-          // 如果有分镜信息，跳转到脚本步骤；否则根据是否有角色信息决定跳转到角色设置步骤或保持在步骤0
-          if (curCreation?.scenes && curCreation.scenes.length > 0) {
+          // 如果存在 current_task_id，说明有任务在进行，应该已经在上面处理了
+          // 如果没有 current_task_id，根据内容决定步骤
+          if (curCreation?.current_task_id) {
+            // 有 current_task_id 但上面的任务查询没有匹配到，可能是查询失败或任务类型未知
+            // 跳转到角色设置步骤，让用户看到分析进度
+            setCurrentStep(1);
+          } else if (curCreation?.scenes && curCreation.scenes.length > 0) {
             // 有分镜，跳转到脚本步骤
             setCurrentStep(2);
           } else if (curCreation?.characters && curCreation.characters.length > 0) {
@@ -462,9 +507,15 @@ export default function CreateCreation() {
           break;
         case CreationStatus.CHARACTER_GENERATED:
           // 如果状态是 CHARACTER_GENERATED 且有 current_task_id，说明有分镜生成任务在进行
-          // 这种情况应该已经在上面处理了，如果没有处理到，说明没有 current_task_id
-          // 没有 current_task_id 时，跳转到脚本步骤
-          if (!curCreation?.current_task_id) {
+          // 这种情况应该已经在上面处理了，如果没有处理到，说明任务查询失败或任务类型不匹配
+          // 作为兜底，如果有 current_task_id，假设是分镜生成任务，跳转到分镜步骤
+          if (curCreation?.current_task_id) {
+            console.log(`[Create Page] 状态是 CHARACTER_GENERATED 且有 current_task_id，但上面的处理没有匹配，作为兜底跳转到分镜步骤`);
+            setShotsTaskId(curCreation.current_task_id);
+            setIsGeneratingShots(true);
+            setCurrentStep(3);
+          } else {
+            // 没有 current_task_id 时，跳转到脚本步骤
             setCurrentStep(2);
           }
           break;

@@ -419,11 +419,32 @@ export function CharacterSetting({
 
             <Button
               onClick={() => {
-                // 下一步操作
+                // 检查是否所有角色都有角色图
+                const charactersWithoutImage = characters.filter(
+                  (character) => !character.image_url
+                );
+                
+                if (charactersWithoutImage.length > 0) {
+                  // 如果有角色没有生成图片，显示提示
+                  const characterNames = charactersWithoutImage
+                    .map((c) => c.name)
+                    .join("、");
+                  toast.error(
+                    t("pleaseGenerateAllCharacterImages", {
+                      characters: characterNames,
+                    })
+                  );
+                  return;
+                }
+                
+                // 所有角色都有图片，执行下一步操作
                 onComplete();
               }}
-              disabled={characters.some((character) => !character.image_url)}
-              className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
+              className={cn(
+                "bg-orange-400/80 hover:bg-orange-600 text-white px-6 w-[120px]",
+                characters.some((character) => !character.image_url) && 
+                "opacity-50 cursor-not-allowed"
+              )}
             >
               {t("next")}
               <ArrowRight className="w-4 h-4 mr-1" />
