@@ -490,6 +490,8 @@ export function VideoGenerator({
   const handleConfirmRegenerateAudio = () => {
     setShowRegenerateDialog(false);
     setForceRegenerateAudio(true);
+    // 标记正在手动操作，防止 useEffect 重置 stage
+    isManuallyGeneratingRef.current = true;
     setStage("selecting");
     setTaskId(null);
     setProgress(null);

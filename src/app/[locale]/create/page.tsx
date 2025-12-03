@@ -366,6 +366,17 @@ export default function CreateCreation() {
               // 注意：PLAYBOOK_GENERATED 状态如果有任务，应该已经通过上面的任务类型判断处理了
               // 如果任务类型不匹配，继续执行后续的 status 逻辑
               
+              // 如果状态是 PLAYBOOK_GENERATED、没有角色、且有 current_task_id，
+              // 说明在生成分镜图（因为没有角色，跳过了角色图生成步骤）
+              if (curCreation?.status === CreationStatus.PLAYBOOK_GENERATED && 
+                  curCreation?.current_task_id &&
+                  (!curCreation?.characters || curCreation.characters.length === 0)) {
+                setShotsTaskId(curCreation.current_task_id);
+                setIsGeneratingShots(true);
+                setCurrentStep(3);
+                return;
+              }
+              
               // 如果状态是 CHARACTER_GENERATED 且有 current_task_id，即使任务类型不匹配，
               // 也假设是分镜生成任务（因为角色图生成后通常就是分镜生成）
               if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
@@ -384,6 +395,16 @@ export default function CreateCreation() {
                 return;
               }
               
+              // 如果状态是 PLAYBOOK_GENERATED、没有角色、且有 current_task_id，假设是分镜生成任务
+              if (curCreation?.status === CreationStatus.PLAYBOOK_GENERATED && 
+                  curCreation?.current_task_id &&
+                  (!curCreation?.characters || curCreation.characters.length === 0)) {
+                setShotsTaskId(curCreation.current_task_id);
+                setIsGeneratingShots(false); // 任务已完成，不再生成中
+                setCurrentStep(3);
+                return;
+              }
+              
               // 如果状态是 CHARACTER_GENERATED 且有 current_task_id，即使任务类型不匹配，
               // 也假设是分镜生成任务，跳转到分镜步骤查看结果
               if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
@@ -395,6 +416,15 @@ export default function CreateCreation() {
             }
           } else {
             // 任务查询成功但返回的 task 为空，根据状态进行兜底处理
+            // 如果状态是 PLAYBOOK_GENERATED、没有角色、且有 current_task_id，假设是分镜生成任务
+            if (curCreation?.status === CreationStatus.PLAYBOOK_GENERATED && 
+                curCreation?.current_task_id &&
+                (!curCreation?.characters || curCreation.characters.length === 0)) {
+              setShotsTaskId(curCreation.current_task_id);
+              setIsGeneratingShots(true);
+              setCurrentStep(3);
+              return;
+            }
             if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
               setShotsTaskId(curCreation.current_task_id);
               setIsGeneratingShots(true);
@@ -406,7 +436,14 @@ export default function CreateCreation() {
           console.error("查询任务状态失败:", error);
           // 查询失败时，根据状态和 current_task_id 进行兜底处理
           if (curCreation?.current_task_id) {
-            if (curCreation?.status === CreationStatus.CHARACTER_GENERATED) {
+            // 如果状态是 PLAYBOOK_GENERATED、没有角色、且有 current_task_id，假设是分镜生成任务
+            if (curCreation?.status === CreationStatus.PLAYBOOK_GENERATED &&
+                (!curCreation?.characters || curCreation.characters.length === 0)) {
+              setShotsTaskId(curCreation.current_task_id);
+              setIsGeneratingShots(true);
+              setCurrentStep(3);
+              return;
+            } else if (curCreation?.status === CreationStatus.CHARACTER_GENERATED) {
               // 状态是 CHARACTER_GENERATED 且有 current_task_id，很可能是分镜生成任务
               setShotsTaskId(curCreation.current_task_id);
               setIsGeneratingShots(true);
@@ -475,14 +512,17 @@ export default function CreateCreation() {
           }
           break;
         case CreationStatus.PLAYBOOK_GENERATED:
-          // 角色分析完成，但还需要生成角色形象图，所以停留在角色设置步骤
-          // 只有当所有角色都有形象图后（状态变为 CHARACTER_GENERATED），才会跳转到下一步
-          if (curCreation?.characters && curCreation.characters.length > 0) {
-            // 有角色信息，停留在角色设置步骤，等待用户生成角色形象图
-            setCurrentStep(1);
+          // 角色分析完成（playbook已生成）
+          // 如果没有角色且有 current_task_id，说明在生成分镜图（跳过了角色图生成步骤）
+          if ((!curCreation?.characters || curCreation.characters.length === 0) && 
+              curCreation?.current_task_id) {
+            setShotsTaskId(curCreation.current_task_id);
+            setIsGeneratingShots(true);
+            setCurrentStep(3);
           } else {
-            // 没有角色信息，保持在步骤0
-            setCurrentStep(0);
+            // 有角色或没有任务，跳转到角色设置步骤
+            // 如果确实没有角色，用户可以在角色设置步骤中看到"暂无角色"的提示，然后继续下一步
+            setCurrentStep(1);
           }
           break;
         case CreationStatus.CHARACTER_GENERATED:
