@@ -50,7 +50,6 @@ export function NovelUpload({
     queryFn: () => taskApi.queryTaskStatus(taskId as string),
     enabled: !!taskId,
     refetchInterval: (query) => {
-      console.log(query.state.data, "task query");
       const taskStatus = query.state.data?.data?.status;
       if ([TaskStatus.SUCCESS, TaskStatus.FAILURE].includes(taskStatus)) {
         setIsUploading(false);
@@ -141,7 +140,6 @@ export function NovelUpload({
         author: form.getValues("author"),
         description: form.getValues("description"),
       });
-      console.log(response, "upload response");
 
       // 后端返回的数据中包含 taskId
       // @ts-ignore - 后端可能返回不同的数据结构

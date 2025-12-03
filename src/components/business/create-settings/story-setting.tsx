@@ -113,7 +113,6 @@ export function StorySetting() {
       creationApi.createCreation({ novelId, chapterId: chapterIds[0] }),
     onSuccess: (response: any) => {
       toast.success(t("creation.shotsGenerationStart"));
-      console.log("ICreation response:", response);
       setCreationId(response?.data?.creation_id || response);
     },
     onError: (error: Error) => {
@@ -142,7 +141,6 @@ export function StorySetting() {
       const existingCreation = await creationApi.queryCreationByChapterId(chapterId);
       if (existingCreation?.data) {
         // 如果已有创作，直接跳转到该创作
-        console.log(`[StorySetting] 章节 ${chapterId} 已有创作，跳转到创作 ${existingCreation.data.creation_id}`);
         router.replace(`/${locale}/create?creationId=${existingCreation.data.creation_id}`);
         return; // 直接返回，不创建新创作
       }

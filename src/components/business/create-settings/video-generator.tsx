@@ -132,7 +132,6 @@ export function VideoGenerator({
     if (currentTaskId) {
       setTaskId(currentTaskId);
       setStage("generating");
-      console.log(`[VideoGenerator] 恢复任务轮询: taskId=${currentTaskId}`);
       // 即使有初始URL，也先设置，但保持生成状态
       if (initialAudioUrl) setAudioUrl(initialAudioUrl);
       if (initialVideoUrl) setVideoUrl(initialVideoUrl);
@@ -174,9 +173,7 @@ export function VideoGenerator({
   const { data: creationData, refetch: refetchCreation } = useQuery({
     queryKey: ["creation", creationId, "voice"],
     queryFn: async () => {
-      console.log(`[VideoGenerator] 获取creation数据: ${creationId}`);
       const response = await creationApi.queryCreationById(creationId);
-      console.log(`[VideoGenerator] creation数据:`, response?.data);
       return response?.data;
     },
     enabled: !!creationId,
@@ -197,7 +194,6 @@ export function VideoGenerator({
     
     // 如果creation数据中有current_task_id，且当前没有设置taskId或stage不是generating，则恢复轮询
     if (taskIdFromCreation && (!taskId || stage !== "generating")) {
-      console.log(`[VideoGenerator] 检测到任务ID，恢复轮询: taskId=${taskIdFromCreation}`);
       setTaskId(taskIdFromCreation);
       setStage("generating");
       // 如果有音频或视频URL，也设置一下
@@ -212,8 +208,6 @@ export function VideoGenerator({
 
   // 自动加载并显示上次使用的语音信息和语速
   useEffect(() => {
-    console.log(`[VideoGenerator] useEffect触发 - stage: ${stage}, voice_id: ${creationData?.voice_id}, selectedVoiceId: ${selectedVoiceId}`);
-    
     // 加载已保存的语速
     if (creationData?.voice_speed !== undefined && creationData.voice_speed !== null) {
       setVoiceSpeed(creationData.voice_speed);
@@ -222,40 +216,29 @@ export function VideoGenerator({
     // 在idle或selecting阶段，如果creation数据中有voice_id，就加载并显示
     if ((stage === "idle" || stage === "selecting") && creationData?.voice_id) {
       const voiceId = creationData.voice_id;
-      console.log(`[VideoGenerator] 找到voice_id: ${voiceId}`);
       
       // 从URL中提取voice_id（如果格式是 /api/v1/voices/xxx）
       const extractedVoiceId = voiceId.includes('/api/v1/voices/') 
         ? voiceId.replace('/api/v1/voices/', '')
         : voiceId;
       
-      console.log(`[VideoGenerator] 提取的voice_id: ${extractedVoiceId}`);
-      
       // 如果已经选中了相同的语音且已经有详情，就不重复加载
       if (selectedVoiceId === extractedVoiceId && selectedVoice?.id === extractedVoiceId) {
-        console.log(`[VideoGenerator] 语音已加载，跳过`);
         return;
       }
       
-      console.log(`[VideoGenerator] 开始获取语音详情: ${extractedVoiceId}`);
       // 获取语音详情并显示
       voiceApi.getVoiceDetail(extractedVoiceId)
         .then((voice) => {
-          console.log(`[VideoGenerator] 语音详情获取成功:`, voice);
           if (voice && voice.id) {
             setSelectedVoiceId(voice.id);
             setSelectedVoice(voice);
-            console.log(`[VideoGenerator] 加载上次使用的语音: ${voice.title}`);
-          } else {
-            console.error(`[VideoGenerator] 语音数据格式错误:`, voice);
           }
         })
         .catch((error) => {
           console.error("获取语音详情失败:", error);
           // 失败时不影响用户手动选择
         });
-    } else if ((stage === "idle" || stage === "selecting") && !creationData?.voice_id) {
-      console.log(`[VideoGenerator] 没有找到voice_id`);
     }
   }, [creationData?.voice_id, creationData?.voice_speed, stage, selectedVoiceId, selectedVoice]);
 
@@ -422,7 +405,6 @@ export function VideoGenerator({
 
   // 重试生成（重新生成时弹出对话框询问是否重新生成音频）
   const handleRetry = () => {
-    console.log(`[VideoGenerator] handleRetry 被调用`);
     setShowRegenerateDialog(true);
   };
 

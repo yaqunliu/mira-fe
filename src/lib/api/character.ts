@@ -16,7 +16,6 @@ const characterApi = {
     characterIds: string[],
     style: string
   ) => {
-    console.log(characterIds, "characterIds");
     return apiClient.post<{task_id: string, message: string}>(
       `/api/v1/characters/generate-images`,
       { character_ids: characterIds, visual_style: style }

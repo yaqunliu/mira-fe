@@ -72,9 +72,7 @@ export function CharacterSetting({
     queryFn: () => taskApi.queryTaskStatus(taskId as string),
     enabled: !!taskId,
     refetchInterval: (query) => {
-      console.log("task query", query);
       if (query.state.data?.data?.status === TaskStatus.SUCCESS || query.state.data?.data?.status === TaskStatus.FAILURE) {
-        console.log('here')
         setIsGenerating(false);
         handleUpdate();
         if (query.state.data?.data?.status === TaskStatus.FAILURE) {
@@ -123,7 +121,6 @@ export function CharacterSetting({
       debounceDelay: 500,
       enableDebounce: true,
       onError: (error) => {
-        console.log(error);
         toast.error(error.message || t("generationFailed"));
         setIsGenerating(false);
       },
@@ -144,8 +141,6 @@ export function CharacterSetting({
     setPreviewImage(imageUrl);
     setIsImagePreviewOpen(true);
   };
-
-  console.log(isGenerating, "isGenerating");
 
   // 只有在有任务在进行或者正在生成时才显示loading
   // 如果characters为空但没有任务在进行，说明数据已经加载完成，只是没有角色数据，不应该显示loading

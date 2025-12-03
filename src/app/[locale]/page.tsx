@@ -56,7 +56,6 @@ export default function RootPage() {
 
     // 如果是从其他页面返回首页，或者是首次加载首页，都刷新数据
     if (isHomePage && (wasNotHomePage || isFirstLoad)) {
-      console.log(`[Home Page] ${isFirstLoad ? '首次加载' : '从其他页面返回'}首页，刷新数据: ${prevPathnameRef.current || 'null'} -> ${pathname}`);
       handleRefresh();
     }
 

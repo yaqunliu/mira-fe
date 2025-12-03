@@ -85,7 +85,6 @@ export function StoryboardImages({
     };
   }, []);
 
-  console.log(data, "data");
   // 获取所有图片的扁平数组
   const allImages = data.flatMap((scene) => scene.images);
 

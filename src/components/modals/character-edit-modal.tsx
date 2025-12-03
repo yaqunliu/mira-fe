@@ -52,7 +52,6 @@ export function CharacterEditModal({
   onSuccess,
 }: CharacterEditModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  console.log(character?.tags, "character");
 
   const form = useForm<EditCharacterFormData>({
     resolver: zodResolver(editCharacterSchema),

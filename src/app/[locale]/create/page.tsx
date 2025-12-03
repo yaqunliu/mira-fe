@@ -92,9 +92,6 @@ export default function CreateCreation() {
   // 同步 URL 参数到 state（不在这里刷新数据，由路由监听统一处理）
   useEffect(() => {
     if (creationIdFromUrl && creationIdFromUrl !== creationId) {
-      console.log(
-        `[Create Page] URL creationId 变化: ${creationId} -> ${creationIdFromUrl}`
-      );
       setCreationId(creationIdFromUrl);
       setIsResubmitting(false); // 重置重新提交标志
       // 注意：不在这里调用 invalidateQueries，由路由监听统一处理，避免重复调用
@@ -157,11 +154,9 @@ export default function CreateCreation() {
       
       // 如果距离上次查询不到 100ms，可能是重复调用（React 严格模式）
       if (timeSinceLastQuery < 100 && lastQueryTimeRef.current > 0 && count === 1) {
-        console.warn(`[Create Page] 检测到可能的重复查询（可能是 React 严格模式）: creationId=${creationId}, 距离上次查询 ${timeSinceLastQuery}ms, 查询次数=${count + 1}`);
         // 注意：这是 React 严格模式在开发环境中的正常行为，生产环境不会发生
       }
       
-      console.log(`[Create Page] useQuery 执行查询: creationId=${creationId}, timestamp=${now}, 查询次数=${count + 1}`);
       lastQueryTimeRef.current = now;
       isRefreshingRef.current = false; // 查询执行时重置标记
       return creationApi.queryCreationById(creationId);
@@ -212,24 +207,19 @@ export default function CreateCreation() {
     const isFirstLoad = prevPathnameRef.current === null;
     const isSameCreationId = prevCreationIdRef.current !== null && prevCreationIdRef.current === creationId;
 
-    console.log(`[Create Page] 路由监听: wasNotCreatePage=${wasNotCreatePage}, creationIdChanged=${creationIdChanged}, isFirstLoad=${isFirstLoad}, isSameCreationId=${isSameCreationId}, prevPath=${prevPathnameRef.current}, prevCreationId=${prevCreationIdRef.current}, currentCreationId=${creationId}`);
-
     // 处理逻辑：
     // 1. 首次进入创作页面 - 让 useQuery 自动处理（queryKey 变化会自动触发），但需要防止重复调用
     // 2. creationId 发生了变化 - 让 useQuery 自动处理（queryKey 变化会自动触发）
     // 3. 从其他页面返回到创作页面，且 creationId 相同 - 需要手动刷新
     if (isFirstLoad) {
-      console.log(`[Create Page] 首次进入创作页面，让 useQuery 自动处理: creationId=${creationId}`);
       // 首次进入，让 useQuery 自动处理，不手动调用 invalidateQueries
       // 但需要标记已经初始化，避免重复调用
       if (!hasInitializedRef.current) {
         hasInitializedRef.current = true;
       }
     } else if (creationIdChanged) {
-      console.log(`[Create Page] creationId 变化，让 useQuery 自动处理: ${prevCreationIdRef.current} -> ${creationId}`);
       // creationId 变化时，useQuery 的 queryKey 变化会自动触发重新查询
     } else if (wasNotCreatePage && isSameCreationId) {
-      console.log(`[Create Page] 从其他页面返回创作页面（相同 creationId），强制刷新创作数据: ${prevPathnameRef.current} -> ${pathname}, creationId=${creationId}`);
       // 从其他页面返回，且 creationId 相同，需要强制刷新
       // 使用 invalidateQueries 会触发重新查询
       queryClient.invalidateQueries({ 
@@ -250,7 +240,6 @@ export default function CreateCreation() {
     const handleVisibilityChange = () => {
       // 当页面从隐藏变为可见时，强制刷新创作数据
       if (document.visibilityState === "visible" && pathname === `/${locale}/create`) {
-        console.log(`[Create Page] 页面从隐藏变为可见，强制刷新创作数据, creationId=${creationId}`);
         // invalidateQueries 会自动触发重新获取
         queryClient.invalidateQueries({ queryKey: ["creation", creationId] });
       }
@@ -314,7 +303,6 @@ export default function CreateCreation() {
     ) {
       const transformedData = transformCreationScenesToSceneGroups(curCreation.scenes);
       setStoryboardData(transformedData);
-      console.log("[Create Page] 从 curCreation.scenes 初始化分镜数据", transformedData);
     }
   }, [curCreation?.scenes, storyboardData.length, isGeneratingShots]);
 
@@ -343,8 +331,6 @@ export default function CreateCreation() {
           if (task) {
             const taskType = task.taskType;
             const taskStatus = task.status;
-            
-            console.log(`[Create Page] 恢复任务状态: taskType=${taskType}, status=${taskStatus}, creationStatus=${curCreation?.status}`);
             
             // 如果任务还在进行中，根据任务类型跳转到对应步骤
             if (taskStatus !== TaskStatus.SUCCESS && taskStatus !== TaskStatus.FAILURE) {
@@ -383,7 +369,6 @@ export default function CreateCreation() {
               // 如果状态是 CHARACTER_GENERATED 且有 current_task_id，即使任务类型不匹配，
               // 也假设是分镜生成任务（因为角色图生成后通常就是分镜生成）
               if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
-                console.log(`[Create Page] 状态是 CHARACTER_GENERATED 且有 current_task_id，假设是分镜生成任务，跳转到分镜步骤`);
                 setShotsTaskId(curCreation.current_task_id);
                 setIsGeneratingShots(true);
                 setCurrentStep(3);
@@ -402,7 +387,6 @@ export default function CreateCreation() {
               // 如果状态是 CHARACTER_GENERATED 且有 current_task_id，即使任务类型不匹配，
               // 也假设是分镜生成任务，跳转到分镜步骤查看结果
               if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
-                console.log(`[Create Page] 任务已完成，状态是 CHARACTER_GENERATED 且有 current_task_id，假设是分镜生成任务，跳转到分镜步骤`);
                 setShotsTaskId(curCreation.current_task_id);
                 setIsGeneratingShots(false);
                 setCurrentStep(3);
@@ -412,7 +396,6 @@ export default function CreateCreation() {
           } else {
             // 任务查询成功但返回的 task 为空，根据状态进行兜底处理
             if (curCreation?.status === CreationStatus.CHARACTER_GENERATED && curCreation?.current_task_id) {
-              console.log(`[Create Page] 任务查询成功但返回数据为空，状态是 CHARACTER_GENERATED 且有 current_task_id，假设是分镜生成任务，跳转到分镜步骤`);
               setShotsTaskId(curCreation.current_task_id);
               setIsGeneratingShots(true);
               setCurrentStep(3);
@@ -425,14 +408,12 @@ export default function CreateCreation() {
           if (curCreation?.current_task_id) {
             if (curCreation?.status === CreationStatus.CHARACTER_GENERATED) {
               // 状态是 CHARACTER_GENERATED 且有 current_task_id，很可能是分镜生成任务
-              console.log(`[Create Page] 查询任务失败，但状态是 CHARACTER_GENERATED 且有 current_task_id，跳转到分镜步骤`);
               setShotsTaskId(curCreation.current_task_id);
               setIsGeneratingShots(true);
               setCurrentStep(3);
               return;
             } else if (curCreation?.status === CreationStatus.CREATED) {
               // 状态是 CREATED 且有 current_task_id，很可能是初始分析任务
-              console.log(`[Create Page] 查询任务失败，但状态是 CREATED 且有 current_task_id，跳转到角色设置步骤`);
               setCurrentStep(1);
               return;
             }
@@ -446,7 +427,6 @@ export default function CreateCreation() {
           !curCreation?.current_task_id &&
           creationId &&
           !isResubmitting) {
-        console.log(`[Create Page] 状态为 CREATED 但没有分镜信息，重新提交创建任务`);
         setIsResubmitting(true);
         // 先跳转到角色设置步骤，显示分析进度
         setCurrentStep(1);
@@ -510,7 +490,6 @@ export default function CreateCreation() {
           // 这种情况应该已经在上面处理了，如果没有处理到，说明任务查询失败或任务类型不匹配
           // 作为兜底，如果有 current_task_id，假设是分镜生成任务，跳转到分镜步骤
           if (curCreation?.current_task_id) {
-            console.log(`[Create Page] 状态是 CHARACTER_GENERATED 且有 current_task_id，但上面的处理没有匹配，作为兜底跳转到分镜步骤`);
             setShotsTaskId(curCreation.current_task_id);
             setIsGeneratingShots(true);
             setCurrentStep(3);
@@ -613,7 +592,6 @@ export default function CreateCreation() {
     // 检查所有分镜是否都有图片
     if (checkAllShotsHaveImages()) {
       // 如果所有分镜都有图片，直接进入下一步，不提交生成请求
-      console.log("[Create Page] 所有分镜都有图片，直接进入下一步");
       nextStep();
     } else {
       // 如果有分镜没有图片，提交生成分镜图请求
@@ -622,12 +600,10 @@ export default function CreateCreation() {
   }, [checkAllShotsHaveImages, handleGenerateShots, nextStep]);
 
   const handleStepChange = (stepIndex: number, step: ProgressStep) => {
-    console.log(`切换到步骤 ${stepIndex}:`, step.title);
     setCurrentStep(stepIndex);
   };
 
   const handleComplete = () => {
-    console.log("所有步骤完成！");
     // 这里可以添加完成后的逻辑，比如跳转到结果页面
   };
 

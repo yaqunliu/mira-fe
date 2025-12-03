@@ -576,16 +576,6 @@ export default function NovelDetailPage() {
     );
   };
 
-  // 调试信息（开发环境）
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Novel Detail Page Debug:', {
-      novelId,
-      isLoading,
-      error,
-      novelResponse,
-      novel,
-    });
-  }
 
   if (error) {
     return (
