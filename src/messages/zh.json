@@ -73,7 +73,9 @@
     "duration": "时长",
     "noVideos": "暂无视频，点击制作第一个视频",
     "startCreating": "开始制作",
-    "noNovelsEmpty": "暂无小说，点击上传第一本小说"
+    "noNovelsEmpty": "暂无小说，点击上传第一本小说",
+    "dailyCheckin": "每日签到",
+    "checkinDescription": "每日签到可获得积分奖励"
   },
   "createVideo": {
     "createAnimation": "制作动画",
@@ -129,11 +131,13 @@
     "analyzingCharacterInfo": "角色信息分析中...",
     "generatingCharacterImage": "角色形象生成中...",
     "taskIdNotFound": "未获取到任务ID",
-    "next": "下一步"
+    "next": "下一步",
+    "pleaseGenerateAllCharacterImages": "请先生成所有角色的形象图才能进入下一步。未生成的角色：{characters}"
   },
   "user": {
     "userMenu": "用户菜单",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "pointsRecords": "积分记录"
   },
   "novelDetail": {
     "bookDetails": "书籍详情",
@@ -156,7 +160,19 @@
     "uploadedOn": "上传于",
     "characterLibrary": "角色库",
     "relatedCreations": "关联创作",
-    "loadFailed": "加载失败..."
+    "loadFailed": "加载失败...",
+    "editTitle": "编辑标题",
+    "save": "保存",
+    "cancel": "取消",
+    "editNovelTitle": "编辑小说标题",
+    "editChapterTitle": "编辑章节标题",
+    "updateSuccess": "更新成功",
+    "updateFailed": "更新失败",
+    "preview": "预览",
+    "deleteChapter": "删除章节",
+    "deleteChapterConfirm": "确定要删除章节「{title}」吗？删除章节会同时删除章节关联的创作，删除后无法恢复。",
+    "deleteChapterSuccess": "章节删除成功",
+    "deleteChapterFailed": "章节删除失败"
   },
   "novel": {
     "title": "小说",
@@ -185,6 +201,8 @@
     "delete": "删除",
     "loadingFailed": "加载小说列表失败，请稍后重试。",
     "noNovelsDescription": "开始上传小说进行视频创作吧",
+    "noSearchResults": "没有找到匹配的小说",
+    "noSearchResultsDescription": "请尝试使用其他关键词搜索",
     "pageInfo": "第 {current} 页 / 共 {total} 页",
     "totalNovels": "共 {total} 本小说",
     "previousPage": "上一页",
@@ -205,6 +223,8 @@
     "loadingFailed": "加载创作列表失败，请稍后重试。",
     "noCreations": "还没有创作",
     "noCreationsDescription": "点击开始创作，从小说中创作视频",
+    "noSearchResults": "没有找到匹配的创作",
+    "noSearchResultsDescription": "请尝试使用其他关键词搜索",
     "pageInfo": "第 {current} 页 / 共 {total} 页",
     "totalCreations": "共 {total} 个创作",
     "previousPage": "上一页",
@@ -215,7 +235,8 @@
     "shotsGenerationError": "分镜生成失败，请重试",
     "creationIdNotFound": "创作ID不存在",
     "taskIdNotFound": "未能获取任务ID",
-    "queryTaskFailed": "查询任务状态失败，请刷新页面重试"
+    "queryTaskFailed": "查询任务状态失败，请刷新页面重试",
+    "characterAnalysisStart": "角色分析已开始"
   },
   "video": {
     "title": "视频",
@@ -307,5 +328,59 @@
     "zh": "中文",
     "en": "English",
     "ja": "日本語"
+  },
+  "points": {
+    "title": "积分中心",
+    "balance": "积分余额",
+    "availablePoints": "可用积分",
+    "totalPoints": "总积分",
+    "todayConsumed": "今日消耗",
+    "monthConsumed": "本月消耗",
+    "expiringSoon": "即将过期",
+    "statistics": "统计信息",
+    "totalEarned": "总获得",
+    "totalConsumed": "总消耗",
+    "records": "积分记录",
+    "allRecordTypes": "全部类型",
+    "allOperations": "全部操作",
+    "allRecords": "全部记录",
+    "earnedRecords": "获得记录",
+    "consumedRecords": "消耗记录",
+    "checkinRecords": "签到记录",
+    "registerReward": "注册奖励",
+    "noRecords": "暂无记录",
+    "balanceAfter": "余额",
+    "expiresAt": "过期时间",
+    "dailyCheckinPoints": "每日签到积分",
+    "unknown": "未知",
+    "viewDetails": "查看详情",
+    "back": "返回",
+    "checkin": "签到",
+    "checkedIn": "已签到",
+    "checkinSuccess": "签到成功！获得 {points} 积分",
+    "alreadyCheckedIn": "今日已签到，请明天再来",
+    "checkinFailed": "签到失败，请稍后重试",
+    "recordType": {
+      "consume": "消耗",
+      "recharge": "充值",
+      "reward": "奖励",
+      "refund": "退款",
+      "expire": "过期",
+      "checkin": "签到"
+    },
+    "operation": {
+      "create_creation": "创建创作",
+      "generate_character": "生成角色",
+      "generate_shot": "生成分镜",
+      "generate_audio": "生成音频",
+      "generate_video": "生成视频",
+      "upload_novel": "上传小说",
+      "llm_call": "大模型调用",
+      "register": "注册奖励",
+      "daily_checkin": "每日签到",
+      "test_add_points": "测试添加",
+      "temporary_points_expire": "临时积分过期"
+    },
+    "insufficientPoints": "积分不足"
   }
 }

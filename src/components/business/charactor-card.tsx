@@ -28,12 +28,23 @@ function CharactorCard({
     setPreviewImage(imageUrl);
   };
 
+  // 兼容两种数据结构：API返回的数据和mock数据
+  const char = character as any;
+  const characterId = char.character_id || char.characterId || "";
+  const basicInfo = char.basic_info || char.basicInfo || "";
+  const appearance = char.appearance || char.featureDescription?.appearance || "";
+  const body = char.body || char.featureDescription?.body || "";
+  const hair = char.hair || char.featureDescription?.hair || "";
+  const clothing = char.clothing || char.featureDescription?.clothing || "";
+  const tags = char.tags || char.featureDescription?.tags || [];
+  const imageUrl = char.image_url || char.characterImage || "";
+
   const handleRegenerateImage = () => {
-    onRegenerateImage?.(character?.characterId || "");
+    onRegenerateImage?.(characterId);
   };
 
   return (
-    <div className="flex flex-col flex-shrink-0" key={character.characterId}>
+    <div className="flex flex-col flex-shrink-0" key={characterId}>
       <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-b from-orange-400/50 to-gray-600/30 rounded-t tracking-wider font-bold flex items-center gap-1">
         <span>{character.name}</span>
       </div>
@@ -41,18 +52,18 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2 w-[66px]">
-              {tFunc("character.basicInfo")}
+              {t("character.basicInfo")}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                {character.basicInfo}
+                {basicInfo}
               </p>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
               <DropdownMenuItem className="whitespace-pre-line">
-                {character.basicInfo}
+                {basicInfo}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -61,18 +72,18 @@ function CharactorCard({
         <div className="flex gap-2 items-start">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {tFunc("character.appearanceFeatures")}
+              {t("character.appearanceFeatures")}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                {character.featureDescription.appearance}
+                {appearance}
               </p>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
               <DropdownMenuItem className="whitespace-pre-line">
-                {character.featureDescription.appearance}
+                {appearance}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -81,18 +92,18 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {tFunc("character.bodyFeatures")}
+              {t("character.bodyFeatures")}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                {character.featureDescription.body}
+                {body}
               </p>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
               <DropdownMenuItem className="whitespace-pre-line">
-                {character.featureDescription.body}
+                {body}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -101,18 +112,18 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {tFunc("character.hair")}
+              {t("character.hair")}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                {character.featureDescription.hair}
+                {hair}
               </p>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
               <DropdownMenuItem className="whitespace-pre-line">
-                {character.featureDescription.hair}
+                {hair}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -121,18 +132,18 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {tFunc("character.clothing")}
+              {t("character.clothing")}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                {character.featureDescription.clothing}
+                {clothing}
               </p>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
               <DropdownMenuItem className="whitespace-pre-line">
-                {character.featureDescription.clothing}
+                {clothing}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -141,31 +152,31 @@ function CharactorCard({
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2">
-              {tFunc("character.featureTags")}
+              {t("character.featureTags")}
             </Badge>
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                {character.featureDescription.tags.join(", ")}
+                {Array.isArray(tags) ? tags.join(", ") : tags}
               </p>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
               <DropdownMenuItem className="whitespace-pre-line">
-                {character.featureDescription.tags.join(", ")}
+                {Array.isArray(tags) ? tags.join(", ") : tags}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
         <div className="flex justify-center">
-          {character.characterImage ? (
+          {imageUrl ? (
             <div className="relative">
               <img
-                src={character.characterImage}
+                src={imageUrl}
                 alt={character.name}
                 className="w-42 object-cover rounded cursor-pointer hover:opacity-90 transition-opacity"
-                onClick={() => handleImageClick(character.characterImage)}
+                onClick={() => handleImageClick(imageUrl)}
               />
               {/* 重新生成按钮 */}
               <div className={cn("absolute bottom-2 flex w-full px-2", canRegenerateImage ? "justify-between" : "justify-end")}>
@@ -174,7 +185,7 @@ function CharactorCard({
                     "py-1 px-2 bg-black/40 hover:bg-black/50 text-white border-0 shadow-lg rounded-full",
                     "flex items-center justify-center"
                   )}
-                  onClick={() => handleImageClick(character.characterImage)}
+                  onClick={() => handleImageClick(imageUrl)}
                 >
                   <Maximize2 className="w-3 h-3" />
                 </div>
@@ -186,7 +197,7 @@ function CharactorCard({
                   onClick={() => handleRegenerateImage()}
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span className="text-xs">{tFunc("character.regenerate")}</span>
+                  <span className="text-xs">{t("character.regenerate")}</span>
                 </div>)}
               </div>
             </div>
@@ -194,7 +205,7 @@ function CharactorCard({
             <div className="flex justify-center">
               <div className="flex justify-center items-center w-[150px] aspect-[3/4] rounded-lg bg-slate-200 dark:bg-zinc-700">
                 <span className="text-sm tracking-wider font-bold text-secondary">
-                  {tFunc("character.characterImage")}
+                  {t("character.characterImage")}
                 </span>
               </div>
             </div>

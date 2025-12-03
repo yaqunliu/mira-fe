@@ -119,13 +119,11 @@ export function BottomSheet({
   React.useEffect(() => {
     if (!open) return;
     const initViewportHeight = window.visualViewport?.height || window.innerHeight;
-    console.log('initViewportHeight', initViewportHeight);
 
     const handleViewportResize = () => {
       if (typeof window !== "undefined" && "visualViewport" in window && window.visualViewport) {
         const viewport = window.visualViewport;
         const newKeyboardHeight = initViewportHeight - viewport.height;
-        console.log('newKeyboardHeight', newKeyboardHeight, viewport.height, initViewportHeight);
         
         // 只有当键盘高度大于阈值时才应用
         if (newKeyboardHeight > 100) {

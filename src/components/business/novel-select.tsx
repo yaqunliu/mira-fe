@@ -80,6 +80,10 @@ export function NovelSelect({
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const novelsPerPage = 3;
+  // 章节分页状态
+  const [chapterPage, setChapterPage] = useState(1);
+  const [chapterPageInput, setChapterPageInput] = useState("");
+  const chapterPageSize = 10;
 
   const {
     data: novelsResponse,
@@ -93,12 +97,44 @@ export function NovelSelect({
   // 当前显示的小说（固定小说或选中的小说）
   const currentNovel = fixedNovel || selectedNovel;
 
+  // 通过API获取章节列表（如果传入了chapters则使用传入的，否则通过API获取）
+  const {
+    data: chaptersResponse,
+    isLoading: isChaptersLoading,
+  } = useQuery({
+    queryKey: ["chapters", currentNovel?.novel_id, chapterPage, chapterPageSize],
+    queryFn: () => novelApi.getChapters(currentNovel!.novel_id, { page: chapterPage, page_size: chapterPageSize }),
+    enabled: !!currentNovel?.novel_id && !chapters,
+  });
+
   // 当前显示的章节列表
   const currentChapters = useMemo(() => {
     if (chapters) return chapters;
-    if (currentNovel?.chapters) return currentNovel.chapters;
+    // 从API响应中提取章节数据
+    if (chaptersResponse) {
+      const chaptersData = chaptersResponse as any;
+      return (
+        chaptersData?.data?.data ||
+        chaptersData?.data?.items ||
+        chaptersData?.data ||
+        chaptersData?.items ||
+        (Array.isArray(chaptersData) ? chaptersData : [])
+      );
+    }
     return [];
-  }, [chapters, currentNovel]);
+  }, [chapters, chaptersResponse]);
+
+  // 章节分页信息
+  const chaptersTotal = useMemo(() => {
+    if (chapters) return chapters.length;
+    if (chaptersResponse) {
+      const chaptersData = chaptersResponse as any;
+      return chaptersData?.data?.total || chaptersData?.total || currentChapters.length;
+    }
+    return 0;
+  }, [chapters, chaptersResponse, currentChapters.length]);
+
+  const chaptersTotalPages = Math.ceil(chaptersTotal / chapterPageSize);
 
   // 过滤后的章节列表
   const filteredChapters = useMemo(() => {
@@ -453,6 +489,82 @@ export function NovelSelect({
             </div>
           </ScrollArea>
         </CardContent>
+        {/* 章节分页控件 */}
+        {!chapters && chaptersTotalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 p-3 border-t border-gray-500/20">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setChapterPage((p) => Math.max(1, p - 1));
+                setChapterPageInput("");
+              }}
+              disabled={chapterPage <= 1 || isChaptersLoading}
+              className="h-7 w-7 p-0"
+            >
+              <ChevronLeft className="w-3 h-3" />
+            </Button>
+            
+            <div className="flex items-center gap-1">
+              <span className="text-xs text-muted-foreground">
+                {chapterPage} / {chaptersTotalPages}
+              </span>
+              <Input
+                type="number"
+                min={1}
+                max={chaptersTotalPages}
+                value={chapterPageInput}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === "" || (Number(value) >= 1 && Number(value) <= chaptersTotalPages)) {
+                    setChapterPageInput(value);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && chapterPageInput) {
+                    const page = Number(chapterPageInput);
+                    if (page >= 1 && page <= chaptersTotalPages) {
+                      setChapterPage(page);
+                      setChapterPageInput("");
+                    }
+                  }
+                }}
+                placeholder={String(chapterPage)}
+                className="w-16 h-7 text-center text-xs"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (chapterPageInput) {
+                    const page = Number(chapterPageInput);
+                    if (page >= 1 && page <= chaptersTotalPages) {
+                      setChapterPage(page);
+                      setChapterPageInput("");
+                    }
+                  }
+                }}
+                disabled={!chapterPageInput || isChaptersLoading}
+                className="h-7 text-xs px-2"
+              >
+                跳转
+              </Button>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setChapterPage((p) => Math.min(chaptersTotalPages, p + 1));
+                setChapterPageInput("");
+              }}
+              disabled={chapterPage >= chaptersTotalPages || isChaptersLoading}
+              className="h-7 w-7 p-0"
+            >
+              <ChevronRight className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
       </Card>
     );
   };

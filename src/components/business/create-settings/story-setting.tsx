@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -13,16 +13,22 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import creationApi from "@/lib/api/creation";
 import { toast } from "sonner";
 import { CreationStatus } from "@/types/creation";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useTaskSubmission } from "@/hooks/use-task-submission";
+import { novelApi } from "@/lib/api/novel";
 
 export function StorySetting() {
   const t = useTranslations("");
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const locale = params?.locale as string;
+  const novelIdFromUrl = searchParams?.get("novel") || "";
+  const chapterIdFromUrl = searchParams?.get("chapter") || "";
   const [selectedNovel, setSelectedNovel] = useState<Novel | null>(null);
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([]);
   const [creationId, setCreationId] = useState<string | null>(null);
+  const [isLoadingFromUrl, setIsLoadingFromUrl] = useState(false);
   const {data: creation, isLoading} = useQuery({
     queryKey: ["creation", creationId],
     queryFn: () => creationApi.queryCreationById(creationId as string),
@@ -34,6 +40,57 @@ export function StorySetting() {
       return 2000;
     },
   });
+
+  // 从URL参数加载小说和章节
+  const { data: novelFromUrl } = useQuery({
+    queryKey: ["novel", novelIdFromUrl],
+    queryFn: () => novelApi.getNovel(novelIdFromUrl),
+    enabled: !!novelIdFromUrl && !selectedNovel,
+  });
+
+  // 当从URL加载到小说数据时，自动选中
+  useEffect(() => {
+    if (novelIdFromUrl && novelFromUrl && !selectedNovel) {
+      const novelData = (novelFromUrl as any)?.data?.data || (novelFromUrl as any)?.data;
+      if (novelData) {
+        setSelectedNovel(novelData as Novel);
+        setIsLoadingFromUrl(true);
+      }
+    }
+  }, [novelIdFromUrl, novelFromUrl, selectedNovel]);
+
+  // 当小说选中后，自动选中章节
+  useEffect(() => {
+    if (selectedNovel && chapterIdFromUrl && selectedChapters.length === 0) {
+      const chapters = (selectedNovel as any)?.chapters || [];
+      const targetChapter = chapters.find((chapter: Chapter) => {
+        const id = String((chapter as any).chapter_id || chapter.chapter_id || "");
+        return id === String(chapterIdFromUrl);
+      });
+      
+      if (targetChapter) {
+        setSelectedChapters([targetChapter]);
+        setIsLoadingFromUrl(false);
+      } else {
+        // 如果小说数据中没有章节，尝试从API获取
+        novelApi.getChapters(selectedNovel.novel_id).then((response: any) => {
+          const chaptersData = response?.data?.data || response?.data || [];
+          const targetChapter = chaptersData.find((chapter: any) => {
+            const id = String(chapter.chapter_id || chapter.chapterId || "");
+            return id === String(chapterIdFromUrl);
+          });
+          if (targetChapter) {
+            setSelectedChapters([targetChapter]);
+          }
+          setIsLoadingFromUrl(false);
+        }).catch(() => {
+          setIsLoadingFromUrl(false);
+        });
+      }
+    } else if (!chapterIdFromUrl) {
+      setIsLoadingFromUrl(false);
+    }
+  }, [selectedNovel, chapterIdFromUrl, selectedChapters.length]);
 
   useEffect(() => {
     if (creation?.data?.status === CreationStatus.CREATED) {
@@ -56,7 +113,6 @@ export function StorySetting() {
       creationApi.createCreation({ novelId, chapterId: chapterIds[0] }),
     onSuccess: (response: any) => {
       toast.success(t("creation.shotsGenerationStart"));
-      console.log("ICreation response:", response);
       setCreationId(response?.data?.creation_id || response);
     },
     onError: (error: Error) => {
@@ -65,24 +121,77 @@ export function StorySetting() {
     },
   });
 
-  const analyseContent = () => {
+  // 分析内容的内部函数
+  const analyseContentInternal = useCallback(async () => {
     // 验证是否选择了小说和章节
     if (!selectedNovel) {
       toast.error(t("novel.noNovels"));
-      return;
+      throw new Error(t("novel.noNovels"));
     }
 
     if (selectedChapters.length === 0) {
       toast.error(t("novel.chapters"));
-      return;
+      throw new Error(t("novel.chapters"));
+    }
+
+    const chapterId = selectedChapters[0].chapter_id;
+
+    // 先检查该章节是否已有创作
+    try {
+      const existingCreation = await creationApi.queryCreationByChapterId(chapterId);
+      if (existingCreation?.data) {
+        // 如果已有创作，直接跳转到该创作
+        router.replace(`/${locale}/create?creationId=${existingCreation.data.creation_id}`);
+        return; // 直接返回，不创建新创作
+      }
+    } catch (error) {
+      // 查询失败不影响创建流程，继续创建新创作
+      // 静默处理，不输出错误日志
+    }
+
+    // 检查LLM调用积分（创建创作会触发LLM调用生成剧本）
+    const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+    const pointsAvailable = await checkAndNotifyPoints(
+      {
+        operation_type: 'llm_call',
+        model_name: 'Qwen/Qwen-Plus',
+        estimated_prompt_tokens: 5000,
+        estimated_completion_tokens: 10000,
+      },
+      t
+    )
+
+    if (!pointsAvailable) {
+      throw new Error('积分不足')
     }
 
     // 调用创建接口
-    createCreationMutation.mutate({
-      novelId: selectedNovel.novel_id,
-      chapterIds: selectedChapters.map((chapter) => chapter.chapter_id),
+    return new Promise<void>((resolve, reject) => {
+      createCreationMutation.mutate(
+        {
+          novelId: selectedNovel.novel_id,
+          chapterIds: selectedChapters.map((chapter) => chapter.chapter_id),
+        },
+        {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error),
+        }
+      );
     });
-  };
+  }, [selectedNovel, selectedChapters, t, createCreationMutation, router, locale]);
+
+  // 使用任务提交 hook 包装分析函数
+  const { submit: analyseContent, isSubmitting: isSubmittingAnalysis } = useTaskSubmission(
+    analyseContentInternal,
+    {
+      debounceDelay: 500,
+      enableDebounce: true,
+      onError: (error) => {
+        console.error('积分检查失败:', error);
+        // 错误已经在 analyseContentInternal 中处理了
+      },
+    }
+  );
 
   const handleResetNovel = () => {
     setSelectedNovel(null);
@@ -133,11 +242,11 @@ export function StorySetting() {
                       <Button
                         variant="default"
                         size="lg"
-                        onClick={analyseContent}
-                        disabled={createCreationMutation.isPending || isLoading}
+                        onClick={() => analyseContent()}
+                        disabled={createCreationMutation.isPending || isLoading || isSubmittingAnalysis}
                         className="bg-primary"
                       >
-                        {createCreationMutation.isPending || isLoading ? t("createVideo.analyzingContent") : t("createVideo.next")}
+                        {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.next")}
                         <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
                     </div>

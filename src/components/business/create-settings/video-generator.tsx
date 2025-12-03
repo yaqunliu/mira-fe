@@ -37,6 +37,7 @@ import type { VoiceItem } from "@/types/voice";
 import { TaskStatus } from "@/types";
 import { CreationStatus } from "@/types/creation";
 import { useTranslations } from "next-intl";
+import { useTaskSubmission } from "@/hooks/use-task-submission";
 
 interface VideoGeneratorProps {
   creationId: string;
@@ -113,16 +114,24 @@ export function VideoGenerator({
   // 重新生成对话框状态
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
   const [forceRegenerateAudio, setForceRegenerateAudio] = useState(false);
+  
+  // 标记是否正在手动触发生成（防止 useEffect 重置 stage）
+  const isManuallyGeneratingRef = useRef(false);
 
   // 根据 creation 状态初始化组件阶段
+  // 注意：如果 stage 已经是 "generating" 或正在手动生成，不要重置它
   useEffect(() => {
+    // 如果正在手动生成中，不要重置 stage（避免打断用户操作）
+    if (isManuallyGeneratingRef.current || stage === "generating") {
+      return;
+    }
+
     // 优先检查是否有正在执行的任务（从props传入的currentTaskId）
     // 有 currentTaskId 说明有任务正在进行，无论 status 是什么都应该恢复轮询
     // 即使有 initialVideoUrl，如果有任务ID，说明还在生成中，应该继续轮询任务状态
     if (currentTaskId) {
       setTaskId(currentTaskId);
       setStage("generating");
-      console.log(`[VideoGenerator] 恢复任务轮询: taskId=${currentTaskId}`);
       // 即使有初始URL，也先设置，但保持生成状态
       if (initialAudioUrl) setAudioUrl(initialAudioUrl);
       if (initialVideoUrl) setVideoUrl(initialVideoUrl);
@@ -158,15 +167,13 @@ export function VideoGenerator({
         setStage("idle");
         break;
     }
-  }, [creationStatus, initialAudioUrl, initialVideoUrl, currentTaskId]);
+  }, [creationStatus, initialAudioUrl, initialVideoUrl, currentTaskId, stage]);
 
   // 获取creation数据，用于获取voice_id和current_task_id
   const { data: creationData, refetch: refetchCreation } = useQuery({
     queryKey: ["creation", creationId, "voice"],
     queryFn: async () => {
-      console.log(`[VideoGenerator] 获取creation数据: ${creationId}`);
       const response = await creationApi.queryCreationById(creationId);
-      console.log(`[VideoGenerator] creation数据:`, response?.data);
       return response?.data;
     },
     enabled: !!creationId,
@@ -187,7 +194,6 @@ export function VideoGenerator({
     
     // 如果creation数据中有current_task_id，且当前没有设置taskId或stage不是generating，则恢复轮询
     if (taskIdFromCreation && (!taskId || stage !== "generating")) {
-      console.log(`[VideoGenerator] 检测到任务ID，恢复轮询: taskId=${taskIdFromCreation}`);
       setTaskId(taskIdFromCreation);
       setStage("generating");
       // 如果有音频或视频URL，也设置一下
@@ -202,8 +208,6 @@ export function VideoGenerator({
 
   // 自动加载并显示上次使用的语音信息和语速
   useEffect(() => {
-    console.log(`[VideoGenerator] useEffect触发 - stage: ${stage}, voice_id: ${creationData?.voice_id}, selectedVoiceId: ${selectedVoiceId}`);
-    
     // 加载已保存的语速
     if (creationData?.voice_speed !== undefined && creationData.voice_speed !== null) {
       setVoiceSpeed(creationData.voice_speed);
@@ -212,40 +216,29 @@ export function VideoGenerator({
     // 在idle或selecting阶段，如果creation数据中有voice_id，就加载并显示
     if ((stage === "idle" || stage === "selecting") && creationData?.voice_id) {
       const voiceId = creationData.voice_id;
-      console.log(`[VideoGenerator] 找到voice_id: ${voiceId}`);
       
       // 从URL中提取voice_id（如果格式是 /api/v1/voices/xxx）
       const extractedVoiceId = voiceId.includes('/api/v1/voices/') 
         ? voiceId.replace('/api/v1/voices/', '')
         : voiceId;
       
-      console.log(`[VideoGenerator] 提取的voice_id: ${extractedVoiceId}`);
-      
       // 如果已经选中了相同的语音且已经有详情，就不重复加载
       if (selectedVoiceId === extractedVoiceId && selectedVoice?.id === extractedVoiceId) {
-        console.log(`[VideoGenerator] 语音已加载，跳过`);
         return;
       }
       
-      console.log(`[VideoGenerator] 开始获取语音详情: ${extractedVoiceId}`);
       // 获取语音详情并显示
       voiceApi.getVoiceDetail(extractedVoiceId)
         .then((voice) => {
-          console.log(`[VideoGenerator] 语音详情获取成功:`, voice);
           if (voice && voice.id) {
             setSelectedVoiceId(voice.id);
             setSelectedVoice(voice);
-            console.log(`[VideoGenerator] 加载上次使用的语音: ${voice.title}`);
-          } else {
-            console.error(`[VideoGenerator] 语音数据格式错误:`, voice);
           }
         })
         .catch((error) => {
           console.error("获取语音详情失败:", error);
           // 失败时不影响用户手动选择
         });
-    } else if ((stage === "idle" || stage === "selecting") && !creationData?.voice_id) {
-      console.log(`[VideoGenerator] 没有找到voice_id`);
     }
   }, [creationData?.voice_id, creationData?.voice_speed, stage, selectedVoiceId, selectedVoice]);
 
@@ -303,11 +296,15 @@ export function VideoGenerator({
 
       const status = query.state.data?.status;
       if (status === TaskStatus.SUCCESS) {
-        // 任务成功，重新获取创作数据以拿到最新的音视频 URL
-        fetchLatestCreationData();
-        return false;
+      // 任务成功，重新获取创作数据以拿到最新的音视频 URL
+      // 重置手动生成标记
+      isManuallyGeneratingRef.current = false;
+      fetchLatestCreationData();
+      return false;
       }
       if (status === TaskStatus.FAILURE) {
+        // 重置手动生成标记
+        isManuallyGeneratingRef.current = false;
         setStage("failed");
         setErrorMessage(query.state.data?.error || t("video.generationFailedRetry"));
         toast.error(t("video.generationFailedRetry"));
@@ -324,74 +321,168 @@ export function VideoGenerator({
     }
   }, [taskData]);
 
-  // 开始生成
-  const handleStartGeneration = async () => {
+  // 开始生成的内部函数
+  const startGenerationInternal = useCallback(async () => {
     if (!selectedVoiceId || !creationId) {
       toast.error(t("video.selectVoice"));
-      return;
+      throw new Error(t("video.selectVoice"));
+    }
+
+    // 检查音频生成积分
+    // 从创作数据中获取所有旁白文本并计算字节数
+    let totalTextBytes = 0
+    if (creationData?.scenes) {
+      const encoder = new TextEncoder()
+      creationData.scenes.forEach((scene) => {
+        scene.shots?.forEach((shot) => {
+          if (shot.narration) {
+            totalTextBytes += encoder.encode(shot.narration).length
+          }
+        })
+      })
+    }
+    
+    // 如果没有旁白文本，使用默认估算值
+    if (totalTextBytes === 0) {
+      totalTextBytes = 5000
+    }
+    
+    const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+    const pointsAvailable = await checkAndNotifyPoints(
+      {
+        operation_type: 'generate_audio',
+        text_bytes: totalTextBytes,
+      },
+      t
+    )
+
+    if (!pointsAvailable) {
+      throw new Error('积分不足')
     }
 
     setStage("generating");
     setErrorMessage(null);
     setProgress(null);
 
-    try {
-      toast.info(t("video.audioGenerationStart"));
-      const response = await creationApi.selectVoiceAndGenerateAudio(
-        creationId,
-        selectedVoiceId,
-        voiceSpeed,
-        forceRegenerateAudio
-      );
-      const newTaskId = response?.data?.task_id;
+    toast.info(t("video.audioGenerationStart"));
+    const response = await creationApi.selectVoiceAndGenerateAudio(
+      creationId,
+      selectedVoiceId,
+      voiceSpeed,
+      forceRegenerateAudio
+    );
+    const newTaskId = response?.data?.task_id;
 
-      if (newTaskId) {
-        setTaskId(newTaskId);
-        // 重置强制重新生成标志
-        setForceRegenerateAudio(false);
-      } else {
-        throw new Error(t("creation.taskIdNotFound"));
-      }
-    } catch (error) {
-      console.error("启动生成任务失败:", error);
-      setStage("failed");
-      setErrorMessage(error instanceof Error ? error.message : t("video.generationFailedRetry"));
-      toast.error(error instanceof Error ? error.message : t("video.generationFailedRetry"));
+    if (newTaskId) {
+      setTaskId(newTaskId);
+      // 重置强制重新生成标志
+      setForceRegenerateAudio(false);
+      // 任务已成功启动，重置手动生成标记（之后通过 taskId 管理状态）
+      isManuallyGeneratingRef.current = false;
+    } else {
+      // 任务启动失败，重置手动生成标记
+      isManuallyGeneratingRef.current = false;
+      throw new Error(t("creation.taskIdNotFound"));
     }
-  };
+  }, [selectedVoiceId, creationId, creationData, voiceSpeed, forceRegenerateAudio, t]);
+
+  // 使用任务提交 hook 包装生成函数
+  const { submit: handleStartGeneration, isSubmitting: isSubmittingGeneration } = useTaskSubmission(
+    startGenerationInternal,
+    {
+      debounceDelay: 500,
+      enableDebounce: true,
+      onError: (error) => {
+        console.error("启动生成任务失败:", error);
+        // 重置手动生成标记
+        isManuallyGeneratingRef.current = false;
+        setStage("failed");
+        setErrorMessage(error.message || t("video.generationFailedRetry"));
+        toast.error(error.message || t("video.generationFailedRetry"));
+      },
+    }
+  );
 
   // 重试生成（重新生成时弹出对话框询问是否重新生成音频）
   const handleRetry = () => {
-    console.log(`[VideoGenerator] handleRetry 被调用`);
     setShowRegenerateDialog(true);
   };
 
-  // 确认重新生成（不重新生成音频）
+  // 确认重新生成（只重新生成视频，不重新生成音频）
   const handleConfirmRegenerate = async () => {
     setShowRegenerateDialog(false);
     setForceRegenerateAudio(false);
     
-    // 如果有已选择的语音，直接重新生成，不跳转
-    if (selectedVoiceId) {
-      // 重置状态但保持语音选择
-      setTaskId(null);
-      setProgress(null);
-      setErrorMessage(null);
-      setAudioUrl(null);
-      setVideoUrl(null);
-      // 直接调用生成函数
-      await handleStartGeneration();
-    } else {
-      // 没有已选择的语音，跳转到选择界面
-      setStage("idle");
-      setTaskId(null);
-      setProgress(null);
-      setErrorMessage(null);
-      setAudioUrl(null);
-      setVideoUrl(null);
-      // 强制重新获取creation数据，以便获取最新的voice_id
-      await new Promise(resolve => setTimeout(resolve, 50));
-      refetchCreation();
+    // 重置状态
+    setTaskId(null);
+    setProgress(null);
+    setErrorMessage(null);
+    setAudioUrl(null);
+    setVideoUrl(null);
+    
+    // 获取创作数据（如果还没有，使用快速接口获取）
+    let currentCreationData = creationData;
+    if (!currentCreationData && creationId) {
+      try {
+        const response = await creationApi.queryCreationSimple(creationId);
+        currentCreationData = response?.data;
+      } catch (error) {
+        console.error("获取创作数据失败:", error);
+        toast.error("获取创作信息失败");
+        return;
+      }
+    }
+    
+    // 从创作信息中获取 voice_id 和 voice_speed
+    if (!currentCreationData?.voice_id) {
+      toast.error("创作信息中没有语音ID");
+      return;
+    }
+    
+    const voiceId = currentCreationData.voice_id;
+    // 从URL中提取voice_id（如果格式是 /api/v1/voices/xxx）
+    const voiceIdToUse = voiceId.includes('/api/v1/voices/') 
+      ? voiceId.replace('/api/v1/voices/', '')
+      : voiceId;
+    
+    const voiceSpeedToUse = currentCreationData.voice_speed ?? 1;
+    
+    // 设置语音和语速
+    setSelectedVoiceId(voiceIdToUse);
+    setVoiceSpeed(voiceSpeedToUse);
+    
+    // 标记正在手动生成，防止 useEffect 重置 stage
+    isManuallyGeneratingRef.current = true;
+    
+    // 立即设置生成状态，直接显示生成界面
+    setStage("generating");
+    setErrorMessage(null);
+    setProgress(null);
+    
+    // 直接调用 select-voice 接口（forceRegenerateAudio = false 表示不重新生成音频）
+    try {
+      toast.info(t("video.audioGenerationStart"));
+      const response = await creationApi.selectVoiceAndGenerateAudio(
+        creationId,
+        voiceIdToUse,
+        voiceSpeedToUse,
+        false // forceRegenerateAudio = false，不重新生成音频
+      );
+      
+      const newTaskId = response?.data?.task_id;
+      if (newTaskId) {
+        setTaskId(newTaskId);
+        // 任务已成功启动，重置手动生成标记（之后通过 taskId 管理状态）
+        isManuallyGeneratingRef.current = false;
+      } else {
+        throw new Error(t("creation.taskIdNotFound"));
+      }
+    } catch (error) {
+      // 如果生成失败，重置标记和状态
+      isManuallyGeneratingRef.current = false;
+      setStage("failed");
+      setErrorMessage(error instanceof Error ? error.message : t("video.generationFailedRetry"));
+      toast.error(error instanceof Error ? error.message : t("video.generationFailedRetry"));
     }
   };
 
@@ -710,8 +801,8 @@ export function VideoGenerator({
           <div className="px-6 py-4">
             <div className="flex items-center justify-center">
               <Button
-                onClick={handleStartGeneration}
-                disabled={!selectedVoiceId}
+                onClick={() => handleStartGeneration()}
+                disabled={isSubmittingGeneration || !selectedVoiceId}
                 className="bg-orange-400/80 hover:bg-orange-600 text-white px-8 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
               >
                 {t("video.startGenerationButton")}

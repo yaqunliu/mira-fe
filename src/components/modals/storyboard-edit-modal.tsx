@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -27,9 +28,10 @@ import { PencilLine, Save, X } from "lucide-react";
 import { StoryboardItem as StoryboardItemType } from "@/types";
 import { toast } from "sonner";
 import { IShot } from "@/types/scene";
+import shotApi from "@/lib/api/shot";
 
 const editStoryboardSchema = z.object({
-  description: z.string().min(1, "画面描述不能为空"),
+  title: z.string().min(1, "标题不能为空"),
   narration: z.string().min(1, "旁白不能为空"),
 });
 
@@ -53,17 +55,23 @@ export function StoryboardEditModal({
   const form = useForm<EditStoryboardFormData>({
     resolver: zodResolver(editStoryboardSchema),
     defaultValues: {
-      description: shot.description,
-      narration: shot.narration || shot.description,
+      title: shot.title || "",
+      narration: shot.narration || "",
     },
   });
 
   const handleSave = async (data: EditStoryboardFormData) => {
     setIsLoading(true);
     try {
+      // 调用 API 更新分镜
+      await shotApi.updateShot(shot.shot_id, {
+        title: data.title,
+        narration: data.narration,
+      });
+
       const updatedShot: IShot = {
         ...shot,
-        description: data.description,
+        title: data.title,
         narration: data.narration,
       };
       
@@ -71,7 +79,7 @@ export function StoryboardEditModal({
       toast.success("分镜修改成功");
       onClose();
     } catch (error) {
-      toast.error("保存失败，请重试");
+      toast.error(error instanceof Error ? error.message : "保存失败，请重试");
     } finally {
       setIsLoading(false);
     }
@@ -87,37 +95,42 @@ export function StoryboardEditModal({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader className="border-b-[1px] border-zinc-200 dark:border-zinc-700 pb-3">
           <DialogTitle className="flex items-center gap-2 text-base">
-            编辑分镜描述与旁白
+            编辑分镜
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6">
-            {/* 分镜基本信息 */}
+            {/* 分镜编号 */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="text-xs">
-                  {`分镜 ${shot.shot_id}`}
+                  {`分镜 ${shot.shot_number}`}
                 </Badge>
-                <span className="text-md font-medium text-orange-900 dark:text-orange-500/70">
-                  {shot.title}
-                </span>
               </div>
             </div>
 
-            {/* 画面描述 */}
+            {/* 标题 */}
             <FormField
               control={form.control}
-              name="description"
+              name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-800 dark:text-gray-300">画面描述</FormLabel>
+                  <FormLabel className="text-gray-800 dark:text-gray-300">标题</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="描述这个分镜的画面内容..."
-                      className="min-h-[80px] resize-none"
+                    <Input
+                      placeholder="输入分镜标题..."
                       style={{ borderColor: '#514f4f' }}
                       {...field}
+                      onFocus={(e) => {
+                        // 延迟取消文本选择，避免浏览器自动选中
+                        setTimeout(() => {
+                          e.target.setSelectionRange(
+                            e.target.value.length,
+                            e.target.value.length
+                          );
+                        }, 0);
+                      }}
                     />
                   </FormControl>
                   <FormMessage />

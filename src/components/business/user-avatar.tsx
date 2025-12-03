@@ -1,6 +1,6 @@
 'use client'
 
-import { User, LogOut } from 'lucide-react'
+import { User, LogOut, Coins } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,19 +11,38 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { useAuthStore } from '@/stores/auth'
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import { useTranslations } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
+import { clearUserDataCache } from '@/lib/utils/clear-user-data'
+import { authApi } from '@/lib/api/auth'
 
 export function UserAvatar() {
   const t = useTranslations();
   const { user, logout, isAuthenticated } = useAuthStore()
   const router = useRouter()
   const params = useParams()
-  const locale = params?.locale as string   
+  const locale = params?.locale as string
+  const queryClient = useQueryClient()
 
-  const handleLogout = () => {
-    logout()
-    router.push(`/${locale}/auth/login`)
+  const handleLogout = async () => {
+    try {
+      // 调用后端退出登录接口
+      await authApi.logout()
+    } catch (error) {
+      // 即使后端调用失败，也继续执行前端的清空逻辑
+      console.error('Logout API error:', error)
+    } finally {
+      // 清空所有用户相关的 React Query 缓存
+      clearUserDataCache(queryClient)
+      // 清空 auth store 和其他 store 的数据
+      logout()
+      // 跳转到登录页
+      router.push(`/${locale}/auth/login`)
+    }
+  }
+
+  const handlePointsClick = () => {
+    router.push(`/${locale}/points`)
   }
 
   if (!isAuthenticated || !user) {
@@ -48,6 +67,11 @@ export function UserAvatar() {
             <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
         </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handlePointsClick}>
+          <Coins className="mr-2 h-4 w-4" />
+          {t("user.pointsRecords")}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
           <LogOut className="mr-2 h-4 w-4" />

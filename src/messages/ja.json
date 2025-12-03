@@ -73,7 +73,9 @@
     "duration": "再生時間",
     "noVideos": "動画がまだありません。最初の動画を作成してください",
     "startCreating": "制作を開始",
-    "noNovelsEmpty": "小説がまだありません。最初の小説をアップロードしてください"
+    "noNovelsEmpty": "小説がまだありません。最初の小説をアップロードしてください",
+    "dailyCheckin": "毎日チェックイン",
+    "checkinDescription": "毎日チェックインしてポイントを獲得"
   },
   "createVideo": {
     "createAnimation": "アニメ創作",
@@ -129,11 +131,13 @@
     "analyzingCharacterInfo": "キャラクター情報を分析中...",
     "generatingCharacterImage": "キャラクター画像を生成中...",
     "taskIdNotFound": "タスクIDの取得に失敗しました",
-    "next": "次へ"
+    "next": "次へ",
+    "pleaseGenerateAllCharacterImages": "次のステップに進むには、すべてのキャラクターの画像を生成してください。未生成のキャラクター：{characters}"
   },
   "user": {
     "userMenu": "ユーザーメニュー",
-    "logout": "ログアウト"
+    "logout": "ログアウト",
+    "pointsRecords": "ポイント記録"
   },
   "novelDetail": {
     "bookDetails": "書籍詳細",
@@ -156,7 +160,11 @@
     "uploadedOn": "アップロード日時",
     "characterLibrary": "キャラクターライブラリ",
     "relatedCreations": "関連する創作",
-    "loadFailed": "読み込みに失敗しました"
+    "loadFailed": "読み込みに失敗しました",
+    "deleteChapter": "章を削除",
+    "deleteChapterConfirm": "章「{title}」を削除してもよろしいですか？章を削除すると、この章に関連するすべての創作も削除されます。削除後は復元できません。",
+    "deleteChapterSuccess": "章の削除に成功しました",
+    "deleteChapterFailed": "章の削除に失敗しました"
   },
   "novel": {
     "title": "小説",
@@ -185,6 +193,8 @@
     "delete": "削除",
     "loadingFailed": "小説一覧の読み込みに失敗しました。しばらくしてから再試行してください。",
     "noNovelsDescription": "小説をアップロードして動画制作を始めましょう",
+    "noSearchResults": "一致する小説が見つかりませんでした",
+    "noSearchResultsDescription": "別のキーワードで検索してみてください",
     "pageInfo": "第 {current} ページ / 全 {total} ページ",
     "totalNovels": "全 {total} 冊の小説",
     "previousPage": "前のページ",
@@ -205,6 +215,8 @@
     "loadingFailed": "創作一覧の読み込みに失敗しました。しばらくしてから再試行してください。",
     "noCreations": "まだ創作がありません",
     "noCreationsDescription": "クリックして創作を開始し、小説から動画を作成しましょう",
+    "noSearchResults": "一致する創作が見つかりませんでした",
+    "noSearchResultsDescription": "別のキーワードで検索してみてください",
     "pageInfo": "第 {current} ページ / 全 {total} ページ",
     "totalCreations": "全 {total} 件の創作",
     "previousPage": "前のページ",
@@ -215,7 +227,8 @@
     "shotsGenerationError": "分鏡生成に失敗しました。再試行してください",
     "creationIdNotFound": "創作IDが見つかりません",
     "taskIdNotFound": "タスクIDの取得に失敗しました",
-    "queryTaskFailed": "タスク状態の確認に失敗しました。ページを更新して再試行してください"
+    "queryTaskFailed": "タスク状態の確認に失敗しました。ページを更新して再試行してください",
+    "characterAnalysisStart": "キャラクター分析を開始しました"
   },
   "video": {
     "title": "動画",
@@ -307,5 +320,59 @@
     "zh": "中文",
     "en": "English",
     "ja": "日本語"
+  },
+  "points": {
+    "title": "ポイントセンター",
+    "balance": "ポイント残高",
+    "availablePoints": "利用可能ポイント",
+    "totalPoints": "総ポイント",
+    "todayConsumed": "今日の消費",
+    "monthConsumed": "今月の消費",
+    "expiringSoon": "まもなく期限切れ",
+    "statistics": "統計情報",
+    "totalEarned": "総獲得",
+    "totalConsumed": "総消費",
+    "records": "ポイント記録",
+    "allRecordTypes": "すべてのタイプ",
+    "allOperations": "すべての操作",
+    "allRecords": "すべての記録",
+    "earnedRecords": "獲得記録",
+    "consumedRecords": "消費記録",
+    "checkinRecords": "チェックイン記録",
+    "registerReward": "登録報酬",
+    "noRecords": "記録がありません",
+    "balanceAfter": "残高",
+    "expiresAt": "有効期限",
+    "dailyCheckinPoints": "毎日チェックインポイント",
+    "unknown": "不明",
+    "viewDetails": "詳細を見る",
+    "back": "戻る",
+    "checkin": "チェックイン",
+    "checkedIn": "チェックイン済み",
+    "checkinSuccess": "チェックイン成功！{points} ポイントを獲得しました",
+    "alreadyCheckedIn": "今日はすでにチェックイン済みです。明日またお越しください",
+    "checkinFailed": "チェックインに失敗しました。しばらくしてから再試行してください",
+    "recordType": {
+      "consume": "消費",
+      "recharge": "チャージ",
+      "reward": "報酬",
+      "refund": "返金",
+      "expire": "期限切れ",
+      "checkin": "チェックイン"
+    },
+    "operation": {
+      "create_creation": "創作作成",
+      "generate_character": "キャラクター生成",
+      "generate_shot": "ショット生成",
+      "generate_audio": "音声生成",
+      "generate_video": "動画生成",
+      "upload_novel": "小説アップロード",
+      "llm_call": "LLM呼び出し",
+      "register": "登録報酬",
+      "daily_checkin": "毎日チェックイン",
+      "test_add_points": "テスト追加",
+      "temporary_points_expire": "一時ポイント期限切れ"
+    },
+    "insufficientPoints": "ポイント不足"
   }
 }

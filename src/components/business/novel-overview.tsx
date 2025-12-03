@@ -154,7 +154,7 @@ export function NovelOverview() {
         ))}
       </div>
 
-      {novels.length > 3 && (
+      {novels.length > 0 && (
         <button
           onClick={handleViewMore}
           className="w-full text-xs text-secondary underline flex items-center justify-center gap-1 py-2 rounded-md hover:bg-accent transition-colors"

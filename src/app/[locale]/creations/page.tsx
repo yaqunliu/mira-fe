@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Play, Plus, ChevronRight, Trash2 } from "lucide-react";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { ICreation, CreationStatus, CreationStatusMap } from "@/types/creation";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
+import { useConfirm } from "@/hooks/use-confirm";
 
 // 左滑删除创作卡片组件
 function SwipeableCreationCard({
@@ -23,18 +24,27 @@ function SwipeableCreationCard({
   isDeleting,
   getStatusBadge,
   t,
+  confirm,
 }: {
   creation: ICreation;
   onClick: () => void;
-  onDelete: (e: React.MouseEvent) => void;
+  onDelete: (creationId: string) => void;
   isDeleting: boolean;
   getStatusBadge: (status: CreationStatus) => React.ReactNode;
   t: any;
+  confirm: (options?: any) => Promise<boolean>;
 }) {
-  const handleDeleteClick = (e: React.MouseEvent) => {
+  const handleDeleteClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(t("creation.deleteConfirm"))) {
-      onDelete(e);
+    const confirmed = await confirm({
+      title: t("creation.delete"),
+      description: t("creation.deleteConfirm"),
+      confirmText: t("common.confirm") || "确认",
+      cancelText: t("common.cancel") || "取消",
+      variant: "destructive",
+    });
+    if (confirmed) {
+      onDelete(creation.creation_id);
     }
   };
   const [translateX, setTranslateX] = useState(0);
@@ -101,13 +111,6 @@ function SwipeableCreationCard({
   const handleClick = () => {
     if (Math.abs(translateX) < 5) {
       onClick();
-    }
-  };
-
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (confirm(t("creation.deleteConfirm"))) {
-      onDelete(e);
     }
   };
 
@@ -182,15 +185,26 @@ function SwipeableCreationCard({
 
 export default function CreationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const pageSize = 12;
   const t = useTranslations();
+  const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm();
 
   const params = useParams();
   const locale = params?.locale as string;
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  // 搜索防抖：300ms 延迟
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // 搜索时重置页码
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const {
     data: creationsResponse,
@@ -198,11 +212,12 @@ export default function CreationsPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["creations", currentPage, pageSize],
+    queryKey: ["creations", currentPage, pageSize, debouncedSearchTerm],
     queryFn: async () => {
       const result = await creationApi.queryCreations({
         page: currentPage,
         page_size: pageSize,
+        title: debouncedSearchTerm || undefined,
       });
       return result;
     },
@@ -232,11 +247,6 @@ export default function CreationsPage() {
   const creations: ICreation[] = responseData?.data?.items || responseData?.data || [];
   const total = responseData?.data?.total || creations.length;
   const totalPages = Math.ceil(total / pageSize);
-
-  // 搜索过滤
-  const filteredCreations = creations.filter((creation: ICreation) =>
-    creation.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const getStatusBadge = (status: CreationStatus) => {
     const statusInfo = CreationStatusMap[status] || { label: t("common.unknown"), color: "bg-gray-500" };
@@ -286,105 +296,119 @@ export default function CreationsPage() {
       <div className="h-[1px] w-full divider-primary mb-4" />
 
       {/* 内容区域 */}
-      {isLoading ? (
-        <div className="flex-1 overflow-y-auto px-4 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="rounded-lg aspect-[16/9] w-full skeleton"
-              />
-            ))}
-          </div>
-        </div>
-      ) : error ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-muted-foreground">
-              {t("creation.loadingFailed")}
-            </p>
-          </div>
-        </div>
-      ) : creations.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">{t("creation.noCreations")}</h3>
-            <p className="text-muted-foreground mb-6">
-              {t("creation.noCreationsDescription")}
-            </p>
+      <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
+        <div className="space-y-4">
+          {/* 搜索和新建 - 始终显示 */}
+          <div className="flex justify-between items-center gap-4">
+            <Input
+              placeholder={t("creation.searchCreation")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full max-w-md"
+            />
             <Link href={`/${locale}/create`}>
-              <Button>{t("creation.createCreation")}</Button>
+              <Button icon={<Plus className="h-4 w-4" />}>{t("creation.createCreation")}</Button>
             </Link>
           </div>
-        </div>
-      ) : (
-        <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
-          <div className="space-y-4">
-            {/* 搜索和新建 */}
-            <div className="flex justify-between items-center gap-4">
-              <Input
-                placeholder={t("creation.searchCreation")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full max-w-md"
-              />
-              <Link href={`/${locale}/create`}>
-                <Button icon={<Plus className="h-4 w-4" />}>{t("creation.createCreation")}</Button>
-              </Link>
-            </div>
 
-            {/* 创作列表 - 左滑删除 */}
+          {/* 内容区域 */}
+          {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCreations.map((creation: ICreation) => (
-                <SwipeableCreationCard
-                  key={creation.creation_id}
-                  creation={creation}
-                  onClick={() => handleCreationClick(creation)}
-                  onDelete={handleDelete}
-                  isDeleting={deletingId === creation.creation_id}
-                  getStatusBadge={getStatusBadge}
-                  t={t}
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-lg aspect-[16/9] w-full skeleton"
                 />
               ))}
             </div>
-
-            {/* 分页 */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage <= 1}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  {t("creation.previousPage")}
-                </Button>
-
-                <span className="text-sm text-muted-foreground px-4">
-                  {t("creation.pageInfo", { current: currentPage, total: totalPages })}
-                </span>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage >= totalPages}
-                >
-                  {t("creation.nextPage")}
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+          ) : error ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <p className="text-muted-foreground">
+                  {t("creation.loadingFailed")}
+                </p>
               </div>
-            )}
-
-            {/* 总数 */}
-            <div className="text-center text-sm text-muted-foreground">
-              {t("creation.totalCreations", { total })}
             </div>
-          </div>
-        </PullToRefresh>
-      )}
+          ) : creations.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                {debouncedSearchTerm ? (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2">{t("creation.noSearchResults")}</h3>
+                    <p className="text-muted-foreground mb-6">
+                      {t("creation.noSearchResultsDescription")}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2">{t("creation.noCreations")}</h3>
+                    <p className="text-muted-foreground mb-6">
+                      {t("creation.noCreationsDescription")}
+                    </p>
+                    <Link href={`/${locale}/create`}>
+                      <Button>{t("creation.createCreation")}</Button>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* 创作列表 - 左滑删除 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {creations.map((creation: ICreation) => (
+                  <SwipeableCreationCard
+                    key={creation.creation_id}
+                    creation={creation}
+                    onClick={() => handleCreationClick(creation)}
+                    onDelete={handleDelete}
+                    isDeleting={deletingId === creation.creation_id}
+                    getStatusBadge={getStatusBadge}
+                    t={t}
+                    confirm={confirm}
+                  />
+                ))}
+              </div>
+
+              {/* 分页 */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage <= 1}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    {t("creation.previousPage")}
+                  </Button>
+
+                  <span className="text-sm text-muted-foreground px-4">
+                    {t("creation.pageInfo", { current: currentPage, total: totalPages })}
+                  </span>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage >= totalPages}
+                  >
+                    {t("creation.nextPage")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+
+              {/* 总数 */}
+              <div className="text-center text-sm text-muted-foreground">
+                {t("creation.totalCreations", { total })}
+              </div>
+            </>
+          )}
+        </div>
+      </PullToRefresh>
+      <ConfirmDialogComponent />
     </div>
   );
 }

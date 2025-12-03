@@ -15,6 +15,9 @@ import { authApi } from '@/lib/api/auth'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
+import { clearUserDataCache } from '@/lib/utils/clear-user-data'
+import axios from 'axios'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -23,6 +26,7 @@ export default function LoginPage() {
   const params = useParams()
   const locale = params?.locale as string
   const t = useTranslations('auth')
+  const queryClient = useQueryClient()
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,6 +41,9 @@ export default function LoginPage() {
       const response = await authApi.login(data)
       
       if (response.data?.access_token) {
+        // 登录前清空所有用户相关的 React Query 缓存，确保新用户数据干净
+        clearUserDataCache(queryClient)
+        
         // 登录成功，保存 token
         const token = response.data.access_token
         // 用用户名作为临时用户信息，后续可以调用 getCurrentUser 获取完整信息
@@ -48,6 +55,7 @@ export default function LoginPage() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         }
+        // login 方法内部已经会清空 points store 的数据
         login(user, token)
         toast.success(response.message || t('loginSuccess'))
         router.push(`/${locale}`)
@@ -56,7 +64,30 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error('Login error:', error)
-      toast.error(t('networkError'))
+      
+      // 检查是否是 axios 错误，并提取错误消息
+      let errorMessage = t('networkError')
+      
+      if (axios.isAxiosError(error)) {
+        // 优先使用 response.data.message（API 返回的错误消息）
+        if (error.response?.data?.message) {
+          errorMessage = error.response.data.message
+        } 
+        // 如果没有 message，检查 error 字段
+        else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error
+        }
+        // 如果错误对象本身有 message（由 apiClient 拦截器设置的）
+        else if (error.message) {
+          errorMessage = error.message
+        }
+      } 
+      // 如果是普通 Error 对象，使用其 message
+      else if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { User } from '@/types'
+import { usePointsStore } from './points'
 
 interface AuthState {
   user: User | null
@@ -14,6 +15,7 @@ interface AuthState {
   updateUser: (user: Partial<User>) => void
   updateToken: (token: string, expiresIn?: number) => void
   isTokenExpiringSoon: (bufferSeconds?: number) => boolean // 检查 token 是否即将过期
+  isTokenExpired: () => boolean // 检查 token 是否已经过期
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -33,6 +35,9 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       
       login: (user: User, token: string, expiresIn?: number) => {
+        // 登录前清空其他 store 的数据，确保新用户数据干净
+        usePointsStore.getState().clearBalance()
+        
         // 如果提供了 expiresIn（秒），计算过期时间戳
         // 如果没有提供，尝试从 JWT token 中解析
         let expiresAt: number | null = null
@@ -61,6 +66,9 @@ export const useAuthStore = create<AuthState>()(
       },
       
       logout: () => {
+        // 退出登录时清空其他 store 的数据
+        usePointsStore.getState().clearBalance()
+        
         set({
           user: null,
           token: null,
@@ -111,7 +119,16 @@ export const useAuthStore = create<AuthState>()(
         if (!tokenExpiresAt) return false
         const now = Date.now()
         const buffer = bufferSeconds * 1000
+        // 如果已经过期，返回 true（负数 <= buffer 也是 true）
+        // 如果即将过期（剩余时间 <= buffer），返回 true
         return tokenExpiresAt - now <= buffer
+      },
+      
+      isTokenExpired: () => {
+        // 检查 token 是否已经过期
+        const { tokenExpiresAt } = get()
+        if (!tokenExpiresAt) return true // 如果没有过期时间，认为已过期
+        return tokenExpiresAt <= Date.now()
       },
     }),
     {

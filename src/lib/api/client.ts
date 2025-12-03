@@ -40,8 +40,14 @@ class ApiClient {
           return config
         }
 
-        // 检查token是否即将过期（提前5分钟刷新）
-        if (authStore.isTokenExpiringSoon(300)) {
+        // 检查token是否即将过期或已经过期（提前5分钟刷新）
+        const { tokenExpiresAt } = authStore
+        const shouldRefresh = 
+          !tokenExpiresAt || // tokenExpiresAt 为 null，需要刷新
+          tokenExpiresAt <= Date.now() || // token 已经过期
+          authStore.isTokenExpiringSoon(300) // token 即将过期（5分钟内）
+
+        if (shouldRefresh) {
           // 如果已经在刷新中，等待刷新完成
           if (this.isRefreshing && this.refreshTokenPromise) {
             try {
@@ -111,7 +117,10 @@ class ApiClient {
         }
 
         // 如果是401错误且不是刷新token的请求，尝试刷新token
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // 但是登录和注册请求的401错误不应该触发token刷新，应该直接返回错误
+        const isAuthRequest = originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register')
+        
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthRequest) {
           // 如果已经在刷新中，等待刷新完成
           if (this.isRefreshing && this.refreshTokenPromise) {
             try {

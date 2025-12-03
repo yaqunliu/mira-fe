@@ -3,6 +3,7 @@
 import { LanguageToggle } from './language-toggle'
 import { ThemeToggle } from './theme-toggle'
 import { UserAvatar } from './user-avatar'
+import { PointsBalance } from './points-balance'
 
 interface ActionBarProps {
   className?: string
@@ -14,6 +15,8 @@ export function ActionBar({ className = '' }: ActionBarProps) {
       <LanguageToggle />
       <div className='divider-primary h-4 w-[1px]' />
       <ThemeToggle />
+      <div className='divider-primary h-4 w-[1px]' />
+      <PointsBalance />
       <div className='divider-primary h-4 w-[1px]' />
       <UserAvatar />
     </div>

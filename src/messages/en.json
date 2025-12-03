@@ -73,7 +73,9 @@
     "duration": "Duration",
     "noVideos": "No videos yet, click to create your first video",
     "startCreating": "Start Creating",
-    "noNovelsEmpty": "No novels yet, click to upload your first novel"
+    "noNovelsEmpty": "No novels yet, click to upload your first novel",
+    "dailyCheckin": "Daily Check-in",
+    "checkinDescription": "Check in daily to earn points"
   },
   "createVideo": {
     "createAnimation": "Create Animation",
@@ -129,11 +131,13 @@
     "analyzingCharacterInfo": "Analyzing character information...",
     "generatingCharacterImage": "Generating character image...",
     "taskIdNotFound": "Failed to get task ID",
-    "next": "Next"
+    "next": "Next",
+    "pleaseGenerateAllCharacterImages": "Please generate images for all characters before proceeding. Characters without images: {characters}"
   },
   "user": {
     "userMenu": "User Menu",
-    "logout": "Logout"
+    "logout": "Logout",
+    "pointsRecords": "Points Records"
   },
   "novelDetail": {
     "bookDetails": "Book Details",
@@ -156,7 +160,11 @@
     "uploadedOn": "Uploaded on",
     "characterLibrary": "Character Library",
     "relatedCreations": "Related Creations",
-    "loadFailed": "Failed to load"
+    "loadFailed": "Failed to load",
+    "deleteChapter": "Delete Chapter",
+    "deleteChapterConfirm": "Are you sure you want to delete chapter \"{title}\"? Deleting this chapter will also delete all related creations. This action cannot be undone.",
+    "deleteChapterSuccess": "Chapter deleted successfully",
+    "deleteChapterFailed": "Failed to delete chapter"
   },
   "novel": {
     "title": "Novel",
@@ -185,6 +193,8 @@
     "delete": "Delete",
     "loadingFailed": "Failed to load novel list, please try again later.",
     "noNovelsDescription": "Start uploading novels for video creation",
+    "noSearchResults": "No matching novels found",
+    "noSearchResultsDescription": "Please try searching with different keywords",
     "pageInfo": "Page {current} / {total}",
     "totalNovels": "{total} novels in total",
     "previousPage": "Previous",
@@ -205,6 +215,8 @@
     "loadingFailed": "Failed to load creation list, please try again later.",
     "noCreations": "No creations yet",
     "noCreationsDescription": "Click to start creating videos from novels",
+    "noSearchResults": "No matching creations found",
+    "noSearchResultsDescription": "Please try searching with different keywords",
     "pageInfo": "Page {current} / {total}",
     "totalCreations": "{total} creations in total",
     "previousPage": "Previous",
@@ -215,7 +227,8 @@
     "shotsGenerationError": "Storyboard generation failed, please try again",
     "creationIdNotFound": "Creation ID not found",
     "taskIdNotFound": "Failed to get task ID",
-    "queryTaskFailed": "Failed to query task status, please refresh the page and try again"
+    "queryTaskFailed": "Failed to query task status, please refresh the page and try again",
+    "characterAnalysisStart": "Character analysis started"
   },
   "video": {
     "title": "Video",
@@ -307,5 +320,59 @@
     "zh": "中文",
     "en": "English",
     "ja": "日本語"
+  },
+  "points": {
+    "title": "Points Center",
+    "balance": "Points Balance",
+    "availablePoints": "Available Points",
+    "totalPoints": "Total Points",
+    "todayConsumed": "Today Consumed",
+    "monthConsumed": "Month Consumed",
+    "expiringSoon": "Expiring Soon",
+    "statistics": "Statistics",
+    "totalEarned": "Total Earned",
+    "totalConsumed": "Total Consumed",
+    "records": "Points Records",
+    "allRecordTypes": "All Types",
+    "allOperations": "All Operations",
+    "allRecords": "All Records",
+    "earnedRecords": "Earned Records",
+    "consumedRecords": "Consumed Records",
+    "checkinRecords": "Check-in Records",
+    "registerReward": "Register Reward",
+    "noRecords": "No records",
+    "balanceAfter": "Balance",
+    "expiresAt": "Expires At",
+    "dailyCheckinPoints": "Daily Check-in Points",
+    "unknown": "Unknown",
+    "viewDetails": "View Details",
+    "back": "Back",
+    "checkin": "Check-in",
+    "checkedIn": "Checked In",
+    "checkinSuccess": "Check-in successful! Earned {points} points",
+    "alreadyCheckedIn": "Already checked in today, please come back tomorrow",
+    "checkinFailed": "Check-in failed, please try again later",
+    "recordType": {
+      "consume": "Consume",
+      "recharge": "Recharge",
+      "reward": "Reward",
+      "refund": "Refund",
+      "expire": "Expire",
+      "checkin": "Check-in"
+    },
+    "operation": {
+      "create_creation": "Create Creation",
+      "generate_character": "Generate Character",
+      "generate_shot": "Generate Shot",
+      "generate_audio": "Generate Audio",
+      "generate_video": "Generate Video",
+      "upload_novel": "Upload Novel",
+      "llm_call": "LLM Call",
+      "register": "Register Reward",
+      "daily_checkin": "Daily Check-in",
+      "test_add_points": "Test Add Points",
+      "temporary_points_expire": "Temporary Points Expire"
+    },
+    "insufficientPoints": "Insufficient Points"
   }
 }

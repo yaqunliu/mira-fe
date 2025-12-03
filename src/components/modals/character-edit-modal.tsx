@@ -28,6 +28,7 @@ const editCharacterSchema = z.object({
   hair: z.string().min(1, "头发不能为空"),
   clothing: z.string().min(1, "服装不能为空"),
   tags: z.string().min(1, "特征标签不能为空"),
+  imagePrompt: z.string().optional(),
 });
 
 type EditCharacterFormData = z.infer<typeof editCharacterSchema>;
@@ -51,7 +52,6 @@ export function CharacterEditModal({
   onSuccess,
 }: CharacterEditModalProps) {
   const [isLoading, setIsLoading] = useState(false);
-  console.log(character?.tags, "character");
 
   const form = useForm<EditCharacterFormData>({
     resolver: zodResolver(editCharacterSchema),
@@ -63,21 +63,27 @@ export function CharacterEditModal({
       hair: character.hair,
       clothing: character.clothing,
       tags: character.tags.join(","),
+      imagePrompt: character.image_prompt || "",
     },
   });
 
   const handleSave = async (data: EditCharacterFormData) => {
     setIsLoading(true);
     try {
-      const updatedCharacter: ICharacter = {
+      const updatedCharacter: Partial<ICharacter> = {
         ...character,
-        ...data,
+        name: data.name,
+        basic_info: data.basicInfo,
+        appearance: data.appearance,
+        body: data.body,
+        hair: data.hair,
+        clothing: data.clothing,
         tags: data.tags.split(","),
+        image_prompt: data.imagePrompt || character.image_prompt,
       };
       
       await characterApi.updateCharacter(character.character_id, updatedCharacter);
       toast.success("角色信息修改成功");
-      onSuccess();
       onClose();
     } catch (error) {
       toast.error("保存失败，请重试");
@@ -258,6 +264,28 @@ export function CharacterEditModal({
                 <FormControl>
                   <Input
                     placeholder="输入角色的特征标签..."
+                    style={{ borderColor: "#514f4f" }}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* 图片提示词 */}
+          <FormField
+            control={form.control}
+            name="imagePrompt"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-gray-800 dark:text-gray-300">
+                  图片提示词
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="输入图片生成的提示词..."
+                    className="min-h-[60px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}
                   />

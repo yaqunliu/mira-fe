@@ -17,7 +17,7 @@ export interface Novel {
   chapter_count: number;
   creation_ids: string[];
   character_ids: string[];
-  chapters: Chapter[];
+  chapters?: Chapter[]; // 可选，章节数据通过章节列表接口单独获取
 }
 
 export interface ChapterListItem {
@@ -106,6 +106,7 @@ export interface ApiResponse<T = any> {
 export interface PaginationParams {
   page: number;
   page_size: number;
+  title?: string; // 可选的小说/创作标题筛选参数
 }
 
 export interface PaginatedResponse<T> {
@@ -274,3 +275,6 @@ export interface ShotsTaskResponse {
 
 // 导出语音相关类型
 export * from './voice';
+
+// 导出积分相关类型
+export * from './points';

@@ -134,7 +134,7 @@ export function CreationOverview() {
         ))}
 
         {/* 查看更多卡片 */}
-        {creations.length > 3 && (
+        {creations.length > 0 && (
           <div onClick={handleViewMore} className="group cursor-pointer">
             <div className="relative aspect-[16/9] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-2 border-dashed border-slate-300 dark:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-700/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-700/50">
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">

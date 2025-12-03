@@ -34,11 +34,11 @@ const variants = {
     trigger: "!py-3 !rounded-t-lg data-[state=active]:!shadow-sm dark:data-[state=active]:!bg-zinc-800 !text-center !transition-all !duration-200 data-[state=active]:!text-orange-600 dark:data-[state=active]:!text-orange-400",
   },
   underline: {
-    list: "w-full border-b border-gray-200 dark:border-gray-700 bg-transparent",
+    list: "w-full border-b-[1.5px] border-gray-400 dark:border-gray-700 bg-transparent",
     trigger: "data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none px-4 py-2 text-sm font-medium transition-colors",
   },
   pills: {
-    list: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-1",
+    list: "bg-white dark:bg-gray-800 border-[1.5px] border-gray-400 dark:border-gray-700 rounded-lg p-1",
     trigger: "data-[state=active]:bg-orange-500 data-[state=active]:text-white rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200",
   },
 };

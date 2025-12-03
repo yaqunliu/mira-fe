@@ -12,7 +12,7 @@ export const chapterEditSchema = z.object({
 })
 
 export const storyboardEditSchema = z.object({
-  description: z.string().min(1, "分镜描述不能为空"),
+  title: z.string().min(1, "标题不能为空"),
   narration: z.string().min(1, "旁白不能为空"),
 })
 
