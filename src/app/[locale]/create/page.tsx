@@ -564,6 +564,34 @@ export default function CreateCreation() {
     onStepChange: setCurrentStep,
   });
 
+  // 根据创作状态计算最大可访问步骤
+  const maxAccessibleStep = useMemo(() => {
+    if (!curCreation?.status) {
+      return 0; // 没有状态时，只能访问第一个步骤
+    }
+
+    switch (curCreation.status) {
+      case CreationStatus.CREATED:
+      case CreationStatus.PLAYBOOK_GENERATED:
+        // 角色分析阶段，最多可以访问到角色设置步骤（步骤1）
+        return 1;
+      case CreationStatus.CHARACTER_GENERATED:
+        // 角色生成完成，最多可以访问到脚本设置步骤（步骤2）
+        return 2;
+      case CreationStatus.SCENE_GENERATED:
+        // 分镜生成完成，最多可以访问到分镜步骤（步骤3）
+        return 3;
+      case CreationStatus.VOICE_SELECTED:
+      case CreationStatus.AUDIO_GENERATED:
+      case CreationStatus.VIDEO_GENERATED:
+      case CreationStatus.COMPLETED:
+        // 音频/视频生成阶段，可以访问所有步骤（步骤4）
+        return 4;
+      default:
+        return 0;
+    }
+  }, [curCreation?.status]);
+
   // 触发分镜生成的内部函数
   const generateShotsInternal = useCallback(async () => {
     if (!creationId) {
@@ -714,6 +742,7 @@ export default function CreateCreation() {
         <ProgressWrapper
           steps={steps}
           currentStep={currentStep}
+          maxAccessibleStep={maxAccessibleStep}
           orientation="horizontal"
           variant="default"
           size="sm"
