@@ -142,8 +142,8 @@ export function NovelOverview() {
                     </span>
                   </div>
                   <div className="flex items-center justify-center gap-1 text-white/80">
-                    <BookOpen className="h-3 w-3" />
-                    <span className="text-xs">
+                    <BookOpen className="h-3 w-3 flex-shrink-0" />
+                    <span className="text-xs whitespace-nowrap">
                       {novel?.chapter_count || 0} {t("home.chapters")}
                     </span>
                   </div>

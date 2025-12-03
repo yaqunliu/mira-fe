@@ -337,7 +337,7 @@ export function StoryboardImages({
   return (
     <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>
       <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
-        <h3 className="text-base font-semib100">{`分镜图列表`}</h3>
+        <h3 className="text-base font-semibold">{t("storyboard.storyboardList")}</h3>
         {/* 整体进度条 */}
         {(isGenerating || generatingImages > 0) && (
           <Card className="p-4">

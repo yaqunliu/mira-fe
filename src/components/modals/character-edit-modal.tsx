@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,19 +17,9 @@ import {
 } from "@/components/ui/form";
 import { Save, X } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 import { ICharacter } from "@/types/character";
 import characterApi from "@/lib/api/character";
-
-const editCharacterSchema = z.object({
-  name: z.string().min(1, "姓名不能为空"),
-  basicInfo: z.string().min(1, "基础信息不能为空"),
-  appearance: z.string().min(1, "容貌特征不能为空"),
-  body: z.string().min(1, "身材特征不能为空"),
-  hair: z.string().min(1, "头发不能为空"),
-  clothing: z.string().min(1, "服装不能为空"),
-  tags: z.string().min(1, "特征标签不能为空"),
-  imagePrompt: z.string().optional(),
-});
 
 type EditCharacterFormData = z.infer<typeof editCharacterSchema>;
 
@@ -39,6 +29,17 @@ interface CharacterEditModalProps {
   character: ICharacter;
   onSuccess: () => void;
 }
+
+type EditCharacterFormData = {
+  name: string;
+  basicInfo: string;
+  appearance: string;
+  body: string;
+  hair: string;
+  clothing: string;
+  tags: string;
+  imagePrompt?: string;
+};
 
 /**
  * 使用新的 BottomSheet 组件的角色编辑弹窗
@@ -51,7 +52,21 @@ export function CharacterEditModal({
   character,
   onSuccess,
 }: CharacterEditModalProps) {
+  const t = useTranslations("character");
+  const tCommon = useTranslations("common");
   const [isLoading, setIsLoading] = useState(false);
+
+  // 动态创建 schema，因为验证消息需要国际化
+  const editCharacterSchema = useMemo(() => z.object({
+    name: z.string().min(1, t("nameRequired")),
+    basicInfo: z.string().min(1, t("basicInfoRequired")),
+    appearance: z.string().min(1, t("appearanceRequired")),
+    body: z.string().min(1, t("bodyRequired")),
+    hair: z.string().min(1, t("hairRequired")),
+    clothing: z.string().min(1, t("clothingRequired")),
+    tags: z.string().min(1, t("tagsRequired")),
+    imagePrompt: z.string().optional(),
+  }), [t]);
 
   const form = useForm<EditCharacterFormData>({
     resolver: zodResolver(editCharacterSchema),
@@ -83,10 +98,11 @@ export function CharacterEditModal({
       };
       
       await characterApi.updateCharacter(character.character_id, updatedCharacter);
-      toast.success("角色信息修改成功");
+      toast.success(t("updateSuccess"));
+      onSuccess();
       onClose();
     } catch (error) {
-      toast.error("保存失败，请重试");
+      toast.error(t("updateFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -101,18 +117,18 @@ export function CharacterEditModal({
     <BottomSheet
       open={isOpen}
       onOpenChange={onClose}
-      title="编辑角色信息"
-      description="修改角色的详细信息"
+      title={t("editCharacterInfo")}
+      description={t("editCharacterDescription")}
       actions={[
         {
-          label: "取消",
+          label: tCommon("cancel"),
           onClick: handleCancel,
           variant: "secondary",
           icon: <X className="h-4 w-4" />,
           disabled: isLoading,
         },
         {
-          label: "保存",
+          label: tCommon("save"),
           onClick: form.handleSubmit(handleSave),
           variant: "default",
           icon: <Save className="h-4 w-4" />,
@@ -129,11 +145,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  姓名
+                  {t("name")}
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="输入角色姓名..."
+                    placeholder={t("namePlaceholder")}
                     style={{ borderColor: "#514f4f" }}
                     {...field}
                   />
@@ -150,11 +166,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  基础信息
+                  {t("basicInfo")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="输入角色的基础信息..."
+                    placeholder={t("basicInfoPlaceholder")}
                     className="min-h-[60px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}
@@ -172,11 +188,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  容貌特征
+                  {t("appearanceFeatures")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="描述角色的容貌特征..."
+                    placeholder={t("appearancePlaceholder")}
                     className="min-h-[60px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}
@@ -194,11 +210,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  身材特征
+                  {t("bodyFeatures")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="描述角色的身材特征..."
+                    placeholder={t("bodyPlaceholder")}
                     className="min-h-[60px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}
@@ -216,11 +232,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  头发
+                  {t("hair")}
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="描述角色的头发..."
+                    placeholder={t("hairPlaceholder")}
                     style={{ borderColor: "#514f4f" }}
                     {...field}
                   />
@@ -237,11 +253,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  服装
+                  {t("clothing")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="描述角色的服装..."
+                    placeholder={t("clothingPlaceholder")}
                     className="min-h-[60px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}
@@ -259,11 +275,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  特征标签
+                  {t("featureTags")}
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="输入角色的特征标签..."
+                    placeholder={t("tagsPlaceholder")}
                     style={{ borderColor: "#514f4f" }}
                     {...field}
                   />
@@ -280,11 +296,11 @@ export function CharacterEditModal({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 dark:text-gray-300">
-                  图片提示词
+                  {t("imagePrompt")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="输入图片生成的提示词..."
+                    placeholder={t("imagePromptPlaceholder")}
                     className="min-h-[60px] resize-none"
                     style={{ borderColor: "#514f4f" }}
                     {...field}

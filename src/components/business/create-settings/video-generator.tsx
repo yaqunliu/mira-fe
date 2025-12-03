@@ -720,7 +720,7 @@ export function VideoGenerator({
           <div className="flex items-center justify-center gap-2 py-4">
             <Wand className="w-6 h-6 text-orange-500/80" />
             <div className="text-2xl font-bold text-gradient-primary">
-              创作完成啦～
+              {t("video.creationCompleted")}
             </div>
           </div>
 
@@ -747,7 +747,7 @@ export function VideoGenerator({
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <Music className="w-4 h-4 text-muted-foreground" />
-                      <span className="font-medium text-sm">音频预览</span>
+                      <span className="font-medium text-sm">{t("video.audioPreview")}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {t("video.previewAudio")}
@@ -763,7 +763,7 @@ export function VideoGenerator({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Video className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium text-sm">视频预览</span>
+                <span className="font-medium text-sm">{t("video.videoPreview")}</span>
               </div>
               <div className="relative w-full bg-black rounded-lg overflow-hidden aspect-video">
                 <video
@@ -771,7 +771,7 @@ export function VideoGenerator({
                   controls
                   className="w-full h-auto aspect-video"
                 >
-                  您的浏览器不支持视频播放。
+                  {t("video.browserNotSupportVideo")}
                 </video>
               </div>
             </div>
@@ -780,7 +780,7 @@ export function VideoGenerator({
           {/* 没有视频和音频时的提示 */}
           {!videoUrl && !audioUrl && (
             <div className="text-center py-8 text-muted-foreground">
-              <p>视频和音频数据加载中...</p>
+              <p>{t("video.loadingData")}</p>
             </div>
           )}
 

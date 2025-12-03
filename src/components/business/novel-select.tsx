@@ -310,7 +310,7 @@ export function NovelSelect({
                           {showChapterCount && (
                             <div className="flex items-center gap-1.5 mt-1.5">
                               <FileText className="w-3 h-3 text-secondary flex-shrink-0" />
-                              <span className="text-xs text-secondary">
+                              <span className="text-xs text-secondary whitespace-nowrap">
                                 {novel.chapter_count || 0} {t("novel.chapters")}
                               </span>
                             </div>

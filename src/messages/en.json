@@ -132,7 +132,28 @@
     "generatingCharacterImage": "Generating character image...",
     "taskIdNotFound": "Failed to get task ID",
     "next": "Next",
-    "pleaseGenerateAllCharacterImages": "Please generate images for all characters before proceeding. Characters without images: {characters}"
+    "pleaseGenerateAllCharacterImages": "Please generate images for all characters before proceeding. Characters without images: {characters}",
+    "editCharacterInfo": "Edit Character Information",
+    "editCharacterDescription": "Modify character details",
+    "name": "Name",
+    "namePlaceholder": "Enter character name...",
+    "nameRequired": "Name cannot be empty",
+    "basicInfoPlaceholder": "Enter character basic information...",
+    "basicInfoRequired": "Basic information cannot be empty",
+    "appearancePlaceholder": "Describe character appearance features...",
+    "appearanceRequired": "Appearance features cannot be empty",
+    "bodyPlaceholder": "Describe character body features...",
+    "bodyRequired": "Body features cannot be empty",
+    "hairPlaceholder": "Describe character hair...",
+    "hairRequired": "Hair cannot be empty",
+    "clothingPlaceholder": "Describe character clothing...",
+    "clothingRequired": "Clothing cannot be empty",
+    "tagsPlaceholder": "Enter character feature tags...",
+    "tagsRequired": "Feature tags cannot be empty",
+    "imagePrompt": "Image Prompt",
+    "imagePromptPlaceholder": "Enter image generation prompt...",
+    "updateSuccess": "Character information updated successfully",
+    "updateFailed": "Save failed, please try again"
   },
   "user": {
     "userMenu": "User Menu",
@@ -261,7 +282,12 @@
     "regenerateVideoTitle": "Regenerate Video",
     "regenerateAudioDescription": "Do you want to regenerate audio? You will be redirected to the audio selection interface.",
     "regenerateVideoOnly": "Regenerate Video Only",
-    "regenerateAudioAndVideo": "Regenerate Video and Audio"
+    "regenerateAudioAndVideo": "Regenerate Video and Audio",
+    "creationCompleted": "Creation Completed!",
+    "audioPreview": "Audio Preview",
+    "videoPreview": "Video Preview",
+    "browserNotSupportVideo": "Your browser does not support video playback.",
+    "loadingData": "Loading video and audio data..."
   },
   "storyboard": {
     "title": "Storyboard",
@@ -293,7 +319,8 @@
     "regenerateStart": "Starting to regenerate image",
     "editNarrationTitle": "Edit Narration",
     "shotNumber": "Shot {number}",
-    "generatingCountShots": "{count} generating"
+    "generatingCountShots": "{count} generating",
+    "storyboardList": "Storyboard List"
   },
   "navigation": {
     "home": "Home",
