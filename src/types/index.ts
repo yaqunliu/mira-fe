@@ -106,6 +106,7 @@ export interface ApiResponse<T = any> {
 export interface PaginationParams {
   page: number;
   page_size: number;
+  title?: string; // 可选的小说/创作标题筛选参数
 }
 
 export interface PaginatedResponse<T> {

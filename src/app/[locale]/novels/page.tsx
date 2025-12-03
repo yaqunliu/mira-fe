@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
@@ -136,20 +136,6 @@ function SwipeableNovelCard({
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, t: any) => {
-    e.stopPropagation();
-    const confirmed = await confirm({
-      title: t("novel.delete"),
-      description: t("novel.deleteConfirm"),
-      confirmText: t("common.confirm") || "确认",
-      cancelText: t("common.cancel") || "取消",
-      variant: "destructive",
-    });
-    if (confirmed) {
-      onDelete();
-    }
-  };
-
   const resetPosition = () => {
     setTranslateX(0);
   };
@@ -217,6 +203,7 @@ function SwipeableNovelCard({
 
 export default function NovelsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -229,14 +216,27 @@ export default function NovelsPage() {
   const locale = params?.locale as string;
   const queryClient = useQueryClient();
 
+  // 搜索防抖：300ms 延迟
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // 搜索时重置页码
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   const {
     data: novelsResponse,
     isLoading,
     error,
     refetch: refetchNovels,
   } = useQuery({
-    queryKey: ["novels", currentPage, pageSize],
-    queryFn: () => novelApi.getNovels({ page: currentPage, page_size: pageSize }),
+    queryKey: ["novels", currentPage, pageSize, debouncedSearchTerm],
+    queryFn: () => novelApi.getNovels({ 
+      page: currentPage, 
+      page_size: pageSize,
+      title: debouncedSearchTerm || undefined,
+    }),
   });
 
   // 下拉刷新
@@ -268,13 +268,6 @@ export default function NovelsPage() {
   
   const total = responseData?.data?.total || responseData?.total || novels.length;
   const totalPages = Math.ceil(total / pageSize);
-
-  // 搜索过滤
-  const filteredNovels = novels.filter(
-    (novel: Novel) =>
-      novel.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      novel.author.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleNovelClick = (novelId: string) => {
     router.push(`/${locale}/novels/${novelId}`);
@@ -308,110 +301,122 @@ export default function NovelsPage() {
       <div className="h-[1px] w-full divider-primary mb-4" />
 
       {/* 内容区域 */}
-      {isLoading ? (
-        <div className="flex-1 overflow-y-auto px-4 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="rounded-lg aspect-[4/3] w-full bg-card-custom skeleton"
-              />
-            ))}
-          </div>
-        </div>
-      ) : error ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-muted-foreground">
-              {t("novel.loadingFailed")}
-            </p>
-          </div>
-        </div>
-      ) : novels.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">{t("novel.noNovels")}</h3>
-            <p className="text-muted-foreground mb-6">
-              {t("novel.noNovelsDescription")}
-            </p>
+      <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
+        <div className="space-y-4">
+          {/* 搜索和上传 - 始终显示 */}
+          <div className="flex justify-between items-center gap-4">
+            <Input
+              placeholder={t("novel.searchNovel")}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 h-[36px] max-w-md"
+            />
             <Button onClick={() => setUploadModalOpen(true)} className="gap-1">
-              <Upload className="h-4 w-4" />
+              <Plus className="h-4 w-4" />
               {t("novel.uploadNovel")}
             </Button>
           </div>
-        </div>
-      ) : (
-        <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
-          <div className="space-y-4">
-            {/* 搜索和上传 */}
-            <div className="flex justify-between items-center gap-4">
-              <Input
-                placeholder={t("novel.searchNovel")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="flex-1 h-[36px] max-w-md"
-              />
-              <Button onClick={() => setUploadModalOpen(true)} className="gap-1">
-                <Plus className="h-4 w-4" />
-                {t("novel.uploadNovel")}
-              </Button>
-            </div>
 
-            {/* 小说列表 - 左滑删除 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredNovels.map((novel: Novel) => (
-                <SwipeableNovelCard
-                  key={novel.novel_id}
-                  novel={novel}
-                  onClick={() => handleNovelClick(novel.novel_id)}
-                  onDelete={(e) => {
-                    e.stopPropagation();
-                    handleDelete(novel.novel_id);
-                  }}
-                  isDeleting={deletingId === novel.novel_id}
-                  t={t}
-                  confirm={confirm}
+          {/* 内容区域 */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-lg aspect-[4/3] w-full bg-card-custom skeleton"
                 />
               ))}
             </div>
-
-            {/* 分页 */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={currentPage <= 1}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  {t("novel.previousPage")}
-                </Button>
-
-                <span className="text-sm text-muted-foreground px-4">
-                  {t("novel.pageInfo", { current: currentPage, total: totalPages })}
-                </span>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={currentPage >= totalPages}
-                >
-                  {t("novel.nextPage")}
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
+          ) : error ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <p className="text-muted-foreground">
+                  {t("novel.loadingFailed")}
+                </p>
               </div>
-            )}
-
-            {/* 总数 */}
-            <div className="text-center text-sm text-muted-foreground">
-              {t("novel.totalNovels", { total })}
             </div>
-          </div>
-        </PullToRefresh>
-      )}
+          ) : novels.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                {debouncedSearchTerm ? (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2">{t("novel.noSearchResults")}</h3>
+                    <p className="text-muted-foreground mb-6">
+                      {t("novel.noSearchResultsDescription")}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2">{t("novel.noNovels")}</h3>
+                    <p className="text-muted-foreground mb-6">
+                      {t("novel.noNovelsDescription")}
+                    </p>
+                    <Button onClick={() => setUploadModalOpen(true)} className="gap-1">
+                      <Upload className="h-4 w-4" />
+                      {t("novel.uploadNovel")}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* 小说列表 - 左滑删除 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {novels.map((novel: Novel) => (
+                  <SwipeableNovelCard
+                    key={novel.novel_id}
+                    novel={novel}
+                    onClick={() => handleNovelClick(novel.novel_id)}
+                    onDelete={(e) => {
+                      e.stopPropagation();
+                      handleDelete(novel.novel_id);
+                    }}
+                    isDeleting={deletingId === novel.novel_id}
+                    t={t}
+                    confirm={confirm}
+                  />
+                ))}
+              </div>
+
+              {/* 分页 */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage <= 1}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    {t("novel.previousPage")}
+                  </Button>
+
+                  <span className="text-sm text-muted-foreground px-4">
+                    {t("novel.pageInfo", { current: currentPage, total: totalPages })}
+                  </span>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage >= totalPages}
+                  >
+                    {t("novel.nextPage")}
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+
+              {/* 总数 */}
+              <div className="text-center text-sm text-muted-foreground">
+                {t("novel.totalNovels", { total })}
+              </div>
+            </>
+          )}
+        </div>
+      </PullToRefresh>
 
       {/* 上传弹窗 */}
       <NovelUploadModal

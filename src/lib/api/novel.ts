@@ -16,6 +16,9 @@ export const novelApi = {
     if (params?.page_size) {
       queryParams.append('page_size', params.page_size.toString())
     }
+    if (params?.title) {
+      queryParams.append('title', params.title)
+    }
     
     const queryString = queryParams.toString()
     const url = `/api/v1/novels/${queryString ? `?${queryString}` : ''}`

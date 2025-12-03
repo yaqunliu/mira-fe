@@ -20,9 +20,22 @@ const creationApi = {
     });
   },
   queryCreations: async (params?: PaginationParams): Promise<ICreation[]> => {
-    return apiClient.get<ApiResponse<ICreation[]>>(
-      `/api/v1/creations?page=${params?.page}&page_size=${params?.page_size}`
-    ) as unknown as Promise<ICreation[]>;
+    // 构建查询参数
+    const queryParams = new URLSearchParams()
+    if (params?.page) {
+      queryParams.append('page', params.page.toString())
+    }
+    if (params?.page_size) {
+      queryParams.append('page_size', params.page_size.toString())
+    }
+    if (params?.title) {
+      queryParams.append('title', params.title)
+    }
+    
+    const queryString = queryParams.toString()
+    const url = `/api/v1/creations${queryString ? `?${queryString}` : ''}`
+    
+    return apiClient.get<ApiResponse<ICreation[]>>(url) as unknown as Promise<ICreation[]>;
   },
   queryCreationById: async (
     creationId: string
