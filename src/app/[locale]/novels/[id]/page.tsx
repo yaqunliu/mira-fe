@@ -19,7 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { novelApi } from "@/lib/api/novel";
 import { formatDate } from "@/lib/utils";
-import type { Novel, Chapter, ChapterListItem, Character } from "@/types";
+import type { Novel, Chapter, ChapterListItem } from "@/types";
+import type { ICharacter } from "@/types/character";
 import { ICreation } from "@/types/creation";
 import LoadingIcon from "@/components/ui/loading-icon";
 import { CustomTabs } from "@/components/ui/custom-tabs";
@@ -46,6 +47,10 @@ export default function NovelDetailPage() {
   const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
   const [chapterTitleValue, setChapterTitleValue] = useState("");
   const [deletingChapterId, setDeletingChapterId] = useState<string | null>(null);
+  // 章节分页状态
+  const [chapterPage, setChapterPage] = useState(1);
+  const [chapterPageInput, setChapterPageInput] = useState("");
+  const chapterPageSize = 10;
 
   const {
     data: novelResponse,
@@ -121,24 +126,24 @@ export default function NovelDetailPage() {
   });
 
   // 处理 API 返回数据，兼容多种格式
-  // API返回格式: { data: { novel_id, title, chapters, characters, creations, ... } }
+  // API返回格式: { data: { novel_id, title, characters, creations, ... } }
+  // 注意：章节数据不再从小说接口返回，需要通过章节列表接口单独获取
   const novelData = (novelResponse as any)?.data?.data || (novelResponse as any)?.data;
   const novel = novelData as Novel;
   
-  // 从小说数据中提取章节、角色、创作数据（API已经包含在响应中）
-  const chapters = (novelData as any)?.chapters || [];
+  // 从小说数据中提取角色、创作数据（API可能包含在响应中）
   const characters = (novelData as any)?.characters || [];
   const creations = (novelData as any)?.creations || [];
   
-  // 如果API没有包含这些数据，则使用单独的查询（向后兼容）
+  // 始终使用章节列表API获取章节（支持分页）
   const {
     data: chaptersResponse,
     isLoading: isChaptersLoading,
     error: chaptersError,
   } = useQuery({
-    queryKey: ["chapters", novelId],
-    queryFn: () => novelApi.getChapters(novelId),
-    enabled: !!novelId && !chapters?.length,
+    queryKey: ["chapters", novelId, chapterPage, chapterPageSize],
+    queryFn: () => novelApi.getChapters(novelId, { page: chapterPage, page_size: chapterPageSize }),
+    enabled: !!novelId,
   });
 
   const {
@@ -161,8 +166,20 @@ export default function NovelDetailPage() {
     enabled: !!novelId && !creations?.length,
   });
 
+  // 处理章节响应数据，兼容多种格式
+  const chaptersData = chaptersResponse as any;
+  const finalChapters = 
+    chaptersData?.data?.data || 
+    chaptersData?.data?.items || 
+    chaptersData?.data || 
+    chaptersData?.items || 
+    (Array.isArray(chaptersData) ? chaptersData : []);
+  
+  // 章节分页信息
+  const chaptersTotal = chaptersData?.data?.total || chaptersData?.total || finalChapters.length;
+  const chaptersTotalPages = Math.ceil(chaptersTotal / chapterPageSize);
+  
   // 如果主响应中没有数据，使用单独的查询结果
-  const finalChapters = chapters?.length ? chapters : ((chaptersResponse as any)?.data?.data || (chaptersResponse as any)?.data || []);
   const finalCharacters = characters?.length ? characters : ((charactersResponse as any)?.data?.data || (charactersResponse as any)?.data || []);
   const finalCreations = creations?.length ? creations : ((creationsResponse as any)?.data?.data || (creationsResponse as any)?.data || []);
 
@@ -198,7 +215,7 @@ export default function NovelDetailPage() {
       const creationResponse = await creationApi.queryCreationByChapterId(String(chapterId));
       if (creationResponse?.data) {
         // 如果已有创作，跳转到已存在的创作
-        const creationId = (creationResponse.data as any).creation_id || creationResponse.data.creationId;
+        const creationId = (creationResponse.data as any).creation_id;
         if (creationId) {
           router.push(`/${locale}/create?creationId=${creationId}`);
           return;
@@ -419,6 +436,83 @@ export default function NovelDetailPage() {
             );
           })}
         </div>
+        
+        {/* 章节分页 */}
+        {chaptersTotalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 p-4 border-t border-slate-200 dark:border-zinc-700">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setChapterPage((p) => Math.max(1, p - 1));
+                setChapterPageInput("");
+              }}
+              disabled={chapterPage <= 1 || isChaptersLoading}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                {chapterPage} / {chaptersTotalPages}
+              </span>
+              <Input
+                type="number"
+                min={1}
+                max={chaptersTotalPages}
+                value={chapterPageInput}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value === "" || (Number(value) >= 1 && Number(value) <= chaptersTotalPages)) {
+                    setChapterPageInput(value);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && chapterPageInput) {
+                    const page = Number(chapterPageInput);
+                    if (page >= 1 && page <= chaptersTotalPages) {
+                      setChapterPage(page);
+                      setChapterPageInput("");
+                    }
+                  }
+                }}
+                placeholder={String(chapterPage)}
+                className="w-20 h-8 text-center text-sm"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (chapterPageInput) {
+                    const page = Number(chapterPageInput);
+                    if (page >= 1 && page <= chaptersTotalPages) {
+                      setChapterPage(page);
+                      setChapterPageInput("");
+                    }
+                  }
+                }}
+                disabled={!chapterPageInput || isChaptersLoading}
+                className="h-8 text-xs"
+              >
+                跳转
+              </Button>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setChapterPage((p) => Math.min(chaptersTotalPages, p + 1));
+                setChapterPageInput("");
+              }}
+              disabled={chapterPage >= chaptersTotalPages || isChaptersLoading}
+              className="h-8 w-8 p-0"
+            >
+              <ChevronLeft className="w-4 h-4 rotate-180" />
+            </Button>
+          </div>
+        )}
       </div>
     );
   };
@@ -445,8 +539,8 @@ export default function NovelDetailPage() {
     return (
       <div className="bg-card-custom flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-          {finalCharacters.map((character: Character, index: number) => (
-            <CharactorCard key={(character as any).character_id || character.characterId || `character-${index}`} character={character} />
+          {finalCharacters.map((character: ICharacter, index: number) => (
+            <CharactorCard key={(character as any).character_id || `character-${index}`} character={character} />
           ))}
         </div>
       </div>
@@ -475,7 +569,7 @@ export default function NovelDetailPage() {
       <div className="bg-card-custom flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
           {finalCreations.map((creation: ICreation, index: number) => (
-            <CreationCard key={(creation as any).creation_id || creation.creationId || `creation-${index}`} creation={creation} />
+            <CreationCard key={(creation as any).creation_id || `creation-${index}`} creation={creation} />
           ))}
         </div>
       </div>

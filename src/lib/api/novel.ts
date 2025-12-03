@@ -26,24 +26,24 @@ export const novelApi = {
     return apiClient.get<Novel[]>(url)
   },
 
-  getChapters: async (novelId: string) => {
-    // 模拟API调用
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            data: mockChapters,
-            pagination: {
-              page: 1,
-              limit: 10,
-              total: mockChapters.length,
-              totalPages: 1,
-            }
-          }
-        })
-      }, 1000)
-    })
+  // 获取章节列表（支持分页）
+  getChapters: async (novelId: string, params?: PaginationParams) => {
+    // 构建查询参数
+    const queryParams = new URLSearchParams()
+    if (params?.page) {
+      queryParams.append('page', params.page.toString())
+    }
+    if (params?.page_size) {
+      queryParams.append('page_size', params.page_size.toString())
+    } else {
+      // 默认每页10个
+      queryParams.append('page_size', '10')
+    }
+    
+    const queryString = queryParams.toString()
+    const url = `/api/v1/novels/${novelId}/chapters${queryString ? `?${queryString}` : '?page_size=10'}`
+    
+    return apiClient.get<PaginatedResponse<Chapter>>(url)
   },
 
   getCharacters: async (novelId: string) => {

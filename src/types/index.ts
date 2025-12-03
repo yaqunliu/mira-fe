@@ -17,7 +17,7 @@ export interface Novel {
   chapter_count: number;
   creation_ids: string[];
   character_ids: string[];
-  chapters: Chapter[];
+  chapters?: Chapter[]; // 可选，章节数据通过章节列表接口单独获取
 }
 
 export interface ChapterListItem {
