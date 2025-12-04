@@ -490,6 +490,8 @@ export function VideoGenerator({
   const handleConfirmRegenerateAudio = () => {
     setShowRegenerateDialog(false);
     setForceRegenerateAudio(true);
+    // 标记正在手动操作，防止 useEffect 重置 stage
+    isManuallyGeneratingRef.current = true;
     setStage("selecting");
     setTaskId(null);
     setProgress(null);
@@ -559,7 +561,7 @@ export function VideoGenerator({
 
           {/* 已选择的语音信息 */}
           {selectedVoice && (
-            <Card className="border-orange-200 dark:border-orange-800 bg-orange-50/30 dark:bg-orange-950/20">
+            <Card className="border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20">
               <CardContent className="p-4 space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
@@ -687,7 +689,7 @@ export function VideoGenerator({
       {/* 阶段 3: 生成失败 */}
       {stage === "failed" && (
         <div className="space-y-6 px-6">
-          <Card className="border-red-200 dark:border-red-800 bg-red-50/30 dark:bg-red-950/20">
+          <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
             <CardContent className="p-6">
               <div className="flex flex-col items-center text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
@@ -718,7 +720,7 @@ export function VideoGenerator({
           <div className="flex items-center justify-center gap-2 py-4">
             <Wand className="w-6 h-6 text-orange-500/80" />
             <div className="text-2xl font-bold text-gradient-primary">
-              创作完成啦～
+              {t("video.creationCompleted")}
             </div>
           </div>
 
@@ -745,7 +747,7 @@ export function VideoGenerator({
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <Music className="w-4 h-4 text-muted-foreground" />
-                      <span className="font-medium text-sm">音频预览</span>
+                      <span className="font-medium text-sm">{t("video.audioPreview")}</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {t("video.previewAudio")}
@@ -761,7 +763,7 @@ export function VideoGenerator({
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Video className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium text-sm">视频预览</span>
+                <span className="font-medium text-sm">{t("video.videoPreview")}</span>
               </div>
               <div className="relative w-full bg-black rounded-lg overflow-hidden aspect-video">
                 <video
@@ -769,7 +771,7 @@ export function VideoGenerator({
                   controls
                   className="w-full h-auto aspect-video"
                 >
-                  您的浏览器不支持视频播放。
+                  {t("video.browserNotSupportVideo")}
                 </video>
               </div>
             </div>
@@ -778,7 +780,7 @@ export function VideoGenerator({
           {/* 没有视频和音频时的提示 */}
           {!videoUrl && !audioUrl && (
             <div className="text-center py-8 text-muted-foreground">
-              <p>视频和音频数据加载中...</p>
+              <p>{t("video.loadingData")}</p>
             </div>
           )}
 

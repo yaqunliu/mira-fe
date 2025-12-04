@@ -132,7 +132,28 @@
     "generatingCharacterImage": "キャラクター画像を生成中...",
     "taskIdNotFound": "タスクIDの取得に失敗しました",
     "next": "次へ",
-    "pleaseGenerateAllCharacterImages": "次のステップに進むには、すべてのキャラクターの画像を生成してください。未生成のキャラクター：{characters}"
+    "pleaseGenerateAllCharacterImages": "次のステップに進むには、すべてのキャラクターの画像を生成してください。未生成のキャラクター：{characters}",
+    "editCharacterInfo": "キャラクター情報を編集",
+    "editCharacterDescription": "キャラクターの詳細情報を変更",
+    "name": "名前",
+    "namePlaceholder": "キャラクター名を入力...",
+    "nameRequired": "名前は必須です",
+    "basicInfoPlaceholder": "キャラクターの基本情報を入力...",
+    "basicInfoRequired": "基本情報は必須です",
+    "appearancePlaceholder": "キャラクターの外見特徴を記述...",
+    "appearanceRequired": "外見特徴は必須です",
+    "bodyPlaceholder": "キャラクターの体型特徴を記述...",
+    "bodyRequired": "体型特徴は必須です",
+    "hairPlaceholder": "キャラクターの髪型を記述...",
+    "hairRequired": "髪型は必須です",
+    "clothingPlaceholder": "キャラクターの服装を記述...",
+    "clothingRequired": "服装は必須です",
+    "tagsPlaceholder": "キャラクターの特徴タグを入力...",
+    "tagsRequired": "特徴タグは必須です",
+    "imagePrompt": "画像プロンプト",
+    "imagePromptPlaceholder": "画像生成用のプロンプトを入力...",
+    "updateSuccess": "キャラクター情報の更新に成功しました",
+    "updateFailed": "保存に失敗しました。再試行してください"
   },
   "user": {
     "userMenu": "ユーザーメニュー",
@@ -261,7 +282,12 @@
     "regenerateVideoTitle": "動画を再生成",
     "regenerateAudioDescription": "音声も再生成しますか？選択すると音声選択画面に移動します。",
     "regenerateVideoOnly": "動画のみ再生成",
-    "regenerateAudioAndVideo": "動画と音声を再生成"
+    "regenerateAudioAndVideo": "動画と音声を再生成",
+    "creationCompleted": "創作が完了しました！",
+    "audioPreview": "音声プレビュー",
+    "videoPreview": "動画プレビュー",
+    "browserNotSupportVideo": "お使いのブラウザは動画再生をサポートしていません。",
+    "loadingData": "動画と音声データを読み込み中..."
   },
   "storyboard": {
     "title": "ストーリーボード",
@@ -293,7 +319,8 @@
     "regenerateStart": "画像の再生成を開始",
     "editNarrationTitle": "ナレーションを編集",
     "shotNumber": "分鏡 {number}",
-    "generatingCountShots": "{count} 枚生成中"
+    "generatingCountShots": "{count} 枚生成中",
+    "storyboardList": "分鏡図リスト"
   },
   "navigation": {
     "home": "ホーム",

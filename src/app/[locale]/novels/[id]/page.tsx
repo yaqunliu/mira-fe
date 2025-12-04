@@ -695,8 +695,8 @@ export default function NovelDetailPage() {
                 <span className="text-sm">{novel.author}</span>
               </div>
               <div className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3" />
-                <span className="text-sm">
+                <BookOpen className="h-3 w-3 flex-shrink-0" />
+                <span className="text-sm whitespace-nowrap">
                   {novel?.chapter_count || finalChapters?.length || 0} {t("novelDetail.chapterCount")}
                 </span>
               </div>

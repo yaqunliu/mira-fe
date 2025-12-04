@@ -113,7 +113,7 @@ export const novelApi = {
 
   // 获取单个章节
   getChapter: async (novelId: string, chapterId: string) => {
-    return apiClient.get<Chapter>(`/novels/${novelId}/chapters/${chapterId}`)
+    return apiClient.get<Chapter>(`/api/v1/novels/${novelId}/chapters/${chapterId}`)
   },
 
   // 更新章节

@@ -132,7 +132,28 @@
     "generatingCharacterImage": "角色形象生成中...",
     "taskIdNotFound": "未获取到任务ID",
     "next": "下一步",
-    "pleaseGenerateAllCharacterImages": "请先生成所有角色的形象图才能进入下一步。未生成的角色：{characters}"
+    "pleaseGenerateAllCharacterImages": "请先生成所有角色的形象图才能进入下一步。未生成的角色：{characters}",
+    "editCharacterInfo": "编辑角色信息",
+    "editCharacterDescription": "修改角色的详细信息",
+    "name": "姓名",
+    "namePlaceholder": "输入角色姓名...",
+    "nameRequired": "姓名不能为空",
+    "basicInfoPlaceholder": "输入角色的基础信息...",
+    "basicInfoRequired": "基础信息不能为空",
+    "appearancePlaceholder": "描述角色的容貌特征...",
+    "appearanceRequired": "容貌特征不能为空",
+    "bodyPlaceholder": "描述角色的身材特征...",
+    "bodyRequired": "身材特征不能为空",
+    "hairPlaceholder": "描述角色的头发...",
+    "hairRequired": "头发不能为空",
+    "clothingPlaceholder": "描述角色的服装...",
+    "clothingRequired": "服装不能为空",
+    "tagsPlaceholder": "输入角色的特征标签...",
+    "tagsRequired": "特征标签不能为空",
+    "imagePrompt": "图片提示词",
+    "imagePromptPlaceholder": "输入图片生成的提示词...",
+    "updateSuccess": "角色信息修改成功",
+    "updateFailed": "保存失败，请重试"
   },
   "user": {
     "userMenu": "用户菜单",
@@ -269,7 +290,12 @@
     "regenerateVideoTitle": "重新生成视频",
     "regenerateAudioDescription": "是否重新生成音频？选择后将跳转到音频选择界面。",
     "regenerateVideoOnly": "只重新生成视频",
-    "regenerateAudioAndVideo": "重新生成视频和音频"
+    "regenerateAudioAndVideo": "重新生成视频和音频",
+    "creationCompleted": "创作完成啦～",
+    "audioPreview": "音频预览",
+    "videoPreview": "视频预览",
+    "browserNotSupportVideo": "您的浏览器不支持视频播放。",
+    "loadingData": "视频和音频数据加载中..."
   },
   "storyboard": {
     "title": "分镜",
@@ -301,7 +327,8 @@
     "regenerateStart": "开始重新生成图片",
     "editNarrationTitle": "编辑旁白",
     "shotNumber": "分镜 {number}",
-    "generatingCountShots": "{count} 张生成中"
+    "generatingCountShots": "{count} 张生成中",
+    "storyboardList": "分镜图列表"
   },
   "navigation": {
     "home": "首页",

@@ -337,7 +337,7 @@ export function StoryboardImages({
   return (
     <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>
       <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
-        <h3 className="text-base font-semib100">{`分镜图列表`}</h3>
+        <h3 className="text-base font-semibold">{t("storyboard.storyboardList")}</h3>
         {/* 整体进度条 */}
         {(isGenerating || generatingImages > 0) && (
           <Card className="p-4">
@@ -443,7 +443,7 @@ export function StoryboardImages({
                           )}
                         </div>
                         {/* 图片标题 */}
-                        <h5 className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <h5 className="text-sm font-medium text-gray-800 dark:text-gray-100">
                           {image.title}
                         </h5>
                       </div>
@@ -539,17 +539,17 @@ export function StoryboardImages({
                       {/* 内容区域 */}
                       <div className="space-y-3">
                         {(localNarrationUpdates[image.image_id] || image.narration) && (
-                          <div className="flex items-start gap-2 text-white">
+                          <div className="flex items-start gap-2 text-gray-800 dark:text-white">
                             <Mic className="w-4 h-4 flex-shrink-0 mt-0.5" />
                             <p className="text-sm leading-relaxed line-clamp-2 flex-1 min-w-0">
                               {localNarrationUpdates[image.image_id] || image.narration}
                             </p>
                             <button
                               onClick={() => handleStartEditNarration(image)}
-                              className="flex-shrink-0 p-1 hover:bg-white/20 rounded transition-colors"
+                              className="flex-shrink-0 p-1 hover:bg-gray-200 dark:hover:bg-white/20 rounded transition-colors"
                               title={t("storyboard.editNarration")}
                             >
-                              <PenLine className="w-3 h-3 text-zinc-400 dark:text-gray-500" />
+                              <PenLine className="w-3 h-3 text-gray-600 dark:text-gray-500" />
                             </button>
                           </div>
                         )}

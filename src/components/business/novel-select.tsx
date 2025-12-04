@@ -310,7 +310,7 @@ export function NovelSelect({
                           {showChapterCount && (
                             <div className="flex items-center gap-1.5 mt-1.5">
                               <FileText className="w-3 h-3 text-secondary flex-shrink-0" />
-                              <span className="text-xs text-secondary">
+                              <span className="text-xs text-secondary whitespace-nowrap">
                                 {novel.chapter_count || 0} {t("novel.chapters")}
                               </span>
                             </div>
@@ -398,100 +398,72 @@ export function NovelSelect({
 
   const renderChapterSelect = () => {
     return (
-      <Card className={cn("w-full gap-2 shadow-none", chapterClassName)}>
-        <CardHeader className="p-0">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-sm text-gray-300">
-              {t("novel.chapters")}
-            </CardTitle>
-            {multiSelect && filteredChapters.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSelectAllChapters}
-              >
-                {selectedChapters.length === filteredChapters.length
-                  ? t("common.cancel") + " " + t("common.selectAll")
-                  : t("common.selectAll")}
-              </Button>
-            )}
-          </div>
-          {showSearch && (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder={t("novel.chapterTitle") + "..."}
-                value={chapterSearchTerm}
-                onChange={(e) => setChapterSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          )}
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[300px]">
-            <div className="space-y-2">
-              {filteredChapters.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {chapterSearchTerm ? t("novel.noNovels") : t("novel.chapters")}
-                </div>
-              ) : (
-                filteredChapters.map((chapter: Chapter) => {
-                  const isSelected = selectedChapters.some(
-                    (c: Chapter) => c.chapter_id === chapter.chapter_id
-                  );
-                  return (
-                    <div
-                      key={chapter.chapter_id}
-                      className={cn(
-                        "p-3 border-[1px] rounded-lg border-gray-500/20 dark:border-gray-500/20 cursor-pointer transition-colors hover:bg-muted/50",
-                        isSelected && "bg-stone-600/10 dark:bg-stone-600/20"
-                      )}
-                      onClick={() => handleChapterToggle(chapter as Chapter)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant="secondary"
-                              className={cn(
-                                "text-xs bg-gray-400/10 text-stone-400",
-                                isSelected && "bg-orange-800/10 text-primary"
-                              )}
-                            >
-                              {t("novelDetail.chapterNumber", { number: chapter.chapter_number })}
-                            </Badge>
-                            <span
-                              className={cn(
-                                "text-sm font-medium",
-                                isSelected && "text-primary"
-                              )}
-                            >
-                              {chapter.title}
-                            </span>
-                          </div>
-                          {"preview" in chapter && chapter.preview && (
-                            <p className="text-xs text-gray-300 mt-2 line-clamp-2">
-                              {chapter.preview.substring(0, 100)}...
-                            </p>
-                          )}
+      <div className={cn("w-full flex flex-col flex-1 min-h-0", chapterClassName)}>
+        {/* 章节列表区域 - 可滚动 */}
+        <div className="flex-1 min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <div className="space-y-2 p-2">
+            {filteredChapters.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                {chapterSearchTerm ? t("novel.noNovels") : t("novel.chapters")}
+              </div>
+            ) : (
+              filteredChapters.map((chapter: Chapter) => {
+                const isSelected = selectedChapters.some(
+                  (c: Chapter) => c.chapter_id === chapter.chapter_id
+                );
+                return (
+                  <div
+                    key={chapter.chapter_id}
+                    className={cn(
+                      "p-3 border-[1px] rounded-lg border-gray-500/20 dark:border-gray-500/20 cursor-pointer transition-colors hover:bg-muted/50",
+                      isSelected && "bg-stone-600/10 dark:bg-stone-600/20"
+                    )}
+                    onClick={() => handleChapterToggle(chapter as Chapter)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              "text-xs bg-gray-400/10 text-stone-400",
+                              isSelected && "bg-orange-800/10 text-primary"
+                            )}
+                          >
+                            {t("novelDetail.chapterNumber", { number: chapter.chapter_number })}
+                          </Badge>
+                          <span
+                            className={cn(
+                              "text-sm font-medium",
+                              isSelected && "text-primary"
+                            )}
+                          >
+                            {chapter.title}
+                          </span>
                         </div>
-                        {isSelected && (
-                          <div className="flex items-center justify-center rounded-full bg-orange-500/70 p-1">
-                            <Check className="w-3 h-3" />
-                          </div>
+                        {"preview" in chapter && chapter.preview && (
+                          <p className="text-xs text-gray-300 mt-2 line-clamp-2">
+                            {chapter.preview.substring(0, 100)}...
+                          </p>
                         )}
                       </div>
+                      {isSelected && (
+                        <div className="flex items-center justify-center rounded-full bg-orange-500/70 p-1">
+                          <Check className="w-3 h-3" />
+                        </div>
+                      )}
                     </div>
-                  );
-                })
-              )}
-            </div>
-          </ScrollArea>
-        </CardContent>
-        {/* 章节分页控件 */}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+        
+        
+        {/* 分页控件 - 固定在底部 */}
         {!chapters && chaptersTotalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 p-3 border-t border-gray-500/20">
+          <div className="flex items-center justify-center gap-2 p-3 border-t border-gray-500/20 flex-shrink-0 bg-card">
             <Button
               variant="outline"
               size="sm"
@@ -565,16 +537,22 @@ export function NovelSelect({
             </Button>
           </div>
         )}
-      </Card>
+      </div>
     );
   };
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("flex flex-col flex-1 min-h-0", className)}>
       {/* 小说选择区域 */}
-      {!currentNovel ? renderNovelSelect() : renderFixNovelArea()}
+      <div className="flex-shrink-0 mb-6">
+        {!currentNovel ? renderNovelSelect() : renderFixNovelArea()}
+      </div>
       {/* 章节选择区域 */}
-      {currentNovel && renderChapterSelect()}
+      {currentNovel && (
+        <div className="flex-1 min-h-0 flex flex-col">
+          {renderChapterSelect()}
+        </div>
+      )}
       <NovelUploadModal
         open={showUploadModal}
         onOpenChange={setShowUploadModal}

@@ -13,6 +13,7 @@ export interface ProgressStep extends Step {
 export interface ProgressWrapperProps {
   steps: ProgressStep[];
   currentStep?: number;
+  maxAccessibleStep?: number; // 最大可访问步骤，根据状态判断
   orientation?: "horizontal" | "vertical";
   variant?: "default" | "minimal" | "circular";
   size?: "sm" | "md" | "lg";
@@ -36,6 +37,7 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
   ({
     steps,
     currentStep = 0,
+    maxAccessibleStep,
     orientation = "horizontal",
     variant = "default",
     size = "md",
@@ -74,12 +76,31 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
     }, [currentStep, isFirstStep, onStepChange]);
 
     const handleStepClick = useCallback((step: Step, index: number) => {
-      if (index <= currentStep) {
-        goToStep(index);
+      // 如果步骤被禁用，不允许点击
+      if (step.disabled) {
+        return;
       }
-    }, [currentStep, goToStep]);
+      
+      // 如果提供了 maxAccessibleStep，根据状态判断可访问的步骤
+      if (maxAccessibleStep !== undefined) {
+        // 允许点击所有不超过 maxAccessibleStep 的步骤
+        // 这样用户可以在已完成的步骤之间自由切换
+        if (index <= maxAccessibleStep) {
+          goToStep(index);
+        }
+      } else {
+        // 如果没有提供 maxAccessibleStep，保持原有逻辑：只能点击当前步骤及之前的步骤
+        if (index <= currentStep) {
+          goToStep(index);
+        }
+      }
+    }, [currentStep, maxAccessibleStep, goToStep]);
 
-    const updatedSteps = updateStepStatus(steps, currentStep);
+    // 更新步骤状态，并根据 maxAccessibleStep 设置 disabled 状态
+    const updatedSteps = updateStepStatus(steps, currentStep).map((step, index) => ({
+      ...step,
+      disabled: maxAccessibleStep !== undefined ? index > maxAccessibleStep : step.disabled,
+    }));
 
     // 如果提供了 children 函数，使用 render props 模式
     if (children) {
