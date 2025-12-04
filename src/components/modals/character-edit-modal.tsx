@@ -97,7 +97,29 @@ export function CharacterEditModal({
         image_prompt: data.imagePrompt || character.image_prompt,
       };
       
-      await characterApi.updateCharacter(character.character_id, updatedCharacter);
+      // 必须使用UUID，如果character对象没有uuid字段，说明数据有问题
+      // 检查所有可能的uuid字段位置
+      const characterUuid = (character as any).uuid || (character as any).UUID;
+      if (!characterUuid) {
+        console.error("角色对象缺少uuid字段:", {
+          character,
+          hasUuid: !!(character as any).uuid,
+          hasUUID: !!(character as any).UUID,
+          characterId: (character as any).character_id,
+          allKeys: Object.keys(character || {})
+        });
+        toast.error(`角色数据错误：缺少UUID字段，无法保存。角色ID: ${(character as any).character_id || '未知'}`);
+        return;
+      }
+      // 确保是字符串类型，且不是数字ID
+      const uuidString = String(characterUuid);
+      // 检查是否是UUID格式（简单检查：长度和格式）
+      if (uuidString.length < 30 || /^\d+$/.test(uuidString)) {
+        console.error("角色ID不是有效的UUID格式:", uuidString);
+        toast.error(`角色ID格式错误：${uuidString}，应该是UUID格式`);
+        return;
+      }
+      await characterApi.updateCharacter(uuidString, updatedCharacter);
       toast.success(t("updateSuccess"));
       onSuccess();
       onClose();

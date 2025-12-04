@@ -37,7 +37,8 @@ export function CreationOverview() {
 
   // 所有创作都可以点击进入详情
   const handleCreationClick = (creation: ICreation) => {
-    router.push(`/${locale}/create?creationId=${creation.creation_id}`);
+    const creationUuid = (creation as any).uuid || creation.creation_id;
+    router.push(`/${locale}/create?creationId=${creationUuid}`);
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
@@ -130,7 +131,7 @@ export function CreationOverview() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {displayCreations.map((creationItem: ICreation) => (
           <div
-            key={creationItem.creation_id}
+            key={(creationItem as any).uuid || creationItem.creation_id}
             onClick={() => handleCreationClick(creationItem)}
             className="group cursor-pointer"
           >

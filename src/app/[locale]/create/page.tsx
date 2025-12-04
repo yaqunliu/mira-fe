@@ -35,7 +35,7 @@ function transformShotsToSceneGroups(shotsData: ShotsTaskResponse): SceneGroup[]
     scene_id: String(scene.scene_id),
     scene_title: scene.title,
     images: scene.shots.map((shot) => ({
-      image_id: String(shot.shot_id),
+      image_id: (shot as any).uuid || String(shot.shot_id), // 优先使用UUID
       title: shot.title,
       image_url: shot.image_url || "",
       prompt: shot.image_prompt || shot.prompt || "", // 优先使用 image_prompt
@@ -54,7 +54,7 @@ function transformCreationScenesToSceneGroups(scenes: IScene[]): SceneGroup[] {
     scene_id: String(scene.scene_id),
     scene_title: scene.title,
     images: scene.shots.map((shot) => ({
-      image_id: String(shot.shot_id),
+      image_id: (shot as any).uuid || String(shot.shot_id), // 优先使用UUID
       title: shot.title,
       image_url: shot.image_url || "",
       prompt: shot.image_prompt || "", // 注意：IShot 中字段名是 image_prompt
@@ -719,7 +719,9 @@ export default function CreateCreation() {
             initialVideoUrl={curCreation?.video_url}
             currentTaskId={curCreation?.current_task_id}
             onVideoGenerated={() => {
-              nextStep();
+              // 视频生成完成，刷新创作数据以获取最新状态
+              // 预览界面会在组件内部自动显示
+              refetchCreation();
             }}
           />
         );

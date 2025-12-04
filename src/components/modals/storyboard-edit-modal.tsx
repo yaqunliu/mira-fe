@@ -63,8 +63,23 @@ export function StoryboardEditModal({
   const handleSave = async (data: EditStoryboardFormData) => {
     setIsLoading(true);
     try {
+      // 必须使用UUID，如果shot对象没有uuid字段，说明数据有问题
+      const shotUuid = (shot as any).uuid;
+      if (!shotUuid) {
+        console.error("分镜对象缺少uuid字段:", shot);
+        toast.error(`分镜数据错误：缺少UUID字段，无法保存。分镜ID: ${(shot as any).shot_id || '未知'}`);
+        return;
+      }
+      // 确保是字符串类型，且不是数字ID
+      const uuidString = String(shotUuid);
+      // 检查是否是UUID格式（简单检查：长度和格式）
+      if (uuidString.length < 30 || /^\d+$/.test(uuidString)) {
+        console.error("分镜ID不是有效的UUID格式:", uuidString);
+        toast.error(`分镜ID格式错误：${uuidString}，应该是UUID格式`);
+        return;
+      }
       // 调用 API 更新分镜
-      await shotApi.updateShot(shot.shot_id, {
+      await shotApi.updateShot(uuidString, {
         title: data.title,
         narration: data.narration,
       });

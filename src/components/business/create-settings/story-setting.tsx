@@ -68,8 +68,10 @@ export function StorySetting() {
       
       const chapters = (selectedNovel as any)?.chapters || [];
       const targetChapter = chapters.find((chapter: Chapter) => {
+        // 同时匹配uuid和chapter_id，以支持新旧数据
+        const uuid = String((chapter as any).uuid || "");
         const id = String((chapter as any).chapter_id || chapter.chapter_id || "");
-        return id === String(chapterIdFromUrl);
+        return uuid === String(chapterIdFromUrl) || id === String(chapterIdFromUrl);
       });
       
       if (targetChapter) {
@@ -77,14 +79,15 @@ export function StorySetting() {
         setSelectedChapters([targetChapter]);
         setIsLoadingFromUrl(false);
       } else {
-        // 直接通过章节ID获取单个章节详情
-        novelApi.getChapter(selectedNovel.novel_id, chapterIdFromUrl)
+        // 直接通过章节UUID获取单个章节详情
+        novelApi.getChapter((selectedNovel.uuid || selectedNovel.novel_id) as string, chapterIdFromUrl)
           .then((response: any) => {
             const chapterData = response?.data?.data || response?.data;
             if (chapterData) {
               // 确保章节数据完整
               const fullChapter: Chapter = {
                 ...chapterData,
+                uuid: chapterData.uuid || chapterData.chapter_id || chapterData.chapterId || chapterIdFromUrl,
                 chapter_id: chapterData.chapter_id || chapterData.chapterId || chapterIdFromUrl,
                 title: chapterData.title || "未知章节",
                 chapter_number: chapterData.chapter_number || chapterData.chapterNumber || 0,
@@ -124,12 +127,16 @@ export function StorySetting() {
     mutationFn: ({ novelId, chapterIds }: { novelId: string; chapterIds: string[] }) =>
       creationApi.createCreation({ novelId, chapterId: chapterIds[0] }),
     onSuccess: (response: any) => {
-      const newCreationId = response?.data?.creation_id || response?.data || response;
-      if (newCreationId) {
-        setCreationId(String(newCreationId));
+      // 优先使用UUID，如果没有则使用creation_id
+      const newCreationUuid = response?.data?.uuid || response?.data?.data?.uuid;
+      const newCreationId = response?.data?.creation_id || response?.data?.data?.creation_id || response?.data || response;
+      const creationIdToUse = newCreationUuid || String(newCreationId);
+      
+      if (creationIdToUse) {
+        setCreationId(creationIdToUse);
         toast.success(t("creation.characterAnalysisStart") || "开始分析章节内容...");
         // 跳转到创作页面，显示分析进度
-        router.replace(`/${locale}/create?creationId=${newCreationId}`);
+        router.replace(`/${locale}/create?creationId=${creationIdToUse}`);
       } else {
         throw new Error(t("creation.taskIdNotFound") || "未获取到创作ID");
       }
@@ -153,14 +160,15 @@ export function StorySetting() {
       throw new Error(t("novel.chapters"));
     }
 
-    const chapterId = selectedChapters[0].chapter_id;
+    const chapterUuid = (selectedChapters[0] as any).uuid || selectedChapters[0].chapter_id;
 
     // 先检查该章节是否已有创作
     try {
-      const existingCreation = await creationApi.queryCreationByChapterId(chapterId);
+      const existingCreation = await creationApi.queryCreationByChapterId(chapterUuid);
       if (existingCreation?.data) {
         // 如果已有创作，直接跳转到该创作
-        router.replace(`/${locale}/create?creationId=${existingCreation.data.creation_id}`);
+        const creationUuid = (existingCreation.data as any).uuid || existingCreation.data.creation_id;
+        router.replace(`/${locale}/create?creationId=${creationUuid}`);
         return; // 直接返回，不创建新创作
       }
     } catch (error) {
@@ -188,8 +196,8 @@ export function StorySetting() {
     return new Promise<void>((resolve, reject) => {
       createCreationMutation.mutate(
         {
-          novelId: selectedNovel.novel_id,
-          chapterIds: selectedChapters.map((chapter) => chapter.chapter_id),
+          novelId: (selectedNovel.uuid || selectedNovel.novel_id) as string,
+          chapterIds: selectedChapters.map((chapter) => (chapter as any).uuid || chapter.chapter_id) as string[],
         },
         {
           onSuccess: () => resolve(),

@@ -20,6 +20,7 @@ export interface IShot {
     narration: string;
     image_prompt: string;
     shot_id: number;
+    uuid?: string;  // UUID字段
     scene_id: number;
     image_url: string | null;
     created_at: string;

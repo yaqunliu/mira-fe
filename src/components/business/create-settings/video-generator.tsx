@@ -117,6 +117,8 @@ export function VideoGenerator({
   
   // 标记是否正在手动触发生成（防止 useEffect 重置 stage）
   const isManuallyGeneratingRef = useRef(false);
+  // 标记是否已经完成视频生成（防止重复调用和重复提示）
+  const isVideoCompletedRef = useRef(false);
 
   // 根据 creation 状态初始化组件阶段
   // 注意：如果 stage 已经是 "generating" 或正在手动生成，不要重置它
@@ -143,6 +145,8 @@ export function VideoGenerator({
       setStage("completed");
       if (initialAudioUrl) setAudioUrl(initialAudioUrl);
       setVideoUrl(initialVideoUrl);
+      // 标记已完成
+      isVideoCompletedRef.current = true;
       return;
     }
 
@@ -153,6 +157,8 @@ export function VideoGenerator({
         // 这些状态应该有视频数据，如果没有可能数据还没加载
         if (initialVideoUrl) {
           setStage("completed");
+          // 标记已完成
+          isVideoCompletedRef.current = true;
         } else {
           // 没有视频URL，保持 idle 状态让用户重新操作
           setStage("idle");
@@ -191,6 +197,11 @@ export function VideoGenerator({
   // 监听creationData中的current_task_id，如果检测到有任务在进行，自动恢复轮询
   useEffect(() => {
     const taskIdFromCreation = creationData?.current_task_id;
+    
+    // 如果已经有视频URL，说明已经完成，不应该恢复轮询
+    if (creationData?.video_url || isVideoCompletedRef.current) {
+      return;
+    }
     
     // 如果creation数据中有current_task_id，且当前没有设置taskId或stage不是generating，则恢复轮询
     if (taskIdFromCreation && (!taskId || stage !== "generating")) {
@@ -250,8 +261,13 @@ export function VideoGenerator({
   }, []);
 
   // 任务成功后获取最新的创作数据
-  const fetchLatestCreationData = useCallback(async () => {
+  const fetchLatestCreationData = useCallback(async (retryCount = 0) => {
     if (!creationId) return;
+    
+    // 如果已经完成，防止重复调用
+    if (isVideoCompletedRef.current) {
+      return;
+    }
     
     try {
       const response = await creationApi.queryCreationById(creationId);
@@ -263,19 +279,42 @@ export function VideoGenerator({
       
       // 只有视频生成成功后才显示完成状态
       if (creation?.video_url) {
+        // 标记已完成，防止重复调用
+        isVideoCompletedRef.current = true;
+        // 清除 taskId，停止轮询
+        setTaskId(null);
         setVideoUrl(creation.video_url);
-        onVideoGenerated?.(creation.video_url);
         setStage("completed");
+        // 只在第一次完成时显示提示和调用回调
+        onVideoGenerated?.(creation.video_url);
         toast.success(t("video.videoGenerationSuccess"));
       } else {
-        // 视频还没生成完，继续保持生成状态
-        toast.info(t("video.audioGenerationSuccess"));
+        // 视频还没生成完，如果这是任务完成后的第一次检查，可能需要等待后端更新
+        // 最多重试3次，每次等待1秒
+        if (retryCount < 3) {
+          setTimeout(() => {
+            fetchLatestCreationData(retryCount + 1);
+          }, 1000);
+        } else {
+          // 重试3次后还是没有视频URL，继续保持生成状态
+          // 只在第一次显示提示
+          if (!audioUrl && creation?.audio_url) {
+            toast.info(t("video.audioGenerationSuccess"));
+          }
+        }
       }
     } catch (error) {
       console.error("获取创作数据失败:", error);
-      toast.error(t("errors.serverError"));
+      // 如果出错，也尝试重试（最多3次）
+      if (retryCount < 3) {
+        setTimeout(() => {
+          fetchLatestCreationData(retryCount + 1);
+        }, 1000);
+      } else {
+        toast.error(t("errors.serverError"));
+      }
     }
-  }, [creationId, onVideoGenerated]);
+  }, [creationId, onVideoGenerated, audioUrl, t]);
 
   // 轮询任务状态
   const { data: taskData } = useQuery({
@@ -296,11 +335,19 @@ export function VideoGenerator({
 
       const status = query.state.data?.status;
       if (status === TaskStatus.SUCCESS) {
-      // 任务成功，重新获取创作数据以拿到最新的音视频 URL
-      // 重置手动生成标记
-      isManuallyGeneratingRef.current = false;
-      fetchLatestCreationData();
-      return false;
+        // 任务成功，重新获取创作数据以拿到最新的音视频 URL
+        // 重置手动生成标记
+        isManuallyGeneratingRef.current = false;
+        // 清除 taskId，停止轮询
+        setTaskId(null);
+        // 先强制刷新 creationData，然后获取最新数据
+        refetchCreation().then(() => {
+          // 等待一小段时间确保后端数据已更新，然后获取最新数据
+          setTimeout(() => {
+            fetchLatestCreationData();
+          }, 500);
+        });
+        return false;
       }
       if (status === TaskStatus.FAILURE) {
         // 重置手动生成标记
@@ -419,6 +466,8 @@ export function VideoGenerator({
     setErrorMessage(null);
     setAudioUrl(null);
     setVideoUrl(null);
+    // 重置完成标记
+    isVideoCompletedRef.current = false;
     
     // 获取创作数据（如果还没有，使用快速接口获取）
     let currentCreationData = creationData;
@@ -498,6 +547,8 @@ export function VideoGenerator({
     setErrorMessage(null);
     setAudioUrl(null);
     setVideoUrl(null);
+    // 重置完成标记
+    isVideoCompletedRef.current = false;
     // 清空已选择的语音，让用户重新选择
     setSelectedVoiceId(null);
     setSelectedVoice(null);

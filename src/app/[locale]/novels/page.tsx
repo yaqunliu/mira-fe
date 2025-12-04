@@ -269,21 +269,21 @@ export default function NovelsPage() {
   const total = responseData?.data?.total || responseData?.total || novels.length;
   const totalPages = Math.ceil(total / pageSize);
 
-  const handleNovelClick = (novelId: string) => {
-    router.push(`/${locale}/novels/${novelId}`);
+  const handleNovelClick = (novelUuid: string) => {
+    router.push(`/${locale}/novels/${novelUuid}`);
   };
 
-  const handleUploadComplete = (novelId?: string) => {
+  const handleUploadComplete = (novelUuid?: string) => {
     setUploadModalOpen(false);
     refetchNovels();
-    if (novelId) {
-      router.push(`/${locale}/novels/${novelId}`);
+    if (novelUuid) {
+      router.push(`/${locale}/novels/${novelUuid}`);
     }
   };
 
-  const handleDelete = (novelId: string) => {
-    setDeletingId(novelId);
-    deleteMutation.mutate(novelId);
+  const handleDelete = (novelUuid: string) => {
+    setDeletingId(novelUuid);
+    deleteMutation.mutate(novelUuid);
   };
 
   return (
@@ -368,12 +368,12 @@ export default function NovelsPage() {
                   <SwipeableNovelCard
                     key={novel.novel_id}
                     novel={novel}
-                    onClick={() => handleNovelClick(novel.novel_id)}
+                    onClick={() => handleNovelClick(novel.uuid || novel.novel_id)}
                     onDelete={(e) => {
                       e.stopPropagation();
-                      handleDelete(novel.novel_id);
+                      handleDelete(novel.uuid || novel.novel_id);
                     }}
-                    isDeleting={deletingId === novel.novel_id}
+                    isDeleting={deletingId === (novel.uuid || novel.novel_id)}
                     t={t}
                     confirm={confirm}
                   />

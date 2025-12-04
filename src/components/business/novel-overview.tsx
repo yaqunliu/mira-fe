@@ -49,20 +49,20 @@ export function NovelOverview() {
     router.push(`/${locale}/novels`);
   };
 
-  const handleNovelClick = (novelId: string) => {
-    router.push(`/${locale}/novels/${novelId}`);
+  const handleNovelClick = (novelUuid: string) => {
+    router.push(`/${locale}/novels/${novelUuid}`);
   };
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
   };
 
-  const handleUploadComplete = (novelId?: string) => {
+  const handleUploadComplete = (novelUuid?: string) => {
     setShowUploadModal(false);
     refetchNovels();
-    // 如果有 novelId，可以跳转到小说详情
-    if (novelId) {
-      router.push(`/${locale}/novels/${novelId}`);
+    // 如果有 novelUuid，可以跳转到小说详情
+    if (novelUuid) {
+      router.push(`/${locale}/novels/${novelUuid}`);
     }
   };
 
@@ -111,7 +111,7 @@ export function NovelOverview() {
         {displayNovels.map((novel: Novel) => (
           <div
             key={novel.novel_id}
-            onClick={() => handleNovelClick(novel.novel_id)}
+            onClick={() => handleNovelClick(novel.uuid || novel.novel_id)}
             className="group cursor-pointer"
           >
             {/* 书籍封面 */}

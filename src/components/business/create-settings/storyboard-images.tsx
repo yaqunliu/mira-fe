@@ -245,6 +245,15 @@ export function StoryboardImages({
         submittingIdsRef.current.add(imageId);
 
         try {
+          // 验证 imageId 是否为有效的 UUID 格式
+          const shotUuid = String(imageId);
+          // 检查是否是UUID格式（简单检查：长度和格式）
+          if (shotUuid.length < 30 || /^\d+$/.test(shotUuid)) {
+            console.error("分镜ID不是有效的UUID格式:", shotUuid);
+            toast.error(`分镜ID格式错误：${shotUuid}，应该是UUID格式`);
+            return;
+          }
+
           // 检查积分是否充足（重新生成单张图片）
           const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
           const pointsAvailable = await checkAndNotifyPoints(
@@ -262,8 +271,8 @@ export function StoryboardImages({
           // 添加到正在生成的列表
           setRegeneratingIds(prev => new Set(prev).add(imageId));
           
-          // 调用 API 开始生成
-          const response = await shotApi.regenerateShot(imageId, newPrompt);
+          // 调用 API 开始生成（使用UUID）
+          const response = await shotApi.regenerateShot(shotUuid, newPrompt);
           const taskId = response?.data?.task_id;
           
           if (!taskId) {
