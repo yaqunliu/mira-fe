@@ -4,6 +4,7 @@ import { routing } from '@/i18n/routing';
 import { notFound } from 'next/navigation';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { AuthProvider } from '@/components/providers/auth-provider';
 import { Toaster } from '@/components/ui/sonner';
 import '../globals.css';
 
@@ -23,10 +24,12 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <ThemeProvider>
           <QueryProvider>
-            <NextIntlClientProvider messages={messages}>
-              {children}
-              <Toaster position="top-right" visibleToasts={2} richColors closeButton />
-            </NextIntlClientProvider>
+            <AuthProvider>
+              <NextIntlClientProvider messages={messages}>
+                {children}
+                <Toaster position="top-right" visibleToasts={2} richColors closeButton />
+              </NextIntlClientProvider>
+            </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

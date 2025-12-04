@@ -10,16 +10,21 @@ import creationApi from "@/lib/api/creation";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { ICreation, CreationStatus, CreationStatusMap } from "@/types/creation";
+import { useAuthStore } from "@/stores/auth";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 
 export function CreationOverview() {
   const router = useRouter();
   const t = useTranslations();
   const params = useParams();
   const locale = params?.locale as string;
+  const { isAuthenticated, token } = useAuthStore();
+  const { loading: authLoading } = useSupabaseAuth();
 
   const { data: creationsResponse, isLoading } = useQuery({
     queryKey: ["creations"],
     queryFn: () => creationApi.queryCreations({ page: 1, page_size: 100 }),
+    enabled: !authLoading && (isAuthenticated || !!token), // 等待认证完成后再请求
   });
   // API 返回格式: { success: true, data: { items: [...] } } 或 { success: true, data: [...] }
   const responseData = (creationsResponse as any)?.data;

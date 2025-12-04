@@ -12,6 +12,7 @@ import { CreationOverview } from "@/components/business/creation-overview";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { CheckinButton } from "@/components/business/checkin-button";
 import { useAuthStore } from "@/stores/auth";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 
 export default function RootPage() {
   const router = useRouter();
@@ -22,12 +23,25 @@ export default function RootPage() {
   const { user, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const prevPathnameRef = useRef<string | null>(null);
+  
+  // 初始化 Supabase 认证，确保 session 同步到 auth store
+  const { loading: authLoading } = useSupabaseAuth();
+  const { token } = useAuthStore();
 
   useEffect(() => {
-    if (!isAuthenticated || !user?.id) {
+    // 等待 Supabase 认证初始化完成后再检查
+    if (authLoading) return;
+    
+    // 检查认证状态：需要 isAuthenticated 为 true 且有 user.id，或者有 token（可能正在同步中）
+    // 给一点时间让 token 同步完成
+    const hasAuth = isAuthenticated && user?.id;
+    const hasToken = !!token;
+    
+    if (!hasAuth && !hasToken) {
+      // 如果既没有认证状态也没有 token，才跳转到登录页
       router.push(`/${locale}/auth/login`);
     }
-  }, [router, locale, isAuthenticated, user?.id]);
+  }, [router, locale, isAuthenticated, user?.id, authLoading, token]);
 
   // 下拉刷新 - 刷新创作、小说列表和积分数据
   const handleRefresh = useCallback(async () => {

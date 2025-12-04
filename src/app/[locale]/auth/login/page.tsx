@@ -1,97 +1,18 @@
 'use client'
 
-import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { loginSchema, type LoginFormData } from '@/lib/validations/auth'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { useAuthStore } from '@/stores/auth'
-import { authApi } from '@/lib/api/auth'
-import { toast } from 'sonner'
-import { Eye, EyeOff } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useQueryClient } from '@tanstack/react-query'
-import { clearUserDataCache } from '@/lib/utils/clear-user-data'
-import axios from 'axios'
+import { GoogleSignIn } from '@/components/auth/google-sign-in'
+import { EmailSignIn } from '@/components/auth/email-sign-in'
+import { Separator } from '@/components/ui/separator'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login, setLoading } = useAuthStore()
-  const [showPassword, setShowPassword] = useState(false)
   const params = useParams()
   const locale = params?.locale as string
   const t = useTranslations('auth')
-  const queryClient = useQueryClient()
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: '',
-      password: '',
-    },
-  })
-
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      setLoading(true)
-      const response = await authApi.login(data)
-      
-      if (response.data?.access_token) {
-        // 登录前清空所有用户相关的 React Query 缓存，确保新用户数据干净
-        clearUserDataCache(queryClient)
-        
-        // 登录成功，保存 token
-        const token = response.data.access_token
-        // 用用户名作为临时用户信息，后续可以调用 getCurrentUser 获取完整信息
-        const user = {
-          id: data.username, // 用用户名作为临时 ID
-          username: data.username,
-          email: '',
-          avatar: '',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-        // login 方法内部已经会清空 points store 的数据
-        login(user, token)
-        toast.success(response.message || t('loginSuccess'))
-        router.push(`/${locale}`)
-      } else {
-        toast.error(response.message || t('serverError'))
-      }
-    } catch (error) {
-      console.error('Login error:', error)
-      
-      // 检查是否是 axios 错误，并提取错误消息
-      let errorMessage = t('networkError')
-      
-      if (axios.isAxiosError(error)) {
-        // 优先使用 response.data.message（API 返回的错误消息）
-        if (error.response?.data?.message) {
-          errorMessage = error.response.data.message
-        } 
-        // 如果没有 message，检查 error 字段
-        else if (error.response?.data?.error) {
-          errorMessage = error.response.data.error
-        }
-        // 如果错误对象本身有 message（由 apiClient 拦截器设置的）
-        else if (error.message) {
-          errorMessage = error.message
-        }
-      } 
-      // 如果是普通 Error 对象，使用其 message
-      else if (error instanceof Error) {
-        errorMessage = error.message
-      }
-      
-      toast.error(errorMessage)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -104,73 +25,30 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('username')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder={t('usernamePlaceholder')}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('password')}</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder={t('passwordPlaceholder')}
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <div className="space-y-6">
+              {/* 邮箱登录 */}
+              <EmailSignIn 
+                locale={locale}
+                onSuccess={() => {
+                  router.push(`/${locale}`)
+                }}
+              />
 
-                <div className="flex items-center justify-between">
-                  <Link
-                    href={`/${locale}/auth/forgot-password`}
-                    className="text-sm text-primary hover:underline"
-                  >
-                    {t('forgotPassword')}
-                  </Link>
+              {/* 分隔线 */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator />
                 </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground dark:bg-zinc-800">
+                    或
+                  </span>
+                </div>
+              </div>
 
-                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? t('loginButtonLoading') : t('loginButton')}
-                </Button>
-              </form>
-            </Form>
+              {/* Google 登录 */}
+              <GoogleSignIn locale={locale} />
+            </div>
 
             <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">{t('noAccount')}</span>

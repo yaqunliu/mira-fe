@@ -10,6 +10,8 @@ import { novelApi } from "@/lib/api/novel";
 import { useQuery } from "@tanstack/react-query";
 import { Novel } from "@/types";
 import { NovelUploadModal } from "../modals/novel-upload-modal";
+import { useAuthStore } from "@/stores/auth";
+import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
 
 export function NovelOverview() {
   const router = useRouter();
@@ -17,6 +19,8 @@ export function NovelOverview() {
   const params = useParams();
   const locale = params?.locale as string;
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const { token, isAuthenticated } = useAuthStore();
+  const { loading: authLoading } = useSupabaseAuth();
 
   const {
     data: novelsResponse,
@@ -28,6 +32,7 @@ export function NovelOverview() {
       const result = await novelApi.getNovels();
       return result;
     },
+    enabled: !authLoading && (isAuthenticated || !!token), // 等待认证完成且 token 准备好后再请求
   });
 
   // 处理 API 返回数据，兼容多种格式

@@ -45,4 +45,20 @@ export const authApi = {
   resetPassword: async (token: string, password: string) => {
     return apiClient.post('/api/v1/auth/reset-password', { token, password })
   },
+
+  // 同步 Supabase 用户到后端
+  syncSupabaseUser: async (supabaseToken: string) => {
+    return apiClient.post<{
+      user_id: number
+      username: string
+      email: string
+      avatar?: string
+      created_at?: string
+      updated_at?: string
+    }>('/api/v1/auth/sync', {}, {
+      headers: {
+        'Authorization': `Bearer ${supabaseToken}`,
+      },
+    })
+  },
 }
