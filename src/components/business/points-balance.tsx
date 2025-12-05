@@ -22,11 +22,16 @@ export function PointsBalance() {
   const { data, isLoading } = useQuery({
     queryKey: ['points', 'balance'],
     queryFn: () => pointsApi.getBalance(),
-    enabled: isAuthenticated,
+    // 移除 enabled,让 apiClient 自动处理认证
+    // 如果未登录,apiClient 会返回 401,React Query 会捕获错误
     staleTime: 5 * 60 * 1000, // 5分钟内不重新请求
     refetchOnWindowFocus: false,
+    retry: 1,
     onSuccess: (data) => {
       setBalance(data)
+    },
+    onError: () => {
+      // 静默处理错误,不显示给用户
     },
   })
 
