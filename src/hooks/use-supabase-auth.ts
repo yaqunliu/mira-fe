@@ -102,7 +102,9 @@ export function useSupabaseAuth() {
       // 如果有 session，先同步到后端和 store，然后再设置 loading 为 false
       if (session?.access_token) {
         try {
+          console.log('[useSupabaseAuth] Found session, syncing user to backend...')
           await syncUserToBackend(session)
+          console.log('[useSupabaseAuth] User sync completed during init')
         } catch (error) {
           // 静默处理同步错误，不影响用户登录流程
           console.error('[useSupabaseAuth] Sync error during init:', error)

@@ -119,15 +119,14 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             // 并且让 Zustand 的 persist 中间件完成持久化
             await new Promise(resolve => setTimeout(resolve, 300))
 
-            // 等待 Supabase token 请求完成
-            console.log('[EmailSignIn] Waiting for Supabase token request to complete...')
-            await waitForSupabaseSession(10000, 200)
-            console.log('[EmailSignIn] Supabase token request completed')
-
-            // 等待用户信息同步到 store
+            // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
             console.log('[EmailSignIn] Waiting for user info to sync to store...')
-            await waitForUserInfoInStore(5000, 100)
-            console.log('[EmailSignIn] User info synced to store')
+            const userInfoSynced = await waitForUserInfoInStore(5000, 100)
+            if (userInfoSynced) {
+              console.log('[EmailSignIn] User info synced to store')
+            } else {
+              console.warn('[EmailSignIn] User info sync timeout, but user is already logged in')
+            }
 
             toast.success('登录成功')
 
@@ -162,15 +161,14 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
           // 并且让 Zustand 的 persist 中间件完成持久化
           await new Promise(resolve => setTimeout(resolve, 300))
 
-          // 等待 Supabase token 请求完成
-          console.log('[EmailSignIn] Waiting for Supabase token request to complete...')
-          await waitForSupabaseSession(10000, 200)
-          console.log('[EmailSignIn] Supabase token request completed')
-
-          // 等待用户信息同步到 store
+          // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
           console.log('[EmailSignIn] Waiting for user info to sync to store...')
-          await waitForUserInfoInStore(5000, 100)
-          console.log('[EmailSignIn] User info synced to store')
+          const userInfoSynced = await waitForUserInfoInStore(5000, 100)
+          if (userInfoSynced) {
+              console.log('[EmailSignIn] User info synced to store')
+            } else {
+              console.warn('[EmailSignIn] User info sync timeout, but user is already logged in')
+            }
 
           toast.success('登录成功')
 

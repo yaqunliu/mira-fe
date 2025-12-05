@@ -11,8 +11,6 @@ import { useSupabaseAuth } from '@/hooks/use-supabase-auth'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { User, Sparkles, BookOpenText, Video } from 'lucide-react'
 import { ActionBar } from '@/components/business/action-bar'
-import { waitForUserInfoInStore, waitForSupabaseSession } from '@/lib/utils/wait-for-supabase-token'
-import { createClient } from '@/lib/supabase/client'
 
 export default function HomePage() {
   const router = useRouter()
@@ -25,36 +23,91 @@ export default function HomePage() {
 
   // 如果检测到有 session 但没有用户信息，等待同步完成
   useEffect(() => {
+    let mounted = true
+    let checkInterval: NodeJS.Timeout | null = null
+
     const checkAndWaitForUserInfo = async () => {
       // 如果已经有用户信息，不需要等待
       if (isAuthenticated && user && user.id) {
+        if (waitingForUserInfo) {
+          setWaitingForUserInfo(false)
+        }
         return
       }
 
       // 如果有 session 但没有用户信息，说明可能是刚登录，需要等待同步
       if (session?.access_token && !isAuthenticated) {
-        console.log('[HomePage] Session found but no user info, waiting for sync...')
-        setWaitingForUserInfo(true)
+        console.log('[HomePage] Session found but no user info, waiting for sync...', {
+          hasSession: !!session,
+          hasAccessToken: !!session.access_token,
+          isAuthenticated,
+          hasUser: !!user,
+        })
         
-        try {
-          // 先等待 Supabase session
-          await waitForSupabaseSession(5000, 200)
-          
-          // 再等待用户信息同步到 store
-          await waitForUserInfoInStore(5000, 100)
-          
-          console.log('[HomePage] User info sync completed')
-        } catch (error) {
-          console.error('[HomePage] Error waiting for user info:', error)
-        } finally {
-          setWaitingForUserInfo(false)
+        if (!waitingForUserInfo) {
+          setWaitingForUserInfo(true)
         }
+
+        let timeoutId: NodeJS.Timeout | null = null
+
+        // 持续检查，直到用户信息同步完成
+        checkInterval = setInterval(() => {
+          if (!mounted) {
+            if (checkInterval) clearInterval(checkInterval)
+            if (timeoutId) clearTimeout(timeoutId)
+            return
+          }
+
+          const { user: currentUser, isAuthenticated: currentAuth } = useAuthStore.getState()
+          
+          if (currentAuth && currentUser && currentUser.id) {
+            console.log('[HomePage] User info found in store, sync completed')
+            if (checkInterval) {
+              clearInterval(checkInterval)
+              checkInterval = null
+            }
+            if (timeoutId) {
+              clearTimeout(timeoutId)
+              timeoutId = null
+            }
+            if (mounted) {
+              setWaitingForUserInfo(false)
+            }
+          }
+        }, 200)
+
+        // 设置最大等待时间（5秒），超时后停止等待
+        timeoutId = setTimeout(() => {
+          if (checkInterval) {
+            clearInterval(checkInterval)
+            checkInterval = null
+          }
+          if (mounted) {
+            const { user: currentUser, isAuthenticated: currentAuth } = useAuthStore.getState()
+            if (!currentAuth || !currentUser) {
+              console.warn('[HomePage] User info sync timeout after 5 seconds, stopping wait')
+            } else {
+              console.log('[HomePage] User info found after timeout check')
+            }
+            setWaitingForUserInfo(false)
+          }
+        }, 5000) // 最多等待 5 秒
+      } else if (!session?.access_token && waitingForUserInfo) {
+        // 如果没有 session，停止等待
+        setWaitingForUserInfo(false)
       }
     }
 
     // 等待 authLoading 完成后再检查
     if (!authLoading) {
       checkAndWaitForUserInfo()
+    }
+
+    return () => {
+      mounted = false
+      if (checkInterval) {
+        clearInterval(checkInterval)
+      }
     }
   }, [authLoading, session, isAuthenticated, user])
 
