@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -21,7 +21,6 @@ export function NovelOverview() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const { token, isAuthenticated } = useAuthStore();
   const { loading: authLoading } = useSupabaseAuth();
-  const hasTriggeredRef = useRef(false);
 
   const {
     data: novelsResponse,
@@ -36,25 +35,6 @@ export function NovelOverview() {
     enabled: !authLoading && (isAuthenticated || !!token), // 认证初始化完成且有认证状态时才请求
     retry: 1, // 如果首次失败,重试一次
   });
-
-  // 监听认证状态变化，当从未认证变为已认证时，手动触发查询
-  useEffect(() => {
-    const isAuthenticatedNow = !authLoading && (isAuthenticated || !!token);
-    
-    if (isAuthenticatedNow && !hasTriggeredRef.current) {
-      // 延迟一点时间，确保 store 状态完全更新
-      const timer = setTimeout(() => {
-        refetchNovels()
-        hasTriggeredRef.current = true
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-    
-    // 如果认证状态变为 false，重置标记
-    if (!isAuthenticatedNow) {
-      hasTriggeredRef.current = false
-    }
-  }, [authLoading, isAuthenticated, token, refetchNovels])
 
   // 处理 API 返回数据，兼容多种格式
   const responseData = novelsResponse as any;

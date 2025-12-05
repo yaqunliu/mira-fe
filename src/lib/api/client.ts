@@ -6,8 +6,13 @@ class ApiClient {
   private client: AxiosInstance
 
   constructor() {
+    // 如果设置了完整的 API URL（不以 / 开头），直接使用
+    // 否则使用空字符串，让 Next.js rewrites 处理代理
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const baseURL = apiUrl && !apiUrl.startsWith('/') ? apiUrl : '';
+    
     this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+      baseURL,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
