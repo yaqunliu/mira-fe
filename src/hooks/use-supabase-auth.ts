@@ -1,7 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { User as SupabaseUser, Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth'
@@ -19,21 +19,29 @@ export function useSupabaseAuth() {
   const router = useRouter()
   const { login, logout: logoutStore } = useAuthStore()
   const queryClient = useQueryClient()
+  const syncingRef = useRef<boolean>(false)
+  const syncedSessionRef = useRef<string | null>(null)
 
   const syncUserToBackend = useCallback(async (session: Session) => {
-    console.log('[useSupabaseAuth] Syncing user to backend...', {
-      hasAccessToken: !!session.access_token,
-      userEmail: session.user?.email,
-    })
+    // Prevent duplicate sync calls for the same session
+    if (syncingRef.current || syncedSessionRef.current === session.access_token) {
+      return
+    }
+
+    syncingRef.current = true
 
     try {
       // 从 JWT token 中解析数据
       const payload = JSON.parse(atob(session.access_token.split('.')[1]))
+      const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
 
-      // 尝试同步到后端
+      // First, set the token in the store immediately
+      // This ensures API calls can use the token right away
+      const authStore = useAuthStore.getState()
+      authStore.updateToken(session.access_token, expiresIn)
+
+      // Then sync to backend
       const syncResponse = await authApi.syncSupabaseUser(session.access_token)
-
-      console.log('[useSupabaseAuth] Backend sync response:', syncResponse)
 
       if (syncResponse.data) {
         const user: User = {
@@ -45,18 +53,14 @@ export function useSupabaseAuth() {
           updatedAt: syncResponse.data.updated_at || new Date().toISOString(),
         }
 
-        // 从 JWT token 中解析过期时间
-        const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
-
-        console.log('[useSupabaseAuth] Logging in user:', { user, expiresIn })
         login(user, session.access_token, expiresIn)
+        syncedSessionRef.current = session.access_token
       }
     } catch (error) {
       console.error('[useSupabaseAuth] Backend sync failed:', error)
 
       // 即使同步失败，也使用 Supabase 用户信息
       if (session.user) {
-        // 从 user_metadata 中提取头像，优先使用 avatar_url，其次使用 picture
         const userMetadata = session.user.user_metadata || {}
         const avatar = userMetadata.avatar_url || userMetadata.picture || ''
 
@@ -72,29 +76,20 @@ export function useSupabaseAuth() {
         const payload = JSON.parse(atob(session.access_token.split('.')[1]))
         const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
 
-        console.log('[useSupabaseAuth] Using fallback Supabase user:', { user, expiresIn })
         login(user, session.access_token, expiresIn)
+        syncedSessionRef.current = session.access_token
       }
+    } finally {
+      syncingRef.current = false
     }
   }, [login])
 
   useEffect(() => {
     let mounted = true
 
-    console.log('[useSupabaseAuth] Initializing auth...')
-    console.log('[useSupabaseAuth] Current URL:', typeof window !== 'undefined' ? window.location.href : 'N/A')
-
     // 获取当前 session
-    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return
-
-      console.log('[useSupabaseAuth] Initial session check:', {
-        hasSession: !!session,
-        hasError: !!error,
-        userEmail: session?.user?.email,
-        hasAccessToken: !!session?.access_token,
-        error: error?.message,
-      })
 
       setSession(session)
       setUser(session?.user ?? null)
@@ -102,24 +97,16 @@ export function useSupabaseAuth() {
       // 如果有 session，先同步到后端和 store，然后再设置 loading 为 false
       if (session?.access_token) {
         try {
-          console.log('[useSupabaseAuth] Found session, syncing user to backend...')
           await syncUserToBackend(session)
-          console.log('[useSupabaseAuth] User sync completed during init')
         } catch (error) {
-          // 静默处理同步错误，不影响用户登录流程
           console.error('[useSupabaseAuth] Sync error during init:', error)
         }
-      } else {
-        // 如果没有 session，确保 loading 被设置为 false
-        console.log('[useSupabaseAuth] No session found, setting loading to false')
       }
 
-      // 同步完成后再设置 loading 为 false（无论是否有 session）
       if (mounted) {
         setLoading(false)
       }
     }).catch((error) => {
-      // 如果 getSession 本身出错，也要设置 loading 为 false
       console.error('[useSupabaseAuth] Error getting session:', error)
       if (mounted) {
         setLoading(false)
@@ -130,26 +117,15 @@ export function useSupabaseAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('[useSupabaseAuth] Auth state change:', {
-        event,
-        hasSession: !!session,
-        userEmail: session?.user?.email,
-      })
-
       setSession(session)
       setUser(session?.user ?? null)
 
       if (event === 'SIGNED_IN' && session) {
-        // 用户登录，同步到后端
         await syncUserToBackend(session)
       } else if (event === 'SIGNED_OUT') {
-        // 用户登出，清空 store
-        console.log('[useSupabaseAuth] User signed out')
         logoutStore()
         clearUserDataCache(queryClient)
       } else if (event === 'TOKEN_REFRESHED' && session) {
-        // Token 刷新，更新 store
-        console.log('[useSupabaseAuth] Token refreshed')
         await syncUserToBackend(session)
       }
     })

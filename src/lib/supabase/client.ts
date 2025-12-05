@@ -1,13 +1,16 @@
 import { createBrowserClient } from '@supabase/ssr'
+import type { SupabaseClient } from '@supabase/supabase-js'
+
+let supabaseClient: SupabaseClient | null = null
 
 export function createClient() {
-  console.log('[Supabase Client] Creating client with config:', {
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    flowType: 'implicit',
-    detectSessionInUrl: true,
-  })
+  // Return existing client if already created
+  if (supabaseClient) {
+    return supabaseClient
+  }
 
-  return createBrowserClient(
+  // Create new client only if it doesn't exist
+  supabaseClient = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -20,4 +23,6 @@ export function createClient() {
       }
     }
   )
+
+  return supabaseClient
 }

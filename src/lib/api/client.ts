@@ -26,78 +26,22 @@ class ApiClient {
     // 请求拦截器 - 添加认证token
     this.client.interceptors.request.use(
       async (config: InternalAxiosRequestConfig) => {
-        console.log('[API Client] Request:', { url: config.url, method: config.method })
-
         // 如果设置了 skip-auth，跳过认证
         if (config.headers['skip-auth']) {
-          console.log('[API Client] Skipping auth')
           return config
         }
 
         const authStore = useAuthStore.getState()
-        let token = authStore.token
-
-        console.log('[API Client] Auth store:', {
-          hasToken: !!token,
-          isAuthenticated: authStore.isAuthenticated,
-          hasUser: !!authStore.user
-        })
-
-        // 如果没有token，尝试从 Supabase 获取（可能是同步延迟）
-        // 这确保即使 token 还没有同步到 store，也能使用 Supabase session
-        // 只在客户端环境中执行
-        if (!token && typeof window !== 'undefined') {
-          console.log('[API Client] Fetching token from Supabase...')
-          try {
-            const { createClient } = await import('@/lib/supabase/client')
-            const supabase = createClient()
-            const { data: { session } } = await supabase.auth.getSession()
-
-            console.log('[API Client] Supabase session:', {
-              hasSession: !!session,
-              hasAccessToken: !!session?.access_token,
-              userEmail: session?.user?.email
-            })
-
-            if (session?.access_token) {
-              token = session.access_token
-              console.log('[API Client] Using Supabase token')
-
-              // 如果 store 中没有 token，但 Supabase 有 session，更新 store
-              // 这样可以避免每次都从 Supabase 获取
-              if (!authStore.token && session.access_token) {
-                // 从 JWT 解析过期时间
-                try {
-                  const payload = JSON.parse(atob(session.access_token.split('.')[1]))
-                  const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
-                  authStore.updateToken(session.access_token, expiresIn)
-                  console.log('[API Client] Updated auth store with token')
-                } catch {
-                  authStore.updateToken(session.access_token, 3600)
-                }
-              }
-            } else {
-              console.warn('[API Client] No Supabase session available')
-            }
-          } catch (error) {
-            console.error('[API Client] Error fetching Supabase session:', error)
-            // 如果获取失败，继续使用 null token
-            // 静默处理错误，不影响正常请求流程
-          }
-        }
+        const token = authStore.token
 
         // 如果有token，添加到请求头
         if (token) {
           config.headers.Authorization = `Bearer ${token}`
-          console.log('[API Client] Added Authorization header')
-        } else {
-          console.warn('[API Client] No token available!')
         }
 
         return config
       },
       (error) => {
-        console.error('[API Client] Request interceptor error:', error)
         return Promise.reject(error)
       }
     )
