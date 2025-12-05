@@ -2,8 +2,6 @@ import { apiClient } from './client'
 import type { Novel, Chapter, PaginatedResponse, PaginationParams, Character } from '@/types'
 import mockNovels from '@/lib/mock-data/novels.json'
 import mockChapters from '@/lib/mock-data/chapters.json'
-import mockCharacters from '@/lib/mock-data/characters.json'
-import mockCreations from '@/lib/mock-data/creations.json'
 
 export const novelApi = {
   // 获取小说列表
@@ -47,31 +45,25 @@ export const novelApi = {
   },
 
   getCharacters: async (novelId: string) => {
-    // 模拟API调用
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            data: mockCharacters,
-          }
-        })
-      }, 1000)
-    })
+    // 小说详情接口已经返回了角色数据，这里返回空数组
+    // 如果小说详情接口没有返回数据，前端会显示"暂无角色"
+    return {
+      success: true,
+      data: {
+        data: [],
+      }
+    }
   },
 
   getCreationsByNovelId: async (novelId: string) => {
-    // 模拟API调用
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          success: true,
-          data: {
-            data: mockCreations,
-          }
-        })
-      }, 1000)
-    })
+    // 小说详情接口已经返回了创作数据，这里返回空数组
+    // 如果小说详情接口没有返回数据，前端会显示"暂无创作"
+    return {
+      success: true,
+      data: {
+        data: [],
+      }
+    }
   },
 
   // 获取单个小说详情

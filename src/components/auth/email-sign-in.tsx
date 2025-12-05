@@ -126,7 +126,6 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             }
           }
         } catch (syncError) {
-          console.error('Sync error:', syncError)
           // 即使同步失败，也使用 Supabase 用户信息
           const userMetadata = authData.user.user_metadata || {}
           const avatar = userMetadata.avatar_url || userMetadata.picture || ''
@@ -159,7 +158,6 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
         }
       }
     } catch (error: any) {
-      console.error('Email sign in error:', error)
       toast.error(error.message || '登录失败，请检查邮箱和密码')
     }
   }

@@ -261,7 +261,6 @@ export default function CreateCreation() {
     refetchInterval: (query) => {
       // 如果查询出错，停止轮询
       if (query.state.error) {
-        console.error("查询任务状态失败:", query.state.error);
         setIsGeneratingShots(false);
         setShotsTaskId(null);
         toast.error(t("creation.queryTaskFailed"));

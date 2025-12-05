@@ -21,6 +21,12 @@ const characterApi = {
       { character_ids: characterIds, visual_style: style }
     );
   },
+  // 获取创作关联的角色列表
+  getCreationCharacters: async (creationUuid: string): Promise<ApiResponse<ICharacter[]>> => {
+    return apiClient.get<ApiResponse<ICharacter[]>>(
+      `/api/v1/characters/creation/${creationUuid}`
+    ) as unknown as Promise<ApiResponse<ICharacter[]>>;
+  },
 };
 
 export default characterApi;

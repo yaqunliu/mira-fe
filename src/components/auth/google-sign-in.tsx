@@ -33,7 +33,6 @@ export function GoogleSignIn({ locale = 'zh' }: GoogleSignInProps) {
       })
       if (error) throw error
     } catch (error: any) {
-      console.error('Google sign in error:', error)
       toast.error(error.message || 'Google 登录失败，请重试')
       setLoading(false)
     }

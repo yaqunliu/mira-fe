@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { Task, ShotsTaskResponse } from '@/types'
+import type { Task, ShotsTaskResponse, ApiResponse } from '@/types'
 
 const taskApi = {
   // apiClient.get 返回的已经是 response.data，如果后端直接返回 Task，则这里返回的就是 Task

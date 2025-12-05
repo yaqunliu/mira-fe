@@ -31,7 +31,8 @@ class ApiClient {
 
         // 如果没有token，尝试从 Supabase 获取（可能是同步延迟）
         // 这确保即使 token 还没有同步到 store，也能使用 Supabase session
-        if (!token) {
+        // 只在客户端环境中执行
+        if (!token && typeof window !== 'undefined') {
           try {
             const { createClient } = await import('@/lib/supabase/client')
             const supabase = createClient()
@@ -53,7 +54,7 @@ class ApiClient {
             }
           } catch (error) {
             // 如果获取失败，继续使用 null token
-            console.warn('Failed to get Supabase session in API client:', error)
+            // 静默处理错误，不影响正常请求流程
           }
         }
 
