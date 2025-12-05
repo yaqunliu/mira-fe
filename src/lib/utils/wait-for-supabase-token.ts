@@ -139,3 +139,55 @@ export async function waitForSupabaseSession(
   })
 }
 
+/**
+ * 等待用户信息同步到 auth store
+ * 确保登录后用户信息已经保存到 store 中
+ */
+export async function waitForUserInfoInStore(
+  maxWaitTime: number = 5000,
+  checkInterval: number = 100
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    // 动态导入 useAuthStore，避免在非 React 组件中直接使用
+    import('@/stores/auth').then(({ useAuthStore }) => {
+      const startTime = Date.now()
+
+      const checkStore = () => {
+        const { user, isAuthenticated, token } = useAuthStore.getState()
+        
+        if (isAuthenticated && user && user.id && token) {
+          console.log('[waitForUserInfoInStore] User info found in store:', {
+            userId: user.id,
+            username: user.username,
+            hasToken: !!token,
+          })
+          resolve(true)
+          return true
+        }
+        return false
+      }
+
+      // 立即检查一次
+      if (checkStore()) {
+        return
+      }
+
+      // 定期检查
+      const interval = setInterval(() => {
+        const elapsed = Date.now() - startTime
+        
+        if (elapsed >= maxWaitTime) {
+          clearInterval(interval)
+          console.log('[waitForUserInfoInStore] Max wait time reached')
+          const hasUserInfo = checkStore()
+          resolve(hasUserInfo)
+          return
+        }
+
+        if (checkStore()) {
+          clearInterval(interval)
+        }
+      }, checkInterval)
+    })
+  })
+}

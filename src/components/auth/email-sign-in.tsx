@@ -16,7 +16,7 @@ import { clearUserDataCache } from '@/lib/utils/clear-user-data'
 import { authApi } from '@/lib/api/auth'
 import { Eye, EyeOff } from 'lucide-react'
 import type { User } from '@/types'
-import { waitForSupabaseSession } from '@/lib/utils/wait-for-supabase-token'
+import { waitForSupabaseSession, waitForUserInfoInStore } from '@/lib/utils/wait-for-supabase-token'
 
 const emailSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
@@ -124,6 +124,11 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             await waitForSupabaseSession(10000, 200)
             console.log('[EmailSignIn] Supabase token request completed')
 
+            // 等待用户信息同步到 store
+            console.log('[EmailSignIn] Waiting for user info to sync to store...')
+            await waitForUserInfoInStore(5000, 100)
+            console.log('[EmailSignIn] User info synced to store')
+
             toast.success('登录成功')
 
             if (onSuccess) {
@@ -161,6 +166,11 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
           console.log('[EmailSignIn] Waiting for Supabase token request to complete...')
           await waitForSupabaseSession(10000, 200)
           console.log('[EmailSignIn] Supabase token request completed')
+
+          // 等待用户信息同步到 store
+          console.log('[EmailSignIn] Waiting for user info to sync to store...')
+          await waitForUserInfoInStore(5000, 100)
+          console.log('[EmailSignIn] User info synced to store')
 
           toast.success('登录成功')
 

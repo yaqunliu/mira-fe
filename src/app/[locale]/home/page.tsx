@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -10,6 +11,8 @@ import { useSupabaseAuth } from '@/hooks/use-supabase-auth'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { User, Sparkles, BookOpenText, Video } from 'lucide-react'
 import { ActionBar } from '@/components/business/action-bar'
+import { waitForUserInfoInStore, waitForSupabaseSession } from '@/lib/utils/wait-for-supabase-token'
+import { createClient } from '@/lib/supabase/client'
 
 export default function HomePage() {
   const router = useRouter()
@@ -17,7 +20,43 @@ export default function HomePage() {
   const locale = params?.locale as string
   const t = useTranslations()
   const { user, isAuthenticated } = useAuthStore()
-  const { loading: authLoading } = useSupabaseAuth()
+  const { loading: authLoading, session } = useSupabaseAuth()
+  const [waitingForUserInfo, setWaitingForUserInfo] = useState(false)
+
+  // 如果检测到有 session 但没有用户信息，等待同步完成
+  useEffect(() => {
+    const checkAndWaitForUserInfo = async () => {
+      // 如果已经有用户信息，不需要等待
+      if (isAuthenticated && user && user.id) {
+        return
+      }
+
+      // 如果有 session 但没有用户信息，说明可能是刚登录，需要等待同步
+      if (session?.access_token && !isAuthenticated) {
+        console.log('[HomePage] Session found but no user info, waiting for sync...')
+        setWaitingForUserInfo(true)
+        
+        try {
+          // 先等待 Supabase session
+          await waitForSupabaseSession(5000, 200)
+          
+          // 再等待用户信息同步到 store
+          await waitForUserInfoInStore(5000, 100)
+          
+          console.log('[HomePage] User info sync completed')
+        } catch (error) {
+          console.error('[HomePage] Error waiting for user info:', error)
+        } finally {
+          setWaitingForUserInfo(false)
+        }
+      }
+    }
+
+    // 等待 authLoading 完成后再检查
+    if (!authLoading) {
+      checkAndWaitForUserInfo()
+    }
+  }, [authLoading, session, isAuthenticated, user])
 
   const handleStartCreating = () => {
     if (!isAuthenticated) {
@@ -49,7 +88,7 @@ export default function HomePage() {
               <CardTitle>{t('homePage.userInfo')}</CardTitle>
             </CardHeader>
             <CardContent>
-              {authLoading ? (
+              {authLoading || waitingForUserInfo ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="text-muted-foreground">{t('common.loading')}</div>
                 </div>
