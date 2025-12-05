@@ -71,23 +71,8 @@ export function useSupabaseAuth() {
     let mounted = true
     
     // 获取当前 session
-    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return
-      
-      // 如果获取 session 时出错，但不影响继续处理
-      if (error) {
-        // 如果是 refresh_token_not_found 错误，说明没有有效的 refresh token
-        // 这是正常的（用户未登录），不应该记录为错误
-        if (error.code !== 'refresh_token_not_found') {
-          console.warn('获取 session 时出错:', error)
-        }
-        setSession(null)
-        setUser(null)
-        if (mounted) {
-          setLoading(false)
-        }
-        return
-      }
       
       setSession(session)
       setUser(session?.user ?? null)
@@ -103,14 +88,6 @@ export function useSupabaseAuth() {
       
       // 同步完成后再设置 loading 为 false
       if (mounted) {
-        setLoading(false)
-      }
-    }).catch((error) => {
-      // 捕获未预期的错误
-      if (mounted) {
-        console.warn('获取 session 时发生未预期的错误:', error)
-        setSession(null)
-        setUser(null)
         setLoading(false)
       }
     })
