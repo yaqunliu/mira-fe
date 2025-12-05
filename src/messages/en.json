@@ -49,7 +49,7 @@
     "logoutSuccess": "Logout successful",
     "loginTitle": "Login",
     "registerTitle": "Register",
-    "loginDescription": "Enter your username and password to login",
+    "loginDescription": "Enter your email and password to login",
     "registerDescription": "Create an account to get started",
     "loginButton": "Login",
     "loginButtonLoading": "Logging in...",

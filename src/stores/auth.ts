@@ -21,17 +21,10 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      user: {
-        id: 'fdajls',
-        email: 'qq@qq.com',
-        username: 'qq',
-        avatar: '',
-        createdAt: '',
-        updatedAt: '',
-      },
+      user: null,
       token: null,
       tokenExpiresAt: null,
-      isAuthenticated: true,
+      isAuthenticated: false,
       isLoading: false,
       
       login: (user: User, token: string, expiresIn?: number) => {

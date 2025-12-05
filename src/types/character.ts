@@ -2,6 +2,7 @@
 
 export interface ICharacter {
     character_id: string;
+    uuid?: string;
     name: string;
     status: string;
     basic_info: string;

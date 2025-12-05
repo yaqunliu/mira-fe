@@ -84,13 +84,13 @@ export default function NovelDetailPage() {
 
   // 更新章节标题的mutation
   const updateChapterMutation = useMutation({
-    mutationFn: ({ chapterId, title }: { chapterId: string | number; title: string }) =>
-      novelApi.updateChapter(novelId, String(chapterId), { title }),
+    mutationFn: ({ chapterUuid, title }: { chapterUuid: string; title: string }) =>
+      novelApi.updateChapter(novelId, chapterUuid, { title }),
     onSuccess: (data, variables) => {
       // 更新本地状态
       const updatedChapters = finalChapters.map((chapter: any) => {
-        const id = String(chapter.chapter_id || chapter.chapterId);
-        if (id === String(variables.chapterId)) {
+        const uuid = String(chapter.uuid || chapter.chapter_id || chapter.chapterId);
+        if (uuid === String(variables.chapterUuid)) {
           return { ...chapter, title: variables.title };
         }
         return chapter;
@@ -110,8 +110,8 @@ export default function NovelDetailPage() {
 
   // 删除章节的mutation
   const deleteChapterMutation = useMutation({
-    mutationFn: (chapterId: string | number) =>
-      novelApi.deleteChapter(novelId, String(chapterId)),
+    mutationFn: (chapterUuid: string) =>
+      novelApi.deleteChapter(novelId, chapterUuid),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["novel", novelId] });
       queryClient.invalidateQueries({ queryKey: ["chapters", novelId] });
@@ -187,9 +187,9 @@ export default function NovelDetailPage() {
     router.back();
   };
 
-  const handleCreateVideo = async (chapterId?: string) => {
-    if (!chapterId) {
-      // 如果没有指定章节，跳转到创建页面，只传递小说ID
+  const handleCreateVideo = async (chapterUuid?: string) => {
+    if (!chapterUuid) {
+      // 如果没有指定章节，跳转到创建页面，只传递小说UUID
       router.push(`/${locale}/create?novel=${novelId}`);
       return;
     }
@@ -197,27 +197,27 @@ export default function NovelDetailPage() {
     // 先检查该章节是否已有创作
     // 从已有的创作列表中查找（小说详情API已经返回了creations列表）
     const existingCreation = finalCreations.find((creation: ICreation) => {
-      const creationChapterId = String((creation as any).chapter_id || creation.chapter_id || "");
-      return creationChapterId === String(chapterId);
+      const creationChapterUuid = String((creation as any).chapter_uuid || (creation as any).chapter_id || "");
+      return creationChapterUuid === String(chapterUuid);
     });
 
     if (existingCreation) {
       // 如果已有创作，跳转到已存在的创作
-      const creationId = (existingCreation as any).creation_id || existingCreation.creationId;
-      if (creationId) {
-        router.push(`/${locale}/create?creationId=${creationId}`);
+      const creationUuid = (existingCreation as any).uuid || (existingCreation as any).creation_id || existingCreation.creationId;
+      if (creationUuid) {
+        router.push(`/${locale}/create?creationId=${creationUuid}`);
         return;
       }
     }
 
     // 如果列表中没有，调用API查询（后端已实现）
     try {
-      const creationResponse = await creationApi.queryCreationByChapterId(String(chapterId));
+      const creationResponse = await creationApi.queryCreationByChapterId(String(chapterUuid));
       if (creationResponse?.data) {
         // 如果已有创作，跳转到已存在的创作
-        const creationId = (creationResponse.data as any).creation_id;
-        if (creationId) {
-          router.push(`/${locale}/create?creationId=${creationId}`);
+        const creationUuid = (creationResponse.data as any).uuid || (creationResponse.data as any).creation_id;
+        if (creationUuid) {
+          router.push(`/${locale}/create?creationId=${creationUuid}`);
           return;
         }
       }
@@ -226,8 +226,8 @@ export default function NovelDetailPage() {
       // 静默处理，不输出错误日志
     }
 
-    // 如果没有创作，跳转到创建页面，传递小说ID和章节ID
-    router.push(`/${locale}/create?novel=${novelId}&chapter=${chapterId}`);
+    // 如果没有创作，跳转到创建页面，传递小说UUID和章节UUID
+    router.push(`/${locale}/create?novel=${novelId}&chapter=${chapterUuid}`);
   };
 
   // 开始编辑小说标题
@@ -256,16 +256,16 @@ export default function NovelDetailPage() {
   // 开始编辑章节标题
   const handleStartEditChapterTitle = (chapter: ChapterListItem) => {
     setChapterTitleValue(chapter.title);
-    const chapterId = (chapter as any).chapter_id || (chapter as any).chapterId;
-    if (chapterId) {
-      setEditingChapterId(String(chapterId));
+    const chapterUuid = (chapter as any).uuid || (chapter as any).chapter_id || (chapter as any).chapterId;
+    if (chapterUuid) {
+      setEditingChapterId(String(chapterUuid));
     }
   };
 
   // 保存章节标题
-  const handleSaveChapterTitle = (chapterId: string | number) => {
+  const handleSaveChapterTitle = (chapterUuid: string) => {
     if (chapterTitleValue.trim()) {
-      updateChapterMutation.mutate({ chapterId: String(chapterId), title: chapterTitleValue.trim() });
+      updateChapterMutation.mutate({ chapterUuid: String(chapterUuid), title: chapterTitleValue.trim() });
     } else {
       setEditingChapterId(null);
     }
@@ -278,7 +278,7 @@ export default function NovelDetailPage() {
   };
 
   // 删除章节
-  const handleDeleteChapter = async (chapterId: string | number, chapterTitle: string) => {
+  const handleDeleteChapter = async (chapterUuid: string, chapterTitle: string) => {
     const confirmed = await confirm({
       title: t("novelDetail.deleteChapter"),
       description: t("novelDetail.deleteChapterConfirm", { title: chapterTitle }),
@@ -287,8 +287,8 @@ export default function NovelDetailPage() {
       variant: "destructive",
     });
     if (confirmed) {
-      setDeletingChapterId(String(chapterId));
-      deleteChapterMutation.mutate(chapterId);
+      setDeletingChapterId(String(chapterUuid));
+      deleteChapterMutation.mutate(chapterUuid);
     }
   };
 
@@ -339,13 +339,13 @@ export default function NovelDetailPage() {
       <div className="bg-card-custom flex-1">
         <div className="">
           {finalChapters?.map((chapter: ChapterListItem, index: number) => {
-            const chapterId = String((chapter as any).chapter_id || (chapter as any).chapterId || `chapter-${index}`);
-            const isEditing = editingChapterId === chapterId;
+            const chapterUuid = String((chapter as any).uuid || (chapter as any).chapter_id || (chapter as any).chapterId || `chapter-${index}`);
+            const isEditing = editingChapterId === chapterUuid;
             const chapterPreview = (chapter as any).preview || "";
 
             return (
               <div
-                key={chapterId}
+                key={chapterUuid}
                 className="w-full flex items-start justify-between p-4 group border-b border-slate-200 dark:border-zinc-700 gap-3"
               >
                 <div className="flex flex-col flex-1 gap-2">
@@ -358,7 +358,7 @@ export default function NovelDetailPage() {
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
-                            handleSaveChapterTitle(chapterId);
+                            handleSaveChapterTitle(chapterUuid);
                           } else if (e.key === "Escape") {
                             handleCancelEditChapterTitle();
                           }
@@ -368,7 +368,7 @@ export default function NovelDetailPage() {
                         size="sm"
                         variant="ghost"
                         className="h-7 w-7 p-0"
-                        onClick={() => handleSaveChapterTitle(chapterId)}
+                        onClick={() => handleSaveChapterTitle(chapterUuid)}
                         disabled={updateChapterMutation.isPending}
                       >
                         <Check className="h-4 w-4 text-green-500" />
@@ -412,12 +412,12 @@ export default function NovelDetailPage() {
                     className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteChapter(chapterId, chapter.title);
+                      handleDeleteChapter(chapterUuid, chapter.title);
                     }}
-                    disabled={deletingChapterId === chapterId || deleteChapterMutation.isPending}
+                    disabled={deletingChapterId === chapterUuid || deleteChapterMutation.isPending}
                     title={t("novelDetail.deleteChapter")}
                   >
-                    {deletingChapterId === chapterId ? (
+                    {deletingChapterId === chapterUuid ? (
                       <LoadingIcon />
                     ) : (
                       <Trash2 className="h-4 w-4" />
@@ -427,7 +427,7 @@ export default function NovelDetailPage() {
                     size="sm"
                     variant="secondary"
                     className="text-xs"
-                    onClick={() => handleCreateVideo(chapterId)}
+                    onClick={() => handleCreateVideo(chapterUuid)}
                   >
                     {t("novelDetail.goToCreate")}
                   </Button>
@@ -540,7 +540,7 @@ export default function NovelDetailPage() {
       <div className="bg-card-custom flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           {finalCharacters.map((character: ICharacter, index: number) => (
-            <CharactorCard key={(character as any).character_id || `character-${index}`} character={character} />
+            <CharactorCard key={(character as any).uuid || (character as any).character_id || `character-${index}`} character={character} />
           ))}
         </div>
       </div>

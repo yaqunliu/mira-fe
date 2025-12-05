@@ -11,6 +11,7 @@ export interface User {
 // 小说列表类型
 export interface Novel {
   novel_id: string;
+  uuid: string;
   title: string;
   author: string;
   update_time: string;
@@ -22,12 +23,14 @@ export interface Novel {
 
 export interface ChapterListItem {
   chapter_id: string;
+  uuid: string;
   title: string;
   order: number;
 }
 
 export interface Chapter {
   chapter_id: string;
+  uuid: string;
   title: string;
   chapter_number: number;
   word_count: number;
@@ -183,7 +186,7 @@ export interface SceneData {
 
 // AI生图结果类型
 export interface AIGeneratedImage {
-  image_id: string;
+  image_id: string;  // 应该是UUID，但为了向后兼容保留为string
   title: string;
   image_url: string;
   prompt: string;
@@ -251,6 +254,7 @@ export interface ShotGenerationProgress {
 
 export interface GeneratedShot {
   shot_id: number;
+  uuid?: string;  // UUID字段
   title: string;
   image_url: string;
   status: "pending" | "generating" | "completed" | "failed";

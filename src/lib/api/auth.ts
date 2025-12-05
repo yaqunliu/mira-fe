@@ -26,11 +26,6 @@ export const authApi = {
     return apiClient.get<User>('/api/v1/auth/me')
   },
 
-  // 刷新token
-  refreshToken: async () => {
-    return apiClient.post<{ token: string }>('/api/v1/auth/refresh')
-  },
-
   // 登出
   logout: async () => {
     return apiClient.post('/api/v1/auth/logout')
@@ -44,5 +39,21 @@ export const authApi = {
   // 重置密码
   resetPassword: async (token: string, password: string) => {
     return apiClient.post('/api/v1/auth/reset-password', { token, password })
+  },
+
+  // 同步 Supabase 用户到后端
+  syncSupabaseUser: async (supabaseToken: string) => {
+    return apiClient.post<{
+      user_id: number
+      username: string
+      email: string
+      avatar?: string
+      created_at?: string
+      updated_at?: string
+    }>('/api/v1/auth/sync', {}, {
+      headers: {
+        'Authorization': `Bearer ${supabaseToken}`,
+      },
+    })
   },
 }

@@ -102,9 +102,9 @@ export function NovelSelect({
     data: chaptersResponse,
     isLoading: isChaptersLoading,
   } = useQuery({
-    queryKey: ["chapters", currentNovel?.novel_id, chapterPage, chapterPageSize],
-    queryFn: () => novelApi.getChapters(currentNovel!.novel_id, { page: chapterPage, page_size: chapterPageSize }),
-    enabled: !!currentNovel?.novel_id && !chapters,
+    queryKey: ["chapters", currentNovel?.uuid || currentNovel?.novel_id, chapterPage, chapterPageSize],
+    queryFn: () => novelApi.getChapters((currentNovel!.uuid || currentNovel!.novel_id) as string, { page: chapterPage, page_size: chapterPageSize }),
+    enabled: !!(currentNovel?.uuid || currentNovel?.novel_id) && !chapters,
   });
 
   // 当前显示的章节列表

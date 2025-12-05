@@ -101,7 +101,9 @@ export function CharacterSetting({
 
     setIsGenerating(true);
 
-    const characterIds = characters.map((character) => character.character_id);
+    const characterIds = characters.map((character) => 
+      character.uuid || (character.character_id ? String(character.character_id) : '')
+    ).filter(id => id); // 过滤掉空值
     const response = await characterApi.generateCharacterImages(
       characterIds,
       getStyleOptions(t).find((option) => option.value === selectedStyle)?.label ||

@@ -37,6 +37,7 @@ export const CreationStatusMap: Record<
 
 export interface ICreation {
   creation_id: string;
+  uuid: string;
   title: string;
   status: CreationStatus;
   created_at: string;

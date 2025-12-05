@@ -30,7 +30,8 @@ function CharactorCard({
 
   // 兼容两种数据结构：API返回的数据和mock数据
   const char = character as any;
-  const characterId = char.character_id || char.characterId || "";
+  // 优先使用UUID，如果没有UUID则使用character_id（向后兼容），确保转换为字符串
+  const characterId = char.uuid || (char.character_id ? String(char.character_id) : '') || (char.characterId ? String(char.characterId) : '') || "";
   const basicInfo = char.basic_info || char.basicInfo || "";
   const appearance = char.appearance || char.featureDescription?.appearance || "";
   const body = char.body || char.featureDescription?.body || "";

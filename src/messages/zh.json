@@ -49,7 +49,7 @@
     "logoutSuccess": "退出登录成功",
     "loginTitle": "登录",
     "registerTitle": "注册",
-    "loginDescription": "输入用户名和密码登录",
+    "loginDescription": "输入邮箱和密码登录",
     "registerDescription": "创建账号开始使用",
     "loginButton": "登录",
     "loginButtonLoading": "登录中...",
