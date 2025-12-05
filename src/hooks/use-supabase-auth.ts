@@ -22,19 +22,13 @@ export function useSupabaseAuth() {
 
   const syncUserToBackend = useCallback(async (session: Session) => {
     try {
-      // 从 JWT token 中解析数据用于调试
+      // 从 JWT token 中解析数据
       const payload = JSON.parse(atob(session.access_token.split('.')[1]))
-      console.log('🔍 JWT Payload:', payload)
-      console.log('🔍 User Metadata:', payload.user_metadata)
-      console.log('🔍 Avatar URL from user_metadata:', payload.user_metadata?.avatar_url)
-      console.log('🔍 Picture from user_metadata:', payload.user_metadata?.picture)
       
       // 尝试同步到后端
       const syncResponse = await authApi.syncSupabaseUser(session.access_token)
-      console.log('🔍 Sync Response:', syncResponse)
       
       if (syncResponse.data) {
-        console.log('🔍 Avatar from sync response:', syncResponse.data.avatar)
         const user: User = {
           id: syncResponse.data.user_id.toString(),
           email: syncResponse.data.email,
@@ -43,7 +37,6 @@ export function useSupabaseAuth() {
           createdAt: syncResponse.data.created_at || new Date().toISOString(),
           updatedAt: syncResponse.data.updated_at || new Date().toISOString(),
         }
-        console.log('🔍 Final User Object:', user)
         
         // 从 JWT token 中解析过期时间
         const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
@@ -51,14 +44,11 @@ export function useSupabaseAuth() {
         login(user, session.access_token, expiresIn)
       }
     } catch (error) {
-      console.error('Failed to sync user to backend:', error)
       // 即使同步失败，也使用 Supabase 用户信息
       if (session.user) {
         // 从 user_metadata 中提取头像，优先使用 avatar_url，其次使用 picture
         const userMetadata = session.user.user_metadata || {}
-        console.log('🔍 Session User Metadata:', userMetadata)
         const avatar = userMetadata.avatar_url || userMetadata.picture || ''
-        console.log('🔍 Extracted Avatar:', avatar)
         
         const user: User = {
           id: session.user.id,
@@ -68,7 +58,6 @@ export function useSupabaseAuth() {
           createdAt: session.user.created_at || new Date().toISOString(),
           updatedAt: session.user.updated_at || new Date().toISOString(),
         }
-        console.log('🔍 Fallback User Object:', user)
         
         const payload = JSON.parse(atob(session.access_token.split('.')[1]))
         const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
@@ -93,7 +82,7 @@ export function useSupabaseAuth() {
         try {
           await syncUserToBackend(session)
         } catch (error) {
-          console.error('Error syncing user to backend:', error)
+          // 静默处理同步错误，不影响用户登录流程
         }
       }
       

@@ -6,3 +6,16 @@
 # .env.deploy filter=git-crypt diff=git-crypt
 # .env.production filter=git-crypt diff=git-crypt
 
+# Supabase 配置
+# 从 supabase status --output json 获取的值
+NODE_ENV=dev
+
+# API 配置
+# 后端 API 的基础 URL，不包含路径，如：https://api.example.com
+NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# 应用端口（可选，默认 3000）
+PORT=3000
+
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0

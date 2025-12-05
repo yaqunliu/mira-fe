@@ -89,7 +89,6 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
         }
       }
     } catch (error: any) {
-      console.error('Email register error:', error)
       toast.error(error.message || '注册失败，请重试')
     }
   }

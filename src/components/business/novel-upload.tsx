@@ -10,7 +10,7 @@ import {
 } from "@/lib/validations/novel";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Upload, X, CheckCircle, Loader2 } from "lucide-react";
+import { Upload, X, CheckCircle, Loader2, Info } from "lucide-react";
 import { formatFileSize } from "@/lib/utils";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -54,8 +54,14 @@ export function NovelUpload({
       if ([TaskStatus.SUCCESS, TaskStatus.FAILURE].includes(taskStatus)) {
         setIsUploading(false);
         setUploadCompleted(true);
-        setNovelId(query.state.data?.data?.novel_id);
-        onComplete(query.state.data?.data?.novel_id as string);
+        // 优先使用 novel_uuid，如果没有则从 resource.novel.uuid 获取
+        const novelUuid = query.state.data?.data?.novel_uuid || 
+                         query.state.data?.data?.resource?.novel_uuid ||
+                         query.state.data?.data?.resource?.novel?.uuid;
+        if (novelUuid) {
+          setNovelId(novelUuid);
+          onComplete(novelUuid as string);
+        }
         return false;
       }
       return 2000;
@@ -146,14 +152,17 @@ export function NovelUpload({
       const uploadTaskId = response?.data?.task_id;
 
       if (uploadTaskId) {
-        toast.success("文件上传成功，开始解析...");
+        toast.success("文件上传成功，开始解析...", {
+          description: "您可以离开此页面，小说将在后台继续处理",
+          duration: 5000,
+        });
         setTaskId(uploadTaskId); // 设置 taskId 后会自动开始轮询
+        setIsUploading(false); // 文件上传完成，但任务在后台处理
       } else {
         toast.error("上传成功但未返回任务ID");
         setIsUploading(false);
       }
     } catch (error) {
-      console.error("Upload error:", error);
       toast.error(error instanceof Error ? error.message : "上传失败，请重试");
       setIsUploading(false);
     }
@@ -236,6 +245,40 @@ export function NovelUpload({
         </div>
       )}
 
+      {/* 后台处理提示 */}
+      {taskId && task && task.status !== TaskStatus.SUCCESS && task.status !== TaskStatus.FAILURE && (
+        <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+          <div className="flex items-start gap-3">
+            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+                小说正在后台处理中
+              </p>
+              <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+                您可以离开此页面，处理完成后会显示在小说列表中。
+              </p>
+              {task.progress && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 mb-1">
+                    <span>处理进度</span>
+                    <span>{task.progress.percent || 0}%</span>
+                  </div>
+                  <Progress 
+                    value={task.progress.percent || 0} 
+                    className="h-2 bg-blue-100 dark:bg-blue-900/50"
+                  />
+                  {task.progress.status && (
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                      {task.progress.status}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 任务完成或失败提示 */}
       {task && !isLoading && (
         <div
@@ -270,7 +313,7 @@ export function NovelUpload({
         </div>
       )}
 
-      {!uploadCompleted ? (
+      {!uploadCompleted && !taskId ? (
         <div className="flex justify-center w-full mt-8">
           <Button
             variant="secondary"
@@ -281,17 +324,17 @@ export function NovelUpload({
             {isUploading ? "上传中..." : "上传解析"}
           </Button>
         </div>
-      ) : (
+      ) : uploadCompleted ? (
         <div className="flex justify-center w-full mt-8">
           <Button
             variant="secondary"
-            onClick={() => novelId &&onComplete(novelId as string)}
+            onClick={() => novelId && onComplete(novelId as string)}
             className="text-primary tracking-wide w-[120px]"
           >
             返回
           </Button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

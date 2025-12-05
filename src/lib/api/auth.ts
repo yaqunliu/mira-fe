@@ -26,11 +26,6 @@ export const authApi = {
     return apiClient.get<User>('/api/v1/auth/me')
   },
 
-  // 登出
-  logout: async () => {
-    return apiClient.post('/api/v1/auth/logout')
-  },
-
   // 忘记密码
   forgotPassword: async (email: string) => {
     return apiClient.post('/api/v1/auth/forgot-password', { email })

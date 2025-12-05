@@ -15,7 +15,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
 import { clearUserDataCache } from '@/lib/utils/clear-user-data'
-import { authApi } from '@/lib/api/auth'
+import { createClient } from '@/lib/supabase/client'
 
 export function UserAvatar() {
   const t = useTranslations();
@@ -24,26 +24,18 @@ export function UserAvatar() {
   const params = useParams()
   const locale = params?.locale as string
   const queryClient = useQueryClient()
-  
-  // 调试：打印用户信息
-  console.log('🔍 UserAvatar - User:', user)
-  console.log('🔍 UserAvatar - Avatar:', user?.avatar)
 
   const handleLogout = async () => {
-    try {
-      // 调用后端退出登录接口
-      await authApi.logout()
-    } catch (error) {
-      // 即使后端调用失败，也继续执行前端的清空逻辑
-      console.error('Logout API error:', error)
-    } finally {
-      // 清空所有用户相关的 React Query 缓存
-      clearUserDataCache(queryClient)
-      // 清空 auth store 和其他 store 的数据
-      logout()
-      // 跳转到登录页
-      router.push(`/${locale}/auth/login`)
-    }
+    // 使用 Supabase 登出（处理 Supabase 端的登出）
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    
+    // 清空所有用户相关的 React Query 缓存
+    clearUserDataCache(queryClient)
+    // 清空 auth store 和其他 store 的数据
+    logout()
+    // 跳转到登录页
+    router.push(`/${locale}/auth/login`)
   }
 
   const handlePointsClick = () => {
