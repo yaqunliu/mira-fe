@@ -140,6 +140,12 @@ export function useSupabaseAuth() {
       if (event === 'SIGNED_IN' && session) {
         // 用户登录，同步到后端
         await syncUserToBackend(session)
+        // 确保 loading 状态更新
+        setLoading(false)
+        // 触发相关查询的刷新
+        queryClient.invalidateQueries({ queryKey: ['novels'] })
+        queryClient.invalidateQueries({ queryKey: ['creations'] })
+        queryClient.invalidateQueries({ queryKey: ['points'] })
       } else if (event === 'SIGNED_OUT') {
         // 用户登出，清空 store
         console.log('[useSupabaseAuth] User signed out')
