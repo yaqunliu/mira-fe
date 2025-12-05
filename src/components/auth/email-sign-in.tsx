@@ -113,12 +113,13 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             
             // 先登录，确保 token 和用户信息都存储到 store
             login(user, authData.session.access_token, expiresIn)
-            
-            // 等待一下，确保 store 更新完成
-            await new Promise(resolve => setTimeout(resolve, 100))
-            
+
+            // 等待更长时间，确保 store 完全同步到 localStorage
+            // 并且让 Zustand 的 persist 中间件完成持久化
+            await new Promise(resolve => setTimeout(resolve, 300))
+
             toast.success('登录成功')
-            
+
             if (onSuccess) {
               onSuccess()
             } else {
@@ -144,12 +145,13 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
           
           // 先登录，确保 token 和用户信息都存储到 store
           login(user, authData.session.access_token, expiresIn)
-          
-          // 等待一下，确保 store 更新完成
-          await new Promise(resolve => setTimeout(resolve, 100))
-          
+
+          // 等待更长时间，确保 store 完全同步到 localStorage
+          // 并且让 Zustand 的 persist 中间件完成持久化
+          await new Promise(resolve => setTimeout(resolve, 300))
+
           toast.success('登录成功')
-          
+
           if (onSuccess) {
             onSuccess()
           } else {

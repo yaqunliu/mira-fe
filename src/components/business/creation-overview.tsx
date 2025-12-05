@@ -24,7 +24,9 @@ export function CreationOverview() {
   const { data: creationsResponse, isLoading } = useQuery({
     queryKey: ["creations"],
     queryFn: () => creationApi.queryCreations({ page: 1, page_size: 100 }),
-    enabled: !authLoading && (isAuthenticated || !!token), // 认证初始化完成且有认证状态时才请求
+    // 只要有 token 就可以请求,不需要等待 authLoading
+    // 因为请求拦截器会自动从 Supabase 获取 token (如果 store 中没有)
+    enabled: !!token || isAuthenticated,
     retry: 1, // 如果首次失败,重试一次
   });
   // API 返回格式: { success: true, data: { items: [...] } } 或 { success: true, data: [...] }
