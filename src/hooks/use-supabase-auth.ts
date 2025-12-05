@@ -107,9 +107,18 @@ export function useSupabaseAuth() {
           // 静默处理同步错误，不影响用户登录流程
           console.error('[useSupabaseAuth] Sync error during init:', error)
         }
+      } else {
+        // 如果没有 session，确保 loading 被设置为 false
+        console.log('[useSupabaseAuth] No session found, setting loading to false')
       }
 
-      // 同步完成后再设置 loading 为 false
+      // 同步完成后再设置 loading 为 false（无论是否有 session）
+      if (mounted) {
+        setLoading(false)
+      }
+    }).catch((error) => {
+      // 如果 getSession 本身出错，也要设置 loading 为 false
+      console.error('[useSupabaseAuth] Error getting session:', error)
       if (mounted) {
         setLoading(false)
       }
