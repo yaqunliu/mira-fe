@@ -26,11 +26,6 @@ export const authApi = {
     return apiClient.get<User>('/api/v1/auth/me')
   },
 
-  // 刷新token
-  refreshToken: async () => {
-    return apiClient.post<{ token: string }>('/api/v1/auth/refresh')
-  },
-
   // 登出
   logout: async () => {
     return apiClient.post('/api/v1/auth/logout')
