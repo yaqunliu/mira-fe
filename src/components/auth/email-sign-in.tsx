@@ -16,6 +16,7 @@ import { clearUserDataCache } from '@/lib/utils/clear-user-data'
 import { authApi } from '@/lib/api/auth'
 import { Eye, EyeOff } from 'lucide-react'
 import type { User } from '@/types'
+import { waitForSupabaseSession } from '@/lib/utils/wait-for-supabase-token'
 
 const emailSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
@@ -118,12 +119,18 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             // 并且让 Zustand 的 persist 中间件完成持久化
             await new Promise(resolve => setTimeout(resolve, 300))
 
+            // 等待 Supabase token 请求完成
+            console.log('[EmailSignIn] Waiting for Supabase token request to complete...')
+            await waitForSupabaseSession(10000, 200)
+            console.log('[EmailSignIn] Supabase token request completed')
+
             toast.success('登录成功')
 
             if (onSuccess) {
               onSuccess()
             } else {
-              router.push(`/${locale}`)
+              // 跳转到 home 页面
+              router.push(`/${locale}/home`)
             }
           }
         } catch (syncError) {
@@ -150,12 +157,18 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
           // 并且让 Zustand 的 persist 中间件完成持久化
           await new Promise(resolve => setTimeout(resolve, 300))
 
+          // 等待 Supabase token 请求完成
+          console.log('[EmailSignIn] Waiting for Supabase token request to complete...')
+          await waitForSupabaseSession(10000, 200)
+          console.log('[EmailSignIn] Supabase token request completed')
+
           toast.success('登录成功')
 
           if (onSuccess) {
             onSuccess()
           } else {
-            router.push(`/${locale}`)
+            // 跳转到 home 页面
+            router.push(`/${locale}/home`)
           }
         }
       }
@@ -182,7 +195,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
                       placeholder="请输入邮箱地址"
                       {...field}
                       onBlur={(e) => {
-                        field.onBlur(e)
+                        field.onBlur()
                         // 当失去焦点时，如果邮箱格式正确，自动验证
                         if (e.target.value && emailSchema.safeParse({ email: e.target.value }).success) {
                           emailForm.handleSubmit(onEmailSubmit)()

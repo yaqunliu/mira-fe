@@ -77,6 +77,21 @@
     "dailyCheckin": "毎日チェックイン",
     "checkinDescription": "毎日チェックインしてポイントを獲得"
   },
+  "homePage": {
+    "title": "AIアニメ短編ドラマ創作プラットフォーム",
+    "userInfo": "ユーザー情報",
+    "notLoggedIn": "ログインしていません",
+    "loginPrompt": "ログインして始めましょう",
+    "introduction": "プラットフォーム紹介",
+    "introductionDescription": "AI技術を使用して小説を素晴らしいアニメ短編ドラマに変換",
+    "feature1Title": "小説をアップロード",
+    "feature1Description": "複数の形式の小説をサポートし、章の内容を自動解析",
+    "feature2Title": "AIインテリジェント創作",
+    "feature2Description": "AI技術を使用してキャラクター、ストーリーボード、脚本を自動生成",
+    "feature3Title": "動画生成",
+    "feature3Description": "ワンクリックで高品質のアニメ短編ドラマ動画を生成",
+    "startCreating": "創作を開始"
+  },
   "createVideo": {
     "createAnimation": "アニメ創作",
     "story": "ストーリー",

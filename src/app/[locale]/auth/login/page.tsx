@@ -30,7 +30,7 @@ export default function LoginPage() {
               <EmailSignIn 
                 locale={locale}
                 onSuccess={() => {
-                  router.push(`/${locale}`)
+                  router.push(`/${locale}/home`)
                 }}
               />
 

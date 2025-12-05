@@ -77,6 +77,21 @@
     "dailyCheckin": "每日签到",
     "checkinDescription": "每日签到可获得积分奖励"
   },
+  "homePage": {
+    "title": "AI动画短剧创作平台",
+    "userInfo": "用户信息",
+    "notLoggedIn": "未登录",
+    "loginPrompt": "请登录以开始使用",
+    "introduction": "平台介绍",
+    "introductionDescription": "使用 AI 技术将小说转换为精彩的动画短剧",
+    "feature1Title": "上传小说",
+    "feature1Description": "支持多种格式的小说上传，自动解析章节内容",
+    "feature2Title": "AI 智能创作",
+    "feature2Description": "使用 AI 技术自动生成角色、分镜和脚本",
+    "feature3Title": "视频生成",
+    "feature3Description": "一键生成高质量的动画短剧视频",
+    "startCreating": "开始创作"
+  },
   "createVideo": {
     "createAnimation": "制作动画",
     "story": "故事",
