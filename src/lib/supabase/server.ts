@@ -14,11 +14,23 @@ export async function createClient() {
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // 服务端组件中可能无法设置 cookies
+            cookiesToSet.forEach(({ name, value, options }) => {
+              try {
+                cookieStore.set(name, value, {
+                  ...options,
+                  // 确保 cookie 设置正确
+                  httpOnly: options?.httpOnly ?? true,
+                  sameSite: options?.sameSite ?? 'lax',
+                  secure: options?.secure ?? process.env.NODE_ENV === 'production',
+                })
+              } catch (err) {
+                // 记录单个 cookie 设置失败，但不影响其他 cookie
+                console.warn(`Failed to set cookie ${name}:`, err)
+              }
+            })
+          } catch (err) {
+            // 记录错误，但不抛出异常，避免影响认证流程
+            console.warn('Error setting cookies:', err)
           }
         },
       },

@@ -36,7 +36,14 @@ class ApiClient {
           try {
             const { createClient } = await import('@/lib/supabase/client')
             const supabase = createClient()
-            const { data: { session } } = await supabase.auth.getSession()
+            const { data: { session }, error } = await supabase.auth.getSession()
+            
+            // 忽略 refresh_token_not_found 错误（用户未登录时是正常的）
+            if (error && error.code !== 'refresh_token_not_found') {
+              // 其他错误才记录
+              console.warn('从 Supabase 获取 session 时出错:', error)
+            }
+            
             if (session?.access_token) {
               token = session.access_token
               // 如果 store 中没有 token，但 Supabase 有 session，更新 store
