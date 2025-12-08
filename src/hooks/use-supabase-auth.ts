@@ -1,7 +1,7 @@
 'use client'
 
 import { createClient } from '@/lib/supabase/client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { User as SupabaseUser, Session } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth'
@@ -19,15 +19,30 @@ export function useSupabaseAuth() {
   const router = useRouter()
   const { login, logout: logoutStore } = useAuthStore()
   const queryClient = useQueryClient()
+  const syncingRef = useRef<boolean>(false)
+  const syncedSessionRef = useRef<string | null>(null)
 
   const syncUserToBackend = useCallback(async (session: Session) => {
+    // Prevent duplicate sync calls for the same session
+    if (syncingRef.current || syncedSessionRef.current === session.access_token) {
+      return
+    }
+
+    syncingRef.current = true
+
     try {
       // 从 JWT token 中解析数据
       const payload = JSON.parse(atob(session.access_token.split('.')[1]))
-      
-      // 尝试同步到后端
+      const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
+
+      // First, set the token in the store immediately
+      // This ensures API calls can use the token right away
+      const authStore = useAuthStore.getState()
+      authStore.updateToken(session.access_token, expiresIn)
+
+      // Then sync to backend
       const syncResponse = await authApi.syncSupabaseUser(session.access_token)
-      
+
       if (syncResponse.data) {
         const user: User = {
           id: syncResponse.data.user_id.toString(),
@@ -37,19 +52,18 @@ export function useSupabaseAuth() {
           createdAt: syncResponse.data.created_at || new Date().toISOString(),
           updatedAt: syncResponse.data.updated_at || new Date().toISOString(),
         }
-        
-        // 从 JWT token 中解析过期时间
-        const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
-        
+
         login(user, session.access_token, expiresIn)
+        syncedSessionRef.current = session.access_token
       }
     } catch (error) {
+      console.error('[useSupabaseAuth] Backend sync failed:', error)
+
       // 即使同步失败，也使用 Supabase 用户信息
       if (session.user) {
-        // 从 user_metadata 中提取头像，优先使用 avatar_url，其次使用 picture
         const userMetadata = session.user.user_metadata || {}
         const avatar = userMetadata.avatar_url || userMetadata.picture || ''
-        
+
         const user: User = {
           id: session.user.id,
           email: session.user.email || '',
@@ -58,22 +72,25 @@ export function useSupabaseAuth() {
           createdAt: session.user.created_at || new Date().toISOString(),
           updatedAt: session.user.updated_at || new Date().toISOString(),
         }
-        
+
         const payload = JSON.parse(atob(session.access_token.split('.')[1]))
         const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
-        
+
         login(user, session.access_token, expiresIn)
+        syncedSessionRef.current = session.access_token
       }
+    } finally {
+      syncingRef.current = false
     }
   }, [login])
 
   useEffect(() => {
     let mounted = true
-    
+
     // 获取当前 session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return
-      
+
       setSession(session)
       setUser(session?.user ?? null)
 
@@ -82,11 +99,15 @@ export function useSupabaseAuth() {
         try {
           await syncUserToBackend(session)
         } catch (error) {
-          // 静默处理同步错误，不影响用户登录流程
+          console.error('[useSupabaseAuth] Sync error during init:', error)
         }
       }
-      
-      // 同步完成后再设置 loading 为 false
+
+      if (mounted) {
+        setLoading(false)
+      }
+    }).catch((error) => {
+      console.error('[useSupabaseAuth] Error getting session:', error)
       if (mounted) {
         setLoading(false)
       }
@@ -100,14 +121,11 @@ export function useSupabaseAuth() {
       setUser(session?.user ?? null)
 
       if (event === 'SIGNED_IN' && session) {
-        // 用户登录，同步到后端
         await syncUserToBackend(session)
       } else if (event === 'SIGNED_OUT') {
-        // 用户登出，清空 store
         logoutStore()
         clearUserDataCache(queryClient)
       } else if (event === 'TOKEN_REFRESHED' && session) {
-        // Token 刷新，更新 store
         await syncUserToBackend(session)
       }
     })

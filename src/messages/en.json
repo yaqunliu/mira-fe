@@ -77,6 +77,21 @@
     "dailyCheckin": "Daily Check-in",
     "checkinDescription": "Check in daily to earn points"
   },
+  "homePage": {
+    "title": "AI Animation Short Drama Creation Platform",
+    "userInfo": "User Information",
+    "notLoggedIn": "Not Logged In",
+    "loginPrompt": "Please login to get started",
+    "introduction": "Platform Introduction",
+    "introductionDescription": "Transform novels into amazing animated short dramas using AI technology",
+    "feature1Title": "Upload Novels",
+    "feature1Description": "Support multiple novel formats, automatically parse chapter content",
+    "feature2Title": "AI Intelligent Creation",
+    "feature2Description": "Use AI technology to automatically generate characters, storyboards and scripts",
+    "feature3Title": "Video Generation",
+    "feature3Description": "Generate high-quality animated short drama videos with one click",
+    "startCreating": "Start Creating"
+  },
   "createVideo": {
     "createAnimation": "Create Animation",
     "story": "Story",

@@ -28,8 +28,12 @@ export function CheckinButton() {
       })
       return records.items.length > 0
     },
-    enabled: isAuthenticated,
+    // 移除 enabled,让 apiClient 自动处理认证
     staleTime: 60 * 60 * 1000, // 1小时内不重新请求
+    retry: 1,
+    onError: () => {
+      // 静默处理错误
+    },
   })
 
   // 签到 mutation

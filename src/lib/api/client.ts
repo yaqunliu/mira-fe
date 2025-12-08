@@ -6,8 +6,13 @@ class ApiClient {
   private client: AxiosInstance
 
   constructor() {
+    // 如果设置了完整的 API URL（不以 / 开头），直接使用
+    // 否则使用空字符串，让 Next.js rewrites 处理代理
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const baseURL = apiUrl && !apiUrl.startsWith('/') ? apiUrl : '';
+    
     this.client = axios.create({
-      baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+      baseURL,
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
@@ -27,36 +32,7 @@ class ApiClient {
         }
 
         const authStore = useAuthStore.getState()
-        let token = authStore.token
-
-        // 如果没有token，尝试从 Supabase 获取（可能是同步延迟）
-        // 这确保即使 token 还没有同步到 store，也能使用 Supabase session
-        // 只在客户端环境中执行
-        if (!token && typeof window !== 'undefined') {
-          try {
-            const { createClient } = await import('@/lib/supabase/client')
-            const supabase = createClient()
-            const { data: { session } } = await supabase.auth.getSession()
-            if (session?.access_token) {
-              token = session.access_token
-              // 如果 store 中没有 token，但 Supabase 有 session，更新 store
-              // 这样可以避免每次都从 Supabase 获取
-              if (!authStore.token && session.access_token) {
-                // 从 JWT 解析过期时间
-                try {
-                  const payload = JSON.parse(atob(session.access_token.split('.')[1]))
-                  const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
-                  authStore.updateToken(session.access_token, expiresIn)
-                } catch {
-                  authStore.updateToken(session.access_token, 3600)
-                }
-              }
-            }
-          } catch (error) {
-            // 如果获取失败，继续使用 null token
-            // 静默处理错误，不影响正常请求流程
-          }
-        }
+        const token = authStore.token
 
         // 如果有token，添加到请求头
         if (token) {

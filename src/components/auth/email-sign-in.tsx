@@ -16,6 +16,7 @@ import { clearUserDataCache } from '@/lib/utils/clear-user-data'
 import { authApi } from '@/lib/api/auth'
 import { Eye, EyeOff } from 'lucide-react'
 import type { User } from '@/types'
+import { waitForSupabaseSession, waitForUserInfoInStore } from '@/lib/utils/wait-for-supabase-token'
 
 const emailSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
@@ -113,16 +114,27 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             
             // 先登录，确保 token 和用户信息都存储到 store
             login(user, authData.session.access_token, expiresIn)
-            
-            // 等待一下，确保 store 更新完成
-            await new Promise(resolve => setTimeout(resolve, 100))
-            
+
+            // 等待更长时间，确保 store 完全同步到 localStorage
+            // 并且让 Zustand 的 persist 中间件完成持久化
+            await new Promise(resolve => setTimeout(resolve, 300))
+
+            // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
+            console.log('[EmailSignIn] Waiting for user info to sync to store...')
+            const userInfoSynced = await waitForUserInfoInStore(5000, 100)
+            if (userInfoSynced) {
+              console.log('[EmailSignIn] User info synced to store')
+            } else {
+              console.warn('[EmailSignIn] User info sync timeout, but user is already logged in')
+            }
+
             toast.success('登录成功')
-            
+
             if (onSuccess) {
               onSuccess()
             } else {
-              router.push(`/${locale}`)
+              // 跳转到 home 页面
+              router.push(`/${locale}/home`)
             }
           }
         } catch (syncError) {
@@ -144,16 +156,27 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
           
           // 先登录，确保 token 和用户信息都存储到 store
           login(user, authData.session.access_token, expiresIn)
-          
-          // 等待一下，确保 store 更新完成
-          await new Promise(resolve => setTimeout(resolve, 100))
-          
+
+          // 等待更长时间，确保 store 完全同步到 localStorage
+          // 并且让 Zustand 的 persist 中间件完成持久化
+          await new Promise(resolve => setTimeout(resolve, 300))
+
+          // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
+          console.log('[EmailSignIn] Waiting for user info to sync to store...')
+          const userInfoSynced = await waitForUserInfoInStore(5000, 100)
+          if (userInfoSynced) {
+              console.log('[EmailSignIn] User info synced to store')
+            } else {
+              console.warn('[EmailSignIn] User info sync timeout, but user is already logged in')
+            }
+
           toast.success('登录成功')
-          
+
           if (onSuccess) {
             onSuccess()
           } else {
-            router.push(`/${locale}`)
+            // 跳转到 home 页面
+            router.push(`/${locale}/home`)
           }
         }
       }
@@ -180,7 +203,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
                       placeholder="请输入邮箱地址"
                       {...field}
                       onBlur={(e) => {
-                        field.onBlur(e)
+                        field.onBlur()
                         // 当失去焦点时，如果邮箱格式正确，自动验证
                         if (e.target.value && emailSchema.safeParse({ email: e.target.value }).success) {
                           emailForm.handleSubmit(onEmailSubmit)()

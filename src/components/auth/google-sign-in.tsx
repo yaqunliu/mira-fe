@@ -28,7 +28,9 @@ export function GoogleSignIn({ locale = 'zh' }: GoogleSignInProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/${locale}/auth/callback`,
+          // v2.83 使用 implicit flow,直接重定向到 home 页面
+          // Supabase 会自动检测 URL 中的 token 并设置 session
+          redirectTo: `${window.location.origin}/${locale}/home`,
         },
       })
       if (error) throw error

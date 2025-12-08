@@ -33,7 +33,7 @@ const creationApi = {
     }
     
     const queryString = queryParams.toString()
-    const url = `/api/v1/creations${queryString ? `?${queryString}` : ''}`
+    const url = `/api/v1/creations/${queryString ? `?${queryString}` : ''}`
     
     return apiClient.get<ApiResponse<ICreation[]>>(url) as unknown as Promise<ICreation[]>;
   },

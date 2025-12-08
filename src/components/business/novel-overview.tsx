@@ -32,7 +32,10 @@ export function NovelOverview() {
       const result = await novelApi.getNovels();
       return result;
     },
-    enabled: !authLoading && (isAuthenticated || !!token), // 等待认证完成且 token 准备好后再请求
+    // 只要有 token 就可以请求,不需要等待 authLoading
+    // 因为请求拦截器会自动从 Supabase 获取 token (如果 store 中没有)
+    enabled: !!token || isAuthenticated,
+    retry: 1, // 如果首次失败,重试一次
   });
 
   // 处理 API 返回数据，兼容多种格式
