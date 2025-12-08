@@ -744,7 +744,7 @@ export default function CreateCreation() {
   };
 
   return (
-    <div className="container mx-auto overflow-y-hidden">
+    <div className="container mx-auto overflow-y-hidden landscape-wide">
       <div
         className="flex items-center gap-1 m-3"
         onClick={() => router.push(`/${locale}/home`)}

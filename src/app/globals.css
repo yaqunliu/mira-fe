@@ -255,6 +255,19 @@
     }
   }
 
+  /* 横屏时让指定容器占满宽度，避免出现窄列 */
+  .landscape-wide {
+    width: 100%;
+  }
+  @media (orientation: landscape) {
+    .landscape-wide {
+      max-width: 100% !important;
+      width: 100% !important;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
 }
 
 /* BottomSheet 相关样式 */

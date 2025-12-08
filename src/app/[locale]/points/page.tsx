@@ -100,7 +100,7 @@ export default function PointsPage() {
     <div className="h-screen flex flex-col">
       {/* 固定头部区域 */}
       <div className="flex-shrink-0">
-        <div className="container mx-auto px-4 pt-4 pb-2 max-w-4xl">
+        <div className="container mx-auto px-4 pt-4 pb-2 max-w-4xl landscape-wide">
           {/* 返回按钮 */}
           <Button
             variant="ghost"
@@ -126,7 +126,7 @@ export default function PointsPage() {
 
       {/* 可滚动内容区域 - 支持下拉刷新 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1">
-        <div className="container mx-auto px-4 py-2 max-w-4xl">
+        <div className="container mx-auto px-4 py-2 max-w-4xl landscape-wide">
           {/* 积分余额卡片 */}
           <Card className="mb-2 !py-0 !gap-0">
         <CardHeader className="!pb-1 !px-4 !pt-2">

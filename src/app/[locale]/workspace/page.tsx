@@ -96,7 +96,7 @@ export default function WorkspacePage() {
   }, [pathname, locale, isAuthenticated, handleRefresh]);
 
   return (
-    <div className="container h-screen mx-auto bg-gradient-to-br from-orange-200/60 via-purple-200/30 to-slate-200/30 dark:bg-black dark:from-transparent dark:via-transparent dark:to-transparent flex flex-col">
+    <div className="container h-screen mx-auto bg-gradient-to-br from-orange-200/60 via-purple-200/30 to-slate-200/30 dark:bg-black dark:from-transparent dark:via-transparent dark:to-transparent flex flex-col landscape-wide">
       {/* 固定顶部 */}
       <div className="flex-shrink-0">
         <div className="flex items-center justify-between p-4">
