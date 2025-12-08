@@ -743,7 +743,7 @@ export default function CreateCreation() {
     <div className="container mx-auto overflow-y-hidden">
       <div
         className="flex items-center gap-1 m-3"
-        onClick={() => router.push(`/${locale}`)}
+        onClick={() => router.push(`/${locale}/home`)}
       >
         <ChevronLeft className="w-4 h-4 text-primary" />
         <h1 className="text-lg text-gradient-primary">

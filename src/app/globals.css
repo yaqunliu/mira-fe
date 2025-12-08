@@ -63,7 +63,7 @@
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-y: hidden;
+    overflow-y: auto;
   }
 
   html, body {
@@ -288,5 +288,41 @@
 
 .animate-spin-slow {
   animation: spin-slow 2s linear infinite;
+}
+
+/* 首页柔和动效 */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(12px, -18px) scale(1.05);
+  }
+  66% {
+    transform: translate(-14px, 10px) scale(0.98);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+@keyframes float-soft {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-blob-slow {
+  animation: blob 16s ease-in-out infinite;
+}
+.animate-blob-slower {
+  animation: blob 20s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+.animate-float-soft {
+  animation: float-soft 6s ease-in-out infinite;
 }
 
