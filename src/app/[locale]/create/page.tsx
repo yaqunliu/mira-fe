@@ -34,17 +34,23 @@ function transformShotsToSceneGroups(shotsData: ShotsTaskResponse): SceneGroup[]
   return shotsData.scenes.map((scene) => ({
     scene_id: String(scene.scene_id),
     scene_title: scene.title,
-    images: scene.shots.map((shot) => ({
-      image_id: (shot as any).uuid || String(shot.shot_id), // 优先使用UUID
-      title: shot.title,
-      image_url: shot.image_url || "",
-      prompt: shot.image_prompt || shot.prompt || "", // 优先使用 image_prompt
-      narration: shot.narration || "",
-      status: shot.status === "completed" ? "completed" 
-            : shot.status === "failed" ? "failed" 
-            : shot.status === "generating" ? "generating" 
-            : "generating",
-    })),
+    images: scene.shots.map((shot) => {
+      // 优先使用 uuid 字段，如果不存在则使用 shot_id
+      const shotUuid = shot.uuid || (shot as any).uuid;
+      const imageId = shotUuid || String(shot.shot_id);
+      return {
+        image_id: imageId, // 优先使用UUID，如果没有则使用shot_id
+        uuid: shotUuid, // 单独保存uuid字段（可能为undefined）
+        title: shot.title,
+        image_url: shot.image_url || "",
+        prompt: shot.image_prompt || shot.prompt || "", // 优先使用 image_prompt
+        narration: shot.narration || "",
+        status: shot.status === "completed" ? "completed" 
+              : shot.status === "failed" ? "failed" 
+              : shot.status === "generating" ? "generating" 
+              : "generating",
+      };
+    }),
   }));
 }
 
@@ -53,14 +59,20 @@ function transformCreationScenesToSceneGroups(scenes: IScene[]): SceneGroup[] {
   return scenes.map((scene) => ({
     scene_id: String(scene.scene_id),
     scene_title: scene.title,
-    images: scene.shots.map((shot) => ({
-      image_id: (shot as any).uuid || String(shot.shot_id), // 优先使用UUID
-      title: shot.title,
-      image_url: shot.image_url || "",
-      prompt: shot.image_prompt || "", // 注意：IShot 中字段名是 image_prompt
-      narration: shot.narration || "",
-      status: (shot.image_url ? "completed" : "pending") as "pending" | "generating" | "completed" | "failed",
-    })),
+    images: scene.shots.map((shot) => {
+      // 优先使用 uuid 字段，如果不存在则使用 shot_id
+      const shotUuid = shot.uuid;
+      const imageId = shotUuid || String(shot.shot_id);
+      return {
+        image_id: imageId, // 优先使用UUID，如果没有则使用shot_id
+        uuid: shotUuid, // 单独保存uuid字段（可能为undefined）
+        title: shot.title,
+        image_url: shot.image_url || "",
+        prompt: shot.image_prompt || "", // 注意：IShot 中字段名是 image_prompt
+        narration: shot.narration || "",
+        status: (shot.image_url ? "completed" : "pending") as "pending" | "generating" | "completed" | "failed",
+      };
+    }),
   }));
 }
 

@@ -187,6 +187,7 @@ export interface SceneData {
 // AI生图结果类型
 export interface AIGeneratedImage {
   image_id: string;  // 应该是UUID，但为了向后兼容保留为string
+  uuid?: string;  // 分镜的UUID，优先使用此字段
   title: string;
   image_url: string;
   prompt: string;

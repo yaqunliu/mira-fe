@@ -245,13 +245,22 @@ export function StoryboardImages({
         submittingIdsRef.current.add(imageId);
 
         try {
-          // 验证 imageId 是否为有效的 UUID 格式
-          const shotUuid = String(imageId);
-          // 检查是否是UUID格式（简单检查：长度和格式）
-          if (shotUuid.length < 30 || /^\d+$/.test(shotUuid)) {
-            console.error("分镜ID不是有效的UUID格式:", shotUuid);
-            toast.error(`分镜ID格式错误：${shotUuid}，应该是UUID格式`);
-            return;
+          // 从 allImages 中查找对应的图片，获取 uuid
+          const targetImage = allImages.find(img => img.image_id === imageId);
+          let shotUuid: string;
+          
+          if (targetImage?.uuid) {
+            // 优先使用 uuid 字段
+            shotUuid = targetImage.uuid;
+          } else {
+            // 如果没有 uuid 字段，使用 image_id
+            shotUuid = String(imageId);
+            // 检查是否是UUID格式（简单检查：长度和格式）
+            if (shotUuid.length < 30 || /^\d+$/.test(shotUuid)) {
+              console.error("分镜ID不是有效的UUID格式:", shotUuid);
+              toast.error(`分镜ID格式错误：${shotUuid}，应该是UUID格式。请刷新页面重试。`);
+              return;
+            }
           }
 
           // 检查积分是否充足（重新生成单张图片）
@@ -302,7 +311,7 @@ export function StoryboardImages({
         }
       }, 500); // 500ms 防抖延迟
     },
-    [pollTaskStatus, regeneratingIds, t]
+    [pollTaskStatus, regeneratingIds, t, allImages]
   );
 
   // 关闭编辑弹窗
@@ -490,9 +499,21 @@ export function StoryboardImages({
                           </div>
                         ) : image.status === "failed" ? (
                           // 生成失败状态
-                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 text-red-500 py-6">
+                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 text-red-500 py-6 relative">
                             <X className="w-12 h-12" />
                             <p className="text-sm font-medium">{t("storyboard.generationFailed")}</p>
+                            {/* 重新生成按钮 */}
+                            <div className="absolute top-2 right-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-8 w-8 p-0 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30"
+                                onClick={() => handleStartEdit(image)}
+                                title={t("storyboard.regenerateImage")}
+                              >
+                                <RefreshCw className="w-4 h-4 text-red-600 dark:text-red-400" />
+                              </Button>
+                            </div>
                           </div>
                         ) : (
                           // 正常图片显示
@@ -657,7 +678,7 @@ export function StoryboardImages({
                         </div> */}
 
                         {/* 重新生成按钮 */}
-                        {image.status === "completed" && !isEditing && (
+                        {(image.status === "completed" || image.status === "failed") && !isEditing && (
                           <Button
                             size="sm"
                             variant="outline"
