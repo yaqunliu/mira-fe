@@ -44,7 +44,7 @@ function SwipeableCreationCard({
       variant: "destructive",
     });
     if (confirmed) {
-      onDelete(creation.creation_id);
+      onDelete(creation.uuid);
     }
   };
   const [translateX, setTranslateX] = useState(0);
@@ -359,11 +359,11 @@ export default function CreationsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {creations.map((creation: ICreation) => (
                   <SwipeableCreationCard
-                    key={creation.creation_id}
+                    key={creation.uuid}
                     creation={creation}
                     onClick={() => handleCreationClick(creation)}
                     onDelete={handleDelete}
-                    isDeleting={deletingId === creation.creation_id}
+                    isDeleting={deletingId === creation.uuid}
                     getStatusBadge={getStatusBadge}
                     t={t}
                     confirm={confirm}
