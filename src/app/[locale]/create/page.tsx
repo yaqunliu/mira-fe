@@ -285,8 +285,12 @@ export default function CreateCreation() {
           setIsGeneratingShots(false);
           if (taskStatus === TaskStatus.SUCCESS) {
             toast.success(t("creation.shotsGenerationSuccess"));
+            // 成功后立即刷新创作数据并清理任务ID，确保分镜图重新加载
+            refetchCreation();
+            setShotsTaskId(null);
           } else {
             toast.error(t("creation.shotsGenerationFailed"));
+            setShotsTaskId(null);
           }
           return false;
         }
