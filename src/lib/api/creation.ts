@@ -8,15 +8,23 @@ const creationApi = {
     novelId,
     chapterId,
     creationId,
+    extraData,
   }: {
     novelId: string;
     chapterId: string;
     creationId?: string;
+    extraData?: {
+      llm_model?: string;
+      text_to_image_model?: string;
+      image_to_image_model?: string;
+      narration_mode?: string;
+    };
   }) => {
     return apiClient.post("/api/v1/creations/create", {
       novel_id: novelId,
       chapter_id: chapterId,
       ...(creationId && { creation_id: creationId }),
+      ...(extraData && { extra_data: extraData }),
     });
   },
   queryCreations: async (params?: PaginationParams): Promise<ICreation[]> => {
@@ -147,6 +155,19 @@ const creationApi = {
     return apiClient.get<ApiResponse<ICreation | null>>(
       `/api/v1/creations/by-chapter/${chapterId}`
     ) as unknown as Promise<{ data: ICreation | null; message: string }>;
+  },
+
+  // 手动启动分镜拆分任务
+  generatePlaybook: async (
+    creationId: string,
+    narrationMode: string = "original"
+  ): Promise<{ data: { task_id: string; creation_uuid: string }; message: string }> => {
+    return apiClient.post<{ task_id: string; creation_uuid: string }>(
+      `/api/v1/creations/${creationId}/generate-playbook`,
+      {
+        narration_mode: narrationMode,
+      }
+    ) as unknown as Promise<{ data: { task_id: string; creation_uuid: string }; message: string }>;
   },
 };
 

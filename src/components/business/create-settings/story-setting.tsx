@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { CustomTabs } from "@/components/ui/custom-tabs";
 import { NovelSelect } from "../novel-select";
 import { Novel, Chapter } from "@/types";
-import { ArrowRight, X, Check, FileText } from "lucide-react";
+import { ArrowRight, X, Check, FileText, Settings } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import creationApi from "@/lib/api/creation";
 import { toast } from "sonner";
@@ -18,6 +18,17 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTaskSubmission } from "@/hooks/use-task-submission";
 import { novelApi } from "@/lib/api/novel";
 import LoadingIcon from "@/components/ui/loading-icon";
+import modelConfigApi, { IModelConfig } from "@/lib/api/model-config";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function StorySetting() {
   const t = useTranslations("");
@@ -31,6 +42,41 @@ export function StorySetting() {
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([]);
   const [creationId, setCreationId] = useState<string | null>(null);
   const [isLoadingFromUrl, setIsLoadingFromUrl] = useState(false);
+  
+  // 模型配置状态
+  const [llmModel, setLlmModel] = useState<string>("");
+  const [textToImageModel, setTextToImageModel] = useState<string>("");
+  const [imageToImageModel, setImageToImageModel] = useState<string>("");
+  const [narrationMode, setNarrationMode] = useState<"original" | "rewrite">("original");
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+  
+  // 获取模型配置列表
+  const { data: modelConfigsData } = useQuery({
+    queryKey: ["modelConfigs"],
+    queryFn: () => modelConfigApi.getAllModels(),
+  });
+  
+  const modelConfigs = modelConfigsData?.data || {
+    llm: [],
+    text_to_image: [],
+    image_to_image: [],
+  };
+  
+  // 初始化默认模型
+  useEffect(() => {
+    if (modelConfigs.llm.length > 0 && !llmModel) {
+      const defaultLlm = modelConfigs.llm.find((m) => m.is_default) || modelConfigs.llm[0];
+      setLlmModel(defaultLlm.model_name);
+    }
+    if (modelConfigs.text_to_image.length > 0 && !textToImageModel) {
+      const defaultTextToImage = modelConfigs.text_to_image.find((m) => m.is_default) || modelConfigs.text_to_image[0];
+      setTextToImageModel(defaultTextToImage.model_name);
+    }
+    if (modelConfigs.image_to_image.length > 0 && !imageToImageModel) {
+      const defaultImageToImage = modelConfigs.image_to_image.find((m) => m.is_default) || modelConfigs.image_to_image[0];
+      setImageToImageModel(defaultImageToImage.model_name);
+    }
+  }, [modelConfigs, llmModel, textToImageModel, imageToImageModel]);
   const {data: creation, isLoading} = useQuery({
     queryKey: ["creation", creationId],
     queryFn: () => creationApi.queryCreationById(creationId as string),
@@ -124,8 +170,8 @@ export function StorySetting() {
 
   // 创建视频创作的 mutation
   const createCreationMutation = useMutation({
-    mutationFn: ({ novelId, chapterIds }: { novelId: string; chapterIds: string[] }) =>
-      creationApi.createCreation({ novelId, chapterId: chapterIds[0] }),
+    mutationFn: ({ novelId, chapterIds, extraData }: { novelId: string; chapterIds: string[]; extraData?: any }) =>
+      creationApi.createCreation({ novelId, chapterId: chapterIds[0], extraData }),
     onSuccess: (response: any) => {
       // 优先使用UUID，如果没有则使用creation_id
       const newCreationUuid = response?.data?.uuid || response?.data?.data?.uuid;
@@ -192,12 +238,22 @@ export function StorySetting() {
       throw new Error('积分不足')
     }
 
+    // 构建 extra_data
+    const extraData = {
+      llm_model: llmModel,
+      text_to_image_model: textToImageModel,
+      image_to_image_model: imageToImageModel,
+      narration_mode: narrationMode,
+    };
+    
     // 调用创建接口
     return new Promise<void>((resolve, reject) => {
       createCreationMutation.mutate(
         {
-          novelId: (selectedNovel.uuid || selectedNovel.novel_id) as string,
+          // 确保使用 UUID 而不是 ID
+          novelId: selectedNovel.uuid as string,
           chapterIds: selectedChapters.map((chapter) => (chapter as any).uuid || chapter.chapter_id) as string[],
+          extraData,
         },
         {
           onSuccess: () => resolve(),
@@ -306,6 +362,166 @@ export function StorySetting() {
                       {selectedChapters.length > 0 && (
                         <div className="flex items-center gap-3 pt-4 pb-2 flex-shrink-0 border-t border-gray-200 dark:border-gray-700 px-2">
                           {renderSelectedChapterInfo()}
+                          
+                          {/* 配置按钮 */}
+                          <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="lg"
+                                className="flex-shrink-0"
+                              >
+                                <Settings className="w-4 h-4 mr-2" />
+                                {t("creation.config") || "配置"}
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle className="text-xl font-semibold">
+                                  {t("creation.modelConfig") || "创作配置"}
+                                </DialogTitle>
+                                <DialogDescription>
+                                  {t("creation.modelConfigDescription") || "选择用于生成创作的模型和模式"}
+                                </DialogDescription>
+                              </DialogHeader>
+                              
+                              <div className="space-y-6 py-4">
+                                {/* LLM 模型选择 */}
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {t("creation.llmModel") || "文生文模型"}
+                                  </Label>
+                                  <Select value={llmModel} onValueChange={setLlmModel}>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {modelConfigs.llm.map((model) => (
+                                        <SelectItem key={model.model_name} value={model.model_name}>
+                                          {model.display_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {llmModel && (() => {
+                                    const selectedModel = modelConfigs.llm.find(m => m.model_name === llmModel);
+                                    return selectedModel && (
+                                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                        {selectedModel.description && (
+                                          <p>{selectedModel.description}</p>
+                                        )}
+                                        <p>
+                                          {t("creation.maxTokens") || "最大Token数"}: {selectedModel.config?.max_tokens || "-"}
+                                        </p>
+                                        <p>
+                                          {t("creation.supportedLanguages") || "支持语言"}: {Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}
+                                        </p>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                                
+                                {/* 文生图模型选择 */}
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {t("creation.textToImageModel") || "文生图模型"}
+                                  </Label>
+                                  <Select value={textToImageModel} onValueChange={setTextToImageModel}>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {modelConfigs.text_to_image.map((model) => (
+                                        <SelectItem key={model.model_name} value={model.model_name}>
+                                          {model.display_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {textToImageModel && (() => {
+                                    const selectedModel = modelConfigs.text_to_image.find(m => m.model_name === textToImageModel);
+                                    return selectedModel && (
+                                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                        {selectedModel.description && (
+                                          <p>{selectedModel.description}</p>
+                                        )}
+                                        <p>
+                                          {t("creation.aspectRatio") || "宽高比"}: {selectedModel.config?.aspect_ratio || "-"}
+                                        </p>
+                                        <p>
+                                          {t("creation.supportedLanguages") || "支持语言"}: {Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}
+                                        </p>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                                
+                                {/* 图生图模型选择 */}
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {t("creation.imageToImageModel") || "图生图模型"}
+                                  </Label>
+                                  <Select value={imageToImageModel} onValueChange={setImageToImageModel}>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {modelConfigs.image_to_image.map((model) => (
+                                        <SelectItem key={model.model_name} value={model.model_name}>
+                                          {model.display_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {imageToImageModel && (() => {
+                                    const selectedModel = modelConfigs.image_to_image.find(m => m.model_name === imageToImageModel);
+                                    return selectedModel && (
+                                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                        {selectedModel.description && (
+                                          <p>{selectedModel.description}</p>
+                                        )}
+                                        <p>
+                                          {t("creation.aspectRatio") || "宽高比"}: {selectedModel.config?.aspect_ratio || "-"}
+                                        </p>
+                                        <p>
+                                          {t("creation.supportedLanguages") || "支持语言"}: {Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}
+                                        </p>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                                
+                                {/* 解说词模式选择 */}
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                    {t("creation.narrationMode") || "解说词模式"}
+                                  </Label>
+                                  <Select value={narrationMode} onValueChange={(value) => setNarrationMode(value as "original" | "rewrite")}>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="original">
+                                        {t("creation.originalMode") || "原文模式"}
+                                      </SelectItem>
+                                      <SelectItem value="rewrite">
+                                        {t("creation.rewriteMode") || "爽文模式"}
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                    {narrationMode === "original" ? (
+                                      <p>{t("creation.originalModeDesc") || "保持原文内容，仅进行场景分解"}</p>
+                                    ) : (
+                                      <p>{t("creation.rewriteModeDesc") || "改写缩短文本，使用快节奏的解说方式"}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                          
+                          {/* 下一步按钮 */}
                           <Button
                             variant="default"
                             size="lg"
@@ -313,7 +529,7 @@ export function StorySetting() {
                             disabled={createCreationMutation.isPending || isLoading || isSubmittingAnalysis}
                             className="bg-primary flex-shrink-0"
                           >
-                            {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.next")}
+                            {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.analyzeCharacters")}
                             <ArrowRight className="w-4 h-4 ml-1" />
                           </Button>
                         </div>

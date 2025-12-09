@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -178,6 +178,24 @@ export default function NovelDetailPage() {
   // 章节分页信息
   const chaptersTotal = chaptersData?.data?.total || chaptersData?.total || finalChapters.length;
   const chaptersTotalPages = Math.ceil(chaptersTotal / chapterPageSize);
+  
+  // 当当前页为空且不是第一页时，自动跳转到最后一页
+  useEffect(() => {
+    if (!isChaptersLoading && finalChapters.length === 0 && chapterPage > 1 && chaptersTotalPages > 0) {
+      // 如果当前页为空，且不是第一页，跳转到最后一页
+      const targetPage = Math.max(1, chaptersTotalPages);
+      setChapterPage(targetPage);
+      setChapterPageInput("");
+    }
+  }, [finalChapters.length, chapterPage, chaptersTotalPages, isChaptersLoading]);
+  
+  // 当总页数变化且当前页超出范围时，自动调整到最后一页
+  useEffect(() => {
+    if (!isChaptersLoading && chaptersTotalPages > 0 && chapterPage > chaptersTotalPages) {
+      setChapterPage(chaptersTotalPages);
+      setChapterPageInput("");
+    }
+  }, [chaptersTotalPages, chapterPage, isChaptersLoading]);
   
   // 如果主响应中没有数据，使用单独的查询结果
   const finalCharacters = characters?.length ? characters : ((charactersResponse as any)?.data?.data || (charactersResponse as any)?.data || []);
@@ -438,7 +456,7 @@ export default function NovelDetailPage() {
         </div>
         
         {/* 章节分页 */}
-        {chaptersTotalPages > 1 && (
+        {chaptersTotalPages > 0 && chaptersTotal > 0 && (
           <div className="flex items-center justify-center gap-2 p-4 border-t border-slate-200 dark:border-zinc-700">
             <Button
               variant="outline"

@@ -273,7 +273,8 @@ export default function CreationsPage() {
   };
 
   const handleCreationClick = (creation: ICreation) => {
-    router.push(`/${locale}/create?creationId=${creation.creation_id}`);
+    const creationUuid = (creation as any).uuid || creation.creation_id;
+    router.push(`/${locale}/create?creationId=${creationUuid}&from=creations`);
   };
 
   const handleDelete = (creationId: string) => {
@@ -306,7 +307,7 @@ export default function CreationsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full max-w-md"
             />
-            <Link href={`/${locale}/create`}>
+            <Link href={`/${locale}/create?from=creations`}>
               <Button icon={<Plus className="h-4 w-4" />}>{t("creation.createCreation")}</Button>
             </Link>
           </div>
@@ -346,7 +347,7 @@ export default function CreationsPage() {
                     <p className="text-muted-foreground mb-6">
                       {t("creation.noCreationsDescription")}
                     </p>
-                    <Link href={`/${locale}/create`}>
+                    <Link href={`/${locale}/create?from=creations`}>
                       <Button>{t("creation.createCreation")}</Button>
                     </Link>
                   </>

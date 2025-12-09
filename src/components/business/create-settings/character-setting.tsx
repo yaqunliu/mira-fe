@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -34,9 +34,11 @@ import { ICharacter } from "@/types/character";
 import ModuleLoading from "@/components/ui/module-loading";
 import characterApi from "@/lib/api/character";
 import taskApi from "@/lib/api/task";
-import { TaskStatus } from "@/types";
+import creationApi from "@/lib/api/creation";
+import { TaskStatus, TaskType } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import { useTaskSubmission } from "@/hooks/use-task-submission";
+import { CreationStatus } from "@/types/creation";
 
 const getStyleOptions = (t: any) => [
   { value: "anime", label: t("animeStyle") },
@@ -50,13 +52,18 @@ export function CharacterSetting({
   currentTaskId,
   onComplete,
   handleUpdate,
+  creationStatus,
+  creationId,
 }: {
   characters: ICharacter[];
   currentTaskId?: string;
   onComplete: () => void;
   handleUpdate: () => void;
+  creationStatus?: string;
+  creationId?: string;
 }) {
   const t = useTranslations("character");
+  const tCreation = useTranslations("creation");
   const [selectedStyle, setSelectedStyle] = useState<string>("anime");
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
@@ -67,7 +74,11 @@ export function CharacterSetting({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
-  const { data: task,  } = useQuery({
+  const [playbookTaskId, setPlaybookTaskId] = useState<string | null>(null);
+  const [isGeneratingPlaybook, setIsGeneratingPlaybook] = useState(false);
+  
+  // 角色图片生成任务轮询
+  const { data: task } = useQuery({
     queryKey: ["task", taskId as string],
     queryFn: () => taskApi.queryTaskStatus(taskId as string),
     enabled: !!taskId,
@@ -83,6 +94,60 @@ export function CharacterSetting({
       return 2000;
     },
   });
+
+  // 分镜拆分任务轮询
+  const { data: playbookTask } = useQuery({
+    queryKey: ["task", playbookTaskId as string],
+    queryFn: () => taskApi.queryTaskStatus(playbookTaskId as string),
+    enabled: !!playbookTaskId,
+    refetchInterval: (query) => {
+      if (query.state.data?.data?.status === TaskStatus.SUCCESS || query.state.data?.data?.status === TaskStatus.FAILURE) {
+        setIsGeneratingPlaybook(false);
+        handleUpdate(); // 刷新创作数据以获取最新状态
+        if (query.state.data?.data?.status === TaskStatus.FAILURE) {
+          toast.error(query.state.data?.message || tCreation("playbookGenerationFailed") || "分镜拆分失败");
+        } else {
+          // 分镜拆分成功，跳转到脚本页面
+          toast.success(tCreation("playbookGenerationSuccess") || "分镜拆分完成");
+          setTimeout(() => {
+            onComplete();
+          }, 500);
+        }
+        return false;
+      }
+      return 2000;
+    },
+  });
+
+  // 监听创作状态和 currentTaskId，如果状态是 CHARACTER_ANALYZED 且有 currentTaskId，自动开始轮询分镜拆分任务
+  useEffect(() => {
+    if (creationStatus === CreationStatus.CHARACTER_ANALYZED && currentTaskId && !playbookTaskId) {
+      // 检查任务类型，如果是分镜拆分任务，开始轮询
+      taskApi.queryTaskStatus(currentTaskId).then((response) => {
+        const task = response?.data;
+        if (task && task.taskType === TaskType.SCENE_DESCRIPTION_GENERATION) {
+          // 是分镜拆分任务，开始轮询
+          setPlaybookTaskId(currentTaskId);
+          setIsGeneratingPlaybook(true);
+        }
+      }).catch((error) => {
+        console.error("查询任务状态失败:", error);
+      });
+    }
+  }, [creationStatus, currentTaskId, playbookTaskId]);
+
+  // 监听创作状态变化，如果状态变为 CHARACTER_GENERATED 且所有角色都有图片，自动跳转
+  useEffect(() => {
+    if (creationStatus === "character_generated") {
+      const allHaveImages = characters.every((char) => char.image_url);
+      if (allHaveImages && characters.length > 0) {
+        // 延迟一下，确保UI已更新
+        setTimeout(() => {
+          onComplete();
+        }, 500);
+      }
+    }
+  }, [creationStatus, characters, onComplete]);
   // 生成角色图片的内部函数
   const generateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
     // 检查积分是否充足
@@ -146,11 +211,19 @@ export function CharacterSetting({
 
   // 只有在有任务在进行或者正在生成时才显示loading
   // 如果characters为空但没有任务在进行，说明数据已经加载完成，只是没有角色数据，不应该显示loading
-  const shouldShowLoading = isGenerating || (characters?.length === 0 && !!currentTaskId);
+  const shouldShowLoading = isGenerating || isGeneratingPlaybook || (characters?.length === 0 && !!currentTaskId);
 
   return (
     <div className="h-[calc(100vh-136px)]">
-      <ModuleLoading loading={shouldShowLoading} className="h-full" text={characters?.length === 0 ? t("analyzingCharacterInfo") : t("generatingCharacterImage")}>
+      <ModuleLoading 
+        loading={shouldShowLoading} 
+        className="h-full" 
+        text={
+          isGeneratingPlaybook 
+            ? (tCreation("playbookGenerationStarted") || "正在生成分镜...")
+            : (characters?.length === 0 ? t("analyzingCharacterInfo") : t("generatingCharacterImage"))
+        }
+      >
         <div className="space-y-4 px-6 h-full overflow-y-auto pb-20">
           <div className="flex justify-between items-center">
             <h3 className="text-base font-semibold">{t("characterSettings")} ({characters.length})</h3>
@@ -166,10 +239,17 @@ export function CharacterSetting({
             </Button>
           </div>
           {/* 生成进度 */}
-          {isGenerating && (
+          {(isGenerating || isGeneratingPlaybook) && (
             <div className="flex justify-between items-center text-sm gap-2">
-              <Progress value={generationProgress} className="w-full" />
-              {/* <span>{generationProgress}%</span> */}
+              <Progress 
+                value={isGeneratingPlaybook ? (playbookTask?.data?.progress?.percent || 0) : generationProgress} 
+                className="w-full" 
+              />
+              {isGeneratingPlaybook && playbookTask?.data?.progress?.status && (
+                <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                  {playbookTask.data.progress.status}
+                </span>
+              )}
             </div>
           )}
           {/* 风格选择 */}
@@ -415,7 +495,50 @@ export function CharacterSetting({
             {/* 右侧操作按钮 */}
 
             <Button
-              onClick={() => {
+              onClick={async () => {
+                // 如果状态是 CHARACTER_ANALYZED，需要先启动分镜拆分任务
+                if (creationStatus === CreationStatus.CHARACTER_ANALYZED) {
+                  // 先检查是否所有角色都有角色图
+                  const charactersWithoutImage = characters.filter(
+                    (character) => !character.image_url
+                  );
+                  
+                  if (charactersWithoutImage.length > 0) {
+                    // 如果有角色没有生成图片，显示提示
+                    const characterNames = charactersWithoutImage
+                      .map((c) => c.name)
+                      .join("、");
+                    toast.error(
+                      t("pleaseGenerateAllCharacterImages", {
+                        characters: characterNames,
+                      })
+                    );
+                    return;
+                  }
+                  
+                  if (!creationId) {
+                    toast.error(tCreation("creationIdRequired") || "创作ID不存在");
+                    return;
+                  }
+                  
+                  try {
+                    setIsGeneratingPlaybook(true);
+                    // 调用分镜拆分API（使用默认的 original 模式，可以从 extra_data 中获取）
+                    const response = await creationApi.generatePlaybook(creationId, "original");
+                    if (response?.data?.task_id) {
+                      setPlaybookTaskId(response.data.task_id);
+                      toast.success(tCreation("playbookGenerationStarted") || "分镜拆分任务已启动");
+                    } else {
+                      throw new Error(t("taskIdNotFound") || "未获取到任务ID");
+                    }
+                  } catch (error: any) {
+                    setIsGeneratingPlaybook(false);
+                    toast.error(error?.message || tCreation("playbookGenerationFailed") || "启动分镜拆分任务失败");
+                    console.error("启动分镜拆分任务失败:", error);
+                  }
+                  return;
+                }
+                
                 // 检查是否所有角色都有角色图
                 const charactersWithoutImage = characters.filter(
                   (character) => !character.image_url
@@ -437,13 +560,20 @@ export function CharacterSetting({
                 // 所有角色都有图片，执行下一步操作
                 onComplete();
               }}
+              disabled={isGeneratingPlaybook || (characters.length > 0 && characters.some((character) => !character.image_url))}
               className={cn(
-                "bg-orange-400/80 hover:bg-orange-600 text-white px-6 w-[120px]",
-                characters.some((character) => !character.image_url) && 
+                "bg-orange-400/80 hover:bg-orange-600 text-white px-6",
+                isGeneratingPlaybook ? "w-auto min-w-[120px]" : "w-[120px]",
+                (characters.length > 0 && characters.some((character) => !character.image_url)) && 
                 "opacity-50 cursor-not-allowed"
               )}
             >
-              {t("next")}
+              {isGeneratingPlaybook 
+                ? (tCreation("playbookGenerationStarted") || "正在生成分镜...")
+                : (creationStatus === CreationStatus.CHARACTER_ANALYZED 
+                    ? t("analyzePlaybook")
+                    : t("next"))
+              }
               <ArrowRight className="w-4 h-4 mr-1" />
             </Button>
           </div>

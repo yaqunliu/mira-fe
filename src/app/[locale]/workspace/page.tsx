@@ -124,7 +124,7 @@ export default function WorkspacePage() {
             </div>
             <CheckinButton />
           </div>
-          <div className="flex" onClick={() => router.push(`/${locale}/create`)}>
+          <div className="flex" onClick={() => router.push(`/${locale}/create?from=workspace`)}>
             <div className="w-1/2 lg:w-50 aspect-[7/3] rounded-md flex items-center justify-center gap-3 border border-orange-300 dark:border-orange-600 bg-gradient-to-br from-violet-100/30 to-orange-300/40 to-95% dark:bg-slate-900 hover:from-violet-200/40 hover:to-orange-400/50 dark:hover:bg-slate-800 cursor-pointer transition-all">
               <div className="text-lg font-semibold text-orange-800 dark:text-orange-300">
                 {t("home.createAnimation")}

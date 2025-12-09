@@ -85,6 +85,7 @@ export default function CreateCreation() {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const creationIdFromUrl = searchParams?.get("creationId") || "";
+  const fromPage = searchParams?.get("from") || ""; // 获取来源页面参数
   const [creationId, setCreationId] = useState<string>(creationIdFromUrl);
   const prevPathnameRef = useRef<string | null>(null);
   const prevCreationIdRef = useRef<string | null>(null);
@@ -92,6 +93,11 @@ export default function CreateCreation() {
   const hasInitializedRef = useRef<boolean>(false); // 标记是否已经初始化过，避免首次加载时的重复调用
   const lastQueryTimeRef = useRef<number>(0); // 记录上次查询的时间，用于防抖
   const queryExecutionCountRef = useRef<Map<string, number>>(new Map()); // 记录每个 creationId 的查询次数
+  // 用户手动切换步骤的时间戳，用于避免自动跳转覆盖用户行为
+  const userStepChangeRef = useRef<number>(0);
+  const markUserStepChange = useCallback(() => {
+    userStepChangeRef.current = Date.now();
+  }, []);
 
   // 分镜生成任务相关状态
   const [shotsTaskId, setShotsTaskId] = useState<string | null>(null);
@@ -356,9 +362,16 @@ export default function CreateCreation() {
                 setCurrentStep(3);
                 return; // 有任务时直接返回，不走 status 逻辑
               } else if (taskType === TaskType.SCENE_DESCRIPTION_GENERATION) {
-                // 分镜描述生成任务，跳转到脚本步骤（步骤2）
-                setCurrentStep(2);
-                return;
+                // 分镜描述生成任务（分镜拆分任务）
+                if (curCreation?.status === CreationStatus.CHARACTER_ANALYZED) {
+                  // 状态是 CHARACTER_ANALYZED，说明是分镜拆分任务，跳转到角色设置步骤（步骤1）
+                  setCurrentStep(1);
+                  return;
+                } else {
+                  // 其他状态，跳转到脚本步骤（步骤2）
+                  setCurrentStep(2);
+                  return;
+                }
               } else if (taskType === TaskType.CHARACTER_IMAGE_GENERATION) {
                 // 角色图片生成任务，跳转到角色设置步骤
                 setCurrentStep(1);
@@ -483,9 +496,12 @@ export default function CreateCreation() {
         // 先跳转到角色设置步骤，显示分析进度
         setCurrentStep(1);
         // 重新提交创建任务，带上 creation_id 重新开始分析
+        // 使用 UUID 而不是 ID
+        const novelUuid = (curCreation as any).novel_uuid || curCreation.novel_id;
+        const chapterUuid = (curCreation as any).chapter_uuid || curCreation.chapter_id;
         creationApi.createCreation({
-          novelId: curCreation.novel_id,
-          chapterId: curCreation.chapter_id,
+          novelId: novelUuid,
+          chapterId: chapterUuid,
           creationId: creationId,
         }).then((response) => {
           const newCreationId = response?.data?.creation_id || response?.data;
@@ -526,17 +542,23 @@ export default function CreateCreation() {
             setCurrentStep(0);
           }
           break;
+        case CreationStatus.CHARACTER_ANALYZED:
+          // 角色分析完成，跳转到角色设置步骤让用户查看角色
+          setCurrentStep(1);
+          break;
         case CreationStatus.PLAYBOOK_GENERATED:
-          // 角色分析完成（playbook已生成）
+          // 分镜拆分完成（playbook已生成）
           // 如果没有角色且有 current_task_id，说明在生成分镜图（跳过了角色图生成步骤）
           if ((!curCreation?.characters || curCreation.characters.length === 0) && 
               curCreation?.current_task_id) {
             setShotsTaskId(curCreation.current_task_id);
             setIsGeneratingShots(true);
             setCurrentStep(3);
+          } else if (!curCreation?.current_task_id) {
+            // 没有任务，说明分镜拆分已完成，跳转到脚本设置步骤（步骤2）让用户查看和编辑脚本
+            setCurrentStep(2);
           } else {
-            // 有角色或没有任务，跳转到角色设置步骤
-            // 如果确实没有角色，用户可以在角色设置步骤中看到"暂无角色"的提示，然后继续下一步
+            // 有 current_task_id 且有角色，可能是其他任务在进行，跳转到角色设置步骤
             setCurrentStep(1);
           }
           break;
@@ -587,9 +609,12 @@ export default function CreateCreation() {
 
     switch (curCreation.status) {
       case CreationStatus.CREATED:
-      case CreationStatus.PLAYBOOK_GENERATED:
+      case CreationStatus.CHARACTER_ANALYZED:
         // 角色分析阶段，最多可以访问到角色设置步骤（步骤1）
         return 1;
+      case CreationStatus.PLAYBOOK_GENERATED:
+        // 分镜拆分完成，最多可以访问到脚本设置步骤（步骤2）
+        return 2;
       case CreationStatus.CHARACTER_GENERATED:
         // 角色生成完成，最多可以访问到脚本设置步骤（步骤2）
         return 2;
@@ -683,6 +708,7 @@ export default function CreateCreation() {
   }, [checkAllShotsHaveImages, handleGenerateShots, nextStep]);
 
   const handleStepChange = (stepIndex: number, step: ProgressStep) => {
+    markUserStepChange();
     setCurrentStep(stepIndex);
   };
 
@@ -699,6 +725,8 @@ export default function CreateCreation() {
           <CharacterSetting
             characters={curCreation?.characters as ICharacter[] || []}
             currentTaskId={curCreation?.current_task_id}
+            creationStatus={curCreation?.status}
+            creationId={creationId}
             onComplete={() => {
               nextStep();
             }}
@@ -712,6 +740,12 @@ export default function CreateCreation() {
             data={curCreation?.scenes || []}
             onComplete={handleScriptComplete}
             isLoading={isGeneratingShots}
+            creationId={creationId}
+            characters={curCreation?.characters || []}
+            onDataUpdate={() => {
+              // 刷新创作数据
+              refetchCreation();
+            }}
           />
         );
       case 3:
@@ -746,8 +780,18 @@ export default function CreateCreation() {
   return (
     <div className="container mx-auto overflow-y-hidden landscape-wide">
       <div
-        className="flex items-center gap-1 m-3"
-        onClick={() => router.push(`/${locale}/home`)}
+        className="flex items-center gap-1 m-3 cursor-pointer"
+        onClick={() => {
+          // 根据来源页面决定返回到哪里
+          if (fromPage === "workspace") {
+            router.push(`/${locale}/workspace`);
+          } else if (fromPage === "creations") {
+            router.push(`/${locale}/creations`);
+          } else {
+            // 默认返回到 home，或者使用 router.back()
+            router.back();
+          }
+        }}
       >
         <ChevronLeft className="w-4 h-4 text-primary" />
         <h1 className="text-lg text-gradient-primary">

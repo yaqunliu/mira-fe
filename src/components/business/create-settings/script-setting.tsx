@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,12 +23,20 @@ import { cn } from "@/lib/utils";
 import { IScene, IShot } from "@/types/scene";
 import { ShotItem } from "../shot-item";
 import { useTranslations } from "next-intl";
+import creationApi from "@/lib/api/creation";
+import taskApi from "@/lib/api/task";
+import { useQuery } from "@tanstack/react-query";
+import { TaskStatus } from "@/types";
+import { toast } from "sonner";
 
 interface ScriptSettingProps {
   data: IScene[];
   className?: string;
   onComplete: () => void;
   isLoading?: boolean;
+  creationId?: string;
+  onDataUpdate?: (scenes: IScene[]) => void;
+  characters?: Array<{ name: string; image_url?: string | null }>;
 }
 
 export function ScriptSetting({
@@ -36,12 +44,83 @@ export function ScriptSetting({
   className,
   onComplete,
   isLoading = false,
+  creationId,
+  onDataUpdate,
+  characters = [],
 }: ScriptSettingProps) {
   const t = useTranslations();
   const [expandedScenes, setExpandedScenes] = useState<Set<number>>(
     new Set(data.length > 0 ? [data[0].scene_id] : [])
   );
   const [scenes, setScenes] = useState(data);
+  const [isGeneratingPlaybook, setIsGeneratingPlaybook] = useState(false);
+  const [playbookTaskId, setPlaybookTaskId] = useState<string | null>(null);
+
+  // 当外部数据更新时，同步到本地状态
+  useEffect(() => {
+    if (data && data.length > 0) {
+      setScenes(data);
+      if (onDataUpdate) {
+        onDataUpdate(data);
+      }
+    }
+  }, [data, onDataUpdate]);
+
+  // 轮询分镜拆分任务状态
+  const { data: playbookTaskData } = useQuery({
+    queryKey: ["playbookTask", playbookTaskId],
+    queryFn: () => taskApi.queryTaskStatus(playbookTaskId as string),
+    enabled: !!playbookTaskId && isGeneratingPlaybook,
+    retry: 2,
+    refetchInterval: (query) => {
+      if (query.state.error) {
+        setIsGeneratingPlaybook(false);
+        setPlaybookTaskId(null);
+        toast.error(t("creation.queryTaskFailed"));
+        return false;
+      }
+      
+      const taskStatus = query.state.data?.data?.status;
+      if (taskStatus === TaskStatus.SUCCESS || taskStatus === TaskStatus.FAILURE) {
+        setIsGeneratingPlaybook(false);
+        if (taskStatus === TaskStatus.SUCCESS) {
+          toast.success(t("creation.playbookGenerationSuccess"));
+          // 成功后刷新数据
+          if (onDataUpdate) {
+            // 通知父组件刷新数据
+            onDataUpdate([]); // 先清空，让父组件重新加载
+          }
+        } else {
+          toast.error(t("creation.playbookGenerationFailed"));
+        }
+        setPlaybookTaskId(null);
+        return false;
+      }
+      return 2000; // 每2秒轮询一次
+    },
+  });
+
+  // 处理开始生成分镜
+  const handleGeneratePlaybook = async () => {
+    if (!creationId) {
+      toast.error(t("creation.creationIdRequired"));
+      return;
+    }
+
+    try {
+      setIsGeneratingPlaybook(true);
+      const response = await creationApi.generatePlaybook(creationId, "original");
+      if (response.data?.task_id) {
+        setPlaybookTaskId(response.data.task_id);
+        toast.info(t("creation.playbookGenerationStarted"));
+      } else {
+        throw new Error(t("creation.taskIdNotFound"));
+      }
+    } catch (error: any) {
+      setIsGeneratingPlaybook(false);
+      toast.error(error.message || t("creation.playbookGenerationFailed"));
+    }
+  };
 
   const toggleScene = (sceneId: number) => {
     const newExpanded = new Set(expandedScenes);
@@ -241,26 +320,68 @@ export function ScriptSetting({
           <div className="flex items-center justify-center">
             {/* 右侧操作按钮 */}
 
-            <Button
-              onClick={() => {
-                // 下一步操作
-                onComplete();
-              }}
-              disabled={isLoading}
-              className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                  {t("common.generating")}
-                </>
-              ) : (
-                <>
-                  {t("common.next")}
-                  <ArrowRight className="w-4 h-4 mr-1" />
-                </>
-              )}
-            </Button>
+            {scenes.length === 0 ? (
+              // 如果没有分镜数据，显示"开始生成分镜"按钮
+              <Button
+                onClick={handleGeneratePlaybook}
+                disabled={isGeneratingPlaybook || isLoading}
+                className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[160px]"
+              >
+                {isGeneratingPlaybook || isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    {t("common.generating")}
+                  </>
+                ) : (
+                  <>
+                    {t("creation.startGeneratePlaybook")}
+                    <ArrowRight className="w-4 h-4 mr-1" />
+                  </>
+                )}
+              </Button>
+            ) : (
+              // 如果有分镜数据，显示"下一步"按钮
+              <Button
+                onClick={() => {
+                  // 检查所有角色是否都有图片
+                  if (characters && characters.length > 0) {
+                    const charactersWithoutImage = characters.filter(
+                      (character) => !character.image_url
+                    );
+                    
+                    if (charactersWithoutImage.length > 0) {
+                      // 如果有角色没有生成图片，显示提示
+                      const characterNames = charactersWithoutImage
+                        .map((c) => c.name)
+                        .join("、");
+                      toast.error(
+                        t("character.pleaseGenerateAllCharacterImages", {
+                          characters: characterNames,
+                        })
+                      );
+                      return;
+                    }
+                  }
+                  
+                  // 所有角色都有图片，执行下一步操作
+                  onComplete();
+                }}
+                disabled={isLoading || isGeneratingPlaybook}
+                className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
+              >
+                {isLoading || isGeneratingPlaybook ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    {t("common.generating")}
+                  </>
+                ) : (
+                  <>
+                    {t("createVideo.generateShotImages")}
+                    <ArrowRight className="w-4 h-4 mr-1" />
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </div>
       </div>

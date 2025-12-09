@@ -4,6 +4,7 @@ import { IScene } from "./scene";
 
 export enum CreationStatus {
   CREATED = "created",
+  CHARACTER_ANALYZED = "character_analyzed",  // 角色已分析
   PLAYBOOK_GENERATED = "playbook_generated",
   CHARACTER_GENERATED = "character_generated",
   SCENE_GENERATED = "scene_generated",
@@ -19,6 +20,10 @@ export const CreationStatusMap: Record<
   { label: string; color: string }
 > = {
   [CreationStatus.CREATED]: { label: "进行中", color: "bg-blue-500" },
+  [CreationStatus.CHARACTER_ANALYZED]: {
+    label: "进行中",
+    color: "bg-blue-500",
+  },
   [CreationStatus.PLAYBOOK_GENERATED]: {
     label: "进行中",
     color: "bg-blue-500",
@@ -47,6 +52,8 @@ export interface ICreation {
   owner_id: string;
   novel_id: string;
   chapter_id: string;
+  novel_uuid?: string;  // 小说UUID
+  chapter_uuid?: string;  // 章节UUID
   current_task_id?: string;
   voice_id?: string;
   voice_speed?: number;

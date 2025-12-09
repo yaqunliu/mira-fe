@@ -247,20 +247,36 @@ export function StoryboardImages({
         try {
           // 从 allImages 中查找对应的图片，获取 uuid
           const targetImage = allImages.find(img => img.image_id === imageId);
-          let shotUuid: string;
           
-          if (targetImage?.uuid) {
-            // 优先使用 uuid 字段
-            shotUuid = targetImage.uuid;
-          } else {
-            // 如果没有 uuid 字段，使用 image_id
-            shotUuid = String(imageId);
-            // 检查是否是UUID格式（简单检查：长度和格式）
-            if (shotUuid.length < 30 || /^\d+$/.test(shotUuid)) {
-              console.error("分镜ID不是有效的UUID格式:", shotUuid);
-              toast.error(`分镜ID格式错误：${shotUuid}，应该是UUID格式。请刷新页面重试。`);
+          if (!targetImage) {
+            console.error("未找到对应的分镜图片:", imageId);
+            toast.error("未找到对应的分镜图片，请刷新页面重试。");
+            return;
+          }
+          
+          // 必须使用 uuid 字段，不能使用 image_id（可能是数字ID）
+          let shotUuid: string | undefined = targetImage.uuid;
+          
+          // 如果 uuid 不存在，尝试从 image_id 判断（如果 image_id 是 UUID 格式）
+          if (!shotUuid) {
+            const imageIdStr = String(imageId);
+            // 检查 image_id 是否是UUID格式（UUID格式：8-4-4-4-12，共36个字符，包含连字符）
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (uuidRegex.test(imageIdStr)) {
+              shotUuid = imageIdStr;
+            } else {
+              // image_id 不是 UUID 格式，报错
+              console.error("分镜缺少UUID字段，且image_id不是UUID格式:", imageId);
+              toast.error("分镜数据格式错误：缺少UUID字段。请刷新页面重试。");
               return;
             }
+          }
+
+          // 确保 shotUuid 是有效的字符串（类型守卫）
+          if (!shotUuid) {
+            console.error("无法获取分镜UUID:", imageId);
+            toast.error("无法获取分镜UUID，请刷新页面重试。");
+            return;
           }
 
           // 检查积分是否充足（重新生成单张图片）
@@ -720,7 +736,7 @@ export function StoryboardImages({
                 </>
               ) : (
                 <>
-                  {t("common.next")}
+                  {t("storyboard.generateVideo") || "生成视频"}
                   <ArrowRight className="w-4 h-4 mr-1" />
                 </>
               )}
