@@ -309,7 +309,7 @@ export function VoiceSelector({
       {/* 语音列表 */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
+          <Loader2 className="w-8 h-6 animate-spin text-orange-500" />
           <span className="ml-2 text-muted-foreground">加载中...</span>
         </div>
       ) : error ? (

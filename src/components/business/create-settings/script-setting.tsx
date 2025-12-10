@@ -28,6 +28,7 @@ import taskApi from "@/lib/api/task";
 import { useQuery } from "@tanstack/react-query";
 import { TaskStatus } from "@/types";
 import { toast } from "sonner";
+import ModuleLoading from "@/components/ui/module-loading";
 
 interface ScriptSettingProps {
   data: IScene[];
@@ -37,6 +38,7 @@ interface ScriptSettingProps {
   creationId?: string;
   onDataUpdate?: (scenes: IScene[]) => void;
   characters?: Array<{ name: string; image_url?: string | null }>;
+  onGenerateShots?: () => void;
 }
 
 export function ScriptSetting({
@@ -47,6 +49,7 @@ export function ScriptSetting({
   creationId,
   onDataUpdate,
   characters = [],
+  onGenerateShots,
 }: ScriptSettingProps) {
   const t = useTranslations();
   const [expandedScenes, setExpandedScenes] = useState<Set<number>>(
@@ -55,6 +58,17 @@ export function ScriptSetting({
   const [scenes, setScenes] = useState(data);
   const [isGeneratingPlaybook, setIsGeneratingPlaybook] = useState(false);
   const [playbookTaskId, setPlaybookTaskId] = useState<string | null>(null);
+
+  // 调试日志
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[ScriptSetting] Loading state:', {
+        isLoading,
+        isGeneratingPlaybook,
+        combinedLoading: isLoading || isGeneratingPlaybook,
+      });
+    }
+  }, [isLoading, isGeneratingPlaybook]);
 
   // 当外部数据更新时，同步到本地状态
   useEffect(() => {
@@ -152,20 +166,26 @@ export function ScriptSetting({
   };
 
   return (
-    <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>
-      <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
-        <h3 className="text-base font-semib100">{t("scene.totalScenes", { count: scenes.length })}</h3>
-        {scenes.map((scene: IScene, index: number) => (
-          <Card
-            key={scene.scene_id}
-            className={cn(
-              "overflow-hidden p-0 border-orange-500/20 dark:border-orange-500/20"
-            )}
-          >
-            <CardHeader
-              className="cursor-pointer bg-primary-gradient-secondary transition-colors p-3"
-              onClick={() => toggleScene(scene.scene_id)}
-            >
+    <div className="h-[calc(100vh-136px)]">
+      <ModuleLoading
+        loading={isLoading || isGeneratingPlaybook}
+        coverFlowContainer={true}
+        text={isGeneratingPlaybook ? t("creation.playbookGenerationStarted") : t("common.loading")}
+      >
+        <div className={cn("space-y-4 h-full", className)}>
+          <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
+            <h3 className="text-base font-semib100">{t("scene.totalScenes", { count: scenes.length })}</h3>
+            {scenes.map((scene: IScene, index: number) => (
+              <Card
+                key={scene.scene_id}
+                className={cn(
+                  "overflow-hidden p-0 border-orange-500/20 dark:border-orange-500/20"
+                )}
+              >
+                <CardHeader
+                  className="cursor-pointer bg-primary-gradient-secondary transition-colors p-3"
+                  onClick={() => toggleScene(scene.scene_id)}
+                >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div>
@@ -340,7 +360,7 @@ export function ScriptSetting({
                 )}
               </Button>
             ) : (
-              // 如果有分镜数据，显示"下一步"按钮
+              // 如果有分镜数据，显示"生成分镜图片"按钮
               <Button
                 onClick={() => {
                   // 检查所有角色是否都有图片
@@ -348,7 +368,7 @@ export function ScriptSetting({
                     const charactersWithoutImage = characters.filter(
                       (character) => !character.image_url
                     );
-                    
+
                     if (charactersWithoutImage.length > 0) {
                       // 如果有角色没有生成图片，显示提示
                       const characterNames = charactersWithoutImage
@@ -362,12 +382,12 @@ export function ScriptSetting({
                       return;
                     }
                   }
-                  
-                  // 所有角色都有图片，执行下一步操作
-                  onComplete();
+
+                  // 所有角色都有图片，调用生成分镜图片的回调
+                  onGenerateShots?.();
                 }}
                 disabled={isLoading || isGeneratingPlaybook}
-                className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
+                className="bg-orange-400/80 hover:bg-orange-600 text-white px-4 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isLoading || isGeneratingPlaybook ? (
                   <>
@@ -377,7 +397,7 @@ export function ScriptSetting({
                 ) : (
                   <>
                     {t("createVideo.generateShotImages")}
-                    <ArrowRight className="w-4 h-4 mr-1" />
+                    <ArrowRight className="w-4 h-4 ml-1" />
                   </>
                 )}
               </Button>
@@ -385,6 +405,8 @@ export function ScriptSetting({
           </div>
         </div>
       </div>
+        </div>
+      </ModuleLoading>
     </div>
   );
 }

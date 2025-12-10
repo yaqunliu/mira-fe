@@ -228,11 +228,13 @@ export interface Task {
 
 export enum TaskType {
   NOVEL_UPLOAD = "novel_upload",
+  CREATION_INIT = "creation_init",
+  CHARACTER_ANALYSIS = "character_analysis",
   CHARACTER_IMAGE_GENERATION = "character_image_generation",
   SCENE_DESCRIPTION_GENERATION = "scene_description_generation",
   SHOT_IMAGE_GENERATION = "shot_image_generation",
-  AUDIO_GENERATION = "audio_generation",
-  VIDEO_SYNTHESIS = "video_synthesis",
+  BATCH_SHOT_IMAGE_GENERATION = "batch_shot_image_generation",
+  VIDEO_MERGE = "video_merge",
 }
 
 export enum TaskStatus {

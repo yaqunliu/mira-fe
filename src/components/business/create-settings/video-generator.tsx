@@ -260,67 +260,43 @@ export function VideoGenerator({
     setErrorMessage(null);
   }, []);
 
-  // 任务成功后获取最新的创作数据
-  const fetchLatestCreationData = useCallback(async (retryCount = 0) => {
-    if (!creationId) return;
-    
-    // 如果已经完成，防止重复调用
-    if (isVideoCompletedRef.current) {
+  // 处理任务完成后的数据更新（只调用一次，不再重试）
+  const handleTaskComplete = useCallback(async () => {
+    if (!creationId || isVideoCompletedRef.current) {
       return;
     }
-    
-    try {
-      const response = await creationApi.queryCreationById(creationId);
-      const creation = response?.data;
-      
-      if (creation?.audio_url) {
-        setAudioUrl(creation.audio_url);
-      }
-      
-      // 只有视频生成成功后才显示完成状态
-      if (creation?.video_url) {
-        // 标记已完成，防止重复调用
-        isVideoCompletedRef.current = true;
-        // 清除 taskId，停止轮询
-        setTaskId(null);
-        setVideoUrl(creation.video_url);
-        setStage("completed");
-        // 只在第一次完成时显示提示和调用回调
-        onVideoGenerated?.(creation.video_url);
-        toast.success(t("video.videoGenerationSuccess"));
-      } else {
-        // 视频还没生成完，如果这是任务完成后的第一次检查，可能需要等待后端更新
-        // 最多重试3次，每次等待1秒
-        if (retryCount < 3) {
-          setTimeout(() => {
-            fetchLatestCreationData(retryCount + 1);
-          }, 1000);
-        } else {
-          // 重试3次后还是没有视频URL，继续保持生成状态
-          // 只在第一次显示提示
-          if (!audioUrl && creation?.audio_url) {
-            toast.info(t("video.audioGenerationSuccess"));
-          }
-        }
-      }
-    } catch (error) {
-      console.error("获取创作数据失败:", error);
-      // 如果出错，也尝试重试（最多3次）
-      if (retryCount < 3) {
-        setTimeout(() => {
-          fetchLatestCreationData(retryCount + 1);
-        }, 1000);
-      } else {
-        toast.error(t("errors.serverError"));
-      }
+
+    // 刷新 creation 数据（使用 React Query 的 refetch，自动更新缓存）
+    const result = await refetchCreation();
+    const creation = result.data;
+
+    if (creation?.audio_url) {
+      setAudioUrl(creation.audio_url);
     }
-  }, [creationId, onVideoGenerated, audioUrl, t]);
+
+    // 只有视频生成成功后才显示完成状态
+    if (creation?.video_url) {
+      // 标记已完成，防止重复调用
+      isVideoCompletedRef.current = true;
+      // 清除 taskId，停止轮询
+      setTaskId(null);
+      setVideoUrl(creation.video_url);
+      setStage("completed");
+      // 只在第一次完成时显示提示和调用回调
+      onVideoGenerated?.(creation.video_url);
+      toast.success(t("video.videoGenerationSuccess"));
+    } else if (creation?.audio_url && !audioUrl) {
+      // 如果只有音频但没有视频，显示音频生成成功提示
+      toast.info(t("video.audioGenerationSuccess"));
+    }
+  }, [creationId, refetchCreation, onVideoGenerated, audioUrl, t]);
 
   // 轮询任务状态
   const { data: taskData } = useQuery({
     queryKey: ["audioTask", taskId],
     queryFn: async () => {
       const response = await taskApi.queryTaskStatus(taskId as string);
+      // response 本身就是 {data: {...}, message: string}
       return response.data as unknown as TaskStatusResponse;
     },
     enabled: !!taskId && stage === "generating",
@@ -338,15 +314,8 @@ export function VideoGenerator({
         // 任务成功，重新获取创作数据以拿到最新的音视频 URL
         // 重置手动生成标记
         isManuallyGeneratingRef.current = false;
-        // 清除 taskId，停止轮询
-        setTaskId(null);
-        // 先强制刷新 creationData，然后获取最新数据
-        refetchCreation().then(() => {
-          // 等待一小段时间确保后端数据已更新，然后获取最新数据
-          setTimeout(() => {
-            fetchLatestCreationData();
-          }, 500);
-        });
+        // 处理任务完成（只调用一次，不再重试）
+        handleTaskComplete();
         return false;
       }
       if (status === TaskStatus.FAILURE) {
@@ -591,7 +560,7 @@ export function VideoGenerator({
     : 0;
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 h-[calc(100vh-180px)] overflow-y-auto pb-24">
+    <div className="w-full max-w-7xl mx-auto space-y-6 h-[calc(100vh-180px)] overflow-y-auto pb-24">
       {/* 阶段 1: 选择语音 */}
       {(stage === "idle" || stage === "selecting") && (
         <div className="space-y-6 px-6">

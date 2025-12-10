@@ -138,12 +138,14 @@ export function StoryboardImages({
   const pollTaskStatus = useCallback(async (taskId: string, imageId: string) => {
     try {
       const response = await taskApi.queryTaskStatus(taskId);
+      // response 本身就是 {data: {...}, message: string}
+      // response.data 是后端返回的任务对象（包含 snake_case 字段）
       const taskData = response?.data;
-      
+
       if (!taskData) {
         throw new Error("无法获取任务状态");
       }
-      
+
       const status = taskData.status;
       
       if (status === TaskStatus.SUCCESS) {

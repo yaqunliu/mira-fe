@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -54,6 +54,7 @@ export function CharacterSetting({
   handleUpdate,
   creationStatus,
   creationId,
+  isResubmitting = false,
 }: {
   characters: ICharacter[];
   currentTaskId?: string;
@@ -61,6 +62,7 @@ export function CharacterSetting({
   handleUpdate: () => void;
   creationStatus?: string;
   creationId?: string;
+  isResubmitting?: boolean;
 }) {
   const t = useTranslations("character");
   const tCreation = useTranslations("creation");
@@ -76,6 +78,9 @@ export function CharacterSetting({
   const [taskId, setTaskId] = useState<string | null>(null);
   const [playbookTaskId, setPlaybookTaskId] = useState<string | null>(null);
   const [isGeneratingPlaybook, setIsGeneratingPlaybook] = useState(false);
+
+  // 单个角色重新生成状态管理：Map<characterUuid, taskId>
+  const [regeneratingCharacters, setRegeneratingCharacters] = useState<Map<string, string>>(new Map());
   
   // 角色图片生成任务轮询
   const { data: task } = useQuery({
@@ -124,8 +129,20 @@ export function CharacterSetting({
     if (creationStatus === CreationStatus.CHARACTER_ANALYZED && currentTaskId && !playbookTaskId) {
       // 检查任务类型，如果是分镜拆分任务，开始轮询
       taskApi.queryTaskStatus(currentTaskId).then((response) => {
-        const task = response?.data;
-        if (task && task.taskType === TaskType.SCENE_DESCRIPTION_GENERATION) {
+        // response 本身就是 {data: {...}, message: string}
+        // response.data 可能的结构:
+        // 1. {data: {...}, message: string} - 标准 API 响应
+        // 2. {task_id, task_type, status, message, ...} - 直接返回 Task 对象
+        const apiResponse = response?.data as any;
+
+        // 尝试两种可能的结构
+        let rawTask = apiResponse?.data; // 结构1
+        if (!rawTask && apiResponse?.task_id) {
+          // 结构2: apiResponse 本身就是 Task 对象
+          rawTask = apiResponse;
+        }
+
+        if (rawTask && rawTask.task_type === TaskType.SCENE_DESCRIPTION_GENERATION) {
           // 是分镜拆分任务，开始轮询
           setPlaybookTaskId(currentTaskId);
           setIsGeneratingPlaybook(true);
@@ -136,9 +153,11 @@ export function CharacterSetting({
     }
   }, [creationStatus, currentTaskId, playbookTaskId]);
 
-  // 监听创作状态变化，如果状态变为 CHARACTER_GENERATED 且所有角色都有图片，自动跳转
+  // 监听角色图片生成任务完成，只在任务刚完成时自动跳转
+  const prevTaskIdRef = useRef<string | null>(null);
   useEffect(() => {
-    if (creationStatus === "character_generated") {
+    // 只有在任务ID从有到无的时候才触发（说明任务刚完成）
+    if (prevTaskIdRef.current && !currentTaskId && creationStatus === "character_generated") {
       const allHaveImages = characters.every((char) => char.image_url);
       if (allHaveImages && characters.length > 0) {
         // 延迟一下，确保UI已更新
@@ -147,9 +166,14 @@ export function CharacterSetting({
         }, 500);
       }
     }
-  }, [creationStatus, characters, onComplete]);
+    prevTaskIdRef.current = currentTaskId || null;
+  }, [creationStatus, characters, onComplete, currentTaskId]);
   // 生成角色图片的内部函数
   const generateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
+    if (!creationId) {
+      throw new Error(t("creationIdRequired") || "创作ID不存在");
+    }
+
     // 检查积分是否充足
     const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
     const pointsAvailable = await checkAndNotifyPoints(
@@ -166,24 +190,78 @@ export function CharacterSetting({
 
     setIsGenerating(true);
 
-    const characterIds = characters.map((character) => 
+    const characterIds = characters.map((character) =>
       character.uuid || (character.character_id ? String(character.character_id) : '')
     ).filter(id => id); // 过滤掉空值
     const response = await characterApi.generateCharacterImages(
       characterIds,
       getStyleOptions(t).find((option) => option.value === selectedStyle)?.label ||
-        t("animeStyle")
+        t("animeStyle"),
+      creationId,
+      false  // force_regenerate=false，跳过已有图片的角色
     );
     if (response.data && response.data.task_id) {
       setTaskId(response.data.task_id);
     } else {
       throw new Error(t("taskIdNotFound"));
     }
-  }, [selectedStyle, t]);
+  }, [selectedStyle, t, creationId]);
 
   // 使用任务提交 hook 包装生成函数
   const { submit: gengerateCharacterImages, isSubmitting: isSubmittingCharacters } = useTaskSubmission(
     generateCharacterImagesInternal,
+    {
+      debounceDelay: 500,
+      enableDebounce: true,
+      onError: (error) => {
+        toast.error(error.message || t("generationFailed"));
+        setIsGenerating(false);
+      },
+    }
+  );
+
+  // 重新生成角色图片的内部函数（force_regenerate=true）
+  const regenerateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
+    if (!creationId) {
+      throw new Error(t("creationIdRequired") || "创作ID不存在");
+    }
+
+    // 检查积分是否充足
+    const { checkAndNotifyPoints } = await import('@/lib/utils/points-check')
+    const pointsAvailable = await checkAndNotifyPoints(
+      {
+        operation_type: 'generate_image',
+        image_count: characters.length,
+      },
+      t
+    )
+
+    if (!pointsAvailable) {
+      throw new Error('积分不足')
+    }
+
+    setIsGenerating(true);
+
+    const characterIds = characters.map((character) =>
+      character.uuid || (character.character_id ? String(character.character_id) : '')
+    ).filter(id => id); // 过滤掉空值
+    const response = await characterApi.generateCharacterImages(
+      characterIds,
+      getStyleOptions(t).find((option) => option.value === selectedStyle)?.label ||
+        t("animeStyle"),
+      creationId,
+      true  // force_regenerate=true，强制重新生成
+    );
+    if (response.data && response.data.task_id) {
+      setTaskId(response.data.task_id);
+    } else {
+      throw new Error(t("taskIdNotFound"));
+    }
+  }, [selectedStyle, t, creationId]);
+
+  // 使用任务提交 hook 包装重新生成函数
+  const { submit: regenerateCharacterImages, isSubmitting: isRegeneratingCharacters } = useTaskSubmission(
+    regenerateCharacterImagesInternal,
     {
       debounceDelay: 500,
       enableDebounce: true,
@@ -209,20 +287,162 @@ export function CharacterSetting({
     setIsImagePreviewOpen(true);
   };
 
-  // 只有在有任务在进行或者正在生成时才显示loading
-  // 如果characters为空但没有任务在进行，说明数据已经加载完成，只是没有角色数据，不应该显示loading
-  const shouldShowLoading = isGenerating || isGeneratingPlaybook || (characters?.length === 0 && !!currentTaskId);
+  // 单个角色重新生成图片
+  const handleRegenerateSingleCharacter = useCallback(async (character: ICharacter) => {
+    if (!creationId) {
+      toast.error(t("creationIdRequired") || "创作ID不存在");
+      return;
+    }
+
+    const characterUuid = character.uuid || (character.character_id ? String(character.character_id) : '');
+    if (!characterUuid) {
+      toast.error("角色ID不存在");
+      return;
+    }
+
+    try {
+      // 检查积分
+      const { checkAndNotifyPoints } = await import('@/lib/utils/points-check');
+      const pointsAvailable = await checkAndNotifyPoints(
+        {
+          operation_type: 'generate_image',
+          image_count: 1,
+        },
+        t
+      );
+
+      if (!pointsAvailable) {
+        return;
+      }
+
+      // 调用单个角色重新生成API
+      const response = await characterApi.regenerateCharacterImage(
+        characterUuid,
+        getStyleOptions(t).find((option) => option.value === selectedStyle)?.label ||
+          t("animeStyle"),
+        creationId
+      );
+
+      if (response.data && response.data.task_id) {
+        // 记录该角色正在重新生成
+        setRegeneratingCharacters(prev => {
+          const newMap = new Map(prev);
+          newMap.set(characterUuid, response.data.task_id);
+          return newMap;
+        });
+        toast.success("角色图片重新生成中...");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "重新生成失败");
+    }
+  }, [creationId, selectedStyle, t]);
+
+  // 刷新单个角色数据（不触发页面跳转，不调用handleUpdate）
+  const refreshCharacterData = useCallback(async (characterUuid: string) => {
+    try {
+      // 获取单个角色的最新数据
+      const response = await characterApi.getCharacter(characterUuid);
+      if (response.data) {
+        // 只更新本地 state 中该角色的 image_url，不调用 handleUpdate
+        setCharacters(prevCharacters => {
+          return prevCharacters.map(char => {
+            const charId = char.uuid || String(char.character_id);
+            if (charId === characterUuid) {
+              // 更新该角色的数据
+              return {
+                ...char,
+                image_url: response.data.image_url,
+              };
+            }
+            return char;
+          });
+        });
+      }
+    } catch (error) {
+      console.error("刷新角色数据失败:", error);
+    }
+  }, []);
+
+  // 轮询单个角色重新生成的任务状态
+  useEffect(() => {
+    if (regeneratingCharacters.size === 0) return;
+
+    const intervals: NodeJS.Timeout[] = [];
+
+    regeneratingCharacters.forEach((taskId, characterUuid) => {
+      const interval = setInterval(async () => {
+        try {
+          const response = await taskApi.queryTaskStatus(taskId);
+          const apiResponse = response?.data as any;
+
+          // 尝试两种可能的结构
+          let rawTask = apiResponse?.data;
+          if (!rawTask && apiResponse?.task_id) {
+            rawTask = apiResponse;
+          }
+
+          if (rawTask) {
+            if (rawTask.status === TaskStatus.SUCCESS) {
+              // 生成成功，移除该角色的loading状态
+              setRegeneratingCharacters(prev => {
+                const newMap = new Map(prev);
+                newMap.delete(characterUuid);
+                return newMap;
+              });
+              // 刷新角色数据以获取新图片（不会触发页面跳转）
+              await refreshCharacterData(characterUuid);
+              toast.success("角色图片重新生成成功");
+            } else if (rawTask.status === TaskStatus.FAILURE) {
+              // 生成失败
+              setRegeneratingCharacters(prev => {
+                const newMap = new Map(prev);
+                newMap.delete(characterUuid);
+                return newMap;
+              });
+              toast.error(rawTask.message || "角色图片生成失败");
+            }
+          }
+        } catch (error) {
+          console.error("轮询任务状态失败:", error);
+        }
+      }, 2000);
+
+      intervals.push(interval);
+    });
+
+    return () => {
+      intervals.forEach(interval => clearInterval(interval));
+    };
+  }, [regeneratingCharacters, refreshCharacterData]);
+
+  // 计算是否应该显示 loading
+  const shouldShowLoading = isGenerating || isGeneratingPlaybook ||
+                           (characters?.length === 0 && !!currentTaskId) ||
+                           isResubmitting;
+
+  // 根据状态确定 loading 文本
+  const getLoadingText = () => {
+    if (isGeneratingPlaybook) {
+      return tCreation("playbookGenerationStarted") || "正在生成分镜...";
+    }
+    if (isGenerating) {
+      return t("generating") || "生成中...";
+    }
+    if (characters?.length === 0 && !!currentTaskId) {
+      return t("analyzing") || "分析中...";
+    }
+    if (isResubmitting) {
+      return tCreation("resubmitting") || "重新提交中...";
+    }
+    return "加载中...";
+  };
 
   return (
     <div className="h-[calc(100vh-136px)]">
-      <ModuleLoading 
-        loading={shouldShowLoading} 
-        className="h-full" 
-        text={
-          isGeneratingPlaybook 
-            ? (tCreation("playbookGenerationStarted") || "正在生成分镜...")
-            : (characters?.length === 0 ? t("analyzingCharacterInfo") : t("generatingCharacterImage"))
-        }
+      <ModuleLoading
+        loading={shouldShowLoading}
+        coverFlowContainer={true}
+        text={getLoadingText()}
       >
         <div className="space-y-4 px-6 h-full overflow-y-auto pb-20">
           <div className="flex justify-between items-center">
@@ -420,42 +640,54 @@ export function CharacterSetting({
                           <div className="flex flex-col gap-1 items-center">
                             <div className="h-[1px] bg-gray-300 dark:bg-zinc-700 w-full mb-2" />
                             <div className="relative">
-                              <img
-                                src={character.image_url}
-                                alt={character.name}
-                                className="w-42 object-cover rounded cursor-pointer hover:opacity-90 transition-opacity"
-                                onClick={() =>
-                                  handleImageClick(character.image_url)
-                                }
-                              />
-                              {/* 重新生成按钮 */}
-                              <div className="absolute bottom-2 flex justify-between w-full px-2">
-                                <div
-                                  className={cn(
-                                    "py-1 px-2 bg-black/40 hover:bg-black/50 text-white border-0 shadow-lg rounded-full",
-                                    "flex items-center justify-center"
-                                  )}
-                                  onClick={() =>
-                                    handleImageClick(character.image_url)
-                                  }
-                                >
-                                  <Maximize2 className="w-3 h-3" />
+                              {/* 判断该角色是否正在重新生成 */}
+                              {regeneratingCharacters.has(character.uuid || String(character.character_id)) ? (
+                                <div className="w-42 h-42 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 rounded">
+                                  <div className="flex flex-col items-center gap-2">
+                                    <div className="w-8 h-8 border-3 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+                                    <span className="text-xs text-muted-foreground">重新生成中...</span>
+                                  </div>
                                 </div>
-                                <div
-                                  className={cn(
-                                    "py-1 px-2 bg-black/40 hover:bg-black/50 text-white border-0 shadow-lg rounded-md",
-                                    "flex items-center gap-1"
-                                  )}
-                                  onClick={() =>
-                                    gengerateCharacterImages([character])
-                                  }
-                                >
-                                  <RotateCcw className="w-3 h-3" />
-                                  <span className="text-xs">
-                                    {t("regenerate")}
-                                  </span>
-                                </div>
-                              </div>
+                              ) : (
+                                <>
+                                  <img
+                                    src={character.image_url}
+                                    alt={character.name}
+                                    className="w-42 object-cover rounded cursor-pointer hover:opacity-90 transition-opacity"
+                                    onClick={() =>
+                                      handleImageClick(character.image_url)
+                                    }
+                                  />
+                                  {/* 重新生成按钮 */}
+                                  <div className="absolute bottom-2 flex justify-between w-full px-2">
+                                    <div
+                                      className={cn(
+                                        "py-1 px-2 bg-black/40 hover:bg-black/50 text-white border-0 shadow-lg rounded-full",
+                                        "flex items-center justify-center cursor-pointer"
+                                      )}
+                                      onClick={() =>
+                                        handleImageClick(character.image_url)
+                                      }
+                                    >
+                                      <Maximize2 className="w-3 h-3" />
+                                    </div>
+                                    <div
+                                      className={cn(
+                                        "py-1 px-2 bg-black/40 hover:bg-black/50 text-white border-0 shadow-lg rounded-md",
+                                        "flex items-center gap-1 cursor-pointer"
+                                      )}
+                                      onClick={() =>
+                                        handleRegenerateSingleCharacter(character)
+                                      }
+                                    >
+                                      <RotateCcw className="w-3 h-3" />
+                                      <span className="text-xs">
+                                        {t("regenerate")}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           </div>
                         )}
@@ -467,7 +699,6 @@ export function CharacterSetting({
             </div>
           </div>
         </div>
-      </ModuleLoading>
 
       {/* 角色编辑模态框 */}
       {editingCharacterIndex !== null && (
@@ -528,6 +759,11 @@ export function CharacterSetting({
                     if (response?.data?.task_id) {
                       setPlaybookTaskId(response.data.task_id);
                       toast.success(tCreation("playbookGenerationStarted") || "分镜拆分任务已启动");
+                      // 启动任务后，立即跳转到脚本页面
+                      handleUpdate(); // 刷新创作数据
+                      setTimeout(() => {
+                        onComplete(); // 跳转到脚本页面
+                      }, 300);
                     } else {
                       throw new Error(t("taskIdNotFound") || "未获取到任务ID");
                     }
@@ -579,6 +815,7 @@ export function CharacterSetting({
           </div>
         </div>
       </div>
+      </ModuleLoading>
     </div>
   );
 }
