@@ -70,6 +70,7 @@ function transformCreationScenesToSceneGroups(scenes: IScene[]): SceneGroup[] {
         image_url: shot.image_url || "",
         prompt: shot.image_prompt || "", // 注意：IShot 中字段名是 image_prompt
         narration: shot.narration || "",
+        characters: shot.characters || [],
         status: (shot.image_url ? "completed" : "pending") as "pending" | "generating" | "completed" | "failed",
       };
     }),
@@ -155,13 +156,20 @@ export default function CreateCreation() {
     enabled: !!creationId,
     staleTime: 0,
     refetchOnMount: true, // 每次挂载时都强制刷新，确保获取最新数据
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // 返回页面自动刷新，避免流程切换后状态丢失
     refetchInterval: false, // 不再轮询创作详情，改为通过任务完成后刷新
     gcTime: 0,
     retry: 1,
     retryDelay: 0,
   });
   const curCreation = useMemo(() => curCreationResponse?.data as ICreation, [curCreationResponse]);
+
+  // 创作数据变化时，用最新分镜刷新 storyboardData，避免返回流程时显示旧图
+  useEffect(() => {
+    if (curCreation?.scenes) {
+      setStoryboardData(transformCreationScenesToSceneGroups(curCreation.scenes));
+    }
+  }, [curCreation?.scenes]);
 
   // 查询任务状态（如果有 current_task_id）
   const { data: taskResponse } = useQuery({
@@ -573,6 +581,10 @@ export default function CreateCreation() {
   const handleStepChange = (stepIndex: number) => {
     // 使用 navigateTo 进行导航，会自动检查是否可以切换
     navigateTo(stepIndex as FlowStep);
+    // 步骤切换时刷新创作数据，确保图片/状态最新
+    if (refetchCreation) {
+      refetchCreation();
+    }
   };
 
   const handleComplete = () => {
@@ -590,6 +602,7 @@ export default function CreateCreation() {
             currentTaskId={curCreation?.current_task_id}
             creationStatus={curCreation?.status}
             creationId={creationId}
+            creation={curCreation as any}
             isResubmitting={isResubmitting}
             onComplete={() => {
               nextStep();
@@ -622,6 +635,11 @@ export default function CreateCreation() {
             onComplete={() => {
               nextStep();
             }}
+            availableCharacters={curCreation?.characters || []}
+            imageModelName={
+              (curCreation as any)?.extra_data?.image_to_image_model ||
+              (curCreation as any)?.extra_data?.text_to_image_model
+            }
           />
         );
       case 4:
@@ -643,7 +661,7 @@ export default function CreateCreation() {
   };
 
   return (
-    <div className="container mx-auto overflow-y-hidden landscape-wide">
+    <div className="container mx-auto min-h-screen flex flex-col overflow-y-auto landscape-wide">
       <div
         className="flex items-center gap-1 m-3 cursor-pointer"
         onClick={() => {

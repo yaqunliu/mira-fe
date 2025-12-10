@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -28,6 +28,7 @@ import { PencilLine, Save, X } from "lucide-react";
 import { StoryboardItem as StoryboardItemType } from "@/types";
 import { toast } from "sonner";
 import { IShot } from "@/types/scene";
+import { ICharacter } from "@/types/character";
 import shotApi from "@/lib/api/shot";
 
 const editStoryboardSchema = z.object({
@@ -42,6 +43,7 @@ interface StoryboardEditModalProps {
   onClose: () => void;
   shot: IShot;
   onSave: (updatedShot: IShot) => void;
+  availableCharacters?: ICharacter[];
 }
 
 export function StoryboardEditModal({
@@ -49,8 +51,12 @@ export function StoryboardEditModal({
   onClose,
   shot,
   onSave,
+  availableCharacters = [],
 }: StoryboardEditModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCharacters, setSelectedCharacters] = useState<number[]>(
+    (shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean)
+  );
 
   const form = useForm<EditStoryboardFormData>({
     resolver: zodResolver(editStoryboardSchema),
@@ -59,6 +65,15 @@ export function StoryboardEditModal({
       narration: shot.narration || "",
     },
   });
+
+  // 当外部传入的shot变更时同步选中角色
+  useEffect(() => {
+    setSelectedCharacters((shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean));
+    form.reset({
+      title: shot.title || "",
+      narration: shot.narration || "",
+    });
+  }, [shot, form]);
 
   const handleSave = async (data: EditStoryboardFormData) => {
     setIsLoading(true);
@@ -79,15 +94,23 @@ export function StoryboardEditModal({
         return;
       }
       // 调用 API 更新分镜
+      // 更新标题/旁白
       await shotApi.updateShot(uuidString, {
         title: data.title,
         narration: data.narration,
+        character_ids: selectedCharacters,
       });
+
+      // 单独更新角色关联（确保关联表同步）
+      await shotApi.updateShotCharacters(uuidString, selectedCharacters);
 
       const updatedShot: IShot = {
         ...shot,
         title: data.title,
         narration: data.narration,
+        characters: availableCharacters.filter((c) =>
+          selectedCharacters.includes(Number(c.character_id))
+        ),
       };
       
       onSave(updatedShot);
@@ -102,7 +125,14 @@ export function StoryboardEditModal({
 
   const handleCancel = () => {
     form.reset();
+    setSelectedCharacters((shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean));
     onClose();
+  };
+
+  const toggleCharacter = (id: number) => {
+    setSelectedCharacters((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
   };
 
   return (
@@ -152,6 +182,54 @@ export function StoryboardEditModal({
                 </FormItem>
               )}
             />
+
+            {/* 关联角色 */}
+            <div className="space-y-2">
+              <FormLabel className="text-gray-800 dark:text-gray-300">关联角色</FormLabel>
+              {availableCharacters.length === 0 ? (
+                <p className="text-sm text-gray-500">暂无可选角色</p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {availableCharacters.map((character) => {
+                    const idNum = Number(character.character_id);
+                    const checked = selectedCharacters.includes(idNum);
+                    return (
+                      <label
+                        key={character.character_id}
+                        className={`flex items-center gap-2 px-2 py-1 rounded border cursor-pointer text-sm ${
+                          checked
+                            ? "border-orange-400 bg-orange-50 dark:border-orange-500/60 dark:bg-orange-500/10"
+                            : "border-gray-200 dark:border-gray-700"
+                        }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          toggleCharacter(idNum);
+                        }}
+                      >
+                        {character.image_url ? (
+                          <img
+                            src={character.image_url}
+                            alt={character.name}
+                            className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500">
+                            无图
+                          </div>
+                        )}
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={checked}
+                          onChange={() => toggleCharacter(idNum)}
+                        />
+                        <span className="truncate">{character.name}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             {/* 旁白 */}
             <FormField

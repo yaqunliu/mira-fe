@@ -40,6 +40,7 @@ const shotApi = {
     data: {
       title: string;
       narration: string;
+      character_ids?: number[];
     }
   ): Promise<{ data: UpdateShotResponse }> => {
     // 确保是字符串类型
@@ -49,7 +50,20 @@ const shotApi = {
       {
         title: data.title,
         narration: data.narration,
+        ...(data.character_ids ? { character_ids: data.character_ids } : {}),
       }
+    ) as unknown as Promise<{ data: UpdateShotResponse }>;
+  },
+
+  // 仅更新分镜关联角色
+  updateShotCharacters: async (
+    shotId: string, // UUID字符串
+    characterIds: number[]
+  ): Promise<{ data: UpdateShotResponse }> => {
+    const shotUuid = String(shotId);
+    return apiClient.put<UpdateShotResponse>(
+      `/api/v1/shots/${shotUuid}/characters`,
+      { character_ids: characterIds }
     ) as unknown as Promise<{ data: UpdateShotResponse }>;
   },
 };

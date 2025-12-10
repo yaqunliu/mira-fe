@@ -55,6 +55,7 @@ export function CharacterSetting({
   creationStatus,
   creationId,
   isResubmitting = false,
+  creation,
 }: {
   characters: ICharacter[];
   currentTaskId?: string;
@@ -63,6 +64,7 @@ export function CharacterSetting({
   creationStatus?: string;
   creationId?: string;
   isResubmitting?: boolean;
+  creation?: any;
 }) {
   const t = useTranslations("character");
   const tCreation = useTranslations("creation");
@@ -307,6 +309,9 @@ export function CharacterSetting({
         {
           operation_type: 'generate_image',
           image_count: 1,
+          image_model_name:
+            creation?.extra_data?.text_to_image_model ||
+            creation?.extra_data?.image_to_image_model,
         },
         t
       );
@@ -624,16 +629,16 @@ export function CharacterSetting({
                             </Badge>
                           </div>
                           <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                                {character.tags.join(", ")}
-                              </p>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
-                              <DropdownMenuItem className="whitespace-pre-line">
-                                {character.tags.join(", ")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
+                          <DropdownMenuTrigger asChild>
+                            <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
+                              {(Array.isArray(character.tags) ? character.tags : (character.tags ? [character.tags] : [])).join(", ")}
+                            </p>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
+                            <DropdownMenuItem className="whitespace-pre-line">
+                              {(Array.isArray(character.tags) ? character.tags : (character.tags ? [character.tags] : [])).join(", ")}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
                         {character.image_url && (

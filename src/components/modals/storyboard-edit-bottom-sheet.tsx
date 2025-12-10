@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,6 +17,9 @@ import {
 import { Save, X, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { AIGeneratedImage } from "@/types";
+import { ICharacter } from "@/types/character";
+import { Badge } from "@/components/ui/badge";
+import shotApi from "@/lib/api/shot";
 import React from "react";
 import { useTranslations } from "next-intl";
 
@@ -30,7 +33,8 @@ interface StoryboardEditBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   image: AIGeneratedImage | null;
-  onRegenerate: (imageId: string, newPrompt: string) => Promise<void>;
+  onRegenerate: (imageId: string, newPrompt: string, selectedCharacters?: number[]) => Promise<void>;
+  availableCharacters?: ICharacter[];
 }
 
 /**
@@ -43,10 +47,12 @@ export function StoryboardEditBottomSheet({
   onClose,
   image,
   onRegenerate,
+  availableCharacters = [],
 }: StoryboardEditBottomSheetProps) {
   const t = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [selectedCharacters, setSelectedCharacters] = useState<number[]>([]);
 
   const form = useForm<EditStoryboardFormData>({
     resolver: zodResolver(getEditStoryboardSchema(t)),
@@ -61,6 +67,9 @@ export function StoryboardEditBottomSheet({
       form.reset({
         prompt: image.prompt,
       });
+      setSelectedCharacters(
+        (image.characters || []).map((c) => Number(c.character_id)).filter(Boolean)
+      );
     }
   }, [image, form]);
 
@@ -75,7 +84,13 @@ export function StoryboardEditBottomSheet({
 
     setIsRegenerating(true);
     try {
-      await onRegenerate(image.image_id, formData.prompt);
+      // 先更新角色关联
+      if (selectedCharacters && selectedCharacters.length > 0) {
+        const shotUuid = image.uuid || image.image_id;
+        await shotApi.updateShotCharacters(String(shotUuid), selectedCharacters);
+      }
+
+      await onRegenerate(image.image_id, formData.prompt, selectedCharacters);
       toast.success(t("storyboard.regenerateStart"));
       onClose();
     } catch (error) {
@@ -136,6 +151,65 @@ export function StoryboardEditBottomSheet({
           </div>
 
           {/* 提示词编辑 */}
+          {/* 关联角色 */}
+          <div className="space-y-2">
+            <FormLabel className="text-gray-800 dark:text-gray-300">
+              关联角色
+            </FormLabel>
+            {availableCharacters.length === 0 ? (
+              <p className="text-sm text-gray-500">暂无可选角色</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {availableCharacters.map((character) => {
+                  const idNum = Number(character.character_id);
+                  const checked = selectedCharacters.includes(idNum);
+                  return (
+                    <label
+                      key={character.character_id}
+                      className={`flex items-center gap-2 px-2 py-1 rounded border cursor-pointer text-sm ${
+                        checked
+                          ? "border-orange-400 bg-orange-50 dark:border-orange-500/60 dark:bg-orange-500/10"
+                          : "border-gray-200 dark:border-gray-700"
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setSelectedCharacters((prev) =>
+                          prev.includes(idNum)
+                            ? prev.filter((c) => c !== idNum)
+                            : [...prev, idNum]
+                        );
+                      }}
+                    >
+                      {character.image_url ? (
+                        <img
+                          src={character.image_url}
+                          alt={character.name}
+                          className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500">
+                          无图
+                        </div>
+                      )}
+                      <input
+                        type="checkbox"
+                        className="hidden"
+                        checked={checked}
+                        onChange={() => {
+                          setSelectedCharacters((prev) =>
+                            prev.includes(idNum)
+                              ? prev.filter((c) => c !== idNum)
+                              : [...prev, idNum]
+                          );
+                        }}
+                      />
+                      <span className="truncate">{character.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           <FormField
             control={form.control}
             name="prompt"

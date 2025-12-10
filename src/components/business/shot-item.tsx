@@ -16,6 +16,7 @@ interface ShotItemProps {
   index: number;
   className?: string;
   onUpdate?: (updatedShot: IShot) => void;
+  availableCharacters?: ICharacter[];
 }
 
 export function ShotItem({
@@ -23,6 +24,7 @@ export function ShotItem({
   index,
   className,
   onUpdate,
+  availableCharacters = [],
 }: ShotItemProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentShot, setCurrentShot] = useState(shot);
@@ -71,8 +73,15 @@ export function ShotItem({
               </div>
               <div className="flex flex-wrap gap-2">
                 {currentShot.characters.map((character: ICharacter, idx: number) => (
-                  <Badge key={idx} variant="outline" className="text-xs">
-                    {character.name}
+                  <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
+                    {character.image_url ? (
+                      <img
+                        src={character.image_url}
+                        alt={character.name}
+                        className="w-6 h-6 rounded-full object-cover"
+                      />
+                    ) : null}
+                    <span>{character.name}</span>
                   </Badge>
                 ))}
               </div>
@@ -97,6 +106,7 @@ export function ShotItem({
         onClose={handleClose}
         shot={currentShot as IShot}
         onSave={(updatedShot: IShot) => handleSave(updatedShot)}
+        availableCharacters={availableCharacters}
       />
     </>
   );

@@ -195,6 +195,7 @@ export interface AIGeneratedImage {
   status?: "pending" | "generating" | "completed" | "failed";
   progress?: number;
   createdAt?: string;
+  characters?: import("./character").ICharacter[];
 }
 
 // 场景分组类型

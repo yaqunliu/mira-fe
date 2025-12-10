@@ -1,7 +1,7 @@
 
 
 export interface ICharacter {
-    character_id: string;
+    character_id: number;
     uuid?: string;
     name: string;
     status: string;
@@ -14,8 +14,8 @@ export interface ICharacter {
     visual_style: string;
     image_prompt: string;
     image_url: string;
-    novel_id: string;
-    creation_id: string;
+    novel_id: number | string;
+    creation_id: number | string;
     created_at: string;
     updated_at: string;
 }

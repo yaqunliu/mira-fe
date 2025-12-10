@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { IScene, IShot } from "@/types/scene";
+import { ICharacter } from "@/types/character";
 import { ShotItem } from "../shot-item";
 import { useTranslations } from "next-intl";
 import creationApi from "@/lib/api/creation";
@@ -37,7 +38,7 @@ interface ScriptSettingProps {
   isLoading?: boolean;
   creationId?: string;
   onDataUpdate?: (scenes: IScene[]) => void;
-  characters?: Array<{ name: string; image_url?: string | null }>;
+  characters?: ICharacter[];
   onGenerateShots?: () => void;
 }
 
@@ -166,14 +167,14 @@ export function ScriptSetting({
   };
 
   return (
-    <div className="h-[calc(100vh-136px)]">
+    <div className="h-[calc(100vh-136px)] min-h-0 flex flex-col">
       <ModuleLoading
         loading={isLoading || isGeneratingPlaybook}
         coverFlowContainer={true}
         text={isGeneratingPlaybook ? t("creation.playbookGenerationStarted") : t("common.loading")}
       >
-        <div className={cn("space-y-4 h-full", className)}>
-          <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
+        <div className={cn("space-y-4 h-full min-h-0 flex flex-col", className)}>
+          <div className="space-y-4 h-full min-h-0 flex-1 overflow-y-auto pb-22 px-6">
             <h3 className="text-base font-semib100">{t("scene.totalScenes", { count: scenes.length })}</h3>
             {scenes.map((scene: IScene, index: number) => (
               <Card
@@ -317,6 +318,7 @@ export function ScriptSetting({
                           <ShotItem
                             shot={shot}
                             index={index}
+                            availableCharacters={characters || []}
                             onUpdate={(updatedShot: IShot) =>
                               handleStoryboardUpdate(
                                 scene.scene_id,

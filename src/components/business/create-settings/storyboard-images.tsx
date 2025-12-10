@@ -39,6 +39,8 @@ interface StoryboardImagesProps {
   onComplete: () => void;
   isGenerating?: boolean;
   progress?: ShotGenerationProgress;
+  availableCharacters?: import("@/types/character").ICharacter[];
+  imageModelName?: string;
 }
 
 // 轮询间隔
@@ -52,6 +54,8 @@ export function StoryboardImages({
   className,
   isGenerating = false,
   progress,
+  availableCharacters = [],
+  imageModelName,
 }: StoryboardImagesProps) {
   const t = useTranslations();
   const [editingImageId, setEditingImageId] = useState<string | null>(null);
@@ -164,6 +168,15 @@ export function StoryboardImages({
           if (onImageUpdated) {
             onImageUpdated(imageId, newImageUrl);
           }
+
+          // 尝试刷新创作详情，保证父级数据同步
+          try {
+            const { useQueryClient } = await import("@tanstack/react-query");
+            const qc = useQueryClient();
+            qc.invalidateQueries({ queryKey: ["creation"] });
+          } catch (e) {
+            // 静默失败
+          }
           
           toast.success(t("storyboard.regenerateImageSuccess"));
         } else {
@@ -230,7 +243,7 @@ export function StoryboardImages({
 
   // 重新生成图片
   const handleRegenerateImage = useCallback(
-    async (imageId: string, newPrompt: string) => {
+    async (imageId: string, newPrompt: string, selectedCharacters?: number[]) => {
       // 如果已经在生成中或正在提交，直接返回
       if (regeneratingIds.has(imageId) || submittingIdsRef.current.has(imageId)) {
         return;
@@ -287,6 +300,7 @@ export function StoryboardImages({
             {
               operation_type: 'generate_image',
               image_count: 1,
+              image_model_name: imageModelName,
             },
             t
           )
@@ -487,9 +501,21 @@ export function StoryboardImages({
                       <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden group min-h-[120px]">
                         {isPending ? (
                           // 待生成状态
-                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6">
+                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6 relative">
                             <ImageIcon className="w-10 h-10 text-gray-400" />
                             <p className="text-sm text-gray-500">{t("storyboard.pending")}</p>
+                            {/* 待生成也允许手动重新生成/提交 */}
+                            <div className="absolute top-2 right-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="h-8 w-8 p-0 border border-orange-300/60"
+                                onClick={() => handleStartEdit(image)}
+                                title={t("storyboard.regenerateImage")}
+                              >
+                                <RefreshCw className="w-4 h-4 text-orange-500" />
+                              </Button>
+                            </div>
                           </div>
                         ) : isGenerating ? (
                           // 生成中状态
@@ -762,6 +788,7 @@ export function StoryboardImages({
         onClose={handleCloseEdit}
         image={currentEditingImage}
         onRegenerate={handleRegenerateImage}
+        availableCharacters={availableCharacters}
       />
 
       {/* 编辑旁白底部弹窗 */}
