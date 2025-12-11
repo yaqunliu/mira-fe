@@ -166,13 +166,13 @@ export function CharacterEditModal({
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-base font-semibold bg-gradient-to-r from-orange-600 to-pink-600 dark:from-orange-400 dark:to-pink-400 bg-clip-text text-transparent">
                   {t("name")}
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder={t("namePlaceholder")}
-                    style={{ borderColor: "#514f4f" }}
+                    className="rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>
@@ -187,14 +187,13 @@ export function CharacterEditModal({
             name="basicInfo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("basicInfo")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("basicInfoPlaceholder")}
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>
@@ -209,14 +208,13 @@ export function CharacterEditModal({
             name="appearance"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("appearanceFeatures")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("appearancePlaceholder")}
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>
@@ -231,14 +229,13 @@ export function CharacterEditModal({
             name="body"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("bodyFeatures")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("bodyPlaceholder")}
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>
@@ -253,13 +250,13 @@ export function CharacterEditModal({
             name="hair"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("hair")}
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder={t("hairPlaceholder")}
-                    style={{ borderColor: "#514f4f" }}
+                    className="rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>
@@ -274,14 +271,13 @@ export function CharacterEditModal({
             name="clothing"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("clothing")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("clothingPlaceholder")}
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>
@@ -296,13 +292,13 @@ export function CharacterEditModal({
             name="tags"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("featureTags")}
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder={t("tagsPlaceholder")}
-                    style={{ borderColor: "#514f4f" }}
+                    className="rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>
@@ -317,14 +313,13 @@ export function CharacterEditModal({
             name="imagePrompt"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {t("imagePrompt")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("imagePromptPlaceholder")}
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl border-2 border-orange-200/50 dark:border-orange-700/50 focus:border-orange-400 dark:focus:border-orange-500 transition-colors"
                     {...field}
                   />
                 </FormControl>

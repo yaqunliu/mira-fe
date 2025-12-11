@@ -20,7 +20,6 @@ export async function waitForSupabaseToken(
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (session?.access_token) {
-          console.log('[waitForSupabaseToken] Session found with access token')
           resolve(true)
           return true
         }
@@ -47,7 +46,6 @@ export async function waitForSupabaseToken(
           })
 
           if (tokenRequest) {
-            console.log('[waitForSupabaseToken] Token request found in performance entries')
             // 再次检查 session
             checkSession().then((hasSession) => {
               if (hasSession) {
@@ -64,7 +62,6 @@ export async function waitForSupabaseToken(
         
         if (elapsed >= maxWaitTime) {
           clearInterval(interval)
-          console.log('[waitForSupabaseToken] Max wait time reached, resolving with current session state')
           const hasSession = await checkSession()
           resolve(hasSession)
           return
@@ -101,7 +98,6 @@ export async function waitForSupabaseSession(
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (session?.access_token) {
-          console.log('[waitForSupabaseSession] Session found with access token')
           resolve(true)
           return true
         }
@@ -123,7 +119,6 @@ export async function waitForSupabaseSession(
         
         if (elapsed >= maxWaitTime) {
           clearInterval(interval)
-          console.log('[waitForSupabaseSession] Max wait time reached')
           const hasSession = await checkSession()
           resolve(hasSession)
           return
@@ -156,11 +151,6 @@ export async function waitForUserInfoInStore(
         const { user, isAuthenticated, token } = useAuthStore.getState()
         
         if (isAuthenticated && user && user.id && token) {
-          console.log('[waitForUserInfoInStore] User info found in store:', {
-            userId: user.id,
-            username: user.username,
-            hasToken: !!token,
-          })
           resolve(true)
           return true
         }
@@ -178,7 +168,6 @@ export async function waitForUserInfoInStore(
         
         if (elapsed >= maxWaitTime) {
           clearInterval(interval)
-          console.log('[waitForUserInfoInStore] Max wait time reached')
           const hasUserInfo = checkStore()
           resolve(hasUserInfo)
           return

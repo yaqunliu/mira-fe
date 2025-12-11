@@ -75,7 +75,9 @@
     "startCreating": "Start Creating",
     "noNovelsEmpty": "No novels yet, click to upload your first novel",
     "dailyCheckin": "Daily Check-in",
-    "checkinDescription": "Check in daily to earn points"
+    "checkinDescription": "Check in daily to earn points",
+    "getStarted": "Get Started",
+    "startYourCreativeJourney": "Start your creative journey"
   },
   "homePage": {
     "title": "AI Animation Short Drama Creation Platform",

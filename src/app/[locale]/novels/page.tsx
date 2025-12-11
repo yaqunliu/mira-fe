@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
@@ -11,6 +11,9 @@ import {
   ChevronRight,
   Upload,
   Trash2,
+  Search,
+  Sparkles,
+  BookMarked,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -40,8 +43,8 @@ function formatDateTime(dateString: string): string {
   }
 }
 
-// 左滑删除卡片组件
-function SwipeableNovelCard({
+// 小说卡片组件
+function NovelCard({
   novel,
   onClick,
   onDelete,
@@ -69,134 +72,68 @@ function SwipeableNovelCard({
       onDelete(e);
     }
   };
-  const [translateX, setTranslateX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startXRef = useRef(0);
-  const currentXRef = useRef(0);
-  const deleteThreshold = -80; // 滑动超过这个值显示删除按钮
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startXRef.current = e.touches[0].clientX;
-    currentXRef.current = translateX;
-    setIsDragging(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const diff = e.touches[0].clientX - startXRef.current;
-    const newTranslate = Math.min(0, Math.max(-100, currentXRef.current + diff));
-    setTranslateX(newTranslate);
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-    if (translateX < deleteThreshold) {
-      setTranslateX(-80); // 固定在删除按钮显示位置
-    } else {
-      setTranslateX(0);
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    startXRef.current = e.clientX;
-    currentXRef.current = translateX;
-    setIsDragging(true);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const diff = e.clientX - startXRef.current;
-    const newTranslate = Math.min(0, Math.max(-100, currentXRef.current + diff));
-    setTranslateX(newTranslate);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    if (translateX < deleteThreshold) {
-      setTranslateX(-80);
-    } else {
-      setTranslateX(0);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      if (translateX < deleteThreshold) {
-        setTranslateX(-80);
-      } else {
-        setTranslateX(0);
-      }
-    }
-  };
-
-  const handleClick = () => {
-    if (Math.abs(translateX) < 5) {
-      onClick();
-    }
-  };
-
-  const resetPosition = () => {
-    setTranslateX(0);
-  };
 
   return (
-    <div className="relative overflow-hidden rounded-lg">
-      {/* 删除按钮背景 */}
-      <div className="absolute inset-y-0 right-0 w-20 bg-red-500 flex items-center justify-center">
-        <button
-          onClick={handleDeleteClick}
-          disabled={isDeleting}
-          className="w-full h-full flex flex-col items-center justify-center text-white"
-        >
-          <Trash2 className="w-5 h-5 mb-1" />
-          <span className="text-xs">{isDeleting ? t("novel.deleteInProgress") : t("novel.delete")}</span>
-        </button>
-      </div>
-
-      {/* 卡片内容 */}
+    <div className="relative rounded-2xl">
+      {/* 卡片内容 - 现代化设计 */}
       <div
         className={cn(
-          "bg-card-custom rounded-lg p-4 cursor-pointer relative transition-transform",
-          !isDragging && "transition-transform duration-200"
+          "cursor-pointer group transition-all relative rounded-2xl overflow-hidden",
+          "bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-900/80",
+          "border-2 border-gray-200/50 dark:border-gray-700/50",
+          "hover:border-green-400/50 hover:shadow-2xl hover:shadow-green-500/20 hover:scale-[1.02]",
+          "transition-transform duration-200"
         )}
-        style={{ transform: `translateX(${translateX}px)` }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleClick}
+        onClick={onClick}
       >
-        <div className="flex items-start justify-between">
-          <div className="space-y-2 flex-1 min-w-0">
-            <div className="text-base font-bold line-clamp-2 text-primary">
-              {novel.title}
-            </div>
-            <div className="text-sm flex items-center gap-2 text-muted-foreground">
-              <User className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{novel.author}</span>
+        {/* 装饰性背景 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-400/5 to-teal-400/5 dark:from-green-400/3 dark:to-teal-400/3 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        <div className="relative z-10 p-5 space-y-4">
+          {/* 标题和作者 */}
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="p-3 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl shadow-md group-hover:scale-110 transition-transform">
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-bold line-clamp-2 text-gray-900 dark:text-gray-100 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors mb-2">
+                  {novel.title}
+                </h3>
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="p-1 bg-gray-100 dark:bg-gray-800 rounded">
+                    <User className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="truncate">{novel.author}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div className="space-y-3 mt-3">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-1 text-secondary">
-              <Calendar className="h-4 w-4" />
+
+          {/* 元信息 */}
+          <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg">
+              <Calendar className="h-3.5 w-3.5" />
               <span>{formatDateTime((novel as any).created_at)}</span>
             </div>
-              <Badge
-              variant="default"
-              className="bg-amber-800/20 text-amber-600"
+            <Badge
+              className="bg-gradient-to-r from-green-100 to-teal-100 dark:from-green-900/30 dark:to-teal-900/30 text-green-700 dark:text-green-300 border-2 border-green-300 dark:border-green-700 font-semibold"
             >
               {t("novel.totalChapters", { count: novel.chapter_count || 0 })}
             </Badge>
           </div>
         </div>
-
       </div>
+
+      {/* 删除按钮 - 右上角固定位置 */}
+      <button
+        onClick={handleDeleteClick}
+        disabled={isDeleting}
+        className="absolute top-3 right-3 z-10 p-2 rounded-lg bg-red-500/90 hover:bg-red-600 text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label={t("novel.delete")}
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
     </div>
   );
 }
@@ -287,32 +224,51 @@ export default function NovelsPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* 页头 */}
-      <div className="flex justify-between">
-        <div
-          className="flex items-center gap-1 m-3 cursor-pointer"
-          onClick={() => router.push(`/${locale}`)}
-        >
-          <ChevronLeft className="w-4 h-4 text-primary" />
-          <h1 className="text-lg text-gradient-primary">{t("novel.novelList")}</h1>
+    <div className="h-screen flex flex-col bg-gradient-to-b from-green-50/50 via-white to-teal-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* 页头 - 现代化设计 */}
+      <div className="relative overflow-hidden">
+        {/* 装饰性背景 */}
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-green-400/10 dark:bg-green-400/5 rounded-full blur-3xl" />
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-teal-400/10 dark:bg-teal-400/5 rounded-full blur-3xl" />
+
+        <div className="relative z-10 container mx-auto px-4 pt-4 pb-3">
+          <div className="flex items-center justify-between mb-4">
+            <div
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => router.push(`/${locale}/workspace`)}
+            >
+              <div className="p-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 group-hover:bg-green-200 dark:group-hover:bg-green-800/40 transition-colors">
+                <ChevronLeft className="w-5 h-5 text-green-600 dark:text-green-400" />
+              </div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-teal-600 dark:from-green-400 dark:to-teal-400 bg-clip-text text-transparent flex items-center gap-2">
+                <BookMarked className="w-6 h-6 text-green-500" />
+                {t("novel.novelList")}
+              </h1>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="h-[1px] w-full divider-primary mb-4" />
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-green-200 dark:via-green-800/30 to-transparent mb-6" />
 
       {/* 内容区域 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
-        <div className="space-y-4">
-          {/* 搜索和上传 - 始终显示 */}
-          <div className="flex justify-between items-center gap-4">
-            <Input
-              placeholder={t("novel.searchNovel")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 h-[36px] max-w-md"
-            />
-            <Button onClick={() => setUploadModalOpen(true)} className="gap-1">
-              <Plus className="h-4 w-4" />
+        <div className="container mx-auto space-y-6">
+          {/* 搜索和上传 - 现代化设计 */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400 dark:text-green-500" />
+              <Input
+                placeholder={t("novel.searchNovel")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-11 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 focus:border-green-400 focus:ring-2 focus:ring-green-400/20"
+              />
+            </div>
+            <Button
+              onClick={() => setUploadModalOpen(true)}
+              className="h-12 px-6 rounded-xl bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/40 transition-all duration-200 hover:scale-105"
+            >
+              <Upload className="h-5 w-5 mr-2" />
               {t("novel.uploadNovel")}
             </Button>
           </div>
@@ -323,37 +279,63 @@ export default function NovelsPage() {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-lg aspect-[4/3] w-full bg-card-custom skeleton"
-                />
+                  className="rounded-2xl h-40 w-full bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900 animate-pulse overflow-hidden"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <div className="p-5 space-y-4">
+                    <div className="flex gap-3">
+                      <div className="w-12 h-12 bg-green-300/30 dark:bg-green-700/20 rounded-xl" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4" />
+                        <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2" />
+                      </div>
+                    </div>
+                    <div className="h-8 bg-gray-200 dark:bg-gray-800 rounded" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : error ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <p className="text-muted-foreground">
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center space-y-4">
+                <div className="p-6 bg-red-100 dark:bg-red-900/30 rounded-full w-24 h-24 mx-auto flex items-center justify-center">
+                  <BookOpen className="h-12 w-12 text-red-500 dark:text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                   {t("novel.loadingFailed")}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Please try again later
                 </p>
               </div>
             </div>
           ) : novels.length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center space-y-6 max-w-md">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-green-400/10 dark:bg-green-400/5 blur-3xl rounded-full" />
+                  <div className="relative p-8 bg-gradient-to-br from-green-100 to-teal-100 dark:from-green-900/30 dark:to-teal-900/30 rounded-full w-32 h-32 mx-auto flex items-center justify-center">
+                    <BookOpen className="h-16 w-16 text-green-500 dark:text-green-400 animate-pulse" />
+                  </div>
+                </div>
                 {debouncedSearchTerm ? (
                   <>
-                    <h3 className="text-lg font-semibold mb-2">{t("novel.noSearchResults")}</h3>
-                    <p className="text-muted-foreground mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("novel.noSearchResults")}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       {t("novel.noSearchResultsDescription")}
                     </p>
                   </>
                 ) : (
                   <>
-                    <h3 className="text-lg font-semibold mb-2">{t("novel.noNovels")}</h3>
-                    <p className="text-muted-foreground mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("novel.noNovels")}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       {t("novel.noNovelsDescription")}
                     </p>
-                    <Button onClick={() => setUploadModalOpen(true)} className="gap-1">
-                      <Upload className="h-4 w-4" />
+                    <Button
+                      onClick={() => setUploadModalOpen(true)}
+                      className="h-12 px-8 rounded-xl bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/40 transition-all duration-200 hover:scale-105"
+                    >
+                      <Upload className="h-5 w-5 mr-2" />
                       {t("novel.uploadNovel")}
                     </Button>
                   </>
@@ -362,10 +344,10 @@ export default function NovelsPage() {
             </div>
           ) : (
             <>
-              {/* 小说列表 - 左滑删除 */}
+              {/* 小说列表 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {novels.map((novel: Novel) => (
-                  <SwipeableNovelCard
+                  <NovelCard
                     key={novel.novel_id}
                     novel={novel}
                     onClick={() => handleNovelClick(novel.uuid || novel.novel_id)}
@@ -380,38 +362,55 @@ export default function NovelsPage() {
                 ))}
               </div>
 
-              {/* 分页 */}
+              {/* 分页 - 现代化设计 */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4">
+                <div className="flex items-center justify-center gap-3 pt-6">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
+                    className={cn(
+                      "h-11 px-5 rounded-xl border-2 transition-all duration-200",
+                      currentPage <= 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:scale-105"
+                    )}
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-4 h-4 mr-1" />
                     {t("novel.previousPage")}
                   </Button>
 
-                  <span className="text-sm text-muted-foreground px-4">
-                    {t("novel.pageInfo", { current: currentPage, total: totalPages })}
-                  </span>
+                  <div className="px-6 py-2 rounded-xl bg-gradient-to-r from-green-100 to-teal-100 dark:from-green-900/30 dark:to-teal-900/30 border-2 border-green-200 dark:border-green-800">
+                    <span className="text-sm font-semibold text-green-700 dark:text-green-300">
+                      {t("novel.pageInfo", { current: currentPage, total: totalPages })}
+                    </span>
+                  </div>
 
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage >= totalPages}
+                    className={cn(
+                      "h-11 px-5 rounded-xl border-2 transition-all duration-200",
+                      currentPage >= totalPages
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 hover:scale-105"
+                    )}
                   >
                     {t("novel.nextPage")}
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
               )}
 
               {/* 总数 */}
-              <div className="text-center text-sm text-muted-foreground">
-                {t("novel.totalNovels", { total })}
+              <div className="text-center pt-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Sparkles className="w-4 h-4 text-green-500" />
+                  {t("novel.totalNovels", { total })}
+                </div>
               </div>
             </>
           )}

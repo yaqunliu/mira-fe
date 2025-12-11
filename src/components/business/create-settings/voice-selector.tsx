@@ -23,6 +23,7 @@ import {
   ChevronRight,
   Volume2,
   Users,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import voiceApi from "@/lib/api/voice";
@@ -210,6 +211,7 @@ export function VoiceSelector({
     data: voicesResponse,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: ["voices", debouncedSearch, selectedTag, currentPage, pageSize],
     queryFn: async () => {
@@ -313,8 +315,24 @@ export function VoiceSelector({
           <span className="ml-2 text-muted-foreground">加载中...</span>
         </div>
       ) : error ? (
-        <div className="flex items-center justify-center py-12 text-destructive">
-          加载语音列表失败，请稀后重试
+        <div className="flex flex-col items-center justify-center py-12 gap-4">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 flex items-center justify-center">
+              <Volume2 className="w-8 h-8 text-red-500 dark:text-red-400" />
+            </div>
+            <p className="text-destructive font-medium">加载语音列表失败，请稍后重试</p>
+            <p className="text-sm text-muted-foreground mt-2">
+              {error instanceof Error ? error.message : "网络连接异常"}
+            </p>
+          </div>
+          <Button
+            onClick={() => refetch()}
+            variant="outline"
+            className="flex items-center gap-2 rounded-xl border-2 border-orange-300 dark:border-orange-700 hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all duration-200 hover:scale-105"
+          >
+            <RefreshCw className="w-4 h-4" />
+            重新加载
+          </Button>
         </div>
       ) : voices.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">

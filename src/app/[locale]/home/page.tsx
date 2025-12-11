@@ -84,13 +84,6 @@ export default function HomePage() {
 
       // 如果有 session 但没有用户信息，说明可能是刚登录，需要等待同步
       if (session?.access_token && !isAuthenticated) {
-        console.log('[HomePage] Session found but no user info, waiting for sync...', {
-          hasSession: !!session,
-          hasAccessToken: !!session.access_token,
-          isAuthenticated,
-          hasUser: !!user,
-        })
-        
         if (!waitingForUserInfo) {
           setWaitingForUserInfo(true)
         }
@@ -108,7 +101,6 @@ export default function HomePage() {
           const { user: currentUser, isAuthenticated: currentAuth } = useAuthStore.getState()
           
           if (currentAuth && currentUser && currentUser.id) {
-            console.log('[HomePage] User info found in store, sync completed')
             if (checkInterval) {
               clearInterval(checkInterval)
               checkInterval = null
@@ -131,11 +123,6 @@ export default function HomePage() {
           }
           if (mounted) {
             const { user: currentUser, isAuthenticated: currentAuth } = useAuthStore.getState()
-            if (!currentAuth || !currentUser) {
-              console.warn('[HomePage] User info sync timeout after 5 seconds, stopping wait')
-            } else {
-              console.log('[HomePage] User info found after timeout check')
-            }
             setWaitingForUserInfo(false)
           }
         }, 5000) // 最多等待 5 秒

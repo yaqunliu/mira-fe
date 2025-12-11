@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Play, Plus, ChevronRight, Trash2 } from "lucide-react";
+import { ChevronLeft, Play, Plus, ChevronRight, Trash2, Search, Sparkles, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
@@ -16,8 +16,8 @@ import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useConfirm } from "@/hooks/use-confirm";
 
-// 左滑删除创作卡片组件
-function SwipeableCreationCard({
+// 创作卡片组件
+function CreationCard({
   creation,
   onClick,
   onDelete,
@@ -47,138 +47,77 @@ function SwipeableCreationCard({
       onDelete(creation.uuid);
     }
   };
-  const [translateX, setTranslateX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startXRef = useRef(0);
-  const currentXRef = useRef(0);
-  const deleteThreshold = -80;
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startXRef.current = e.touches[0].clientX;
-    currentXRef.current = translateX;
-    setIsDragging(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const diff = e.touches[0].clientX - startXRef.current;
-    const newTranslate = Math.min(0, Math.max(-100, currentXRef.current + diff));
-    setTranslateX(newTranslate);
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-    if (translateX < deleteThreshold) {
-      setTranslateX(-80);
-    } else {
-      setTranslateX(0);
-    }
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    startXRef.current = e.clientX;
-    currentXRef.current = translateX;
-    setIsDragging(true);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const diff = e.clientX - startXRef.current;
-    const newTranslate = Math.min(0, Math.max(-100, currentXRef.current + diff));
-    setTranslateX(newTranslate);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    if (translateX < deleteThreshold) {
-      setTranslateX(-80);
-    } else {
-      setTranslateX(0);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (isDragging) {
-      setIsDragging(false);
-      if (translateX < deleteThreshold) {
-        setTranslateX(-80);
-      } else {
-        setTranslateX(0);
-      }
-    }
-  };
-
-  const handleClick = () => {
-    if (Math.abs(translateX) < 5) {
-      onClick();
-    }
-  };
 
   return (
-    <div className="relative overflow-hidden rounded-lg">
-      {/* 删除按钮背景 */}
-      <div className="absolute inset-y-0 right-0 w-20 bg-red-500 flex items-center justify-center">
-        <button
-          onClick={handleDeleteClick}
-          disabled={isDeleting}
-          className="w-full h-full flex flex-col items-center justify-center text-white"
-        >
-          <Trash2 className="w-5 h-5 mb-1" />
-          <span className="text-xs">{isDeleting ? t("creation.deleteInProgress") : t("creation.delete")}</span>
-        </button>
-      </div>
-
-      {/* 卡片内容 */}
+    <div className="relative rounded-2xl">
+      {/* 卡片内容 - 现代化设计 */}
       <div
         className={cn(
-          "cursor-pointer group transition-all hover:shadow-lg relative bg-card-custom rounded-lg overflow-hidden",
-          !isDragging && "transition-transform duration-200"
+          "cursor-pointer group transition-all relative rounded-2xl overflow-hidden",
+          "bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-900/80",
+          "border-2 border-gray-200/50 dark:border-gray-700/50",
+          "hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/20 hover:scale-[1.02]",
+          "transition-transform duration-200"
         )}
-        style={{ transform: `translateX(${translateX}px)` }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleClick}
+        onClick={onClick}
       >
         {/* 封面图 */}
-        <div className="relative w-full bg-zinc-800 overflow-hidden aspect-video">
+        <div className="relative w-full overflow-hidden aspect-video">
           {creation.scenes?.[0]?.shots?.[0]?.image_url ? (
-            <img
-              src={creation.scenes[0].shots[0].image_url}
-              alt={creation.title}
-              className="w-full h-full object-cover"
-            />
+            <>
+              <img
+                src={creation.scenes[0].shots[0].image_url}
+                alt={creation.title}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              {/* 渐变遮罩 */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+            </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-700 to-zinc-800">
-              <Play className="w-12 h-12 text-zinc-500" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-pink-600/20 dark:from-purple-900/40 dark:via-blue-900/40 dark:to-pink-900/40">
+              <div className="text-center">
+                <Play className="w-16 h-16 text-purple-400 dark:text-purple-300 mx-auto mb-2 animate-pulse" />
+                <p className="text-xs text-purple-600 dark:text-purple-300 font-medium">No Preview</p>
+              </div>
             </div>
           )}
-          
-          {/* 简单遮罩层 */}
-          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors" />
+
+          {/* 播放图标覆盖层 */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="p-4 bg-white/20 dark:bg-black/40 backdrop-blur-sm rounded-full">
+              <Play className="w-12 h-12 text-white drop-shadow-lg" />
+            </div>
+          </div>
         </div>
 
         {/* 信息区域 */}
-        <div className="p-4">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1 flex-1 min-w-0">
-              <div className="text-base line-clamp-1 font-bold">
+        <div className="p-4 bg-gradient-to-b from-transparent to-white/50 dark:to-gray-800/50">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2 flex-1 min-w-0">
+              <h3 className="text-base line-clamp-1 font-bold text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                 {creation.title}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {new Date(creation.created_at).toLocaleDateString()}
+              </h3>
+              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <Film className="w-3.5 h-3.5" />
+                <span>{new Date(creation.created_at).toLocaleDateString()}</span>
               </div>
             </div>
-            <div className="flex items-center ml-2 flex-shrink-0">
+            <div className="flex items-center flex-shrink-0">
               {getStatusBadge(creation.status)}
             </div>
           </div>
         </div>
       </div>
+
+      {/* 删除按钮 - 右上角固定位置 */}
+      <button
+        onClick={handleDeleteClick}
+        disabled={isDeleting}
+        className="absolute top-3 right-3 z-10 p-2 rounded-lg bg-red-500/90 hover:bg-red-600 text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-label={t("creation.delete")}
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
     </div>
   );
 }
@@ -283,32 +222,53 @@ export default function CreationsPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* 页头 */}
-      <div className="flex justify-between">
-        <div
-          className="flex items-center gap-1 m-3 cursor-pointer"
-          onClick={() => router.back()}
-        >
-          <ChevronLeft className="w-4 h-4 text-primary" />
-          <h1 className="text-lg text-gradient-primary">{t("creation.creationList")}</h1>
+    <div className="h-screen flex flex-col bg-gradient-to-b from-purple-50/50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* 页头 - 现代化设计 */}
+      <div className="relative overflow-hidden">
+        {/* 装饰性背景 */}
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl" />
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl" />
+
+        <div className="relative z-10 container mx-auto px-4 pt-4 pb-3">
+          <div className="flex items-center justify-between mb-4">
+            <div
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => router.back()}
+            >
+              <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/40 transition-colors">
+                <ChevronLeft className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
+                <Sparkles className="w-6 h-6 text-purple-500" />
+                {t("creation.creationList")}
+              </h1>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="h-[1px] w-full divider-primary mb-4" />
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-purple-200 dark:via-purple-800/30 to-transparent mb-6" />
 
       {/* 内容区域 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
-        <div className="space-y-4">
-          {/* 搜索和新建 - 始终显示 */}
-          <div className="flex justify-between items-center gap-4">
-            <Input
-              placeholder={t("creation.searchCreation")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full max-w-md"
-            />
+        <div className="container mx-auto space-y-6">
+          {/* 搜索和新建 - 现代化设计 */}
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 dark:text-purple-500" />
+              <Input
+                placeholder={t("creation.searchCreation")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-11 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
+              />
+            </div>
             <Link href={`/${locale}/create?from=creations`}>
-              <Button icon={<Plus className="h-4 w-4" />}>{t("creation.createCreation")}</Button>
+              <Button
+                className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                {t("creation.createCreation")}
+              </Button>
             </Link>
           </div>
 
@@ -318,37 +278,58 @@ export default function CreationsPage() {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-lg aspect-[16/9] w-full skeleton"
-                />
+                  className="rounded-2xl aspect-video w-full bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900 animate-pulse overflow-hidden"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  <div className="w-full h-2/3 bg-gradient-to-br from-purple-200/30 to-blue-200/30 dark:from-purple-900/20 dark:to-blue-900/20" />
+                  <div className="p-4 space-y-2">
+                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : error ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <p className="text-muted-foreground">
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center space-y-4">
+                <div className="p-6 bg-red-100 dark:bg-red-900/30 rounded-full w-24 h-24 mx-auto flex items-center justify-center">
+                  <Play className="h-12 w-12 text-red-500 dark:text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                   {t("creation.loadingFailed")}
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Please try again later
                 </p>
               </div>
             </div>
           ) : creations.length === 0 ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <Play className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <div className="flex items-center justify-center py-20">
+              <div className="text-center space-y-6 max-w-md">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-purple-400/10 dark:bg-purple-400/5 blur-3xl rounded-full" />
+                  <div className="relative p-8 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full w-32 h-32 mx-auto flex items-center justify-center">
+                    <Play className="h-16 w-16 text-purple-500 dark:text-purple-400 animate-pulse" />
+                  </div>
+                </div>
                 {debouncedSearchTerm ? (
                   <>
-                    <h3 className="text-lg font-semibold mb-2">{t("creation.noSearchResults")}</h3>
-                    <p className="text-muted-foreground mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("creation.noSearchResults")}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       {t("creation.noSearchResultsDescription")}
                     </p>
                   </>
                 ) : (
                   <>
-                    <h3 className="text-lg font-semibold mb-2">{t("creation.noCreations")}</h3>
-                    <p className="text-muted-foreground mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("creation.noCreations")}</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
                       {t("creation.noCreationsDescription")}
                     </p>
                     <Link href={`/${locale}/create?from=creations`}>
-                      <Button>{t("creation.createCreation")}</Button>
+                      <Button className="h-12 px-8 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105">
+                        <Plus className="h-5 w-5 mr-2" />
+                        {t("creation.createCreation")}
+                      </Button>
                     </Link>
                   </>
                 )}
@@ -356,10 +337,10 @@ export default function CreationsPage() {
             </div>
           ) : (
             <>
-              {/* 创作列表 - 左滑删除 */}
+              {/* 创作列表 */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {creations.map((creation: ICreation) => (
-                  <SwipeableCreationCard
+                  <CreationCard
                     key={creation.uuid}
                     creation={creation}
                     onClick={() => handleCreationClick(creation)}
@@ -372,38 +353,55 @@ export default function CreationsPage() {
                 ))}
               </div>
 
-              {/* 分页 */}
+              {/* 分页 - 现代化设计 */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 pt-4">
+                <div className="flex items-center justify-center gap-3 pt-6">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                     disabled={currentPage <= 1}
+                    className={cn(
+                      "h-11 px-5 rounded-xl border-2 transition-all duration-200",
+                      currentPage <= 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:scale-105"
+                    )}
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="w-4 h-4 mr-1" />
                     {t("creation.previousPage")}
                   </Button>
 
-                  <span className="text-sm text-muted-foreground px-4">
-                    {t("creation.pageInfo", { current: currentPage, total: totalPages })}
-                  </span>
+                  <div className="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-2 border-purple-200 dark:border-purple-800">
+                    <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
+                      {t("creation.pageInfo", { current: currentPage, total: totalPages })}
+                    </span>
+                  </div>
 
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                     disabled={currentPage >= totalPages}
+                    className={cn(
+                      "h-11 px-5 rounded-xl border-2 transition-all duration-200",
+                      currentPage >= totalPages
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:scale-105"
+                    )}
                   >
                     {t("creation.nextPage")}
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-4 h-4 ml-1" />
                   </Button>
                 </div>
               )}
 
               {/* 总数 */}
-              <div className="text-center text-sm text-muted-foreground">
-                {t("creation.totalCreations", { total })}
+              <div className="text-center pt-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Sparkles className="w-4 h-4 text-purple-500" />
+                  {t("creation.totalCreations", { total })}
+                </div>
               </div>
             </>
           )}

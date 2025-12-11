@@ -308,11 +308,18 @@ export function StorySetting() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-200px)]">
-      <Card className="w-full border-none p-0 gap-3 flex flex-col flex-1 min-h-0">
-        <CardContent className="space-y-4 flex flex-col flex-1 min-h-0 overflow-hidden">
+    <div className="w-full max-w-4xl mx-auto flex flex-col h-[calc(100vh-200px)] relative">
+      {/* 装饰性背景 */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
+      <Card className="relative z-10 w-full border-2 border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 p-0 gap-3 flex flex-col flex-1 min-h-0">
+        <CardContent className="space-y-4 flex flex-col flex-1 min-h-0 overflow-hidden p-6">
           {/** 添加Tabs切换，有两个选项"从小说列表中选择"和"上传小说" */}
-          <div className="text-base font-bold text-gray-700 dark:text-gray-300 flex-shrink-0">{t("createVideo.selectScript")}</div>
+          <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent flex-shrink-0 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-500" />
+            {t("createVideo.selectScript")}
+          </div>
           
           {/* 显示加载状态 */}
           {isLoadingFromUrl && (
@@ -360,16 +367,16 @@ export function StorySetting() {
                         />
                       </div>
                       {selectedChapters.length > 0 && (
-                        <div className="flex items-center gap-3 pt-4 pb-2 flex-shrink-0 border-t border-gray-200 dark:border-gray-700 px-2">
+                        <div className="flex items-center gap-3 pt-4 pb-2 flex-shrink-0 border-t-2 border-blue-200/30 dark:border-blue-700/30 px-2">
                           {renderSelectedChapterInfo()}
-                          
+
                           {/* 配置按钮 */}
                           <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
                             <DialogTrigger asChild>
                               <Button
                                 variant="outline"
                                 size="lg"
-                                className="flex-shrink-0"
+                                className="flex-shrink-0 rounded-xl border-2 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
                               >
                                 <Settings className="w-4 h-4 mr-2" />
                                 {t("creation.config") || "配置"}
@@ -527,7 +534,7 @@ export function StorySetting() {
                             size="lg"
                             onClick={() => analyseContent()}
                             disabled={createCreationMutation.isPending || isLoading || isSubmittingAnalysis}
-                            className="bg-primary flex-shrink-0"
+                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl flex-shrink-0"
                           >
                             {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.analyzeCharacters")}
                             <ArrowRight className="w-4 h-4 ml-1" />

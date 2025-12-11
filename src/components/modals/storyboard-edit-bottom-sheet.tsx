@@ -63,15 +63,26 @@ export function StoryboardEditBottomSheet({
 
   // 当图片变化时更新表单默认值
   React.useEffect(() => {
-    if (image) {
+    if (image && isOpen) {
       form.reset({
         prompt: image.prompt,
       });
-      setSelectedCharacters(
-        (image.characters || []).map((c) => Number(c.character_id)).filter(Boolean)
-      );
+
+      // 尝试从 characters 数组获取角色ID
+      let characterIds = (image.characters || [])
+        .map((c) => Number(c.character_id))
+        .filter((id) => !isNaN(id) && id > 0);
+
+      // 如果 characters 数组为空，尝试从 character_ids 字段获取（生成中的分镜可能只有这个字段）
+      if (characterIds.length === 0 && (image as any).character_ids) {
+        characterIds = ((image as any).character_ids || [])
+          .map((id: any) => Number(id))
+          .filter((id: number) => !isNaN(id) && id > 0);
+      }
+
+      setSelectedCharacters(characterIds);
     }
-  }, [image, form]);
+  }, [image?.image_id, isOpen, form]);
 
   const handleRegenerate = async () => {
     if (!image) return;
@@ -135,7 +146,7 @@ export function StoryboardEditBottomSheet({
         <form onSubmit={form.handleSubmit(handleRegenerate)} className="space-y-6">
           {/* 图片预览 */}
           <div className="flex justify-center">
-            <div className="relative w-32 h-24 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <div className="relative w-32 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 border-2 border-blue-200/50 dark:border-blue-700/50 shadow-lg">
               {image.image_url ? (
                 <img
                   src={image.image_url}
@@ -152,8 +163,8 @@ export function StoryboardEditBottomSheet({
 
           {/* 提示词编辑 */}
           {/* 关联角色 */}
-          <div className="space-y-2">
-            <FormLabel className="text-gray-800 dark:text-gray-300">
+          <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 border-2 border-blue-200/50 dark:border-blue-700/50">
+            <FormLabel className="text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
               关联角色
             </FormLabel>
             {availableCharacters.length === 0 ? (
@@ -166,10 +177,10 @@ export function StoryboardEditBottomSheet({
                   return (
                     <label
                       key={character.character_id}
-                      className={`flex items-center gap-2 px-2 py-1 rounded border cursor-pointer text-sm ${
+                      className={`flex items-center gap-2 px-2 py-2 rounded-xl border-2 cursor-pointer text-sm transition-all duration-200 hover:scale-105 ${
                         checked
-                          ? "border-orange-400 bg-orange-50 dark:border-orange-500/60 dark:bg-orange-500/10"
-                          : "border-gray-200 dark:border-gray-700"
+                          ? "border-blue-400 bg-gradient-to-r from-blue-50 to-purple-50 dark:border-blue-500/60 dark:from-blue-900/30 dark:to-purple-900/30 shadow-md shadow-blue-500/20"
+                          : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600"
                       }`}
                       onClick={(e) => {
                         e.preventDefault();
@@ -184,10 +195,10 @@ export function StoryboardEditBottomSheet({
                         <img
                           src={character.image_url}
                           alt={character.name}
-                          className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700"
+                          className="w-12 h-12 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-700 shadow-sm"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-xs text-gray-500 border-2 border-gray-300 dark:border-gray-600">
                           无图
                         </div>
                       )}
@@ -215,14 +226,13 @@ export function StoryboardEditBottomSheet({
             name="prompt"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                   {t("storyboard.prompt")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("storyboard.promptPlaceholder")}
-                    className="min-h-[120px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[120px] resize-none rounded-xl border-2 border-blue-200/50 dark:border-blue-700/50 focus:border-blue-400 dark:focus:border-blue-500 transition-colors"
                     {...field}
                   />
                 </FormControl>

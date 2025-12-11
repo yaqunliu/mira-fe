@@ -73,9 +73,6 @@ export function useFlowNavigation(
     setCurrentStep(step);
     onStepChange?.(step);
 
-    if (debug) {
-      console.log(`[FlowNavigation] 手动导航到步骤 ${step}`);
-    }
   }, [creation, isLoading, onStepChange, debug]);
 
   /**
@@ -112,9 +109,6 @@ export function useFlowNavigation(
     // 使用 FlowManager 决定应该跳转的步骤
     const decision = FlowManager.determineFlow(creation, task);
 
-    if (debug) {
-      console.log(`[FlowNavigation] 自动导航决策:`, decision);
-    }
 
     // 更新状态
     setCurrentStep(decision.step);

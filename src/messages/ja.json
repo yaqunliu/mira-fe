@@ -75,7 +75,9 @@
     "startCreating": "制作を開始",
     "noNovelsEmpty": "小説がまだありません。最初の小説をアップロードしてください",
     "dailyCheckin": "毎日チェックイン",
-    "checkinDescription": "毎日チェックインしてポイントを獲得"
+    "checkinDescription": "毎日チェックインしてポイントを獲得",
+    "getStarted": "今すぐ始める",
+    "startYourCreativeJourney": "創作の旅を始めよう"
   },
   "homePage": {
     "title": "AIアニメ短編ドラマ創作プラットフォーム",

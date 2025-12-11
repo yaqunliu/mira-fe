@@ -20,6 +20,7 @@ import {
   Maximize,
   Maximize2,
   PenLine,
+  Film,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AIGeneratedImage, SceneGroup, ShotGenerationProgress, TaskStatus } from "@/types";
@@ -269,29 +270,13 @@ export function StoryboardImages({
             return;
           }
           
-          // 必须使用 uuid 字段，不能使用 image_id（可能是数字ID）
+          // 优先使用 uuid 字段，如果没有则使用 image_id（兼容后端返回数字ID的情况）
           let shotUuid: string | undefined = targetImage.uuid;
-          
-          // 如果 uuid 不存在，尝试从 image_id 判断（如果 image_id 是 UUID 格式）
-          if (!shotUuid) {
-            const imageIdStr = String(imageId);
-            // 检查 image_id 是否是UUID格式（UUID格式：8-4-4-4-12，共36个字符，包含连字符）
-            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-            if (uuidRegex.test(imageIdStr)) {
-              shotUuid = imageIdStr;
-            } else {
-              // image_id 不是 UUID 格式，报错
-              console.error("分镜缺少UUID字段，且image_id不是UUID格式:", imageId);
-              toast.error("分镜数据格式错误：缺少UUID字段。请刷新页面重试。");
-              return;
-            }
-          }
 
-          // 确保 shotUuid 是有效的字符串（类型守卫）
+          // 如果 uuid 不存在，使用 image_id 作为后备
           if (!shotUuid) {
-            console.error("无法获取分镜UUID:", imageId);
-            toast.error("无法获取分镜UUID，请刷新页面重试。");
-            return;
+            shotUuid = String(imageId);
+            console.warn("分镜缺少UUID字段，使用image_id作为后备:", imageId);
           }
 
           // 检查积分是否充足（重新生成单张图片）
@@ -385,12 +370,19 @@ export function StoryboardImages({
     : 0;
 
   return (
-    <div className={cn("space-y-4 h-[calc(100vh-136px)]", className)}>
-      <div className="space-y-4 h-full overflow-y-auto pb-22 px-6">
-        <h3 className="text-base font-semibold">{t("storyboard.storyboardList")}</h3>
+    <div className={cn("space-y-4 h-[calc(100vh-136px)] relative", className)}>
+      {/* 装饰性背景 */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
+      <div className="space-y-4 h-full overflow-y-auto pb-22 px-6 relative z-10">
+        <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
+          <Film className="w-5 h-5 text-blue-500" />
+          {t("storyboard.storyboardList")}
+        </h3>
         {/* 整体进度条 */}
         {(isGenerating || generatingImages > 0) && (
-          <Card className="p-4">
+          <Card className="p-4 bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 border-2 border-blue-200/50 dark:border-blue-700/50 shadow-lg rounded-xl">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -431,14 +423,14 @@ export function StoryboardImages({
 
         {/* 初始加载状态 */}
         {isGenerating && data.length === 0 && (
-          <Card className="p-8">
+          <Card className="p-8 bg-gradient-to-br from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/30 border-2 border-blue-200/50 dark:border-blue-700/50 shadow-xl rounded-2xl">
             <div className="flex flex-col items-center justify-center space-y-4">
               <div className="relative">
-                <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-                <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-orange-500" />
+                <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+                <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-blue-500" />
               </div>
               <div className="text-center space-y-2">
-                <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                <p className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                   {t("storyboard.generatingShotsTitle")}
                 </p>
                 <p className="text-sm text-gray-500">
@@ -455,10 +447,10 @@ export function StoryboardImages({
             <div key={scene.scene_id} className="space-y-4">
               {/* 场景标题 */}
               <div className="flex items-center gap-3">
-                <div className="h-6 w-6 rounded-full bg-orange-500/70 flex items-center justify-center text-white text-sm font-semibold">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-blue-500/30">
                   {sceneIndex + 1}
                 </div>
-                <h4 className="text-lg font-semibold text-primary">
+                <h4 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                   {scene.scene_title}
                 </h4>
                 {/* <Badge variant="outline" className="text-xs">
@@ -498,7 +490,7 @@ export function StoryboardImages({
                         </h5>
                       </div>
                       {/* 图片容器 */}
-                      <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden group min-h-[120px]">
+                      <div className="relative bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden group min-h-[120px] border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-xl transition-all duration-300">
                         {isPending ? (
                           // 待生成状态
                           <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6 relative">
@@ -599,10 +591,10 @@ export function StoryboardImages({
                                 <Button
                                   size="sm"
                                   variant="secondary"
-                                  className="h-8 w-8 p-0 bg-black/40 hover:bg-black/50"
+                                  className="h-8 w-8 p-0 bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/90 hover:to-purple-600/90 border-0 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 rounded-xl"
                                   onClick={() => handleStartEdit(image)}
                                 >
-                                  <PenLine className="w-4 h-4" />
+                                  <PenLine className="w-4 h-4 text-white" />
                                 </Button>
                               </div>
                             </div>
@@ -744,7 +736,7 @@ export function StoryboardImages({
         </div>
       </div>
       {/* 底部操作浮层 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-blue-200/50 dark:border-blue-700/50 shadow-2xl backdrop-blur-sm">
         <div className="px-6 py-4">
           <div className="flex items-center justify-center">
             {/* 右侧操作按钮 */}
@@ -755,7 +747,7 @@ export function StoryboardImages({
                 onComplete();
               }}
               disabled={isGenerating || data.length === 0}
-              className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[120px]"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-[120px]"
             >
               {isGenerating ? (
                 <>

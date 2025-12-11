@@ -68,12 +68,26 @@ export function StoryboardEditModal({
 
   // 当外部传入的shot变更时同步选中角色
   useEffect(() => {
-    setSelectedCharacters((shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean));
-    form.reset({
-      title: shot.title || "",
-      narration: shot.narration || "",
-    });
-  }, [shot, form]);
+    if (shot && isOpen) {
+      // 尝试从 characters 数组获取角色ID
+      let characterIds = (shot.characters || [])
+        .map((c: any) => Number(c.character_id))
+        .filter((id) => !isNaN(id) && id > 0);
+
+      // 如果 characters 数组为空，尝试从 character_ids 字段获取（生成中的分镜可能只有这个字段）
+      if (characterIds.length === 0 && (shot as any).character_ids) {
+        characterIds = ((shot as any).character_ids || [])
+          .map((id: any) => Number(id))
+          .filter((id: number) => !isNaN(id) && id > 0);
+      }
+
+      setSelectedCharacters(characterIds);
+      form.reset({
+        title: shot.title || "",
+        narration: shot.narration || "",
+      });
+    }
+  }, [(shot as any)?.shot_id || (shot as any)?.uuid, isOpen, form]);
 
   const handleSave = async (data: EditStoryboardFormData) => {
     setIsLoading(true);

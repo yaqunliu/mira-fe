@@ -60,16 +60,6 @@ export function ScriptSetting({
   const [isGeneratingPlaybook, setIsGeneratingPlaybook] = useState(false);
   const [playbookTaskId, setPlaybookTaskId] = useState<string | null>(null);
 
-  // 调试日志
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[ScriptSetting] Loading state:', {
-        isLoading,
-        isGeneratingPlaybook,
-        combinedLoading: isLoading || isGeneratingPlaybook,
-      });
-    }
-  }, [isLoading, isGeneratingPlaybook]);
 
   // 当外部数据更新时，同步到本地状态
   useEffect(() => {
@@ -167,24 +157,31 @@ export function ScriptSetting({
   };
 
   return (
-    <div className="h-[calc(100vh-136px)] min-h-0 flex flex-col">
+    <div className="h-[calc(100vh-136px)] min-h-0 flex flex-col relative">
+      {/* 装饰性背景 */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-indigo-400/10 dark:bg-indigo-400/5 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-pink-400/10 dark:bg-pink-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
       <ModuleLoading
         loading={isLoading || isGeneratingPlaybook}
         coverFlowContainer={true}
         text={isGeneratingPlaybook ? t("creation.playbookGenerationStarted") : t("common.loading")}
       >
-        <div className={cn("space-y-4 h-full min-h-0 flex flex-col", className)}>
+        <div className={cn("space-y-4 h-full min-h-0 flex flex-col relative z-10", className)}>
           <div className="space-y-4 h-full min-h-0 flex-1 overflow-y-auto pb-22 px-6">
-            <h3 className="text-base font-semib100">{t("scene.totalScenes", { count: scenes.length })}</h3>
+            <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-pink-600 dark:from-indigo-400 dark:to-pink-400 bg-clip-text text-transparent flex items-center gap-2">
+              <Film className="w-5 h-5 text-indigo-500" />
+              {t("scene.totalScenes", { count: scenes.length })}
+            </h3>
             {scenes.map((scene: IScene, index: number) => (
               <Card
                 key={scene.scene_id}
                 className={cn(
-                  "overflow-hidden p-0 border-orange-500/20 dark:border-orange-500/20"
+                  "overflow-hidden p-0 border-2 border-indigo-200/50 dark:border-indigo-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900"
                 )}
               >
                 <CardHeader
-                  className="cursor-pointer bg-primary-gradient-secondary transition-colors p-3"
+                  className="cursor-pointer bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 transition-all duration-200 p-3"
                   onClick={() => toggleScene(scene.scene_id)}
                 >
               <div className="flex items-center justify-between">
@@ -337,7 +334,7 @@ export function ScriptSetting({
         ))}
       </div>
       {/* 底部操作浮层 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-indigo-200/50 dark:border-indigo-700/50 shadow-2xl backdrop-blur-sm">
         <div className="px-6 py-4">
           <div className="flex items-center justify-center">
             {/* 右侧操作按钮 */}
@@ -347,7 +344,7 @@ export function ScriptSetting({
               <Button
                 onClick={handleGeneratePlaybook}
                 disabled={isGeneratingPlaybook || isLoading}
-                className="bg-orange-400/80 hover:bg-orange-600 text-white px-6 disabled:opacity-50 disabled:cursor-not-allowed w-[160px]"
+                className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white px-6 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-[160px]"
               >
                 {isGeneratingPlaybook || isLoading ? (
                   <>
@@ -389,7 +386,7 @@ export function ScriptSetting({
                   onGenerateShots?.();
                 }}
                 disabled={isLoading || isGeneratingPlaybook}
-                className="bg-orange-400/80 hover:bg-orange-600 text-white px-4 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white px-4 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap"
               >
                 {isLoading || isGeneratingPlaybook ? (
                   <>

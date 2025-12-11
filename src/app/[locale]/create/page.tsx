@@ -36,7 +36,8 @@ function transformShotsToSceneGroups(shotsData: ShotsTaskResponse): SceneGroup[]
     scene_title: scene.title,
     images: scene.shots.map((shot) => {
       // 优先使用 uuid 字段，如果不存在则使用 shot_id
-      const shotUuid = shot.uuid || (shot as any).uuid;
+      const shotAny = shot as any; // shotsTaskData 中的 shot 可能缺少某些字段
+      const shotUuid = shotAny.uuid;
       const imageId = shotUuid || String(shot.shot_id);
       return {
         image_id: imageId, // 优先使用UUID，如果没有则使用shot_id
@@ -45,13 +46,79 @@ function transformShotsToSceneGroups(shotsData: ShotsTaskResponse): SceneGroup[]
         image_url: shot.image_url || "",
         prompt: shot.image_prompt || shot.prompt || "", // 优先使用 image_prompt
         narration: shot.narration || "",
-        status: shot.status === "completed" ? "completed" 
-              : shot.status === "failed" ? "failed" 
-              : shot.status === "generating" ? "generating" 
+        characters: shotAny.characters || [], // 保留角色关联数据（shotsTaskData 中可能没有此字段）
+        status: shot.status === "completed" ? "completed"
+              : shot.status === "failed" ? "failed"
+              : shot.status === "generating" ? "generating"
               : "generating",
       };
     }),
   }));
+}
+
+// 合并更新 storyboardData，只更新 status 和 image_url，保留 uuid 和 characters 等字段
+function mergeStoryboardData(
+  existingData: SceneGroup[],
+  newData: SceneGroup[]
+): SceneGroup[] {
+  return newData.map((newScene) => {
+    // 查找对应的现有场景
+    const existingScene = existingData.find(
+      (s) => s.scene_id === newScene.scene_id
+    );
+
+    if (!existingScene) {
+      // 如果没有现有场景，直接返回新场景数据
+      return newScene;
+    }
+
+    // 合并场景中的图片数据
+    const mergedImages = newScene.images.map((newImage) => {
+      // 根据多种方式匹配现有的图片
+
+      const existingImage = existingScene.images.find((img) => {
+        // 1. 优先使用 uuid 匹配（最可靠）
+        if (newImage.uuid && img.uuid) {
+          return img.uuid === newImage.uuid;
+        }
+        // 2. 如果新数据有 uuid，匹配现有数据的 image_id（因为 image_id 可能是 uuid）
+        if (newImage.uuid && !img.uuid) {
+          return img.image_id === newImage.uuid;
+        }
+        // 3. 如果现有数据有 uuid，匹配新数据的 image_id（因为新数据的 image_id 可能是 uuid）
+        if (img.uuid && !newImage.uuid) {
+          return img.uuid === newImage.image_id;
+        }
+        // 4. 使用 image_id 直接匹配
+        if (img.image_id === newImage.image_id) {
+          return true;
+        }
+        // 5. 如果都是数字字符串（可能是 shot_id），也匹配
+        const imgIdNum = parseInt(img.image_id, 10);
+        const newIdNum = parseInt(newImage.image_id, 10);
+        if (!isNaN(imgIdNum) && !isNaN(newIdNum) && imgIdNum === newIdNum) {
+          return true;
+        }
+        return false;
+      });
+      if (!existingImage) {
+        // 如果没有现有图片，直接返回新图片数据
+        return newImage;
+      }
+
+      // 合并数据：只更新 status 和 image_url，保留其他字段（特别是 uuid 和 characters）
+      return {
+        ...existingImage, // 保留所有现有字段（包括 uuid 和 characters）
+        status: newImage.status, // 更新状态
+        image_url: newImage.image_url || existingImage.image_url, // 更新图片URL（如果有新值）
+      };
+    });
+
+    return {
+      ...existingScene,
+      images: mergedImages,
+    };
+  });
 }
 
 // 将 Creation 中的 scenes 数据转换为 StoryboardImages 组件需要的格式
@@ -191,18 +258,7 @@ export default function CreateCreation() {
     },
   });
   const currentTask = useMemo(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[CreatePage] currentTask useMemo triggered', {
-        'taskResponse': taskResponse,
-        'taskResponse?.data': taskResponse?.data,
-        'typeof taskResponse?.data': typeof taskResponse?.data,
-      });
-    }
-
     if (!taskResponse?.data) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[CreatePage] No taskResponse.data, returning undefined');
-      }
       return undefined;
     }
 
@@ -220,19 +276,7 @@ export default function CreateCreation() {
       rawTask = apiResponse;
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[CreatePage] Extracting task from response:', {
-        'apiResponse (taskResponse.data)': apiResponse,
-        'apiResponse keys': apiResponse ? Object.keys(apiResponse) : [],
-        'rawTask': rawTask,
-        'using structure': rawTask === apiResponse ? 'direct task object' : 'nested {data, message}',
-      });
-    }
-
     if (!rawTask) {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[CreatePage] No rawTask, returning undefined');
-      }
       return undefined;
     }
 
@@ -246,20 +290,9 @@ export default function CreateCreation() {
       resource: rawTask.resource,
     };
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[CreatePage] Successfully converted task:', task);
-    }
     return task;
   }, [taskResponse]);
 
-  // 调试日志
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && curCreation?.current_task_id) {
-      console.log('[CreatePage] Current Task ID:', curCreation.current_task_id);
-      console.log('[CreatePage] Current Task Data:', currentTask);
-      console.log('[CreatePage] Task Response:', taskResponse);
-    }
-  }, [curCreation?.current_task_id, currentTask, taskResponse]);
 
   // 使用流程导航 Hook 来管理步骤跳转
   const {
@@ -283,17 +316,6 @@ export default function CreateCreation() {
     debug: process.env.NODE_ENV === 'development',
   });
 
-  // 调试日志 - 输出 flow 状态
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[CreatePage] Flow State:', {
-        currentStep,
-        isFlowLoading,
-        maxAccessibleStep,
-        reason,
-      });
-    }
-  }, [currentStep, isFlowLoading, maxAccessibleStep, reason]);
 
   // 监听路由变化，刷新创作数据
   useEffect(() => {
@@ -382,11 +404,17 @@ export default function CreateCreation() {
     },
   });
 
-  // 当分镜任务数据更新时，更新 storyboardData
+  // 当分镜任务数据更新时，合并更新 storyboardData（只更新 status 和 image_url，保留 uuid 和 characters）
   useEffect(() => {
     if (shotsTaskData?.data?.scenes) {
-      const transformedData = transformShotsToSceneGroups(shotsTaskData.data);
-      setStoryboardData(transformedData);
+      setStoryboardData((prevData) => {
+        const transformedData = transformShotsToSceneGroups(shotsTaskData.data);
+        // 如果之前没有数据，直接使用新数据；否则合并更新
+        if (prevData.length === 0) {
+          return transformedData;
+        }
+        return mergeStoryboardData(prevData, transformedData);
+      });
     }
   }, [shotsTaskData]);
 
@@ -484,19 +512,6 @@ export default function CreateCreation() {
   // 计算综合的 loading 状态（包括所有可能的 loading 情况）
   const isAnyLoading = isFlowLoading || isResubmitting || isGeneratingShots;
 
-  // 调试日志：显示当前的 loading 状态
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[CreatePage] Loading States:', {
-        isFlowLoading,
-        isResubmitting,
-        isGeneratingShots,
-        isAnyLoading,
-        currentTaskId: curCreation?.current_task_id,
-        currentStep,
-      });
-    }
-  }, [isFlowLoading, isResubmitting, isGeneratingShots, isAnyLoading, curCreation?.current_task_id, currentStep]);
 
   const { steps, nextStep } = useProgressSteps(initialSteps, {
     currentStep,

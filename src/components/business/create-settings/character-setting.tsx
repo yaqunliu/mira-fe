@@ -26,6 +26,7 @@ import {
   WandSparkles,
   ArrowRight,
   Maximize2,
+  Users,
 } from "lucide-react";
 import { CharacterEditModal } from "@/components/modals/character-edit-modal";
 import { ImagePreview } from "@/components/ui/image-preview";
@@ -443,20 +444,27 @@ export function CharacterSetting({
   };
 
   return (
-    <div className="h-[calc(100vh-136px)]">
+    <div className="h-[calc(100vh-136px)] relative">
+      {/* 装饰性背景 */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-orange-400/10 dark:bg-orange-400/5 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
       <ModuleLoading
         loading={shouldShowLoading}
         coverFlowContainer={true}
         text={getLoadingText()}
       >
-        <div className="space-y-4 px-6 h-full overflow-y-auto pb-20">
+        <div className="space-y-4 px-6 h-full overflow-y-auto pb-20 relative z-10">
           <div className="flex justify-between items-center">
-            <h3 className="text-base font-semibold">{t("characterSettings")} ({characters.length})</h3>
+            <h3 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-purple-600 dark:from-orange-400 dark:to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
+              <Users className="w-5 h-5 text-orange-500" />
+              {t("characterSettings")} ({characters.length})
+            </h3>
             {/* 生成按钮 */}
             <Button
               onClick={() => gengerateCharacterImages(characters)}
               disabled={isGenerating || isSubmittingCharacters}
-              className="px-4 py-4 text-sm text-primary"
+              className="px-4 py-4 text-sm bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-105 rounded-xl"
               variant="secondary"
             >
               <WandSparkles className="w-3 h-3" />
@@ -478,14 +486,14 @@ export function CharacterSetting({
             </div>
           )}
           {/* 风格选择 */}
-          <div className="space-y-3">
-            <h3 className="text-base text-gray-900 dark:text-gray-400">
+          <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800/50 dark:to-gray-900/30 border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-lg transition-shadow duration-300">
+            <h3 className="text-base font-semibold bg-gradient-to-r from-orange-600 to-pink-600 dark:from-orange-400 dark:to-pink-400 bg-clip-text text-transparent">
               {t("visualStyle")}
             </h3>
             <div className="flex items-center space-x-4">
               {/* <label className="text-sm font-medium">{t("风格选择")}:</label> */}
               <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-[200px] rounded-xl border-2 hover:border-orange-400 transition-colors">
                   <SelectValue placeholder={t("styleSelection")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -500,7 +508,7 @@ export function CharacterSetting({
           </div>
           {/* 角色信息展示 */}
           <div className="space-y-3">
-            <h3 className="text-base text-gray-900 dark:text-gray-400">
+            <h3 className="text-base font-semibold bg-gradient-to-r from-orange-600 to-pink-600 dark:from-orange-400 dark:to-pink-400 bg-clip-text text-transparent">
               {t("characterSettings")}
             </h3>
             <div className="w-full overflow-x-auto">
@@ -510,16 +518,16 @@ export function CharacterSetting({
                     className="flex flex-col w-[65vw] md:w-[240px] lg:w-[300px] flex-shrink-0"
                     key={index}
                   >
-                    <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-b from-orange-200 to-gray-200 dark:from-orange-400/50 dark:to-gray-600/30 rounded-t tracking-wider font-bold flex items-center gap-1">
+                    <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-orange-500/80 dark:to-pink-500/80 text-white rounded-t-xl tracking-wider font-bold flex items-center gap-1 shadow-md">
                       <span>{character.name}</span>
                       <PenLine
-                        className="inline-block w-3 h-3 text-stone-400 cursor-pointer hover:text-primary transition-colors"
+                        className="inline-block w-3 h-3 text-white/80 cursor-pointer hover:text-white hover:scale-110 transition-all"
                         onClick={() => handleEditCharacter(index)}
                       />
                     </div>
                     <Card
                       key={index}
-                      className="w-full bg-gray-100 dark:bg-gray-600/30 rounded-tl-none border-none p-y-3"
+                      className="w-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900/50 rounded-tl-none border-2 border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-tr-xl rounded-b-xl p-y-3"
                     >
                       <CardContent className="space-y-2 px-3">
                         <div className="flex gap-2">
@@ -667,8 +675,8 @@ export function CharacterSetting({
                                   <div className="absolute bottom-2 flex justify-between w-full px-2">
                                     <div
                                       className={cn(
-                                        "py-1 px-2 bg-black/40 hover:bg-black/50 text-white border-0 shadow-lg rounded-full",
-                                        "flex items-center justify-center cursor-pointer"
+                                        "py-1 px-2 bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/90 hover:to-purple-600/90 text-white border-0 shadow-lg rounded-full backdrop-blur-sm",
+                                        "flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110"
                                       )}
                                       onClick={() =>
                                         handleImageClick(character.image_url)
@@ -678,8 +686,8 @@ export function CharacterSetting({
                                     </div>
                                     <div
                                       className={cn(
-                                        "py-1 px-2 bg-black/40 hover:bg-black/50 text-white border-0 shadow-lg rounded-md",
-                                        "flex items-center gap-1 cursor-pointer"
+                                        "py-1 px-2 bg-gradient-to-r from-orange-500/80 to-pink-500/80 hover:from-orange-600/90 hover:to-pink-600/90 text-white border-0 shadow-lg rounded-xl backdrop-blur-sm",
+                                        "flex items-center gap-1 cursor-pointer transition-all duration-200 hover:scale-105"
                                       )}
                                       onClick={() =>
                                         handleRegenerateSingleCharacter(character)
@@ -725,7 +733,7 @@ export function CharacterSetting({
       />
 
       {/* 底部操作浮层 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-700 shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-orange-200/50 dark:border-orange-700/50 shadow-2xl backdrop-blur-sm">
         <div className="px-6 py-4">
           <div className="flex items-center justify-center">
             {/* 右侧操作按钮 */}
@@ -803,15 +811,15 @@ export function CharacterSetting({
               }}
               disabled={isGeneratingPlaybook || (characters.length > 0 && characters.some((character) => !character.image_url))}
               className={cn(
-                "bg-orange-400/80 hover:bg-orange-600 text-white px-6",
+                "bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-6 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-105 rounded-xl",
                 isGeneratingPlaybook ? "w-auto min-w-[120px]" : "w-[120px]",
-                (characters.length > 0 && characters.some((character) => !character.image_url)) && 
-                "opacity-50 cursor-not-allowed"
+                (characters.length > 0 && characters.some((character) => !character.image_url)) &&
+                "opacity-50 cursor-not-allowed hover:scale-100"
               )}
             >
-              {isGeneratingPlaybook 
+              {isGeneratingPlaybook
                 ? (tCreation("playbookGenerationStarted") || "正在生成分镜...")
-                : (creationStatus === CreationStatus.CHARACTER_ANALYZED 
+                : (creationStatus === CreationStatus.CHARACTER_ANALYZED
                     ? t("analyzePlaybook")
                     : t("next"))
               }

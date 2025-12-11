@@ -11,7 +11,6 @@ export default function DebugAuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Supabase session:', session)
       setSupabaseSession(session)
     })
   }, [supabase])
@@ -64,7 +63,6 @@ export default function DebugAuthPage() {
           <button
             onClick={() => {
               const authStorage = localStorage.getItem('auth-storage')
-              console.log('Auth storage:', authStorage)
               alert('Check console for auth-storage')
             }}
             className="px-4 py-2 bg-blue-500 text-white rounded"

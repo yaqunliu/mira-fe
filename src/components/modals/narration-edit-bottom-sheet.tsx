@@ -112,7 +112,7 @@ export function NarrationEditBottomSheet({
         <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6">
           {/* 图片预览 */}
           <div className="flex justify-center">
-            <div className="relative w-32 h-24 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+            <div className="relative w-32 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 border-2 border-purple-200/50 dark:border-purple-700/50 shadow-lg">
               {image.image_url ? (
                 <img
                   src={image.image_url}
@@ -133,14 +133,13 @@ export function NarrationEditBottomSheet({
             name="narration"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                   {t("storyboard.editNarration")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("storyboard.editNarration") + "..."}
-                    className="min-h-[120px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[120px] resize-none rounded-xl border-2 border-purple-200/50 dark:border-purple-700/50 focus:border-purple-400 dark:focus:border-purple-500 transition-colors"
                     {...field}
                   />
                 </FormControl>

@@ -120,13 +120,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             await new Promise(resolve => setTimeout(resolve, 300))
 
             // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
-            console.log('[EmailSignIn] Waiting for user info to sync to store...')
-            const userInfoSynced = await waitForUserInfoInStore(5000, 100)
-            if (userInfoSynced) {
-              console.log('[EmailSignIn] User info synced to store')
-            } else {
-              console.warn('[EmailSignIn] User info sync timeout, but user is already logged in')
-            }
+            await waitForUserInfoInStore(5000, 100)
 
             toast.success('登录成功')
 
@@ -162,13 +156,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
           await new Promise(resolve => setTimeout(resolve, 300))
 
           // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
-          console.log('[EmailSignIn] Waiting for user info to sync to store...')
-          const userInfoSynced = await waitForUserInfoInStore(5000, 100)
-          if (userInfoSynced) {
-              console.log('[EmailSignIn] User info synced to store')
-            } else {
-              console.warn('[EmailSignIn] User info sync timeout, but user is already logged in')
-            }
+          await waitForUserInfoInStore(5000, 100)
 
           toast.success('登录成功')
 

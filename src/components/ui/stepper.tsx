@@ -35,9 +35,9 @@ const stepperVariants = {
 
 const stepVariants = {
   status: {
-    completed: "text-primary bg-orange-100 dark:bg-primary/10 border-primary border-2",
-    current: "text-primary-foreground bg-primary border-primary border-2",
-    upcoming: "text-gray-600 dark:text-muted-foreground bg-gray-200 dark:bg-muted border-gray-300 dark:border-muted-foreground/20 border-2",
+    completed: "text-white bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 border-0 shadow-md shadow-green-500/30",
+    current: "text-white bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-600 dark:to-purple-600 border-0 shadow-lg shadow-blue-500/40 scale-110",
+    upcoming: "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600",
   },
   size: {
     sm: "w-6 h-6 text-xs",
@@ -86,31 +86,20 @@ const StepIndicator = ({
       <div
         className={cn(
           "w-2 h-2 rounded-full transition-all duration-200",
-          step.status === "completed" && "bg-orange-500 dark:bg-primary",
-          step.status === "current" && "bg-orange-500 dark:bg-primary scale-125",
-          step.status === "upcoming" && "bg-gray-400 dark:bg-muted-foreground/30"
+          step.status === "completed" && "bg-gradient-to-r from-green-500 to-emerald-500",
+          step.status === "current" && "bg-gradient-to-r from-blue-500 to-purple-500 scale-125 shadow-md shadow-blue-500/40",
+          step.status === "upcoming" && "bg-gray-400 dark:bg-gray-600"
         )}
       />
     );
   }
 
   return (
-    <div
-      className={cn(
-        baseClasses,
-        step.status === "current" && "border-2 border-orange-500 dark:border-orange-400/50"
-      )}
-    >
+    <div className={cn(baseClasses)}>
       {step.status === "completed" ? (
-        <Check className="w-4 h-4 text-orange-600 dark:text-primary" />
+        <Check className="w-4 h-4 text-white" />
       ) : (
-        <span
-          className={cn(
-            step.status === "current" && "text-white dark:text-primary-foreground",
-            step.status === "upcoming" && "text-gray-700 dark:text-muted-foreground",
-            "text-sm font-semibold"
-          )}
-        >
+        <span className="text-sm font-bold">
           {index + 1}
         </span>
       )}

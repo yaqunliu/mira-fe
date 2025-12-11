@@ -96,62 +96,126 @@ export default function WorkspacePage() {
   }, [pathname, locale, isAuthenticated, handleRefresh]);
 
   return (
-    <div className="container h-screen mx-auto bg-gradient-to-br from-orange-200/60 via-purple-200/30 to-slate-200/30 dark:bg-black dark:from-transparent dark:via-transparent dark:to-transparent flex flex-col landscape-wide">
-      {/* 固定顶部 */}
-      <div className="flex-shrink-0">
+    <div className="container h-screen mx-auto flex flex-col landscape-wide relative overflow-hidden bg-gradient-to-br from-orange-50/80 via-purple-50/60 to-blue-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+      {/* 装饰性背景元素 */}
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-orange-400/10 dark:bg-orange-400/5 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute top-40 -right-20 w-80 h-80 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute -bottom-20 left-1/3 w-60 h-60 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+
+      {/* 固定顶部 - 现代化设计 */}
+      <div className="flex-shrink-0 relative z-10">
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-2xl font-bold text-gradient-primary">
-            {t("home.title")}
-          </h1>
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-orange-500 to-purple-600 rounded-xl shadow-lg">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 via-purple-600 to-blue-600 dark:from-orange-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+              {t("home.title")}
+            </h1>
+          </div>
           {/* 操作栏 */}
           <ActionBar />
         </div>
-        <div className="h-[1px] w-full divider-primary mb-4" />
+        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-purple-200 dark:via-purple-800/30 to-transparent mb-6" />
       </div>
 
       {/* 可滚动内容区域 - 支持下拉刷新 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1">
-        <div className="px-4 pb-6">
-          {/* 签到卡片 */}
-          <div className="mb-4 flex items-center justify-between p-3 rounded-md border border-amber-200 dark:border-amber-800 bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/30">
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-amber-800 dark:text-amber-300">
-                {t("home.dailyCheckin")}
-              </span>
-              <span className="text-xs text-amber-600 dark:text-amber-400">
-                {t("home.checkinDescription")}
-              </span>
-            </div>
-            <CheckinButton />
-          </div>
-          <div className="flex" onClick={() => router.push(`/${locale}/create?from=workspace`)}>
-            <div className="w-1/2 lg:w-50 aspect-[7/3] rounded-md flex items-center justify-center gap-3 border border-orange-300 dark:border-orange-600 bg-gradient-to-br from-violet-100/30 to-orange-300/40 to-95% dark:bg-slate-900 hover:from-violet-200/40 hover:to-orange-400/50 dark:hover:bg-slate-800 cursor-pointer transition-all">
-              <div className="text-lg font-semibold text-orange-800 dark:text-orange-300">
-                {t("home.createAnimation")}
+        <div className="px-4 pb-6 relative z-10">
+          {/* 签到卡片 - 现代化设计 */}
+          <div className="mb-6 group relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-400/20 to-orange-400/20 dark:from-amber-600/10 dark:to-orange-600/10 blur-xl group-hover:blur-2xl transition-all duration-300" />
+            <div className="relative flex items-center justify-between p-5 rounded-2xl border-2 border-amber-200/50 dark:border-amber-800/50 bg-gradient-to-r from-amber-50/80 to-orange-50/80 dark:from-amber-950/40 dark:to-orange-950/40 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-md">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-base font-bold text-amber-800 dark:text-amber-300">
+                    {t("home.dailyCheckin")}
+                  </span>
+                  <span className="text-sm text-amber-600 dark:text-amber-400">
+                    {t("home.checkinDescription")}
+                  </span>
+                </div>
               </div>
-              <FileVideoCamera className="w-6 h-6 text-primary" />
+              <CheckinButton />
+            </div>
+          </div>
+
+          {/* 创建动画按钮 - 现代化设计 */}
+          <div
+            className="group relative overflow-hidden cursor-pointer"
+            onClick={() => router.push(`/${locale}/create?from=workspace`)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-orange-400/20 dark:from-purple-600/10 dark:to-orange-600/10 blur-xl group-hover:blur-2xl transition-all duration-300" />
+            <div className="relative rounded-2xl border-2 border-purple-200/50 dark:border-purple-800/50 bg-gradient-to-br from-purple-100/80 via-pink-100/60 to-orange-100/80 dark:from-purple-950/40 dark:via-pink-950/30 dark:to-orange-950/40 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] p-8">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 bg-gradient-to-br from-purple-600 to-orange-600 rounded-2xl shadow-xl group-hover:scale-110 transition-transform duration-300">
+                    <FileVideoCamera className="w-10 h-10 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-orange-600 dark:from-purple-400 dark:to-orange-400 bg-clip-text text-transparent">
+                      {t("home.createAnimation")}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      {t("home.startYourCreativeJourney")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-6 py-3 bg-white/60 dark:bg-gray-800/60 rounded-xl backdrop-blur-sm border border-purple-200 dark:border-purple-700 group-hover:bg-white/80 dark:group-hover:bg-gray-800/80 transition-colors">
+                  <span className="text-sm font-medium text-purple-700 dark:text-purple-300">{t("home.getStarted")}</span>
+                  <svg className="w-5 h-5 text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <div className="px-4 pb-6">
-          <div className="flex flex-col gap-6">
-            <div className="space-y-3">
-              <div className="flex items-center gap-1 cursor-pointer" onClick={() => router.push(`/${locale}/creations`)}>
-                <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" />
-                <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
+        <div className="px-4 pb-6 relative z-10">
+          <div className="flex flex-col gap-8">
+            {/* 我的创作 - 现代化设计 */}
+            <div className="space-y-4">
+              <div
+                className="flex items-center gap-3 cursor-pointer group"
+                onClick={() => router.push(`/${locale}/creations`)}
+              >
+                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-md group-hover:scale-110 transition-transform">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
                   {t("home.myCreations")}
                 </h2>
+                <svg className="w-5 h-5 text-purple-500 dark:text-purple-400 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </div>
-              <CreationOverview />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/10 to-pink-400/10 dark:from-purple-600/5 dark:to-pink-600/5 blur-xl" />
+                <div className="relative">
+                  <CreationOverview />
+                </div>
+              </div>
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center gap-1">
-                <BookOpenText className="w-4 h-4 text-amber-800 dark:text-amber-400" />
-                <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
+
+            {/* 我的小说 - 现代化设计 */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg shadow-md">
+                  <BookOpenText className="w-5 h-5 text-white" />
+                </div>
+                <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
                   {t("home.myNovels")}
                 </h2>
               </div>
-              <NovelOverview />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/10 to-cyan-400/10 dark:from-blue-600/5 dark:to-cyan-600/5 blur-xl" />
+                <div className="relative">
+                  <NovelOverview />
+                </div>
+              </div>
             </div>
           </div>
         </div>

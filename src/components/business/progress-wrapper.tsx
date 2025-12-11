@@ -158,16 +158,16 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
               variant="outline"
               onClick={prevStep}
               disabled={isFirstStep}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-xl border-2 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
             >
               <ChevronLeft className="w-4 h-4" />
               上一步
             </Button>
-            
+
             <Button
               onClick={nextStep}
               disabled={isLastStep}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:hover:scale-100"
             >
               {isLastStep ? "完成" : "下一步"}
               {!isLastStep && <ChevronRight className="w-4 h-4" />}

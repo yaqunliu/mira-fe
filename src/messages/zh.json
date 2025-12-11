@@ -75,7 +75,9 @@
     "startCreating": "开始制作",
     "noNovelsEmpty": "暂无小说，点击上传第一本小说",
     "dailyCheckin": "每日签到",
-    "checkinDescription": "每日签到可获得积分奖励"
+    "checkinDescription": "每日签到可获得积分奖励",
+    "getStarted": "立即开始",
+    "startYourCreativeJourney": "开启你的创作之旅"
   },
   "homePage": {
     "title": "AI动画短剧创作平台",
