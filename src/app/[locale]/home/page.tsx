@@ -153,15 +153,23 @@ export default function HomePage() {
     }
   }
 
+  const handleBrowseCreations = () => {
+    if (!isAuthenticated) {
+      router.push(`/${locale}/auth/login`)
+    } else {
+      router.push(`/${locale}/creations`)
+    }
+  }
+
   const handleLogin = () => {
     router.push(`/${locale}/auth/login`)
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-orange-50 via-white to-amber-50 dark:from-zinc-950 dark:via-black dark:to-zinc-900">
-      <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-orange-400/25 blur-3xl animate-blob-slow" />
-      <div className="pointer-events-none absolute right-10 top-24 h-72 w-72 rounded-full bg-purple-400/20 blur-3xl animate-blob-slower" />
-      <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-amber-300/25 blur-3xl animate-blob-slow" />
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-orange-200 via-amber-100 to-amber-200 dark:from-zinc-950 dark:via-black dark:to-zinc-900">
+      <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl animate-blob-slow" />
+      <div className="pointer-events-none absolute right-10 top-24 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl animate-blob-slower" />
+      <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-amber-400/10 blur-3xl animate-blob-slow" />
 
       <div className="relative container mx-auto px-4 py-10 lg:py-16">
         {/* 顶部操作栏 */}
@@ -201,7 +209,7 @@ export default function HomePage() {
               <Button
                 variant="outline"
                 size="lg"
-                onClick={() => router.push(`/${locale}/creations`)}
+                onClick={handleBrowseCreations}
                 className="gap-2 rounded-full border-orange-100 bg-white/60 px-6 text-orange-700 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white"
               >
                 <Video className="h-5 w-5" />
@@ -218,9 +226,9 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-tr from-orange-200/60 via-white to-purple-200/60 blur-2xl dark:from-orange-500/10 dark:via-white/5 dark:to-purple-500/10" />
-            <div className="rounded-3xl border border-white/80 bg-white/80 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
+        <div className="relative">
+            <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-tr from-orange-300/50 via-amber-200/40 to-purple-300/40 blur-2xl dark:from-orange-500/10 dark:via-white/5 dark:to-purple-500/10" />
+            <div className="rounded-3xl border border-white/60 bg-white/70 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
               <div className="flex flex-col gap-4 p-6">
                 <div className="flex items-start justify-between">
                   <div>
@@ -234,7 +242,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-orange-100/70 bg-gradient-to-r from-orange-50/80 via-white to-amber-50/70 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:from-orange-500/10 dark:via-white/5 dark:to-amber-400/10">
+                <div className="rounded-2xl border border-orange-100/50 bg-gradient-to-r from-orange-100/70 via-amber-50/60 to-amber-200/60 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:from-orange-500/10 dark:via-white/5 dark:to-amber-400/10">
                   {authLoading || waitingForUserInfo ? (
                     <div className="flex items-center justify-center py-6 text-muted-foreground">
                       {t('common.loading')}
@@ -272,7 +280,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Card className="border-none bg-white/70 p-4 shadow-sm backdrop-blur dark:bg-white/5">
+                  <Card className="border-none bg-white/60 p-4 shadow-sm backdrop-blur dark:bg-white/5">
                     <div className="flex items-center gap-3">
                       <div className="rounded-xl bg-orange-500/10 p-2">
                         <Cpu className="h-5 w-5 text-orange-500" />
@@ -283,7 +291,7 @@ export default function HomePage() {
                       </div>
                     </div>
                   </Card>
-                  <Card className="border-none bg-white/70 p-4 shadow-sm backdrop-blur dark:bg-white/5">
+                  <Card className="border-none bg-white/60 p-4 shadow-sm backdrop-blur dark:bg-white/5">
                     <div className="flex items-center gap-3">
                       <div className="rounded-xl bg-purple-500/10 p-2">
                         <Palette className="h-5 w-5 text-purple-500" />

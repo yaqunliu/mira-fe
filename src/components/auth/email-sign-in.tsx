@@ -184,11 +184,12 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>邮箱</FormLabel>
+                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">邮箱</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="请输入邮箱地址"
+                      placeholder="your@email.com"
+                      className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500/20 transition-all duration-200"
                       {...field}
                       onBlur={(e) => {
                         field.onBlur()
@@ -199,13 +200,13 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
                       }}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40"
               disabled={emailForm.formState.isSubmitting || !emailForm.watch('email')}
             >
               继续
@@ -216,8 +217,8 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
         // 第二步：输入密码
         <Form {...passwordForm}>
           <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{validatedEmail}</span>
+            <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">{validatedEmail}</span>
               <Button
                 type="button"
                 variant="ghost"
@@ -228,23 +229,24 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
                   emailForm.reset()
                   passwordForm.reset()
                 }}
-                className="text-xs"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/40"
               >
                 更改
               </Button>
             </div>
-            
+
             <FormField
               control={passwordForm.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>密码</FormLabel>
+                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">密码</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="请输入密码"
+                        className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500/20 transition-all duration-200 pr-10"
                         {...field}
                         autoFocus
                       />
@@ -252,7 +254,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -263,14 +265,14 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg shadow-blue-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-blue-500/40"
               disabled={passwordForm.formState.isSubmitting}
             >
               {passwordForm.formState.isSubmitting ? '登录中...' : '登录'}

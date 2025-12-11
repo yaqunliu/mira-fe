@@ -104,11 +104,12 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>邮箱</FormLabel>
+                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">邮箱</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="请输入邮箱地址"
+                      placeholder="your@email.com"
+                      className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 transition-all duration-200"
                       {...field}
                       onBlur={(e) => {
                         field.onBlur(e)
@@ -118,13 +119,13 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
                       }}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full h-11 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium shadow-lg shadow-green-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/40"
               disabled={emailForm.formState.isSubmitting || !emailForm.watch('email')}
             >
               继续
@@ -135,8 +136,8 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
         // 第二步：输入密码
         <Form {...passwordForm}>
           <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">{validatedEmail}</span>
+            <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+              <span className="text-sm text-green-700 dark:text-green-300 font-medium">{validatedEmail}</span>
               <Button
                 type="button"
                 variant="ghost"
@@ -147,23 +148,24 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
                   emailForm.reset()
                   passwordForm.reset()
                 }}
-                className="text-xs"
+                className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/40"
               >
                 更改
               </Button>
             </div>
-            
+
             <FormField
               control={passwordForm.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>密码</FormLabel>
+                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">密码</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="请输入密码（至少6个字符）"
+                        placeholder="至少6个字符"
+                        className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 transition-all duration-200 pr-10"
                         {...field}
                         autoFocus
                       />
@@ -171,7 +173,7 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
@@ -182,7 +184,7 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -192,19 +194,20 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>确认密码</FormLabel>
+                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">确认密码</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="请再次输入密码"
+                        placeholder="再次输入密码"
+                        className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 transition-all duration-200 pr-10"
                         {...field}
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? (
@@ -215,14 +218,14 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full h-11 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium shadow-lg shadow-green-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/40"
               disabled={passwordForm.formState.isSubmitting}
             >
               {passwordForm.formState.isSubmitting ? '注册中...' : '注册'}
