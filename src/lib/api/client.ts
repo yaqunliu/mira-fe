@@ -1,16 +1,19 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { useAuthStore } from '@/stores/auth'
 import type { ApiResponse } from '@/types'
+import { createClient } from '@/lib/supabase/client'
 
 class ApiClient {
   private client: AxiosInstance
+  private isRefreshing = false
+  private refreshSubscribers: Array<(token: string) => void> = []
 
   constructor() {
     // 如果设置了完整的 API URL（不以 / 开头），直接使用
     // 否则使用空字符串，让 Next.js rewrites 处理代理
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const baseURL = apiUrl && !apiUrl.startsWith('/') ? apiUrl : '';
-    
+
     this.client = axios.create({
       baseURL,
       timeout: 30000,
@@ -20,6 +23,15 @@ class ApiClient {
     })
 
     this.setupInterceptors()
+  }
+
+  private onRefreshed(token: string) {
+    this.refreshSubscribers.forEach(callback => callback(token))
+    this.refreshSubscribers = []
+  }
+
+  private addRefreshSubscriber(callback: (token: string) => void) {
+    this.refreshSubscribers.push(callback)
   }
 
   private setupInterceptors() {
@@ -52,15 +64,61 @@ class ApiClient {
         return response
       },
       async (error) => {
-        const originalRequest = error.config as InternalAxiosRequestConfig
+        const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
 
-        // 如果是401错误，直接登出（登录和注册请求的401错误除外）
-        const isAuthRequest = originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/register')
-        
-        if (error.response?.status === 401 && !isAuthRequest) {
-          useAuthStore.getState().logout()
-          const errorMessage = error.response?.data?.message || error.message || '认证失败，请重新登录'
-          return Promise.reject(new Error(errorMessage))
+        // 如果是401错误
+        const isAuthRequest = originalRequest.url?.includes('/auth/login') ||
+                             originalRequest.url?.includes('/auth/register') ||
+                             originalRequest.url?.includes('/auth/sync-supabase-user')
+
+        if (error.response?.status === 401 && !isAuthRequest && !originalRequest._retry) {
+          if (this.isRefreshing) {
+            // 如果正在刷新，将请求加入队列
+            return new Promise((resolve) => {
+              this.addRefreshSubscriber((token: string) => {
+                originalRequest.headers.Authorization = `Bearer ${token}`
+                resolve(this.client(originalRequest))
+              })
+            })
+          }
+
+          originalRequest._retry = true
+          this.isRefreshing = true
+
+          try {
+            // 尝试刷新 token
+            const supabase = createClient()
+            const { data, error: refreshError } = await supabase.auth.refreshSession()
+
+            if (data.session?.access_token) {
+              // 刷新成功
+              const payload = JSON.parse(atob(data.session.access_token.split('.')[1]))
+              const expiresIn = payload.exp ? payload.exp - Math.floor(Date.now() / 1000) : 3600
+
+              // 更新 store 中的 token
+              useAuthStore.getState().updateToken(data.session.access_token, expiresIn)
+
+              // 更新原请求的 Authorization header
+              originalRequest.headers.Authorization = `Bearer ${data.session.access_token}`
+
+              // 通知所有等待的请求
+              this.onRefreshed(data.session.access_token)
+
+              // 重试原请求
+              return this.client(originalRequest)
+            } else {
+              // 刷新失败，登出用户
+              console.error('[ApiClient] Token refresh failed:', refreshError)
+              useAuthStore.getState().logout()
+              return Promise.reject(new Error('认证已过期，请重新登录'))
+            }
+          } catch (refreshError) {
+            console.error('[ApiClient] Token refresh error:', refreshError)
+            useAuthStore.getState().logout()
+            return Promise.reject(new Error('认证已过期，请重新登录'))
+          } finally {
+            this.isRefreshing = false
+          }
         }
 
         // 其他错误正常处理
