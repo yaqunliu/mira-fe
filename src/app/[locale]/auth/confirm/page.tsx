@@ -35,7 +35,7 @@ export default function ConfirmPage() {
         // 验证邮箱 - 根据 type 参数选择验证类型
         const { error } = await supabase.auth.verifyOtp({
           token_hash: tokenHash,
-          type: type as any, // 'signup', 'email', 'invite' 等
+          type: type as any, // 'signup', 'email', 'invite', 'recovery' 等
         })
 
         if (error) {
@@ -44,9 +44,15 @@ export default function ConfirmPage() {
           setErrorMessage(error.message || '邮箱验证失败')
         } else {
           setStatus('success')
-          // 3秒后自动跳转到登录页面
+          // 根据类型决定跳转页面
           setTimeout(() => {
-            router.push(`/${locale}/auth/login`)
+            if (type === 'recovery') {
+              // 密码重置跳转到重置密码页面
+              router.push(`/${locale}/auth/reset-password`)
+            } else {
+              // 其他类型跳转到登录页面
+              router.push(`/${locale}/auth/login`)
+            }
           }, 3000)
         }
       } catch (error) {
@@ -60,7 +66,12 @@ export default function ConfirmPage() {
   }, [searchParams, router, locale])
 
   const handleGoToLogin = () => {
-    router.push(`/${locale}/auth/login`)
+    const type = searchParams.get('type')
+    if (type === 'recovery') {
+      router.push(`/${locale}/auth/reset-password`)
+    } else {
+      router.push(`/${locale}/auth/login`)
+    }
   }
 
   return (
@@ -85,7 +96,7 @@ export default function ConfirmPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-            邮箱验证
+            {searchParams.get('type') === 'recovery' ? '密码重置验证' : '邮箱验证'}
           </h1>
         </div>
 
@@ -100,7 +111,7 @@ export default function ConfirmPage() {
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      正在验证您的邮箱...
+                      {searchParams.get('type') === 'recovery' ? '正在验证重置请求...' : '正在验证您的邮箱...'}
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       请稍候，我们正在处理您的验证请求
@@ -122,13 +133,15 @@ export default function ConfirmPage() {
                       验证成功！
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      您的邮箱已成功验证，即将跳转到登录页面...
+                      {searchParams.get('type') === 'recovery'
+                        ? '即将跳转到密码重置页面...'
+                        : '您的邮箱已成功验证，即将跳转到登录页面...'}
                     </p>
                     <Button
                       onClick={handleGoToLogin}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     >
-                      立即前往登录
+                      {searchParams.get('type') === 'recovery' ? '立即重置密码' : '立即前往登录'}
                     </Button>
                   </div>
                 </>

@@ -17,6 +17,7 @@ import { authApi } from '@/lib/api/auth'
 import { Eye, EyeOff } from 'lucide-react'
 import type { User } from '@/types'
 import { waitForSupabaseSession, waitForUserInfoInStore } from '@/lib/utils/wait-for-supabase-token'
+import Link from 'next/link'
 
 const emailSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
@@ -240,7 +241,15 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">密码</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">密码</FormLabel>
+                    <Link
+                      href={`/${locale}/auth/forgot-password`}
+                      className="text-xs text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    >
+                      忘记密码？
+                    </Link>
+                  </div>
                   <FormControl>
                     <div className="relative">
                       <Input
