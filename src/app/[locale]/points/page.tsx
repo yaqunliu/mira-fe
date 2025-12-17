@@ -61,19 +61,12 @@ export default function PointsPage() {
     enabled: !balanceLoading && !!balance,
   })
 
-  // 查询积分统计
-  const { data: statistics } = useQuery({
-    queryKey: ['points', 'statistics'],
-    queryFn: () => pointsApi.getStatistics(),
-  })
-
   // 下拉刷新处理函数
   const handleRefresh = useCallback(async () => {
     // 重新获取所有积分相关数据
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['points', 'balance'] }),
       queryClient.invalidateQueries({ queryKey: ['points', 'records'] }),
-      queryClient.invalidateQueries({ queryKey: ['points', 'statistics'] }),
     ])
   }, [queryClient])
 
@@ -194,76 +187,6 @@ export default function PointsPage() {
             </div>
           </div>
 
-          {/* 统计信息 - 现代化设计 */}
-          {statistics && (
-            <div className="mb-6">
-              <h2 className="text-lg font-bold mb-3 flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-500" />
-                {t('statistics')}
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 border border-green-200/50 dark:border-green-700/30 p-4 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20 hover:scale-105">
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-green-400/10 rounded-full blur-2xl transition-all duration-300 group-hover:bg-green-400/20" />
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1.5 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                        <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-                      </div>
-                      <span className="text-xs font-medium text-green-700 dark:text-green-300">{t('totalEarned')}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-green-600 dark:text-green-400 transition-all duration-300 group-hover:scale-110">
-                      {statistics.total_earned}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-red-500/10 to-rose-500/10 dark:from-red-500/20 dark:to-rose-500/20 border border-red-200/50 dark:border-red-700/30 p-4 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20 hover:scale-105">
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-red-400/10 rounded-full blur-2xl transition-all duration-300 group-hover:bg-red-400/20" />
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1.5 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                        <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
-                      </div>
-                      <span className="text-xs font-medium text-red-700 dark:text-red-300">{t('totalConsumed')}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-red-600 dark:text-red-400 transition-all duration-300 group-hover:scale-110">
-                      {statistics.total_consumed}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20 border border-blue-200/50 dark:border-blue-700/30 p-4 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 hover:scale-105">
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-blue-400/10 rounded-full blur-2xl transition-all duration-300 group-hover:bg-blue-400/20" />
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1.5 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                        <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                      </div>
-                      <span className="text-xs font-medium text-blue-700 dark:text-blue-300">{t('todayConsumed')}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 transition-all duration-300 group-hover:scale-110">
-                      {statistics.today_consumed}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 dark:from-purple-500/20 dark:to-pink-500/20 border border-purple-200/50 dark:border-purple-700/30 p-4 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20 hover:scale-105">
-                  <div className="absolute -top-4 -right-4 w-20 h-20 bg-purple-400/10 rounded-full blur-2xl transition-all duration-300 group-hover:bg-purple-400/20" />
-                  <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                        <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{t('monthConsumed')}</span>
-                    </div>
-                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 transition-all duration-300 group-hover:scale-110">
-                      {statistics.month_consumed}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* 筛选和记录列表 - 现代化设计 */}
           <div className="space-y-4">

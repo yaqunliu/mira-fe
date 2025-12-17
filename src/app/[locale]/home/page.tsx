@@ -180,27 +180,23 @@ export default function HomePage() {
               onClick={() => router.push(`/${locale}/home`)}
               className="flex items-center gap-3 group cursor-pointer"
             >
-              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/20 hover:border-white/30 transition-all shadow-lg">
-                <Image
-                  src="/favicon.png"
-                  alt="Mira"
-                  width={48}
-                  height={48}
-                  className="object-contain p-1.5"
-                />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gradient-primary lg:text-4xl group-hover:opacity-80 transition-opacity">
-                  {t('homePage.title')}
-                </h1>
-                <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-sm text-muted-foreground shadow-sm ring-1 ring-orange-100/80 backdrop-blur dark:bg-white/5 dark:ring-white/10 mt-2">
-                  <Sparkles className="h-4 w-4 text-orange-500" />
-                  {t('homePage.heroBadge')}
-                </p>
-              </div>
+              <Image
+                src="/favicon.png"
+                alt="Mira"
+                width={48}
+                height={48}
+                className="object-contain group-hover:opacity-80 transition-opacity"
+              />
+              <h1 className="text-3xl font-bold text-gradient-primary lg:text-4xl group-hover:opacity-80 transition-opacity">
+                {t('homePage.title')}
+              </h1>
             </button>
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-sm text-muted-foreground shadow-sm ring-1 ring-orange-100/80 backdrop-blur dark:bg-white/5 dark:ring-white/10">
+              <Sparkles className="h-4 w-4 text-orange-500" />
+              {t('homePage.heroBadge')}
+            </p>
           </div>
-          <ActionBar />
+          {/* 隐藏签到按钮 */}
         </div>
 
         <div className="grid items-center gap-10 lg:grid-cols-2">
