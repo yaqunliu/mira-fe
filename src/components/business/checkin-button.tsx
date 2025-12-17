@@ -9,7 +9,11 @@ import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth'
 import { usePointsStore } from '@/stores/points'
 
-export function CheckinButton() {
+interface CheckinButtonProps {
+  className?: string
+}
+
+export function CheckinButton({ className }: CheckinButtonProps = {}) {
   const t = useTranslations('points')
   const { isAuthenticated } = useAuthStore()
   const { setBalance } = usePointsStore()
@@ -71,7 +75,7 @@ export function CheckinButton() {
     <Button
       variant={isCheckedIn ? 'outline' : 'default'}
       size="sm"
-      className="h-8 gap-1.5"
+      className={`h-8 gap-1.5 ${className || ''}`}
       onClick={handleCheckin}
       disabled={isCheckedIn || isLoading}
     >

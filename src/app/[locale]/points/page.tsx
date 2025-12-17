@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { pointsApi } from '@/lib/api/points'
 import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
-import { ChevronLeft, Coins, TrendingUp, TrendingDown, Calendar, Sparkles, Award, Zap } from 'lucide-react'
+import { Coins, TrendingUp, TrendingDown, Calendar, Sparkles, Award, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -101,17 +101,6 @@ export default function PointsPage() {
       {/* 固定头部区域 */}
       <div className="flex-shrink-0">
         <div className="container mx-auto px-4 pt-4 pb-2 max-w-4xl landscape-wide">
-          {/* 返回按钮 */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="mb-2"
-            onClick={() => router.back()}
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            {t('back')}
-          </Button>
-
           {/* 页面标题 */}
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -338,17 +327,17 @@ export default function PointsPage() {
                 ))}
               </div>
             ) : recordsData && recordsData.items.length > 0 ? (
-              <div className="space-y-3 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
                 {recordsData.items.map((record, index) => (
                   <div
                     key={record.record_id}
-                    className="group relative overflow-hidden rounded-xl border-2 border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 p-4 transition-all duration-300 hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 hover:scale-[1.02] animate-in fade-in slide-in-from-bottom-4"
+                    className="group relative overflow-hidden rounded-xl border-2 border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 p-4 transition-all duration-300 hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 hover:scale-[1.02] animate-in fade-in slide-in-from-bottom-4 flex flex-col"
                     style={{ animationDelay: `${index * 50}ms` }}
                   >
                     {/* 装饰性渐变边框效果 */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                    <div className="relative z-10 flex flex-col gap-3 flex-1">
                       <div className="flex-1 space-y-2 min-w-0">
                         {/* 操作名称和记录类型 */}
                         <div className="flex flex-wrap items-center gap-2">
@@ -375,14 +364,14 @@ export default function PointsPage() {
                           )}
                         </div>
                         {record.description && (
-                          <div className="text-xs text-gray-600 dark:text-gray-400 break-words leading-relaxed">
+                          <div className="text-xs text-gray-600 dark:text-gray-400 break-words leading-relaxed line-clamp-2">
                             {record.description}
                           </div>
                         )}
                         <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
                           <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
                             <Calendar className="h-3 w-3 shrink-0" />
-                            <span>{formatDate(record.created_at)}</span>
+                            <span className="truncate">{formatDate(record.created_at)}</span>
                           </div>
                           {/* 显示临时积分标识 */}
                           {(record.points_type === 'daily_checkin' || record.points_type === 'checkin' || record.expires_at) && (
@@ -394,25 +383,25 @@ export default function PointsPage() {
                         </div>
                       </div>
                       {/* 积分显示 */}
-                      <div className="flex sm:flex-col sm:text-right items-center sm:items-end justify-between sm:justify-start gap-2 shrink-0">
+                      <div className="flex flex-col items-start gap-2 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
                         <div
-                          className={`text-2xl font-bold flex items-center gap-1 ${
+                          className={`text-xl font-bold flex items-center gap-1 ${
                             record.points > 0
                               ? 'text-green-600 dark:text-green-400'
                               : 'text-red-600 dark:text-red-400'
                           }`}
                         >
                           {record.points > 0 ? (
-                            <TrendingUp className="h-5 w-5" />
+                            <TrendingUp className="h-4 w-4" />
                           ) : (
-                            <TrendingDown className="h-5 w-5" />
+                            <TrendingDown className="h-4 w-4" />
                           )}
                           <span>
                             {record.points > 0 ? '+' : ''}
                             {record.points}
                           </span>
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg whitespace-nowrap">
+                        <div className="text-xs text-gray-500 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
                           {t('balanceAfter')}: {record.balance_after}
                         </div>
                       </div>

@@ -367,44 +367,54 @@ export function StorySetting() {
                         />
                       </div>
                       {selectedChapters.length > 0 && (
-                        <div className="flex items-center gap-3 pt-4 pb-2 flex-shrink-0 border-t-2 border-blue-200/30 dark:border-blue-700/30 px-2">
-                          {renderSelectedChapterInfo()}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 pt-4 pb-2 flex-shrink-0 border-t-2 border-blue-200/30 dark:border-blue-700/30 px-2">
+                          <div className="w-full sm:flex-1 sm:min-w-0">
+                            {renderSelectedChapterInfo()}
+                          </div>
 
-                          {/* 配置按钮 */}
-                          <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="lg"
-                                className="flex-shrink-0 rounded-xl border-2 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
-                              >
-                                <Settings className="w-4 h-4 mr-2" />
-                                {t("creation.config") || "配置"}
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[550px] max-h-[85vh] overflow-y-auto">
-                              <DialogHeader>
-                                <DialogTitle className="text-xl font-semibold">
-                                  {t("creation.modelConfig") || "创作配置"}
-                                </DialogTitle>
-                                <DialogDescription>
-                                  {t("creation.modelConfigDescription") || "选择用于生成创作的模型和模式"}
-                                </DialogDescription>
-                              </DialogHeader>
+                          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 w-full sm:w-auto">
+                            {/* 配置按钮 */}
+                            <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
+                              <DialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="lg"
+                                  className="flex-1 sm:flex-initial rounded-xl border-2 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
+                                >
+                                  <Settings className="w-4 h-4 mr-2" />
+                                  {t("creation.config") || "配置"}
+                                </Button>
+                              </DialogTrigger>
+                            <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-white/10">
+                              <div className="overflow-y-auto flex-1 px-6 py-5">
+                                <DialogHeader className="mb-6">
+                                  <div className="flex items-center gap-3 mb-2">
+                                    <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30">
+                                      <Settings className="w-5 h-5 text-amber-400" />
+                                    </div>
+                                    <DialogTitle className="text-2xl font-bold text-white">
+                                      {t("creation.modelConfig") || "创作配置"}
+                                    </DialogTitle>
+                                  </div>
+                                  <DialogDescription className="text-slate-400 text-sm">
+                                    {t("creation.modelConfigDescription") || "选择用于生成创作的模型和模式"}
+                                  </DialogDescription>
+                                </DialogHeader>
                               
-                              <div className="space-y-6 py-4">
+                              <div className="space-y-5">
                                 {/* LLM 模型选择 */}
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
                                     {t("creation.llmModel") || "文生文模型"}
                                   </Label>
                                   <Select value={llmModel} onValueChange={setLlmModel}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
                                       <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="bg-slate-800 border-white/10">
                                       {modelConfigs.llm.map((model) => (
-                                        <SelectItem key={model.model_name} value={model.model_name}>
+                                        <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
                                           {model.display_name}
                                         </SelectItem>
                                       ))}
@@ -413,33 +423,36 @@ export function StorySetting() {
                                   {llmModel && (() => {
                                     const selectedModel = modelConfigs.llm.find(m => m.model_name === llmModel);
                                     return selectedModel && (
-                                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                      <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
                                         {selectedModel.description && (
-                                          <p>{selectedModel.description}</p>
+                                          <p className="text-slate-300">{selectedModel.description}</p>
                                         )}
-                                        <p>
-                                          {t("creation.maxTokens") || "最大Token数"}: {selectedModel.config?.max_tokens || "-"}
-                                        </p>
-                                        <p>
-                                          {t("creation.supportedLanguages") || "支持语言"}: {Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}
-                                        </p>
+                                        <div className="flex items-center gap-4 flex-wrap">
+                                          <span>
+                                            {t("creation.maxTokens") || "最大Token数"}: <span className="text-white font-medium">{selectedModel.config?.max_tokens || "-"}</span>
+                                          </span>
+                                          <span>
+                                            {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                          </span>
+                                        </div>
                                       </div>
                                     );
                                   })()}
                                 </div>
                                 
                                 {/* 文生图模型选择 */}
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
                                     {t("creation.textToImageModel") || "文生图模型"}
                                   </Label>
                                   <Select value={textToImageModel} onValueChange={setTextToImageModel}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
                                       <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="bg-slate-800 border-white/10">
                                       {modelConfigs.text_to_image.map((model) => (
-                                        <SelectItem key={model.model_name} value={model.model_name}>
+                                        <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
                                           {model.display_name}
                                         </SelectItem>
                                       ))}
@@ -448,33 +461,36 @@ export function StorySetting() {
                                   {textToImageModel && (() => {
                                     const selectedModel = modelConfigs.text_to_image.find(m => m.model_name === textToImageModel);
                                     return selectedModel && (
-                                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                      <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
                                         {selectedModel.description && (
-                                          <p>{selectedModel.description}</p>
+                                          <p className="text-slate-300">{selectedModel.description}</p>
                                         )}
-                                        <p>
-                                          {t("creation.aspectRatio") || "宽高比"}: {selectedModel.config?.aspect_ratio || "-"}
-                                        </p>
-                                        <p>
-                                          {t("creation.supportedLanguages") || "支持语言"}: {Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}
-                                        </p>
+                                        <div className="flex items-center gap-4 flex-wrap">
+                                          <span>
+                                            {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
+                                          </span>
+                                          <span>
+                                            {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                          </span>
+                                        </div>
                                       </div>
                                     );
                                   })()}
                                 </div>
                                 
                                 {/* 图生图模型选择 */}
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
                                     {t("creation.imageToImageModel") || "图生图模型"}
                                   </Label>
                                   <Select value={imageToImageModel} onValueChange={setImageToImageModel}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
                                       <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="bg-slate-800 border-white/10">
                                       {modelConfigs.image_to_image.map((model) => (
-                                        <SelectItem key={model.model_name} value={model.model_name}>
+                                        <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
                                           {model.display_name}
                                         </SelectItem>
                                       ))}
@@ -483,47 +499,59 @@ export function StorySetting() {
                                   {imageToImageModel && (() => {
                                     const selectedModel = modelConfigs.image_to_image.find(m => m.model_name === imageToImageModel);
                                     return selectedModel && (
-                                      <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                      <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
                                         {selectedModel.description && (
-                                          <p>{selectedModel.description}</p>
+                                          <p className="text-slate-300">{selectedModel.description}</p>
                                         )}
-                                        <p>
-                                          {t("creation.aspectRatio") || "宽高比"}: {selectedModel.config?.aspect_ratio || "-"}
-                                        </p>
-                                        <p>
-                                          {t("creation.supportedLanguages") || "支持语言"}: {Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}
-                                        </p>
+                                        <div className="flex items-center gap-4 flex-wrap">
+                                          <span>
+                                            {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
+                                          </span>
+                                          <span>
+                                            {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                          </span>
+                                        </div>
                                       </div>
                                     );
                                   })()}
                                 </div>
                                 
                                 {/* 解说词模式选择 */}
-                                <div className="space-y-2">
-                                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
                                     {t("creation.narrationMode") || "解说词模式"}
                                   </Label>
                                   <Select value={narrationMode} onValueChange={(value) => setNarrationMode(value as "original" | "rewrite")}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
                                       <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="original">
+                                    <SelectContent className="bg-slate-800 border-white/10">
+                                      <SelectItem value="original" className="text-white hover:bg-white/10">
                                         {t("creation.originalMode") || "原文模式"}
                                       </SelectItem>
-                                      <SelectItem value="rewrite">
+                                      <SelectItem value="rewrite" className="text-white hover:bg-white/10">
                                         {t("creation.rewriteMode") || "爽文模式"}
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>
-                                  <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+                                  <div className="text-xs text-slate-400 pt-2 border-t border-white/10">
                                     {narrationMode === "original" ? (
-                                      <p>{t("creation.originalModeDesc") || "保持原文内容，仅进行场景分解"}</p>
+                                      <p className="text-slate-300">{t("creation.originalModeDesc") || "保持原文内容，仅进行场景分解"}</p>
                                     ) : (
-                                      <p>{t("creation.rewriteModeDesc") || "改写缩短文本，使用快节奏的解说方式"}</p>
+                                      <p className="text-slate-300">{t("creation.rewriteModeDesc") || "改写缩短文本，使用快节奏的解说方式"}</p>
                                     )}
                                   </div>
                                 </div>
+                              </div>
+                            </div>
+                            <div className="flex-shrink-0 px-6 py-4 border-t border-white/10 bg-slate-900/50">
+                                <Button
+                                  onClick={() => setIsConfigDialogOpen(false)}
+                                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium"
+                                >
+                                  {t("common.confirm") || "确认"}
+                                </Button>
                               </div>
                             </DialogContent>
                           </Dialog>
@@ -539,6 +567,7 @@ export function StorySetting() {
                             {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.analyzeCharacters")}
                             <ArrowRight className="w-4 h-4 ml-1" />
                           </Button>
+                          </div>
                         </div>
                       )}
                     </div>

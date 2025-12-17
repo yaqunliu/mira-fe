@@ -5,7 +5,6 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "next-themes";
 
 export interface BottomSheetAction {
   label: string;
@@ -79,13 +78,6 @@ export function BottomSheet({
   contentClassName,
 }: BottomSheetProps) {
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
-  const { theme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  // 等待客户端挂载，避免服务端渲染不一致
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // 获取屏幕尺寸和断点
   const getScreenSize = () => {
@@ -149,19 +141,12 @@ export function BottomSheet({
   // 计算弹窗高度（像素值）
   const sheetHeight = getSheetHeight();
 
-  // 获取当前实际的主题
-  const currentTheme = mounted ? (resolvedTheme || theme) : undefined;
-  const isDark = currentTheme === "dark";
-
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         {/* 遮罩层 */}
         <DialogPrimitive.Overlay 
-          className={cn(
-            "fixed inset-0 z-50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            isDark ? "bg-black/50" : "bg-black/50"
-          )} 
+          className="fixed inset-0 z-50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 bg-black/50"
         />
         
         {/* 弹窗内容 */}
@@ -172,7 +157,7 @@ export function BottomSheet({
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
             "duration-300",
-            isDark ? "bg-zinc-900" : "bg-white",
+            "bg-zinc-900",
             className
           )}
           style={{
@@ -184,39 +169,24 @@ export function BottomSheet({
         >
           {/* 顶部拖动指示条 */}
           <div className="flex items-center justify-center pt-4 pb-2 flex-shrink-0">
-            <div className={cn(
-              "w-12 h-1.5 rounded-full",
-              isDark ? "bg-zinc-700" : "bg-zinc-300"
-            )} />
+            <div className="w-12 h-1.5 rounded-full bg-zinc-700" />
           </div>
 
           {/* 关闭按钮 */}
           {showCloseButton && (
-            <DialogPrimitive.Close className={cn(
-              "absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none z-10",
-              isDark ? "text-zinc-400" : "text-zinc-500"
-            )}>
+            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none z-10 text-zinc-400">
               <X className="h-6 w-6" />
               <span className="sr-only">关闭</span>
             </DialogPrimitive.Close>
           )}
 
           {/* 标题区域 */}
-          <div className={cn(
-            "flex flex-col space-y-2 px-6 pb-4 flex-shrink-0 border-b",
-            isDark ? "border-zinc-700" : "border-zinc-200"
-          )}>
-            <DialogPrimitive.Title className={cn(
-              "text-lg font-semibold leading-none tracking-tight",
-              isDark ? "text-zinc-100" : "text-zinc-900"
-            )}>
+          <div className="flex flex-col space-y-2 px-6 pb-4 flex-shrink-0 border-b border-zinc-700">
+            <DialogPrimitive.Title className="text-lg font-semibold leading-none tracking-tight text-zinc-100">
               {title}
             </DialogPrimitive.Title>
             {description && (
-              <DialogPrimitive.Description className={cn(
-                "text-sm",
-                isDark ? "text-zinc-400" : "text-zinc-500"
-              )}>
+              <DialogPrimitive.Description className="text-sm text-zinc-400">
                 {description}
               </DialogPrimitive.Description>
             )}
@@ -240,11 +210,7 @@ export function BottomSheet({
 
           {/* 底部操作栏 */}
           {actions && actions.length > 0 && (
-            <div className={cn(
-              "flex flex-row items-center gap-4 px-6 py-5 border-t flex-shrink-0",
-              isDark ? "border-zinc-700 bg-zinc-800" : "border-zinc-200 bg-zinc-50",
-              
-            )}>
+            <div className="flex flex-row items-center gap-4 px-6 py-5 border-t flex-shrink-0 border-zinc-700 bg-zinc-800">
               {actions.map((action, index) => (
                 <Button
                   key={index}

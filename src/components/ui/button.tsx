@@ -57,8 +57,15 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >
-      {icon}
-      {children}
+      {/* asChild 模式下只能有单一子节点，避免 Slot 报错 */}
+      {asChild ? (
+        children
+      ) : (
+        <>
+          {icon}
+          {children}
+        </>
+      )}
     </Comp>
   )
 }

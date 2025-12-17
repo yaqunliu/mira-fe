@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Play, Plus, ChevronRight, Trash2, Search, Sparkles, Film } from "lucide-react";
+import { Play, Plus, ChevronLeft, ChevronRight, Trash2, Search, Sparkles, Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
@@ -213,7 +213,7 @@ export default function CreationsPage() {
 
   const handleCreationClick = (creation: ICreation) => {
     const creationUuid = (creation as any).uuid || creation.creation_id;
-    router.push(`/${locale}/create?creationId=${creationUuid}&from=creations`);
+    router.push(`/${locale}/create?creationId=${creationUuid}`);
   };
 
   const handleDelete = (creationId: string) => {
@@ -231,18 +231,10 @@ export default function CreationsPage() {
 
         <div className="relative z-10 container mx-auto px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-4">
-            <div
-              className="flex items-center gap-2 cursor-pointer group"
-              onClick={() => router.back()}
-            >
-              <div className="p-1.5 rounded-lg bg-purple-100 dark:bg-purple-900/30 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/40 transition-colors">
-                <ChevronLeft className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-purple-500" />
-                {t("creation.creationList")}
-              </h1>
-            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-purple-500" />
+              {t("creation.creationList")}
+            </h1>
           </div>
         </div>
       </div>
@@ -262,7 +254,7 @@ export default function CreationsPage() {
                 className="pl-11 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
               />
             </div>
-            <Link href={`/${locale}/create?from=creations`}>
+            <Link href={`/${locale}/create`}>
               <Button
                 className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105"
               >
@@ -325,7 +317,7 @@ export default function CreationsPage() {
                     <p className="text-gray-600 dark:text-gray-400">
                       {t("creation.noCreationsDescription")}
                     </p>
-                    <Link href={`/${locale}/create?from=creations`}>
+                    <Link href={`/${locale}/create`}>
                       <Button className="h-12 px-8 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105">
                         <Plus className="h-5 w-5 mr-2" />
                         {t("creation.createCreation")}

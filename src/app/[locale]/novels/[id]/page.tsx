@@ -5,7 +5,6 @@ import { useRouter, useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   BookOpen,
   User,
   Calendar,
@@ -200,10 +199,6 @@ export default function NovelDetailPage() {
   // 如果主响应中没有数据，使用单独的查询结果
   const finalCharacters = characters?.length ? characters : ((charactersResponse as any)?.data?.data || (charactersResponse as any)?.data || []);
   const finalCreations = creations?.length ? creations : ((creationsResponse as any)?.data?.data || (creationsResponse as any)?.data || []);
-
-  const handleBack = () => {
-    router.back();
-  };
 
   const handleCreateVideo = async (chapterUuid?: string) => {
     if (!chapterUuid) {
@@ -607,8 +602,7 @@ export default function NovelDetailPage() {
             <p className="text-sm text-muted-foreground mb-4">
               {error instanceof Error ? error.message : '加载失败'}
             </p>
-            <Button onClick={handleBack} className="mt-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4">
               {t("novelDetail.back")}
             </Button>
           </div>
@@ -629,8 +623,7 @@ export default function NovelDetailPage() {
             <p className="text-sm text-muted-foreground mb-4">
               小说ID: {novelId}
             </p>
-            <Button onClick={handleBack} className="mt-4">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4">
               {t("novelDetail.back")}
             </Button>
           </div>
@@ -643,13 +636,6 @@ export default function NovelDetailPage() {
     <div className="h-screen flex flex-col">
       {/* 头部导航 */}
       <div className="flex justify-between flex-shrink-0">
-        <div
-          className="flex items-center gap-1 m-3"
-          onClick={() => router.back()}
-        >
-          <ChevronLeft className="w-4 h-4 text-secondary" />
-          <h1 className="text-base text-secondary">{t("novelDetail.back")}</h1>
-        </div>
       </div>
       <div className="h-[1px] w-full divider-primary flex-shrink-0" />
 

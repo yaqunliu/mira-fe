@@ -233,18 +233,10 @@ export default function NovelsPage() {
 
         <div className="relative z-10 container mx-auto px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-4">
-            <div
-              className="flex items-center gap-2 cursor-pointer group"
-              onClick={() => router.push(`/${locale}/workspace`)}
-            >
-              <div className="p-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 group-hover:bg-green-200 dark:group-hover:bg-green-800/40 transition-colors">
-                <ChevronLeft className="w-5 h-5 text-green-600 dark:text-green-400" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-teal-600 dark:from-green-400 dark:to-teal-400 bg-clip-text text-transparent flex items-center gap-2">
-                <BookMarked className="w-6 h-6 text-green-500" />
-                {t("novel.novelList")}
-              </h1>
-            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-teal-600 dark:from-green-400 dark:to-teal-400 bg-clip-text text-transparent flex items-center gap-2">
+              <BookMarked className="w-6 h-6 text-green-500" />
+              {t("novel.novelList")}
+            </h1>
           </div>
         </div>
       </div>

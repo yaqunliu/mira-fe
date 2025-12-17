@@ -18,6 +18,9 @@ export type OperationType =
   | 'register'
   | 'daily_checkin'
   | 'temporary_points_expire'
+  | 'purchase'
+  | 'subscription'
+  | 'refund'
 
 // 积分余额响应
 export interface PointsBalance {

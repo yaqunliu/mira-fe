@@ -62,6 +62,7 @@ export const useAuthStore = create<AuthState>()(
         // 退出登录时清空其他 store 的数据
         usePointsStore.getState().clearBalance()
         
+        // 清除状态
         set({
           user: null,
           token: null,
@@ -69,6 +70,15 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
           isLoading: false,
         })
+        
+        // 显式清除 localStorage 中的持久化数据，确保彻底清除
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem('auth-storage')
+          } catch (error) {
+            console.error('[AuthStore] Failed to clear localStorage:', error)
+          }
+        }
       },
       
       setLoading: (loading: boolean) => {

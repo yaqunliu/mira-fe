@@ -4,29 +4,6 @@
 
 @layer base {
   :root {
-    --background: 0 0% 90%;
-    --foreground: 20 14.3% 4.1%;
-    --card: 0 0% 90%;
-    --card-foreground: 20 14.3% 4.1%;
-    --popover: 0 0% 90%;
-    --popover-foreground: 20 14.3% 4.1%;
-    --primary: 24.6 95% 53.1%;
-    --primary-foreground: 60 9.1% 97.8%;
-    --secondary: 60 4.8% 95.9%;
-    --secondary-foreground: 24 9.8% 10%;
-    --muted: 60 4.8% 95.9%;
-    --muted-foreground: 55.1% 0.027 264.364;
-    --accent: 60 4.8% 95.9%;
-    --accent-foreground: 24 9.8% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 60 9.1% 97.8%;
-    --border: 214 32% 75%;
-    --input: 214 32% 75%;
-    --ring: 24.6 95% 53.1%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
     --background: 20 14.3% 4.1%;
     --foreground: 60 9.1% 97.8%;
     --card: 20 14.3% 4.1%;
@@ -46,6 +23,7 @@
     --border: 12 6.5% 15.1%;
     --input: 12 6.5% 15.1%;
     --ring: 20.5 90.2% 48.2%;
+    --radius: 0.5rem;
   }
 }
 
@@ -75,42 +53,30 @@
 
 @layer utilities {
   .bg-primary {
-    @apply bg-orange-50 dark:bg-orange-400/70;
+    @apply bg-orange-400/70;
   }
   .bg-secondary {
-    @apply bg-gray-50 dark:bg-gray-600/30;
+    @apply bg-gray-600/30;
   }
   .text-primary {
-    @apply text-orange-600 dark:text-orange-400;
+    @apply text-orange-400;
   }
   .text-secondary {
-    @apply text-gray-600 dark:text-gray-400;
+    @apply text-gray-400;
   }
   .text-gradient-primary {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-800 to-amber-700;
-  }
-  .dark .text-gradient-primary {
-    @apply from-orange-600 to-slate-300;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-orange-600 to-slate-300;
   }
 
   .divider-primary {
-    @apply bg-orange-800/20;
-  }
-  .dark .divider-primary {
     @apply bg-stone-800;
   }
 
   .bg-primary-gradient {
-    @apply bg-gradient-to-br from-orange-700 to-amber-400;
-  }
-  .dark .bg-primary-gradient {
-    @apply from-orange-500/50 to-gray-500/50;
+    @apply bg-gradient-to-br from-orange-500/50 to-gray-500/50;
   }
   .bg-primary-gradient-secondary {
-    @apply bg-gradient-to-br from-orange-700 to-amber-400;
-  }
-  .dark .bg-primary-gradient-secondary {
-    @apply from-orange-500/40 to-gray-500/30;
+    @apply bg-gradient-to-br from-orange-500/40 to-gray-500/30;
   }
 
   .placeholder {
@@ -118,26 +84,23 @@
   }
 
   .border-input {
-    @apply border-[1.5px] border-gray-400 dark:border-gray-600 dark:bg-gray-700/30
+    @apply border-[1.5px] border-gray-600 bg-gray-700/30;
   }
 
   .input {
-    @apply border-[1.5px] border-gray-400 dark:border-gray-600 dark:bg-gray-700/30;
+    @apply border-[1.5px] border-gray-600 bg-gray-700/30;
   }
 
   .bg-popover {
-    @apply bg-neutral-50;
-  }
-  .dark .bg-popover {
     @apply bg-neutral-800;
   }
 
   .skeleton {
-    @apply bg-zinc-200 dark:bg-zinc-800 rounded-md animate-pulse;
+    @apply bg-zinc-800 rounded-md animate-pulse;
   }
 
   .bg-card-custom {
-    @apply bg-zinc-300 dark:bg-zinc-800;
+    @apply bg-zinc-800;
   }
 
   /* 覆盖 Tailwind 原生字体大小，使其响应式 */

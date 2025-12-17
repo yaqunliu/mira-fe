@@ -41,12 +41,7 @@ export function CreationOverview() {
   // 所有创作都可以点击进入详情
   const handleCreationClick = (creation: ICreation) => {
     const creationUuid = (creation as any).uuid || creation.creation_id;
-    // 获取当前路径，判断来源页面
-    const currentPath = window.location.pathname;
-    const fromPage = currentPath.includes("/workspace") ? "workspace" : 
-                     currentPath.includes("/creations") ? "creations" : "";
-    const fromParam = fromPage ? `&from=${fromPage}` : "";
-    router.push(`/${locale}/create?creationId=${creationUuid}${fromParam}`);
+    router.push(`/${locale}/create?creationId=${creationUuid}`);
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
@@ -93,12 +88,7 @@ export function CreationOverview() {
         <Button
           size="sm"
           onClick={() => {
-            // 获取当前路径，判断来源页面
-            const currentPath = window.location.pathname;
-            const fromPage = currentPath.includes("/workspace") ? "workspace" : 
-                             currentPath.includes("/creations") ? "creations" : "";
-            const fromParam = fromPage ? `?from=${fromPage}` : "";
-            router.push(`/${locale}/create${fromParam}`);
+            router.push(`/${locale}/create`);
           }}
           className="text-xs"
         >

@@ -23,6 +23,7 @@ import {
   ArrowRight,
   MousePointerClick,
 } from 'lucide-react'
+import Image from 'next/image'
 import { ActionBar } from '@/components/business/action-bar'
 
 export default function HomePage() {
@@ -166,7 +167,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-orange-200 via-amber-100 to-amber-200 dark:from-zinc-950 dark:via-black dark:to-zinc-900">
+    <div className="relative min-h-screen bg-gradient-to-b from-orange-200 via-amber-100 to-amber-200 dark:from-zinc-950 dark:via-black dark:to-zinc-900">
       <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl animate-blob-slow" />
       <div className="pointer-events-none absolute right-10 top-24 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl animate-blob-slower" />
       <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-amber-400/10 blur-3xl animate-blob-slow" />
@@ -174,14 +175,30 @@ export default function HomePage() {
       <div className="relative container mx-auto px-4 py-10 lg:py-16">
         {/* 顶部操作栏 */}
         <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-sm text-muted-foreground shadow-sm ring-1 ring-orange-100/80 backdrop-blur dark:bg-white/5 dark:ring-white/10">
-              <Sparkles className="h-4 w-4 text-orange-500" />
-              {t('homePage.heroBadge')}
-            </p>
-            <h1 className="mt-3 text-3xl font-bold text-gradient-primary lg:text-4xl">
-              {t('homePage.title')}
-            </h1>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push(`/${locale}/home`)}
+              className="flex items-center gap-3 group cursor-pointer"
+            >
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/20 hover:border-white/30 transition-all shadow-lg">
+                <Image
+                  src="/favicon.png"
+                  alt="Mira"
+                  width={48}
+                  height={48}
+                  className="object-contain p-1.5"
+                />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gradient-primary lg:text-4xl group-hover:opacity-80 transition-opacity">
+                  {t('homePage.title')}
+                </h1>
+                <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-sm text-muted-foreground shadow-sm ring-1 ring-orange-100/80 backdrop-blur dark:bg-white/5 dark:ring-white/10 mt-2">
+                  <Sparkles className="h-4 w-4 text-orange-500" />
+                  {t('homePage.heroBadge')}
+                </p>
+              </div>
+            </button>
           </div>
           <ActionBar />
         </div>

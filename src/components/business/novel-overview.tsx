@@ -46,7 +46,7 @@ export function NovelOverview() {
     responseData?.items ||        // { items: [...] }
     (Array.isArray(responseData) ? responseData : []); // 直接数组
   
-  const displayNovels = novels.slice(0, 3); // 只显示前3本小说
+  const displayNovels = novels.slice(0, 5); // 显示前5本小说
 
   const handleViewMore = () => {
     router.push(`/${locale}/novels`);
@@ -71,8 +71,8 @@ export function NovelOverview() {
 
   if (isNovelsLoading) {
     return (
-      <div className="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        {[...Array(3)].map((_, i) => (
+      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
+        {[...Array(6)].map((_, i) => (
           <div key={i} className="rounded-md aspect-[3/4] w-full skeleton" />
         ))}
       </div>
@@ -109,8 +109,8 @@ export function NovelOverview() {
 
   return (
     <div className="space-y-3">
-      {/* 书籍网格布局 */}
-      <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3">
+      {/* 书籍网格布局：横版一行6个（5个小说+1个查看更多），竖版两行每行3个 */}
+      <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
         {displayNovels.map((novel: Novel) => (
           <div
             key={novel.novel_id}
@@ -160,17 +160,23 @@ export function NovelOverview() {
             </div>
           </div>
         ))}
-      </div>
 
-      {novels.length > 0 && (
-        <button
-          onClick={handleViewMore}
-          className="w-full text-xs text-secondary underline flex items-center justify-center gap-1 py-2 rounded-md hover:bg-accent transition-colors"
-        >
-          {t("home.viewMore")}
-          <ChevronRight className="h-3 w-3" />
-        </button>
-      )}
+        {/* 查看更多卡片 */}
+        {novels.length > 0 && (
+          <div onClick={handleViewMore} className="group cursor-pointer">
+            <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-2 border-dashed border-slate-300 dark:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-700/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transform group-hover:scale-105">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ChevronRight className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
+                </div>
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400 text-center px-2">
+                  {t("home.viewMore")}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* 上传弹窗 */}
       <NovelUploadModal

@@ -11,7 +11,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
     <NextThemesProvider
       attribute="class"
-      defaultTheme="dark"
+      forcedTheme="dark"
       enableSystem={false}
       storageKey="novel2video-theme"
     >

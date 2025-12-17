@@ -9,7 +9,6 @@ import {
   useProgressSteps,
   type ProgressStep,
 } from "@/components/business/progress-wrapper";
-import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { StorySetting } from "@/components/business/create-settings/story-setting";
 import { ScriptSetting } from "@/components/business/create-settings/script-setting";
@@ -153,7 +152,6 @@ export default function CreateCreation() {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const creationIdFromUrl = searchParams?.get("creationId") || "";
-  const fromPage = searchParams?.get("from") || ""; // 获取来源页面参数
   const [creationId, setCreationId] = useState<string>(creationIdFromUrl);
   const prevPathnameRef = useRef<string | null>(null);
   const prevCreationIdRef = useRef<string | null>(null);
@@ -676,41 +674,29 @@ export default function CreateCreation() {
   };
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col overflow-y-auto landscape-wide">
-      <div
-        className="flex items-center gap-1 m-3 cursor-pointer"
-        onClick={() => {
-          // 根据来源页面决定返回到哪里
-          if (fromPage === "workspace") {
-            router.push(`/${locale}/workspace`);
-          } else if (fromPage === "creations") {
-            router.push(`/${locale}/creations`);
-          } else {
-            // 默认返回到 home，或者使用 router.back()
-            router.back();
-          }
-        }}
-      >
-        <ChevronLeft className="w-4 h-4 text-primary" />
-        <h1 className="text-lg text-gradient-primary">
+    <div className="w-full h-full flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 flex items-center gap-1 px-4 py-3 lg:px-6 lg:py-4">
+        <h1 className="text-lg lg:text-xl font-semibold text-gradient-primary">
           {t("createVideo.createAnimation")}
         </h1>
       </div>
-      <div className="h-[1px] w-full divider-primary mb-4" />
-      <div className="relative flex-1" id="creation-flow-container">
-        <ProgressWrapper
-          steps={steps}
-          currentStep={currentStep}
-          maxAccessibleStep={isAnyLoading ? currentStep : maxAccessibleStep}
-          orientation="horizontal"
-          variant="default"
-          size="sm"
-          showNavigation={false}
-          onStepChange={handleStepChange}
-          onComplete={handleComplete}
-          className="px-6"
-        />
-        <div>{renderStepContent()}</div>
+      <div className="h-[1px] w-full divider-primary flex-shrink-0" />
+      <div className="flex-1 overflow-y-auto overflow-x-hidden" id="creation-flow-container">
+        <div className="container mx-auto max-w-7xl px-4 py-4 lg:px-6 lg:py-6">
+          <ProgressWrapper
+            steps={steps}
+            currentStep={currentStep}
+            maxAccessibleStep={isAnyLoading ? currentStep : maxAccessibleStep}
+            orientation="horizontal"
+            variant="default"
+            size="sm"
+            showNavigation={false}
+            onStepChange={handleStepChange}
+            onComplete={handleComplete}
+            className="mb-6"
+          />
+          <div className="min-h-0">{renderStepContent()}</div>
+        </div>
       </div>
     </div>
   );
