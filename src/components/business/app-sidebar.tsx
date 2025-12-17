@@ -25,6 +25,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Wand2,
+  Repeat,
 } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -375,7 +376,7 @@ export function AppSidebar() {
                 </button>
                 {/* 充值按钮 */}
                 <button
-                  onClick={() => handleNavClick(`/${locale}/pricing`)}
+                  onClick={() => window.open(`/${locale}/pricing`, '_blank', 'noopener,noreferrer')}
                   className={cn(
                     'w-full flex items-center rounded-lg text-sm font-medium transition-all',
                     isCollapsed
@@ -389,6 +390,25 @@ export function AppSidebar() {
                     <>
                       <Sparkles className="h-4 w-4 flex-shrink-0" />
                       <span>{t('recharge', { default: '立即充值' })}</span>
+                    </>
+                  )}
+                </button>
+                {/* 订阅管理按钮 */}
+                <button
+                  onClick={() => window.open(`/${locale}/subscriptions`, '_blank', 'noopener,noreferrer')}
+                  className={cn(
+                    'w-full flex items-center rounded-lg text-sm font-medium transition-all',
+                    isCollapsed
+                      ? 'justify-center px-2 py-2 bg-transparent hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300'
+                      : 'justify-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md hover:shadow-lg'
+                  )}
+                >
+                  {isCollapsed ? (
+                    <span className="text-xs font-medium">{t('subscriptionsShort', { default: '订阅' })}</span>
+                  ) : (
+                    <>
+                      <Repeat className="h-4 w-4 flex-shrink-0" />
+                      <span>{t('subscriptions', { default: '我的订阅' })}</span>
                     </>
                   )}
                 </button>

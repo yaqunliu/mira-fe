@@ -6,14 +6,16 @@ import { useTranslations } from 'next-intl'
 import { useParams, useRouter } from 'next/navigation'
 import { productsApi, type Product } from '@/lib/api/products'
 import { ordersApi } from '@/lib/api/orders'
+import { subscriptionsApi, type Subscription } from '@/lib/api/subscriptions'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast } from 'sonner'
-import { Sparkles, ShieldCheck, Clock, ArrowUpRight, Coins, Repeat, Loader2 } from 'lucide-react'
+import { Sparkles, ShieldCheck, Clock, ArrowUpRight, Coins, Repeat, Loader2, CheckCircle2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useAuthStore } from '@/stores/auth'
 
 const FALLBACK_ONETIME: Product[] = [
   { uuid: 'fallback-1', product_id: 0, name: '8000 积分', price: 1990, currency: 'USD', billing_type: 'onetime', points_amount: 8000, status: 'active' },
@@ -37,12 +39,14 @@ function PriceCard({
   onPurchase,
   t,
   isLoading,
+  hasActiveSubscription,
 }: {
   product: Product
   highlight?: string
   onPurchase: (p: Product) => void
   t: any
   isLoading?: boolean
+  hasActiveSubscription?: boolean
 }) {
   return (
     <Card className="group relative flex flex-col h-full overflow-hidden border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-800/70 shadow-xl backdrop-blur transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-white/20">
@@ -94,15 +98,25 @@ function PriceCard({
             </ul>
           )}
         </div>
-        <Button
-          className="w-full flex-shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 transition-all duration-300 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
-          onClick={() => onPurchase(product)}
-          disabled={isLoading}
-        >
-          {product.billing_type === 'onetime'
-            ? t('pricing.buyNow', { default: '立即购买' })
-            : t('pricing.subscribeNow', { default: '立即订阅' })}
-        </Button>
+        {hasActiveSubscription && product.billing_type === 'recurring' ? (
+          <Button
+            className="w-full flex-shrink-0 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            disabled
+          >
+            <CheckCircle2 className="h-4 w-4 mr-2" />
+            {t('pricing.alreadySubscribed', { default: '已订阅' })}
+          </Button>
+        ) : (
+          <Button
+            className="w-full flex-shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 transition-all duration-300 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            onClick={() => onPurchase(product)}
+            disabled={isLoading}
+          >
+            {product.billing_type === 'onetime'
+              ? t('pricing.buyNow', { default: '立即购买' })
+              : t('pricing.subscribeNow', { default: '立即订阅' })}
+          </Button>
+        )}
       </CardContent>
     </Card>
   )
@@ -115,6 +129,7 @@ export default function PricingPage() {
   const router = useRouter()
   const [tab, setTab] = useState<'onetime' | 'recurring'>('recurring')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { isAuthenticated } = useAuthStore()
 
   const { data: onetimeData, isLoading: loadingOnetime, error: onetimeError } = useQuery({
     queryKey: ['products', 'onetime'],
@@ -125,6 +140,15 @@ export default function PricingPage() {
     queryKey: ['products', 'recurring'],
     queryFn: () => productsApi.list({ billing_type: 'recurring', status: 'active', page_size: 50 }),
     retry: 1,
+  })
+  
+  // 查询用户当前活跃订阅
+  const { data: activeSubscriptions, isLoading: loadingSubscriptions } = useQuery({
+    queryKey: ['subscriptions', 'active'],
+    queryFn: () => subscriptionsApi.getActive(),
+    enabled: isAuthenticated, // 只有登录用户才查询
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // 5分钟内不重新请求
   })
   
   // 调试：打印错误信息
@@ -143,6 +167,18 @@ export default function PricingPage() {
     const data = subsData as any
     return data?.items || data?.data?.items || FALLBACK_SUBS
   }, [subsData])
+  
+  // 创建产品UUID到订阅的映射，用于快速查找
+  const productSubscriptionMap = useMemo(() => {
+    if (!activeSubscriptions) return new Map<string, Subscription>()
+    const map = new Map<string, Subscription>()
+    activeSubscriptions.forEach((sub) => {
+      if (sub.product?.uuid) {
+        map.set(sub.product.uuid, sub)
+      }
+    })
+    return map
+  }, [activeSubscriptions])
 
   const handlePurchase = async (product: Product) => {
     setIsSubmitting(true)
@@ -160,8 +196,8 @@ export default function PricingPage() {
       const successUrlWithOrder = `${window.location.origin}/${locale}/payment/success?order_uuid=${order.uuid}`
       
       if (order.checkout_url) {
-        // 新标签页打开支付页面
-        window.open(order.checkout_url, '_blank', 'noopener,noreferrer')
+        // 在当前页面打开支付页面
+        window.location.href = order.checkout_url
       } else {
         toast.error(t('pricing.errorNoCheckoutUrl', { default: '未获取到支付链接' }))
       }
@@ -257,6 +293,7 @@ export default function PricingPage() {
                     onPurchase={handlePurchase}
                     t={t}
                     isLoading={isSubmitting}
+                    hasActiveSubscription={!!productSubscriptionMap.get(p.uuid)}
                   />
                 ))}
               </div>

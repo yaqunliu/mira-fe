@@ -515,7 +515,8 @@
     "recommended": "推荐",
     "yearSave": "年付更省",
     "errorNoCheckoutUrl": "未获取到支付链接",
-    "errorCreateOrder": "创建订单失败"
+    "errorCreateOrder": "创建订单失败",
+    "alreadySubscribed": "已订阅"
   },
   "payment": {
     "processing": "正在处理支付...",
@@ -544,7 +545,39 @@
     "pointsBalance": "积分余额",
     "recharge": "立即充值",
     "rechargeShort": "充值",
+    "subscriptions": "我的订阅",
+    "subscriptionsShort": "订阅",
     "login": "登录",
     "logout": "退出登录"
+  },
+  "subscriptions": {
+    "title": "我的订阅",
+    "headline": "订阅管理",
+    "subtitle": "查看和管理您的订阅服务",
+    "statusActive": "活跃",
+    "statusPastDue": "逾期",
+    "statusCancelled": "已取消",
+    "statusExpired": "已过期",
+    "pointsPerPeriod": "积分/周期",
+    "billingYear": "年付",
+    "billingMonth": "月付",
+    "currentPeriod": "订阅周期",
+    "periodStart": "开始",
+    "periodEnd": "结束",
+    "nextBilling": "下次扣款",
+    "noBillingDate": "-",
+    "cancelAtPeriodEnd": "已设置到期取消，本周期结束后不再自动扣费",
+    "cancelledAt": "已取消于",
+    "cancelSubscription": "取消订阅",
+    "manageSubscription": "管理订阅",
+    "manageSubscriptionDesc": "跳转到 Creem 客户门户管理订阅",
+    "cancelSuccess": "已设置到期取消，当前周期结束后不再扣费",
+    "cancelError": "取消订阅失败",
+    "confirmCancel": "确定要取消订阅吗？取消后当前周期结束将不再自动扣费。",
+    "loginRequired": "请先登录以查看您的订阅",
+    "noSubscriptions": "您还没有任何订阅",
+    "browsePlans": "浏览套餐",
+    "loadError": "加载订阅失败",
+    "alreadySubscribed": "已订阅"
   }
 }

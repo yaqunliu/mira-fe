@@ -507,7 +507,8 @@
     "recommended": "Recommended",
     "yearSave": "Save with Yearly",
     "errorNoCheckoutUrl": "Failed to get checkout URL",
-    "errorCreateOrder": "Failed to create order"
+    "errorCreateOrder": "Failed to create order",
+    "alreadySubscribed": "Already Subscribed"
   },
   "payment": {
     "processing": "Processing payment...",
@@ -536,7 +537,39 @@
     "pointsBalance": "Points Balance",
     "recharge": "Recharge Now",
     "rechargeShort": "Recharge",
+    "subscriptions": "My Subscriptions",
+    "subscriptionsShort": "Subscriptions",
     "login": "Login",
     "logout": "Logout"
+  },
+  "subscriptions": {
+    "title": "My Subscriptions",
+    "headline": "Subscription Management",
+    "subtitle": "View and manage your subscription services",
+    "statusActive": "Active",
+    "statusPastDue": "Past Due",
+    "statusCancelled": "Cancelled",
+    "statusExpired": "Expired",
+    "pointsPerPeriod": "points/period",
+    "billingYear": "Yearly",
+    "billingMonth": "Monthly",
+    "currentPeriod": "Subscription Period",
+    "periodStart": "Start",
+    "periodEnd": "End",
+    "nextBilling": "Next Billing",
+    "noBillingDate": "-",
+    "cancelAtPeriodEnd": "Set to cancel at period end; no further charges after this cycle",
+    "cancelledAt": "Cancelled at",
+    "cancelSubscription": "Cancel Subscription",
+    "manageSubscription": "Manage Subscription",
+    "manageSubscriptionDesc": "Go to Creem customer portal to manage subscription",
+    "cancelSuccess": "Set to cancel at period end; no further charges after this cycle",
+    "cancelError": "Failed to cancel subscription",
+    "confirmCancel": "Cancel subscription? After this cycle it will stop auto-billing.",
+    "loginRequired": "Please login to view your subscriptions",
+    "noSubscriptions": "You don't have any subscriptions yet",
+    "browsePlans": "Browse Plans",
+    "loadError": "Failed to load subscriptions",
+    "alreadySubscribed": "Already Subscribed"
   }
 }

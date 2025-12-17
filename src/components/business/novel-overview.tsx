@@ -53,7 +53,7 @@ export function NovelOverview() {
   };
 
   const handleNovelClick = (novelUuid: string) => {
-    router.push(`/${locale}/novels/${novelUuid}`);
+    window.open(`/${locale}/novels/${novelUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleUploadClick = () => {

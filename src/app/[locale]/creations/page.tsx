@@ -213,7 +213,7 @@ export default function CreationsPage() {
 
   const handleCreationClick = (creation: ICreation) => {
     const creationUuid = (creation as any).uuid || creation.creation_id;
-    router.push(`/${locale}/create?creationId=${creationUuid}`);
+    window.open(`/${locale}/create?creationId=${creationUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleDelete = (creationId: string) => {

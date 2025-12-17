@@ -41,7 +41,7 @@ export function CreationOverview() {
   // 所有创作都可以点击进入详情
   const handleCreationClick = (creation: ICreation) => {
     const creationUuid = (creation as any).uuid || creation.creation_id;
-    router.push(`/${locale}/create?creationId=${creationUuid}`);
+    window.open(`/${locale}/create?creationId=${creationUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
