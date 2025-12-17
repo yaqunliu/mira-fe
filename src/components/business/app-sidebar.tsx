@@ -24,6 +24,7 @@ import {
   LayoutDashboard,
   ChevronLeft,
   ChevronRight,
+  Wand2,
 } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -87,7 +88,7 @@ export function AppSidebar() {
     },
     {
       label: t('create', { default: '创作' }),
-      icon: Sparkles,
+      icon: Wand2,
       href: `/${locale}/create`,
       translationKey: 'create',
     },
