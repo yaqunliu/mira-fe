@@ -250,90 +250,92 @@ export default function PointsPage() {
                 ))}
               </div>
             ) : recordsData && recordsData.items.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
-                {recordsData.items.map((record, index) => (
-                  <div
-                    key={record.record_id}
-                    className="group relative overflow-hidden rounded-xl border-2 border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 p-4 transition-all duration-300 hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 hover:scale-[1.02] animate-in fade-in slide-in-from-bottom-4 flex flex-col"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    {/* 装饰性渐变边框效果 */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                  {recordsData.items.map((record, index) => (
+                    <div
+                      key={record.record_id}
+                      className="group relative overflow-hidden rounded-xl border-2 border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 p-4 transition-all duration-300 hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 hover:scale-[1.02] animate-in fade-in slide-in-from-bottom-4 flex flex-col"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      {/* 装饰性渐变边框效果 */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-                    <div className="relative z-10 flex flex-col gap-3 flex-1">
-                      <div className="flex-1 space-y-2 min-w-0">
-                        {/* 操作名称和记录类型 */}
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
-                            {getOperationName(record.operation_type)}
-                          </span>
-                          <Badge
-                            variant="outline"
-                            className={`text-xs shrink-0 border-2 font-medium ${
-                              record.points > 0
-                                ? 'border-green-500/50 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 dark:border-green-500/30'
-                                : 'border-red-500/50 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 dark:border-red-500/30'
-                            }`}
-                          >
-                            {getRecordTypeName(record.record_type)}
-                          </Badge>
-                          {record.expires_at && (
+                      <div className="relative z-10 flex flex-col gap-3 flex-1">
+                        <div className="flex-1 space-y-2 min-w-0">
+                          {/* 操作名称和记录类型 */}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+                              {getOperationName(record.operation_type)}
+                            </span>
                             <Badge
                               variant="outline"
-                              className="text-xs border-2 border-orange-500/50 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-500/30 shrink-0 animate-pulse"
+                              className={`text-xs shrink-0 border-2 font-medium ${
+                                record.points > 0
+                                  ? 'border-green-500/50 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 dark:border-green-500/30'
+                                  : 'border-red-500/50 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 dark:border-red-500/30'
+                              }`}
                             >
-                              {t('expiresAt')}: {formatDate(record.expires_at)}
+                              {getRecordTypeName(record.record_type)}
                             </Badge>
-                          )}
-                        </div>
-                        {record.description && (
-                          <div className="text-xs text-gray-600 dark:text-gray-400 break-words leading-relaxed line-clamp-2">
-                            {record.description}
+                            {record.expires_at && (
+                              <Badge
+                                variant="outline"
+                                className="text-xs border-2 border-orange-500/50 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-500/30 shrink-0 animate-pulse"
+                              >
+                                {t('expiresAt')}: {formatDate(record.expires_at)}
+                              </Badge>
+                            )}
                           </div>
-                        )}
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-                          <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
-                            <Calendar className="h-3 w-3 shrink-0" />
-                            <span className="truncate">{formatDate(record.created_at)}</span>
-                          </div>
-                          {/* 显示临时积分标识 */}
-                          {(record.points_type === 'daily_checkin' || record.points_type === 'checkin' || record.expires_at) && (
-                            <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-lg">
-                              <Sparkles className="h-3 w-3" />
-                              <span>{t('dailyCheckinPoints')}</span>
+                          {record.description && (
+                            <div className="text-xs text-gray-600 dark:text-gray-400 break-words leading-relaxed line-clamp-2">
+                              {record.description}
                             </div>
                           )}
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
+                            <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
+                              <Calendar className="h-3 w-3 shrink-0" />
+                              <span className="truncate">{formatDate(record.created_at)}</span>
+                            </div>
+                            {/* 显示临时积分标识 */}
+                            {(record.points_type === 'daily_checkin' || record.points_type === 'checkin' || record.expires_at) && (
+                              <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-lg">
+                                <Sparkles className="h-3 w-3" />
+                                <span>{t('dailyCheckinPoints')}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      {/* 积分显示 */}
-                      <div className="flex flex-col items-start gap-2 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
-                        <div
-                          className={`text-xl font-bold flex items-center gap-1 ${
-                            record.points > 0
-                              ? 'text-green-600 dark:text-green-400'
-                              : 'text-red-600 dark:text-red-400'
-                          }`}
-                        >
-                          {record.points > 0 ? (
-                            <TrendingUp className="h-4 w-4" />
-                          ) : (
-                            <TrendingDown className="h-4 w-4" />
-                          )}
-                          <span>
-                            {record.points > 0 ? '+' : ''}
-                            {record.points}
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
-                          {t('balanceAfter')}: {record.balance_after}
+                        {/* 积分显示 */}
+                        <div className="flex flex-col items-start gap-2 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
+                          <div
+                            className={`text-xl font-bold flex items-center gap-1 ${
+                              record.points > 0
+                                ? 'text-green-600 dark:text-green-400'
+                                : 'text-red-600 dark:text-red-400'
+                            }`}
+                          >
+                            {record.points > 0 ? (
+                              <TrendingUp className="h-4 w-4" />
+                            ) : (
+                              <TrendingDown className="h-4 w-4" />
+                            )}
+                            <span>
+                              {record.points > 0 ? '+' : ''}
+                              {record.points}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
+                            {t('balanceAfter')}: {record.balance_after}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                {/* 分页 */}
+                  ))}
+                </div>
+                {/* 分页 - 单独放在最底下一行 */}
                 {recordsData.total > pageSize && (
-                  <div className="mt-6 flex justify-center">
+                  <div className="mt-6 flex justify-center w-full">
                     <Pagination>
                       <PaginationContent className="gap-1">
                         <PaginationItem>
@@ -409,7 +411,7 @@ export default function PointsPage() {
                     </Pagination>
                   </div>
                 )}
-              </div>
+              </>
             ) : (
               <div className="text-center py-12 mt-4">
                 <div className="flex flex-col items-center gap-3">

@@ -54,9 +54,9 @@ export function AppSidebar() {
 
   useEffect(() => {
     setMounted(true)
-    // 桌面端默认展开，移动端默认收起
+    // 刷新后默认收起（无论桌面端还是移动端）
     if (typeof window !== 'undefined') {
-      setIsCollapsed(window.innerWidth >= 1024 ? false : true)
+      setIsCollapsed(true)
     }
   }, [])
 
@@ -115,7 +115,9 @@ export function AppSidebar() {
   const handleLogout = async () => {
     // 使用 Supabase 登出（处理 Supabase 端的登出）
     const supabase = createClient()
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     
     // 清空所有用户相关的 React Query 缓存
     clearUserDataCache(queryClient)
