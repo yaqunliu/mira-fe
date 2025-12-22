@@ -500,11 +500,13 @@
     "feature3": "ポイント永久有効 · 永続利用",
     "buyNow": "今すぐ購入",
     "subscribeNow": "今すぐ購読",
+    "processing": "支払い送信中...",
     "popular": "人気",
     "recommended": "おすすめ",
     "yearSave": "年間でお得",
     "errorNoCheckoutUrl": "チェックアウトURLの取得に失敗しました",
-    "errorCreateOrder": "注文の作成に失敗しました"
+    "errorCreateOrder": "注文の作成に失敗しました",
+    "alreadySubscribed": "既に購読済み"
   },
   "payment": {
     "processing": "支払い処理中...",
