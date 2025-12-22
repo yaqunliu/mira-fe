@@ -22,9 +22,29 @@ export function GoogleSignIn({ locale = 'zh' }: GoogleSignInProps) {
   const { login } = useAuthStore()
   const queryClient = useQueryClient()
 
+  const clearSupabaseLocalAuth = () => {
+    try {
+      const keys = [
+        'sb-auth-token',
+        'supabase.auth.token',
+      ]
+      keys.forEach((k) => localStorage.removeItem(k))
+      Object.keys(localStorage)
+        .filter((k) => k.toLowerCase().includes('supabase'))
+        .forEach((k) => localStorage.removeItem(k))
+    } catch (err) {
+      console.warn('清理本地 Supabase 会话失败（忽略）', err)
+    }
+  }
+
   const handleGoogleSignIn = async () => {
     try {
       setLoading(true)
+      // 清理可能损坏的本地会话，避免 atob 解码失败
+      clearSupabaseLocalAuth()
+      await supabase.auth.signOut().catch(() => {
+        /* ignore signOut errors */
+      })
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
