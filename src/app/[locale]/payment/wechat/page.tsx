@@ -43,34 +43,53 @@ export default function WechatPaymentPage() {
   useEffect(() => {
     if (!orderUuid) return
     
+    let interval: NodeJS.Timeout | null = null
+    
     const pollOrderStatus = async () => {
       try {
         const orderData = await ordersApi.get(orderUuid)
-        if (orderData.status === 'paid') {
+        if (orderData.status === 'paid' || orderData.status === 'completed') {
           setOrderStatus('paid')
           setPolling(false)
+          // 停止轮询
+          if (interval) {
+            clearInterval(interval)
+            interval = null
+          }
           // 跳转到成功页面
           setTimeout(() => {
             router.push(`/${locale}/payment/success?order_uuid=${orderUuid}`)
           }, 2000)
-        } else if (orderData.status === 'failed' || orderData.status === 'cancelled') {
+        } else if (orderData.status === 'failed' || orderData.status === 'cancelled' || orderData.status === 'refunded') {
           setOrderStatus('failed')
           setPolling(false)
+          // 停止轮询
+          if (interval) {
+            clearInterval(interval)
+            interval = null
+          }
+        } else {
+          // 订单还在 pending 状态，继续轮询
+          setPolling(true)
         }
       } catch (error) {
         console.error('查询订单状态失败:', error)
+        // 查询失败不停止轮询，继续尝试
       }
     }
 
     // 立即查询一次
     pollOrderStatus()
     
-    // 每3秒轮询一次
-    const interval = setInterval(pollOrderStatus, 3000)
+    // 每3秒轮询一次，一直轮询直到订单状态变为最终状态
+    interval = setInterval(pollOrderStatus, 3000)
     setPolling(true)
 
     return () => {
-      clearInterval(interval)
+      if (interval) {
+        clearInterval(interval)
+        interval = null
+      }
       setPolling(false)
     }
   }, [orderUuid, locale, router])

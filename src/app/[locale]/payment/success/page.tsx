@@ -23,9 +23,8 @@ export default function PaymentSuccessPage() {
   const { setBalance } = usePointsStore()
   const [orderStatus, setOrderStatus] = useState<'loading' | 'success' | 'pending' | 'failed'>('loading')
   const [order, setOrder] = useState<any>(null)
-  const pollingCountRef = useRef(0)
-  const maxPollingAttempts = 20 // 最多轮询20次（约40秒）
   const hasRefreshedRef = useRef(false) // 标记是否已刷新过数据
+  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null) // 轮询定时器引用
 
   const orderUuid = searchParams?.get('order_uuid') || searchParams?.get('orderUuid')
 
@@ -59,20 +58,17 @@ export default function PaymentSuccessPage() {
     // 立即查询一次订单状态
     checkOrderStatus()
 
-    // 如果订单还在pending，开始轮询
-    const pollInterval = setInterval(() => {
-      if (pollingCountRef.current < maxPollingAttempts) {
-        checkOrderStatus()
-        pollingCountRef.current += 1
-      } else {
-        clearInterval(pollInterval)
-        if (orderStatus === 'pending') {
-          toast.warning(t('payment.pollingTimeout', { default: '订单状态查询超时，请稍后查看订单详情' }))
-        }
-      }
+    // 开始轮询，一直轮询直到订单状态变为最终状态（paid/failed/cancelled）
+    pollIntervalRef.current = setInterval(() => {
+      checkOrderStatus()
     }, 2000) // 每2秒轮询一次
 
-    return () => clearInterval(pollInterval)
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current)
+        pollIntervalRef.current = null
+      }
+    }
   }, [orderUuid])
 
   const checkOrderStatus = async () => {
@@ -84,21 +80,28 @@ export default function PaymentSuccessPage() {
 
       if (orderData.status === 'paid' || orderData.status === 'completed') {
         setOrderStatus('success')
+        // 停止轮询
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current)
+          pollIntervalRef.current = null
+        }
         // 支付成功后刷新积分数据
         await refreshPointsData()
         toast.success(t('payment.success', { default: '支付成功！积分已到账' }))
-      } else if (orderData.status === 'failed' || orderData.status === 'cancelled') {
+      } else if (orderData.status === 'failed' || orderData.status === 'cancelled' || orderData.status === 'refunded') {
         setOrderStatus('failed')
+        // 停止轮询
+        if (pollIntervalRef.current) {
+          clearInterval(pollIntervalRef.current)
+          pollIntervalRef.current = null
+        }
       } else {
         setOrderStatus('pending')
+        // 继续轮询，不停止
       }
     } catch (error: any) {
       console.error('查询订单状态失败:', error)
-      if (pollingCountRef.current === 0) {
-        // 第一次查询失败才显示错误
-        toast.error(error?.message || t('payment.queryFailed', { default: '查询订单状态失败' }))
-        setOrderStatus('failed')
-      }
+      // 查询失败不停止轮询，继续尝试
     }
   }
 
