@@ -11,18 +11,22 @@ export type OrderCreateRequest = {
 export type Order = {
   uuid: string
   order_number: string
+  payment_method: 'creem' | 'wechat'  // 支付方式
   status: string
   order_type: 'onetime' | 'subscription'
   amount: number
   currency: string
   points_amount: number
   points_issued: number
-  checkout_url?: string
-  creem_checkout_id?: string
-  creem_transaction_id?: string
   paid_at?: string
   created_at: string
   updated_at: string
+  payment_info?: {
+    checkout_url?: string  // Creem支付链接
+    checkout_id?: string   // Creem checkout ID
+    code_url?: string      // 微信支付二维码链接
+    prepay_id?: string    // 微信预支付ID
+  }
 }
 
 export type OrderListResponse = {

@@ -156,9 +156,11 @@ export default function PaymentSuccessPage() {
                 <div className="flex justify-between">
                   <span className="text-gray-400">{t('payment.amount', { default: '支付金额' })}:</span>
                   <span>
-                    {order.currency === 'USD' ? '$' : ''}
-                    {(order.amount / 100).toFixed(2)}
-                    {order.currency !== 'USD' ? ` ${order.currency}` : ''}
+                    {order.currency === 'USD' 
+                      ? `$${(order.amount / 100).toFixed(2)}`
+                      : order.currency === 'CNY'
+                      ? `¥${(order.amount / 100).toFixed(2)}`
+                      : `${(order.amount / 100).toFixed(2)} ${order.currency}`}
                   </span>
                 </div>
               )}

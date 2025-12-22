@@ -30,7 +30,13 @@ const FALLBACK_SUBS: Product[] = [
 ]
 
 function formatPrice(cents: number, currency = 'USD') {
-  return `${currency === 'USD' ? '$' : ''}${(cents / 100).toFixed(2)}${currency !== 'USD' ? ` ${currency}` : ''}`
+  if (currency === 'USD') {
+    return `$${(cents / 100).toFixed(2)}`
+  } else if (currency === 'CNY') {
+    return `¥${(cents / 100).toFixed(2)}`
+  } else {
+    return `${(cents / 100).toFixed(2)} ${currency}`
+  }
 }
 
 function PriceCard({
@@ -63,7 +69,11 @@ function PriceCard({
           {formatPrice(product.price, product.currency)}
           {product.billing_type === 'recurring' && (
             <span className="text-sm text-slate-300 ml-1">
-              / {product.billing_period === 'every-year' ? t('pricing.year', { default: '年' }) : t('pricing.month', { default: '月' })}
+              / {product.billing_period === 'every-year'
+                ? t('pricing.year', { default: '年' })
+                : product.billing_period === 'every-quarter'
+                ? t('pricing.quarter', { default: '季' })
+                : t('pricing.month', { default: '月' })}
             </span>
           )}
         </div>
@@ -131,14 +141,17 @@ export default function PricingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { isAuthenticated } = useAuthStore()
 
+  // 根据locale确定语言：zh=中文（微信支付），其他=英文（Creem支付）
+  const language = locale === 'zh' ? 'zh' : 'en'
+  
   const { data: onetimeData, isLoading: loadingOnetime, error: onetimeError } = useQuery({
-    queryKey: ['products', 'onetime'],
-    queryFn: () => productsApi.list({ billing_type: 'onetime', status: 'active', page_size: 50 }),
+    queryKey: ['products', 'onetime', language],
+    queryFn: () => productsApi.list({ language, billing_type: 'onetime', status: 'active', page_size: 50 }),
     retry: 1,
   })
   const { data: subsData, isLoading: loadingSubs, error: subsError } = useQuery({
-    queryKey: ['products', 'recurring'],
-    queryFn: () => productsApi.list({ billing_type: 'recurring', status: 'active', page_size: 50 }),
+    queryKey: ['products', 'recurring', language],
+    queryFn: () => productsApi.list({ language, billing_type: 'recurring', status: 'active', page_size: 50 }),
     retry: 1,
   })
   
@@ -195,9 +208,15 @@ export default function PricingPage() {
       // 更新success_url，添加order_uuid参数
       const successUrlWithOrder = `${window.location.origin}/${locale}/payment/success?order_uuid=${order.uuid}`
       
-      if (order.checkout_url) {
-        // 在当前页面打开支付页面
-        window.location.href = order.checkout_url
+      // 根据支付方式处理
+      if (order.payment_method === 'creem' && order.payment_info?.checkout_url) {
+        // Creem支付：跳转到checkout_url
+        window.location.href = order.payment_info.checkout_url
+      } else if (order.payment_method === 'wechat' && order.payment_info?.code_url) {
+        // 微信支付：显示二维码
+        // TODO: 打开二维码弹窗或跳转到二维码页面
+        // 临时方案：跳转到支付页面
+        router.push(`/${locale}/payment/wechat?code_url=${encodeURIComponent(order.payment_info.code_url)}&order_uuid=${order.uuid}`)
       } else {
         toast.error(t('pricing.errorNoCheckoutUrl', { default: '未获取到支付链接' }))
       }

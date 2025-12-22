@@ -12,7 +12,13 @@ import { toast } from 'sonner'
 import { Sparkles, ShieldCheck, Calendar, Coins, Repeat, Loader2, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth'
 function formatPrice(cents: number, currency = 'USD') {
-  return `${currency === 'USD' ? '$' : ''}${(cents / 100).toFixed(2)}${currency !== 'USD' ? ` ${currency}` : ''}`
+  if (currency === 'USD') {
+    return `$${(cents / 100).toFixed(2)}`
+  } else if (currency === 'CNY') {
+    return `¥${(cents / 100).toFixed(2)}`
+  } else {
+    return `${(cents / 100).toFixed(2)} ${currency}`
+  }
 }
 
 function formatDate(dateString: string | undefined): string {
@@ -34,7 +40,9 @@ function getStatusBadge(status: string, t: any) {
     active: { label: t('subscriptions.statusActive', { default: '活跃' }), variant: 'default' },
     past_due: { label: t('subscriptions.statusPastDue', { default: '逾期' }), variant: 'destructive' },
     cancelled: { label: t('subscriptions.statusCancelled', { default: '已取消' }), variant: 'secondary' },
+    canceled: { label: t('subscriptions.statusCancelled', { default: '已取消' }), variant: 'secondary' },
     expired: { label: t('subscriptions.statusExpired', { default: '已过期' }), variant: 'secondary' },
+    scheduled_cancel: { label: t('subscriptions.statusScheduledCancel', { default: '计划取消' }), variant: 'secondary' },
   }
   const statusInfo = statusMap[status] || { label: status, variant: 'outline' }
   return (
@@ -48,6 +56,11 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
   const product = subscription.product
   const isActive = subscription.status === 'active'
   const isCancelled = subscription.status === 'cancelled' || subscription.cancel_at_period_end
+  const isExpired = subscription.status === 'expired'
+  // 检查是否为手动续费（微信订阅）
+  const isManualRenewal = subscription.subscription_metadata?.auto_renewal === false || 
+                          subscription.subscription_metadata?.renewal_type === 'manual' ||
+                          subscription.payment_method === 'wechat'
 
   return (
     <Card className="border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-800/70 shadow-xl">
@@ -71,6 +84,8 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
                 <span>
                   {subscription.billing_period === 'every-year'
                     ? t('subscriptions.billingYear', { default: '年付' })
+                    : subscription.billing_period === 'every-quarter'
+                    ? t('subscriptions.billingQuarter', { default: '季付' })
                     : t('subscriptions.billingMonth', { default: '月付' })}
                 </span>
               </div>
@@ -98,15 +113,26 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
               {t('subscriptions.periodEnd', { default: '结束' })}:{' '}
               {formatDate(subscription.current_period_end)}
             </div>
-            <div className="flex items-center gap-2 text-sm text-slate-300 pt-1">
-              <AlertCircle className="h-4 w-4 text-amber-400" />
-              <span className="text-xs text-slate-400">
-                {t('subscriptions.nextBilling', { default: '下次扣款' })}:{' '}
-                {subscription.status === 'active' 
-                  ? (subscription.current_period_end ? formatDate(subscription.current_period_end) : formatDate(subscription.next_billing_date))
-                  : t('subscriptions.noBillingDate', { default: '-' })}
-              </span>
-            </div>
+            {/* 微信订阅永远不显示下次扣款时间（next_billing_date永远为null） */}
+            {!isManualRenewal && (
+              <div className="flex items-center gap-2 text-sm text-slate-300 pt-1">
+                <AlertCircle className="h-4 w-4 text-amber-400" />
+                <span className="text-xs text-slate-400">
+                  {t('subscriptions.nextBilling', { default: '下次扣款' })}:{' '}
+                  {subscription.status === 'active' 
+                    ? (subscription.next_billing_date ? formatDate(subscription.next_billing_date) : t('subscriptions.noBillingDate', { default: '-' }))
+                    : t('subscriptions.noBillingDate', { default: '-' })}
+                </span>
+              </div>
+            )}
+            {isManualRenewal && (
+              <div className="flex items-center gap-2 text-sm text-blue-300 pt-1">
+                <AlertCircle className="h-4 w-4 text-blue-400" />
+                <span className="text-xs text-blue-300">
+                  {t('subscriptions.manualRenewal', { default: '手动续费' })} - {t('subscriptions.noBillingDate', { default: '-' })}
+                </span>
+              </div>
+            )}
           </div>
         </div>
         {subscription.cancel_at_period_end && (
@@ -126,7 +152,19 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
             </span>
           </div>
         )}
-        {isActive && !subscription.cancel_at_period_end && (
+        {/* 微信订阅不显示取消按钮（因为没有自动续费，不需要取消） */}
+        {isManualRenewal && (
+          <div className="space-y-2">
+            <div className="flex items-start gap-2 text-sm text-blue-300 bg-blue-500/10 border border-blue-200/30 dark:border-blue-500/30 rounded-lg p-2">
+              <AlertCircle className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+              <span>
+                {t('subscriptions.manualRenewalDesc', { default: '本订阅为手动续费，到期后需要手动购买续费' })}
+              </span>
+            </div>
+          </div>
+        )}
+        {/* 只有Creem订阅显示取消按钮 */}
+        {!isManualRenewal && isActive && !subscription.cancel_at_period_end && (
           <Button
             variant="outline"
             className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"

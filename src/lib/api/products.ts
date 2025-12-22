@@ -23,7 +23,13 @@ export type ProductListResponse = {
 }
 
 export const productsApi = {
-  list: async (params: { billing_type?: string; status?: string; page?: number; page_size?: number } = {}) => {
+  list: async (params: { 
+    language: string  // 必填：语言代码（zh=微信支付，en/ja等=Creem支付）
+    billing_type?: string
+    status?: string
+    page?: number
+    page_size?: number
+  }) => {
     const search = new URLSearchParams()
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== null && v !== '') search.append(k, String(v))

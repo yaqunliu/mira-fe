@@ -6,7 +6,7 @@ export type Subscription = {
   subscription_id: number
   order_id: number
   user_id: number
-  creem_subscription_id: string
+  creem_subscription_id?: string
   status: string
   billing_period: string
   current_period_start?: string
@@ -16,7 +16,8 @@ export type Subscription = {
   last_points_issued_at?: string
   cancel_at_period_end?: boolean
   cancelled_at?: string
-  metadata?: any
+  subscription_metadata?: any
+  payment_method?: string
   product?: Product
   created_at?: string
   updated_at?: string
