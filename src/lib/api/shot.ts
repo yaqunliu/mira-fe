@@ -1,72 +1,54 @@
 import { apiClient } from "./client";
-
-export interface RegenerateShotResponse {
-  task_id: string;
-  message: string;
-}
-
-export interface UpdateShotResponse {
-  message: string;
-}
+import { ApiResponse } from "@/types";
+import { IShot } from "@/types/scene";
 
 const shotApi = {
-  // 重新生成分镜图片
-  regenerateShot: async (
-    shotId: string,  // UUID字符串
-    imagePrompt: string
-  ): Promise<{ data: RegenerateShotResponse }> => {
-    const shotUuid = String(shotId);
-    return apiClient.post<RegenerateShotResponse>(
-      `/api/v1/shots/${shotUuid}/regenerate`,
-      { image_prompt: imagePrompt }
-    ) as unknown as Promise<{ data: RegenerateShotResponse }>;
-  },
-
-  // 更新分镜旁白
-  updateNarration: async (
-    shotId: string,  // UUID字符串
-    narration: string
-  ): Promise<{ data: UpdateShotResponse }> => {
-    const shotUuid = String(shotId);
-    return apiClient.put<UpdateShotResponse>(
-      `/api/v1/shots/${shotUuid}`,
-      { narration }
-    ) as unknown as Promise<{ data: UpdateShotResponse }>;
-  },
-
-  // 更新分镜（支持 title 和 narration）
+  // 更新分镜
   updateShot: async (
-    shotId: string,  // 只接受UUID字符串
-    data: {
-      title: string;
-      narration: string;
-      character_ids?: number[];
-    }
-  ): Promise<{ data: UpdateShotResponse }> => {
-    // 确保是字符串类型
-    const shotUuid = String(shotId);
-    return apiClient.put<UpdateShotResponse>(
+    shotUuid: string,
+    data: Partial<IShot> & { character_ids?: number[] }
+  ): Promise<{ data: IShot; message: string }> => {
+    return apiClient.put<ApiResponse<IShot>>(
       `/api/v1/shots/${shotUuid}`,
-      {
-        title: data.title,
-        narration: data.narration,
-        ...(data.character_ids ? { character_ids: data.character_ids } : {}),
-      }
-    ) as unknown as Promise<{ data: UpdateShotResponse }>;
+      data
+    ) as unknown as Promise<{ data: IShot; message: string }>;
   },
 
-  // 仅更新分镜关联角色
+  // 重新生成分镜图片
+  regenerateShotImage: async (
+    shotUuid: string,
+    imagePrompt?: string
+  ): Promise<{ data: { task_id: string; shot_uuid: string; image_prompt?: string }; message: string }> => {
+    return apiClient.post<{ task_id: string; shot_uuid: string; image_prompt?: string; message: string }>(
+      `/api/v1/shots/${shotUuid}/regenerate`,
+      {
+        image_prompt: imagePrompt
+      }
+    ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string; image_prompt?: string }; message: string }>;
+  },
+
+  // 生成分镜图片（首次生成）
+  generateShotImage: async (
+    shotUuid: string
+  ): Promise<{ data: { task_id: string; shot_uuid: string }; message: string }> => {
+    return apiClient.post<{ task_id: string; shot_uuid: string; message: string }>(
+      `/api/v1/shots/${shotUuid}/generate-image`,
+      {}
+    ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string }; message: string }>;
+  },
+
+  // 更新分镜角色
   updateShotCharacters: async (
-    shotId: string, // UUID字符串
+    shotUuid: string,
     characterIds: number[]
-  ): Promise<{ data: UpdateShotResponse }> => {
-    const shotUuid = String(shotId);
-    return apiClient.put<UpdateShotResponse>(
+  ): Promise<{ data: IShot; message: string }> => {
+    return apiClient.put<ApiResponse<IShot>>(
       `/api/v1/shots/${shotUuid}/characters`,
-      { character_ids: characterIds }
-    ) as unknown as Promise<{ data: UpdateShotResponse }>;
+      {
+        character_ids: characterIds
+      }
+    ) as unknown as Promise<{ data: IShot; message: string }>;
   },
 };
 
 export default shotApi;
-

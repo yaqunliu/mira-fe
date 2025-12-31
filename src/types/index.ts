@@ -18,6 +18,7 @@ export interface Novel {
   chapter_count: number;
   creation_ids: string[];
   character_ids: string[];
+  type?: string; // 'novel' | 'script'
   chapters?: Chapter[]; // 可选，章节数据通过章节列表接口单独获取
 }
 
@@ -107,9 +108,10 @@ export interface ApiResponse<T = any> {
 
 // 分页类型
 export interface PaginationParams {
-  page: number;
-  page_size: number;
+  page?: number;
+  page_size?: number;
   title?: string; // 可选的小说/创作标题筛选参数
+  type?: string; // 可选的小说/文案类型筛选参数
 }
 
 export interface PaginatedResponse<T> {
@@ -286,3 +288,7 @@ export * from './voice';
 
 // 导出积分相关类型
 export * from './points';
+
+// 导出视频轨道相关类型
+export * from './timeline';
+

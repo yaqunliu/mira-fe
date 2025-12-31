@@ -27,6 +27,9 @@ import {
   ArrowRight,
   Maximize2,
   Users,
+  Mic,
+  Volume2,
+  Image as ImageIcon
 } from "lucide-react";
 import { CharacterEditModal } from "@/components/modals/character-edit-modal";
 import { ImagePreview } from "@/components/ui/image-preview";
@@ -333,7 +336,7 @@ export function CharacterSetting({
         // 记录该角色正在重新生成
         setRegeneratingCharacters(prev => {
           const newMap = new Map(prev);
-          newMap.set(characterUuid, response.data.task_id);
+          newMap.set(characterUuid, response.data!.task_id);
           return newMap;
         });
         toast.success("角色图片重新生成中...");
@@ -341,33 +344,7 @@ export function CharacterSetting({
     } catch (error: any) {
       toast.error(error.message || "重新生成失败");
     }
-  }, [creationId, selectedStyle, t]);
-
-  // 刷新单个角色数据（不触发页面跳转，不调用handleUpdate）
-  const refreshCharacterData = useCallback(async (characterUuid: string) => {
-    try {
-      // 获取单个角色的最新数据
-      const response = await characterApi.getCharacter(characterUuid);
-      if (response.data) {
-        // 只更新本地 state 中该角色的 image_url，不调用 handleUpdate
-        setCharacters(prevCharacters => {
-          return prevCharacters.map(char => {
-            const charId = char.uuid || String(char.character_id);
-            if (charId === characterUuid) {
-              // 更新该角色的数据
-              return {
-                ...char,
-                image_url: response.data.image_url,
-              };
-            }
-            return char;
-          });
-        });
-      }
-    } catch (error) {
-      console.error("刷新角色数据失败:", error);
-    }
-  }, []);
+  }, [creationId, selectedStyle, t, creation?.extra_data]); // Added creation?.extra_data dependency
 
   // 轮询单个角色重新生成的任务状态
   useEffect(() => {
@@ -395,8 +372,8 @@ export function CharacterSetting({
                 newMap.delete(characterUuid);
                 return newMap;
               });
-              // 刷新角色数据以获取新图片（不会触发页面跳转）
-              await refreshCharacterData(characterUuid);
+              // 刷新数据
+              handleUpdate();
               toast.success("角色图片重新生成成功");
             } else if (rawTask.status === TaskStatus.FAILURE) {
               // 生成失败
@@ -419,7 +396,7 @@ export function CharacterSetting({
     return () => {
       intervals.forEach(interval => clearInterval(interval));
     };
-  }, [regeneratingCharacters, refreshCharacterData]);
+  }, [regeneratingCharacters, handleUpdate]);
 
   // 计算是否应该显示 loading
   const shouldShowLoading = isGenerating || isGeneratingPlaybook ||
@@ -443,6 +420,12 @@ export function CharacterSetting({
     return "加载中...";
   };
 
+  // 区分出镜角色和声音角色
+  // 出镜角色: 有 body 描述 (或不为null)
+  // 声音角色: body 为 null (或 basic_info 为 "声音角色")
+  const appearanceCharacters = useMemo(() => characters.filter(c => c.body !== null), [characters]);
+  const voiceCharacters = useMemo(() => characters.filter(c => c.body === null), [characters]);
+
   return (
     <div className="h-[calc(100vh-136px)] relative">
       {/* 装饰性背景 */}
@@ -454,29 +437,50 @@ export function CharacterSetting({
         coverFlowContainer={true}
         text={getLoadingText()}
       >
-        <div className="space-y-4 px-6 h-full overflow-y-auto pb-20 relative z-10">
-          <div className="flex justify-between items-center">
+        <div className="space-y-6 px-6 h-full overflow-y-auto pb-20 relative z-10 scrollbar-hide">
+          <div className="flex justify-between items-center sticky top-0 bg-slate-950/80 backdrop-blur-md z-20 py-4 -mx-6 px-6 border-b border-slate-800/50">
             <h3 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-purple-600 dark:from-orange-400 dark:to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
               <Users className="w-5 h-5 text-orange-500" />
               {t("characterSettings")} ({characters.length})
             </h3>
-            {/* 生成按钮 */}
-            <Button
-              onClick={() => gengerateCharacterImages(characters)}
-              disabled={isGenerating || isSubmittingCharacters}
-              className="px-4 py-4 text-sm bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-105 rounded-xl"
-              variant="secondary"
-            >
-              <WandSparkles className="w-3 h-3" />
-              {isGenerating || isSubmittingCharacters ? t("generating") : t("generateCharacterImage")}
-            </Button>
+            
+            <div className="flex items-center gap-4">
+                 {/* 风格选择 - 移到顶部 */}
+                 <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-500">{t("visualStyle")}:</span>
+                    <Select value={selectedStyle} onValueChange={setSelectedStyle}>
+                        <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg border-slate-700 bg-slate-900">
+                        <SelectValue placeholder={t("styleSelection")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                        {getStyleOptions(t).map((option) => (
+                            <SelectItem key={option.value} value={option.value} className="text-xs">
+                            {option.label}
+                            </SelectItem>
+                        ))}
+                        </SelectContent>
+                    </Select>
+                 </div>
+
+                {/* 生成按钮 - 仅对出镜角色生成 */}
+                <Button
+                onClick={() => gengerateCharacterImages(appearanceCharacters)}
+                disabled={isGenerating || isSubmittingCharacters || appearanceCharacters.length === 0}
+                className="h-8 px-4 text-xs bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg shadow-orange-500/20 rounded-lg transition-all"
+                size="sm"
+                >
+                <WandSparkles className="w-3 h-3 mr-2" />
+                {isGenerating || isSubmittingCharacters ? t("generating") : "生成全部角色图片"}
+                </Button>
+            </div>
           </div>
+          
           {/* 生成进度 */}
           {(isGenerating || isGeneratingPlaybook) && (
-            <div className="flex justify-between items-center text-sm gap-2">
+            <div className="flex justify-between items-center text-sm gap-2 px-1">
               <Progress 
                 value={isGeneratingPlaybook ? (playbookTask?.data?.progress?.percent || 0) : generationProgress} 
-                className="w-full" 
+                className="w-full h-1.5" 
               />
               {isGeneratingPlaybook && playbookTask?.data?.progress?.status && (
                 <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
@@ -485,232 +489,149 @@ export function CharacterSetting({
               )}
             </div>
           )}
-          {/* 风格选择 */}
-          <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800/50 dark:to-gray-900/30 border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h3 className="text-base font-semibold bg-gradient-to-r from-orange-600 to-pink-600 dark:from-orange-400 dark:to-pink-400 bg-clip-text text-transparent">
-              {t("visualStyle")}
-            </h3>
-            <div className="flex items-center space-x-4">
-              {/* <label className="text-sm font-medium">{t("风格选择")}:</label> */}
-              <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                <SelectTrigger className="w-[200px] rounded-xl border-2 hover:border-orange-400 transition-colors">
-                  <SelectValue placeholder={t("styleSelection")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {getStyleOptions(t).map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          {/* 角色信息展示 */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold bg-gradient-to-r from-orange-600 to-pink-600 dark:from-orange-400 dark:to-pink-400 bg-clip-text text-transparent">
-              {t("characterSettings")}
-            </h3>
-            <div className="w-full overflow-x-auto">
-              <div className="flex space-x-3 pb-4">
-                {characters.map((character, index) => (
-                  <div
-                    className="flex flex-col w-[65vw] md:w-[240px] lg:w-[300px] flex-shrink-0"
-                    key={index}
-                  >
-                    <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-r from-orange-500 to-pink-500 dark:from-orange-500/80 dark:to-pink-500/80 text-white rounded-t-xl tracking-wider font-bold flex items-center gap-1 shadow-md">
-                      <span>{character.name}</span>
-                      <PenLine
-                        className="inline-block w-3 h-3 text-white/80 cursor-pointer hover:text-white hover:scale-110 transition-all"
-                        onClick={() => handleEditCharacter(index)}
-                      />
-                    </div>
+          
+          {/* 出镜角色展示 */}
+          {appearanceCharacters.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2 uppercase tracking-wider">
+                <Users className="w-4 h-4" />
+                出镜角色
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {appearanceCharacters.map((character) => {
+                     // 找到该角色在原始数组中的索引，以便正确触发编辑
+                     const originalIndex = characters.findIndex(c => c.character_id === character.character_id || c.uuid === character.uuid);
+                     return (
                     <Card
-                      key={index}
-                      className="w-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900/50 rounded-tl-none border-2 border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-tr-xl rounded-b-xl p-y-3"
+                      key={originalIndex}
+                      className="group bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900 transition-all duration-300 overflow-hidden"
                     >
-                      <CardContent className="space-y-2 px-3">
-                        <div className="flex gap-2">
-                          <div className="w-[66px] flex justify-end">
-                            <Badge variant="outline" className="mb-2 w-[66px]">
-                              {t("basicInfo")}
-                            </Badge>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                                {character.basic_info}
-                              </p>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
-                              <DropdownMenuItem className="whitespace-pre-line">
-                                {character.basic_info}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        <div className="flex gap-2 items-start">
-                          <div className="w-[66px] flex justify-end">
-                            <Badge variant="outline" className="mb-2">
-                              {t("appearanceFeatures")}
-                            </Badge>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                                {character.appearance}
-                              </p>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
-                              <DropdownMenuItem className="whitespace-pre-line">
-                                {character.appearance}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <div className="w-[66px] flex justify-end">
-                            <Badge variant="outline" className="mb-2">
-                              {t("bodyFeatures")}
-                            </Badge>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                                {character.body}
-                              </p>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
-                              <DropdownMenuItem className="whitespace-pre-line">
-                                {character.body}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <div className="w-[66px] flex justify-end">
-                            <Badge variant="outline" className="mb-2">
-                              {t("hair")}
-                            </Badge>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                                {character.hair}
-                              </p>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
-                              <DropdownMenuItem className="whitespace-pre-line">
-                                {character.hair}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <div className="w-[66px] flex justify-end">
-                            <Badge variant="outline" className="mb-2">
-                              {t("clothing")}
-                            </Badge>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                                {character.clothing}
-                              </p>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
-                              <DropdownMenuItem className="whitespace-pre-line">
-                                {character.clothing}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <div className="w-[66px] flex justify-end">
-                            <Badge variant="outline" className="mb-2">
-                              {t("featureTags")}
-                            </Badge>
-                          </div>
-                          <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
-                              {(Array.isArray(character.tags) ? character.tags : (character.tags ? [character.tags] : [])).join(", ")}
-                            </p>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className="w-[300px] max-h-[300px] overflow-auto">
-                            <DropdownMenuItem className="whitespace-pre-line">
-                              {(Array.isArray(character.tags) ? character.tags : (character.tags ? [character.tags] : [])).join(", ")}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                        {character.image_url && (
-                          <div className="flex flex-col gap-1 items-center">
-                            <div className="h-[1px] bg-gray-300 dark:bg-zinc-700 w-full mb-2" />
-                            <div className="relative">
-                              {/* 判断该角色是否正在重新生成 */}
-                              {regeneratingCharacters.has(character.uuid || String(character.character_id)) ? (
-                                <div className="w-42 h-42 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 rounded">
-                                  <div className="flex flex-col items-center gap-2">
-                                    <div className="w-8 h-8 border-3 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-                                    <span className="text-xs text-muted-foreground">重新生成中...</span>
-                                  </div>
-                                </div>
-                              ) : (
-                                <>
-                                  <img
-                                    src={character.image_url}
-                                    alt={character.name}
-                                    className="w-42 object-cover rounded cursor-pointer hover:opacity-90 transition-opacity"
-                                    onClick={() =>
-                                      handleImageClick(character.image_url)
-                                    }
-                                  />
-                                  {/* 重新生成按钮 */}
-                                  <div className="absolute bottom-2 flex justify-between w-full px-2">
-                                    <div
-                                      className={cn(
-                                        "py-1 px-2 bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/90 hover:to-purple-600/90 text-white border-0 shadow-lg rounded-full backdrop-blur-sm",
-                                        "flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110"
-                                      )}
-                                      onClick={() =>
-                                        handleImageClick(character.image_url)
-                                      }
-                                    >
-                                      <Maximize2 className="w-3 h-3" />
+                        <div className="flex p-3 gap-3">
+                            {/* 左侧：头像/图片 */}
+                            <div className="w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-slate-800 border border-slate-700 relative group-hover:border-slate-600 transition-colors">
+                                {regeneratingCharacters.has(character.uuid || String(character.character_id)) ? (
+                                    <div className="w-full h-full flex items-center justify-center">
+                                        <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
                                     </div>
-                                    <div
-                                      className={cn(
-                                        "py-1 px-2 bg-gradient-to-r from-orange-500/80 to-pink-500/80 hover:from-orange-600/90 hover:to-pink-600/90 text-white border-0 shadow-lg rounded-xl backdrop-blur-sm",
-                                        "flex items-center gap-1 cursor-pointer transition-all duration-200 hover:scale-105"
-                                      )}
-                                      onClick={() =>
-                                        handleRegenerateSingleCharacter(character)
-                                      }
-                                    >
-                                      <RotateCcw className="w-3 h-3" />
-                                      <span className="text-xs">
-                                        {t("regenerate")}
-                                      </span>
+                                ) : character.image_url ? (
+                                    <div className="relative w-full h-full">
+                                        <img 
+                                            src={character.image_url} 
+                                            alt={character.name} 
+                                            className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-500"
+                                            onClick={() => handleImageClick(character.image_url!)}
+                                        />
+                                        {/* 悬浮操作层 */}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                            <button 
+                                                onClick={() => handleImageClick(character.image_url!)}
+                                                className="p-1.5 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
+                                            >
+                                                <Maximize2 size={12} />
+                                            </button>
+                                        </div>
                                     </div>
-                                  </div>
-                                </>
-                              )}
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 text-slate-500">
+                                        <div className="w-8 h-8 mb-1 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
+                                            <ImageIcon size={14} className="opacity-50" />
+                                        </div>
+                                        <span className="text-[10px] font-medium opacity-70">等待生成</span>
+                                    </div>
+                                )}
                             </div>
-                          </div>
-                        )}
-                      </CardContent>
+
+                            {/* 右侧：信息与操作 */}
+                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                <div>
+                                    <div className="flex items-center justify-between mb-1">
+                                        <h4 className="font-medium text-slate-200 truncate pr-2">{character.name}</h4>
+                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-slate-700 text-slate-500 shrink-0">
+                                            角色
+                                        </Badge>
+                                    </div>
+                                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                                        {character.appearance || character.basic_info || "暂无描述"}
+                                    </p>
+                                </div>
+                                
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 px-2 text-[10px] text-slate-400 hover:text-white hover:bg-slate-800"
+                                        onClick={() => handleEditCharacter(originalIndex)}
+                                    >
+                                        <PenLine size={12} className="mr-1" />
+                                        编辑
+                                    </Button>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        className="h-6 px-2 text-[10px] text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 ml-auto"
+                                        onClick={() => handleRegenerateSingleCharacter(character)}
+                                    >
+                                        <RotateCcw size={12} className="mr-1" />
+                                        {character.image_url ? "重新生成" : "生成图片"}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </Card>
-                  </div>
-                ))}
+                  );})}
               </div>
             </div>
-          </div>
+          )}
+
+          {/* 声音角色展示 */}
+          {voiceCharacters.length > 0 && (
+            <div className="space-y-3 pt-4 border-t border-slate-800/50">
+              <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2 uppercase tracking-wider">
+                <Mic className="w-4 h-4" />
+                声音角色
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {voiceCharacters.map((character) => {
+                     const originalIndex = characters.findIndex(c => c.character_id === character.character_id || c.uuid === character.uuid);
+                     return (
+                    <Card
+                      key={originalIndex}
+                      className="bg-slate-900/30 border-slate-800/50 hover:border-blue-900/50 hover:bg-slate-900/50 transition-all duration-300"
+                    >
+                         <div className="flex p-3 gap-3 items-center">
+                            {/* 左侧：图标 */}
+                            <div className="w-12 h-12 shrink-0 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+                                <Volume2 size={20} />
+                            </div>
+
+                            {/* 中间：信息 */}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h4 className="font-medium text-slate-300 truncate">{character.name}</h4>
+                                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20">
+                                        声音
+                                    </Badge>
+                                </div>
+                                <p className="text-xs text-slate-500 line-clamp-1 truncate">
+                                    {character.voice_description || "暂无音色描述"}
+                                </p>
+                            </div>
+
+                            {/* 右侧：操作 */}
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="h-8 w-8 text-slate-500 hover:text-white hover:bg-slate-800 rounded-full"
+                                onClick={() => handleEditCharacter(originalIndex)}
+                            >
+                                <PenLine size={14} />
+                            </Button>
+                         </div>
+                    </Card>
+                  );})}
+              </div>
+            </div>
+          )}
         </div>
 
       {/* 角色编辑模态框 */}

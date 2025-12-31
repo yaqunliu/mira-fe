@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { novelApi } from "@/lib/api/novel";
 import { formatDate } from "@/lib/utils";
 import type { Novel, Chapter, ChapterListItem } from "@/types";
@@ -26,7 +27,6 @@ import { CustomTabs } from "@/components/ui/custom-tabs";
 import { toast } from "sonner";
 
 import CharactorCard from "@/components/business/charactor-card";
-import VideoCard from "@/components/business/creation-card";
 import CreationCard from "@/components/business/creation-card";
 import creationApi from "@/lib/api/creation";
 import { useConfirm } from "@/hooks/use-confirm";
@@ -94,7 +94,7 @@ export default function NovelDetailPage() {
         }
         return chapter;
       });
-      
+
       queryClient.invalidateQueries({ queryKey: ["novel", novelId] });
       queryClient.invalidateQueries({ queryKey: ["chapters", novelId] });
       setEditingChapterId(null);
@@ -129,11 +129,11 @@ export default function NovelDetailPage() {
   // 注意：章节数据不再从小说接口返回，需要通过章节列表接口单独获取
   const novelData = (novelResponse as any)?.data?.data || (novelResponse as any)?.data;
   const novel = novelData as Novel;
-  
+
   // 从小说数据中提取角色、创作数据（API可能包含在响应中）
   const characters = (novelData as any)?.characters || [];
   const creations = (novelData as any)?.creations || [];
-  
+
   // 始终使用章节列表API获取章节（支持分页）
   const {
     data: chaptersResponse,
@@ -167,17 +167,17 @@ export default function NovelDetailPage() {
 
   // 处理章节响应数据，兼容多种格式
   const chaptersData = chaptersResponse as any;
-  const finalChapters = 
-    chaptersData?.data?.data || 
-    chaptersData?.data?.items || 
-    chaptersData?.data || 
-    chaptersData?.items || 
+  const finalChapters =
+    chaptersData?.data?.data ||
+    chaptersData?.data?.items ||
+    chaptersData?.data ||
+    chaptersData?.items ||
     (Array.isArray(chaptersData) ? chaptersData : []);
-  
+
   // 章节分页信息
   const chaptersTotal = chaptersData?.data?.total || chaptersData?.total || finalChapters.length;
   const chaptersTotalPages = Math.ceil(chaptersTotal / chapterPageSize);
-  
+
   // 当当前页为空且不是第一页时，自动跳转到最后一页
   useEffect(() => {
     if (!isChaptersLoading && finalChapters.length === 0 && chapterPage > 1 && chaptersTotalPages > 0) {
@@ -187,7 +187,7 @@ export default function NovelDetailPage() {
       setChapterPageInput("");
     }
   }, [finalChapters.length, chapterPage, chaptersTotalPages, isChaptersLoading]);
-  
+
   // 当总页数变化且当前页超出范围时，自动调整到最后一页
   useEffect(() => {
     if (!isChaptersLoading && chaptersTotalPages > 0 && chapterPage > chaptersTotalPages) {
@@ -195,7 +195,7 @@ export default function NovelDetailPage() {
       setChapterPageInput("");
     }
   }, [chaptersTotalPages, chapterPage, isChaptersLoading]);
-  
+
   // 如果主响应中没有数据，使用单独的查询结果
   const finalCharacters = characters?.length ? characters : ((charactersResponse as any)?.data?.data || (charactersResponse as any)?.data || []);
   const finalCreations = creations?.length ? creations : ((creationsResponse as any)?.data?.data || (creationsResponse as any)?.data || []);
@@ -203,7 +203,7 @@ export default function NovelDetailPage() {
   const handleCreateVideo = async (chapterUuid?: string) => {
     if (!chapterUuid) {
       // 如果没有指定章节，跳转到创建页面，只传递小说UUID
-      router.push(`/${locale}/create?novel=${novelId}`);
+      router.push(`/${locale}/create-dynamic-comic?novel=${novelId}`);
       return;
     }
 
@@ -218,7 +218,7 @@ export default function NovelDetailPage() {
       // 如果已有创作，跳转到已存在的创作
       const creationUuid = (existingCreation as any).uuid || (existingCreation as any).creation_id || existingCreation.creationId;
       if (creationUuid) {
-        router.push(`/${locale}/create?creationId=${creationUuid}`);
+        router.push(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
         return;
       }
     }
@@ -230,7 +230,7 @@ export default function NovelDetailPage() {
         // 如果已有创作，跳转到已存在的创作
         const creationUuid = (creationResponse.data as any).uuid || (creationResponse.data as any).creation_id;
         if (creationUuid) {
-          router.push(`/${locale}/create?creationId=${creationUuid}`);
+          router.push(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
           return;
         }
       }
@@ -240,7 +240,7 @@ export default function NovelDetailPage() {
     }
 
     // 如果没有创作，跳转到创建页面，传递小说UUID和章节UUID
-    router.push(`/${locale}/create?novel=${novelId}&chapter=${chapterUuid}`);
+    router.push(`/${locale}/create-dynamic-comic?novel=${novelId}&chapter=${chapterUuid}`);
   };
 
   // 开始编辑小说标题
@@ -343,190 +343,213 @@ export default function NovelDetailPage() {
     }
     if (!finalChapters?.length) {
       return (
-        <div className="flex items-center justify-center gap-2 p-4">
-          <span className="text-sm text-secondary">暂无章节</span>
-        </div>
+        <Card className="overflow-hidden">
+          <CardContent className="p-12 text-center">
+            <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
+              <BookOpen className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <div className="text-sm font-medium">还没有章节</div>
+            <div className="text-xs text-muted-foreground mt-1">可以直接开始创作，或先上传章节</div>
+            <div className="mt-5 flex items-center justify-center gap-2">
+              <Button size="sm" onClick={() => handleCreateVideo()}>
+                {t("novelDetail.goToCreate")}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => router.push(`/${locale}/novels/upload`)}>
+                上传小说
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       );
     }
     return (
-      <div className="bg-card-custom flex-1">
-        <div className="">
-          {finalChapters?.map((chapter: ChapterListItem, index: number) => {
-            const chapterUuid = String((chapter as any).uuid || (chapter as any).chapter_id || (chapter as any).chapterId || `chapter-${index}`);
-            const isEditing = editingChapterId === chapterUuid;
-            const chapterPreview = (chapter as any).preview || "";
+      <Card className="overflow-hidden">
+        <CardHeader className="flex-row items-center justify-between space-y-0 border-b bg-muted/30">
+          <div className="space-y-1">
+            <CardTitle className="text-base">{t("novelDetail.chapterList")}</CardTitle>
+            <CardDescription className="text-xs">共 {chaptersTotal} 章</CardDescription>
+          </div>
+          <Button size="sm" onClick={() => handleCreateVideo()}>
+            {t("novelDetail.goToCreate")}
+          </Button>
+        </CardHeader>
 
-            return (
-              <div
-                key={chapterUuid}
-                className="w-full flex items-start justify-between p-4 group border-b border-slate-200 dark:border-zinc-700 gap-3"
-              >
-                <div className="flex flex-col flex-1 gap-2">
-                  {isEditing ? (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        value={chapterTitleValue}
-                        onChange={(e) => setChapterTitleValue(e.target.value)}
-                        className="text-xs h-7 flex-1"
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            handleSaveChapterTitle(chapterUuid);
-                          } else if (e.key === "Escape") {
-                            handleCancelEditChapterTitle();
-                          }
-                        }}
-                      />
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 w-7 p-0"
-                        onClick={() => handleSaveChapterTitle(chapterUuid)}
-                        disabled={updateChapterMutation.isPending}
-                      >
-                        <Check className="h-4 w-4 text-green-500" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 w-7 p-0"
-                        onClick={handleCancelEditChapterTitle}
-                        disabled={updateChapterMutation.isPending}
-                      >
-                        <X className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 group/item">
-                      <div
-                        className="flex items-center bg-orange-100 dark:bg-amber-800/50 px-1 py-[2px] rounded w-fit cursor-pointer hover:bg-orange-200 dark:hover:bg-amber-800/70 transition-colors border border-orange-300 dark:border-transparent"
-                        onClick={() => handleStartEditChapterTitle(chapter)}
-                      >
-                        <h4 className="text-xs font-medium text-orange-800 dark:text-orange-500">
+        <CardContent className="p-0">
+          <div>
+            {finalChapters?.map((chapter: ChapterListItem, index: number) => {
+              const chapterUuid = String((chapter as any).uuid || (chapter as any).chapter_id || (chapter as any).chapterId || `chapter-${index}`);
+              const isEditing = editingChapterId === chapterUuid;
+              const chapterPreview = (chapter as any).preview || "";
+
+              return (
+                <div
+                  key={chapterUuid}
+                  className="w-full flex items-start justify-between p-4 group border-b border-border gap-3 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex flex-col flex-1 gap-2">
+                    {isEditing ? (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={chapterTitleValue}
+                          onChange={(e) => setChapterTitleValue(e.target.value)}
+                          className="text-sm h-8 flex-1"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              handleSaveChapterTitle(chapterUuid);
+                            } else if (e.key === "Escape") {
+                              handleCancelEditChapterTitle();
+                            }
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={() => handleSaveChapterTitle(chapterUuid)}
+                          disabled={updateChapterMutation.isPending}
+                        >
+                          <Check className="h-4 w-4 text-green-500" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={handleCancelEditChapterTitle}
+                          disabled={updateChapterMutation.isPending}
+                        >
+                          <X className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <h4
+                          className="text-sm font-medium cursor-pointer hover:text-primary transition-colors"
+                          onClick={() => handleStartEditChapterTitle(chapter)}
+                        >
                           {chapter.title}
                         </h4>
+                        <Pencil
+                          className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                          onClick={() => handleStartEditChapterTitle(chapter)}
+                        />
                       </div>
-                      <Pencil
-                        className="h-3 w-3 text-secondary opacity-0 group-hover/item:opacity-100 transition-opacity cursor-pointer"
-                        onClick={() => handleStartEditChapterTitle(chapter)}
-                      />
-                    </div>
-                  )}
-                  {chapterPreview && (
-                    <p className="text-xs text-secondary mt-1 line-clamp-2">
-                      {chapterPreview}
-                    </p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteChapter(chapterUuid, chapter.title);
-                    }}
-                    disabled={deletingChapterId === chapterUuid || deleteChapterMutation.isPending}
-                    title={t("novelDetail.deleteChapter")}
-                  >
-                    {deletingChapterId === chapterUuid ? (
-                      <LoadingIcon />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
                     )}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="text-xs"
-                    onClick={() => handleCreateVideo(chapterUuid)}
-                  >
-                    {t("novelDetail.goToCreate")}
-                  </Button>
+                    {chapterPreview && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {chapterPreview}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteChapter(chapterUuid, chapter.title);
+                      }}
+                      disabled={deletingChapterId === chapterUuid || deleteChapterMutation.isPending}
+                      title={t("novelDetail.deleteChapter")}
+                    >
+                      {deletingChapterId === chapterUuid ? (
+                        <LoadingIcon />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs h-8"
+                      onClick={() => handleCreateVideo(chapterUuid)}
+                    >
+                      {t("novelDetail.goToCreate")}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-        
-        {/* 章节分页 */}
-        {chaptersTotalPages > 0 && chaptersTotal > 0 && (
-          <div className="flex items-center justify-center gap-2 p-4 border-t border-slate-200 dark:border-zinc-700">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setChapterPage((p) => Math.max(1, p - 1));
-                setChapterPageInput("");
-              }}
-              disabled={chapterPage <= 1 || isChaptersLoading}
-              className="h-8 w-8 p-0"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {chapterPage} / {chaptersTotalPages}
-              </span>
-              <Input
-                type="number"
-                min={1}
-                max={chaptersTotalPages}
-                value={chapterPageInput}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === "" || (Number(value) >= 1 && Number(value) <= chaptersTotalPages)) {
-                    setChapterPageInput(value);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && chapterPageInput) {
-                    const page = Number(chapterPageInput);
-                    if (page >= 1 && page <= chaptersTotalPages) {
-                      setChapterPage(page);
-                      setChapterPageInput("");
-                    }
-                  }
-                }}
-                placeholder={String(chapterPage)}
-                className="w-20 h-8 text-center text-sm"
-              />
+              );
+            })}
+          </div>
+
+          {chaptersTotalPages > 0 && chaptersTotal > 0 && (
+            <div className="flex items-center justify-center gap-2 p-4 border-t border-border bg-muted/10">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  if (chapterPageInput) {
-                    const page = Number(chapterPageInput);
-                    if (page >= 1 && page <= chaptersTotalPages) {
-                      setChapterPage(page);
-                      setChapterPageInput("");
-                    }
-                  }
+                  setChapterPage((p) => Math.max(1, p - 1));
+                  setChapterPageInput("");
                 }}
-                disabled={!chapterPageInput || isChaptersLoading}
-                className="h-8 text-xs"
+                disabled={chapterPage <= 1 || isChaptersLoading}
+                className="h-8 w-8 p-0"
               >
-                跳转
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {chapterPage} / {chaptersTotalPages}
+                </span>
+                <Input
+                  type="number"
+                  min={1}
+                  max={chaptersTotalPages}
+                  value={chapterPageInput}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "" || (Number(value) >= 1 && Number(value) <= chaptersTotalPages)) {
+                      setChapterPageInput(value);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && chapterPageInput) {
+                      const page = Number(chapterPageInput);
+                      if (page >= 1 && page <= chaptersTotalPages) {
+                        setChapterPage(page);
+                        setChapterPageInput("");
+                      }
+                    }
+                  }}
+                  placeholder={String(chapterPage)}
+                  className="w-20 h-8 text-center text-sm"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (chapterPageInput) {
+                      const page = Number(chapterPageInput);
+                      if (page >= 1 && page <= chaptersTotalPages) {
+                        setChapterPage(page);
+                        setChapterPageInput("");
+                      }
+                    }
+                  }}
+                  disabled={!chapterPageInput || isChaptersLoading}
+                  className="h-8 text-xs"
+                >
+                  跳转
+                </Button>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setChapterPage((p) => Math.min(chaptersTotalPages, p + 1));
+                  setChapterPageInput("");
+                }}
+                disabled={chapterPage >= chaptersTotalPages || isChaptersLoading}
+                className="h-8 w-8 p-0"
+              >
+                <ChevronLeft className="w-4 h-4 rotate-180" />
               </Button>
             </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setChapterPage((p) => Math.min(chaptersTotalPages, p + 1));
-                setChapterPageInput("");
-              }}
-              disabled={chapterPage >= chaptersTotalPages || isChaptersLoading}
-              className="h-8 w-8 p-0"
-            >
-              <ChevronLeft className="w-4 h-4 rotate-180" />
-            </Button>
-          </div>
-        )}
-      </div>
+          )}
+        </CardContent>
+      </Card>
     );
   };
 
@@ -543,20 +566,32 @@ export default function NovelDetailPage() {
     }
     if (!finalCharacters?.length) {
       return (
-        <div className="flex items-center justify-center gap-2 p-4">
-          <span className="text-sm text-secondary">暂无角色</span>
-        </div>
+        <Card className="overflow-hidden">
+          <CardContent className="p-12 text-center">
+            <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
+              <User className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <div className="text-sm font-medium">暂无角色</div>
+            <div className="text-xs text-muted-foreground mt-1">完成角色分析后会在这里展示</div>
+          </CardContent>
+        </Card>
       );
     }
 
     return (
-      <div className="bg-card-custom flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-          {finalCharacters.map((character: ICharacter, index: number) => (
-            <CharactorCard key={(character as any).uuid || (character as any).character_id || `character-${index}`} character={character} />
-          ))}
-        </div>
-      </div>
+      <Card className="overflow-hidden">
+        <CardHeader className="border-b bg-muted/30">
+          <CardTitle className="text-base">{t("novelDetail.characterLibrary")}</CardTitle>
+          <CardDescription className="text-xs">共 {finalCharacters.length} 位角色</CardDescription>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {finalCharacters.map((character: ICharacter, index: number) => (
+              <CharactorCard key={(character as any).uuid || (character as any).character_id || `character-${index}`} character={character} />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -573,19 +608,31 @@ export default function NovelDetailPage() {
     }
     if (!finalCreations?.length) {
       return (
-        <div className="flex items-center justify-center gap-2 p-4">
-          <span className="text-sm text-secondary">暂无创作</span>
-        </div>
+        <Card className="overflow-hidden">
+          <CardContent className="p-12 text-center">
+            <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
+              <BookOpen className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <div className="text-sm font-medium">暂无创作</div>
+            <div className="text-xs text-muted-foreground mt-1">生成的视频创作会自动出现在这里</div>
+          </CardContent>
+        </Card>
       );
     }
     return (
-      <div className="bg-card-custom flex-1">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-          {finalCreations.map((creation: ICreation, index: number) => (
-            <CreationCard key={(creation as any).creation_id || `creation-${index}`} creation={creation} />
-          ))}
-        </div>
-      </div>
+      <Card className="overflow-hidden">
+        <CardHeader className="border-b bg-muted/30">
+          <CardTitle className="text-base">{t("novelDetail.relatedCreations")}</CardTitle>
+          <CardDescription className="text-xs">共 {finalCreations.length} 个创作</CardDescription>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {finalCreations.map((creation: ICreation, index: number) => (
+              <CreationCard key={(creation as any).creation_id || `creation-${index}`} creation={creation} />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -633,117 +680,104 @@ export default function NovelDetailPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* 头部导航 */}
-      <div className="flex justify-between flex-shrink-0">
-      </div>
-      <div className="h-[1px] w-full divider-primary flex-shrink-0" />
-
-      {/* 主内容区域 */}
-      <div className="flex-1 overflow-scroll flex flex-col space-y-4 pt-4 h-[calc(100vh-56px)]">
-        {/* 书籍信息 */}
-        <div className="flex gap-4 px-6 flex-shrink-0">
-          <div className="w-24 md:w-36 lg:w-42 aspect-[3/4] bg-[url('/novel-cover.png')] bg-cover bg-center rounded-lg" />
-          <div className="flex-1 flex flex-col justify-between py-2">
-            <div className="flex flex-col gap-2 lg:gap-3">
-              {editingNovelTitle ? (
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={novelTitleValue}
-                    onChange={(e) => setNovelTitleValue(e.target.value)}
-                    className="text-xl font-bold flex-1"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSaveNovelTitle();
-                      } else if (e.key === "Escape") {
-                        handleCancelEditNovelTitle();
-                      }
-                    }}
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0"
-                    onClick={handleSaveNovelTitle}
-                    disabled={updateNovelMutation.isPending}
-                  >
-                    <Check className="h-4 w-4 text-green-500" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0"
-                    onClick={handleCancelEditNovelTitle}
-                    disabled={updateNovelMutation.isPending}
-                  >
-                    <X className="h-4 w-4 text-red-500" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 group/item">
-                  <h1
-                    className="text-xl font-bold text-primary mb-2 cursor-pointer hover:text-primary/80 transition-colors"
-                    onClick={handleStartEditNovelTitle}
-                  >
-                    {novel.title}
-                  </h1>
-                  <Pencil
-                    className="h-4 w-4 text-secondary opacity-0 group-hover/item:opacity-100 transition-opacity cursor-pointer mb-2"
-                    onClick={handleStartEditNovelTitle}
-                  />
-                </div>
-              )}
-              <div className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                <span className="text-sm">{novel.author}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3 flex-shrink-0" />
-                <span className="text-sm whitespace-nowrap">
-                  {novel?.chapter_count || finalChapters?.length || 0} {t("novelDetail.chapterCount")}
-                </span>
-              </div>
-            </div>
-            {/* <p className="text-sm text-muted-foreground leading-relaxed text-secondary">
-              {novel.description || t("novelDetail.noDescription")}
-            </p> */}
-            <div className="flex items-center gap-1 text-secondary">
-              <Calendar className="h-3 w-3" />
-              <span className="text-sm">
-                {t("novelDetail.uploadedOn")}: {formatDate((novel as any)?.created_at || (novel as any)?.uploadTime || novel?.update_time)}
-              </span>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-purple-50/30 to-slate-50/30 dark:bg-black">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              {t("novelDetail.back")}
+            </Button>
+            <Button size="sm" onClick={() => handleCreateVideo()}>
+              {t("novelDetail.goToCreate")}
+            </Button>
           </div>
-        </div>
 
-        <CustomTabs
-          variant="grid"
-          size="md"
-          defaultValue="chapters"
-          className="gap-0"
-          tabsListClassName="p-0 rounded-b-none"
-          tabsTriggerClassName="rounded-b-none"
-          tabsContentClassName="dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 p-0 mt-[-1px] min-h-[200px]"
-          onValueChange={(value) => {}}
-          items={[
-            {
-              value: "chapters",
-              label: t("novelDetail.chapterList"),
-              content: renderChapters(),
-            },
-            {
-              value: "characters",
-              label: t("novelDetail.characterLibrary"),
-              content: renderCharacters(),
-            },
-            {
-              value: "creations",
-              label: t("novelDetail.relatedCreations"),
-              content: renderCreations(),
-            },
-          ]}
-        />
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-muted/20">
+              <div className="flex gap-6 items-start">
+                <div className="w-28 md:w-32 aspect-[3/4] bg-[url('/novel-cover.png')] bg-cover bg-center rounded-xl border border-border/40" />
+                <div className="flex-1 space-y-3">
+                  {editingNovelTitle ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={novelTitleValue}
+                        onChange={(e) => setNovelTitleValue(e.target.value)}
+                        className="text-2xl font-bold h-10 flex-1"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleSaveNovelTitle();
+                          } else if (e.key === "Escape") {
+                            handleCancelEditNovelTitle();
+                          }
+                        }}
+                      />
+                      <Button className="h-10" onClick={handleSaveNovelTitle} disabled={updateNovelMutation.isPending}>
+                        <Check className="h-4 w-4" />
+                      </Button>
+                      <Button className="h-10" variant="ghost" onClick={handleCancelEditNovelTitle} disabled={updateNovelMutation.isPending}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 group">
+                      <h1
+                        className="text-2xl md:text-3xl font-bold tracking-tight cursor-pointer"
+                        onClick={handleStartEditNovelTitle}
+                      >
+                        {novel.title}
+                      </h1>
+                      <Pencil
+                        className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        onClick={handleStartEditNovelTitle}
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <User className="h-4 w-4" />
+                      {novel.author || "未知作者"}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <BookOpen className="h-4 w-4" />
+                      {(novel as any)?.chapter_count || chaptersTotal || finalChapters?.length || 0} {t("novelDetail.chapterCount")}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4" />
+                      {t("novelDetail.uploadedOn")}: {formatDate((novel as any)?.created_at || (novel as any)?.uploadTime || novel?.update_time)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              <CustomTabs
+                variant="grid"
+                size="md"
+                defaultValue="chapters"
+                items={[
+                  {
+                    value: "chapters",
+                    label: t("novelDetail.chapterList"),
+                    content: renderChapters(),
+                  },
+                  {
+                    value: "characters",
+                    label: t("novelDetail.characterLibrary"),
+                    content: renderCharacters(),
+                  },
+                  {
+                    value: "creations",
+                    label: t("novelDetail.relatedCreations"),
+                    content: renderCreations(),
+                  },
+                ]}
+              />
+            </CardContent>
+          </Card>
+        </div>
       </div>
       <ConfirmDialogComponent />
     </div>

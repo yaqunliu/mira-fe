@@ -57,6 +57,7 @@ export interface ICreation {
   current_task_id?: string;
   voice_id?: string;
   voice_speed?: number;
+  timeline_config?: any;
   extra_data?: Record<string, any>;
   characters: ICharacter[];
   scenes: IScene[];

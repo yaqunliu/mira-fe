@@ -17,10 +17,13 @@ export const novelApi = {
     if (params?.title) {
       queryParams.append('title', params.title)
     }
-    
+    if (params?.type) {
+      queryParams.append('type', params.type)
+    }
+
     const queryString = queryParams.toString()
     const url = `/api/v1/novels/${queryString ? `?${queryString}` : ''}`
-    
+
     return apiClient.get<Novel[]>(url)
   },
 
@@ -37,10 +40,10 @@ export const novelApi = {
       // 默认每页10个
       queryParams.append('page_size', '10')
     }
-    
+
     const queryString = queryParams.toString()
     const url = `/api/v1/novels/${novelId}/chapters${queryString ? `?${queryString}` : '?page_size=10'}`
-    
+
     return apiClient.get<PaginatedResponse<Chapter>>(url)
   },
 
@@ -98,10 +101,20 @@ export const novelApi = {
     return apiClient.delete(`/api/v1/novels/${id}`)
   },
 
+  // 创建小说/项目
+  createNovel: async (data: { title: string; type?: string; author?: string }) => {
+    return apiClient.post<Novel>('/api/v1/novels/create', data)
+  },
+
   // 获取章节列表
-  // getChapters: async (novelId: string) => {
-  //   return apiClient.get<Chapter[]>(`/novels/${novelId}/chapters`)
-  // },
+  getChapters: async (novelId: string, params?: { page?: number; page_size?: number }) => {
+    return apiClient.get<Chapter[]>(`/api/v1/novels/${novelId}/chapters`, { params })
+  },
+
+  // 创建章节
+  createChapter: async (novelId: string, data: { title: string; content: string; chapter_number?: number; novel_id?: number }) => {
+    return apiClient.post<Chapter>(`/api/v1/novels/${novelId}/chapters`, data)
+  },
 
   // 获取单个章节
   getChapter: async (novelId: string, chapterId: string) => {

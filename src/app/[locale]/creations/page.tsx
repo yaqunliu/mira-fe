@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Play, Plus, ChevronLeft, ChevronRight, Trash2, Search, Sparkles, Film } from "lucide-react";
+import { Play, Plus, ChevronLeft, ChevronRight, Trash2, Search, Sparkles, Film, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
@@ -74,10 +74,17 @@ function CreationCard({
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
             </>
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-pink-600/20 dark:from-purple-900/40 dark:via-blue-900/40 dark:to-pink-900/40">
-              <div className="text-center">
-                <Play className="w-16 h-16 text-purple-400 dark:text-purple-300 mx-auto mb-2 animate-pulse" />
-                <p className="text-xs text-purple-600 dark:text-purple-300 font-medium">No Preview</p>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-800/50">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+              
+              <div className="relative z-10 flex flex-col items-center gap-2">
+                <div className="p-3 rounded-full bg-white/50 dark:bg-white/5 border border-zinc-200/50 dark:border-white/10 shadow-sm backdrop-blur-sm">
+                  <ImageOff className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
+                </div>
+                <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 tracking-widest">
+                  暂无预览
+                </span>
               </div>
             </div>
           )}
@@ -189,10 +196,10 @@ export default function CreationsPage() {
 
   const getStatusBadge = (status: CreationStatus) => {
     const statusInfo = CreationStatusMap[status] || { label: t("common.unknown"), color: "bg-gray-500" };
-    
+
     let displayLabel = statusInfo.label;
     let bgColor = statusInfo.color;
-    
+
     if (status === CreationStatus.COMPLETED) {
       displayLabel = t("common.completed");
       bgColor = "bg-green-600";
@@ -212,8 +219,8 @@ export default function CreationsPage() {
   };
 
   const handleCreationClick = (creation: ICreation) => {
-    const creationUuid = (creation as any).uuid || creation.creation_id;
-    window.open(`/${locale}/create?creationId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+    const creationUuid = creation.uuid;
+    window.open(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleDelete = (creationId: string) => {
@@ -254,7 +261,7 @@ export default function CreationsPage() {
                 className="pl-11 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
               />
             </div>
-            <Link href={`/${locale}/create`}>
+            <Link href={`/${locale}/create-dynamic-comic`}>
               <Button
                 className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105"
               >
@@ -317,7 +324,7 @@ export default function CreationsPage() {
                     <p className="text-gray-600 dark:text-gray-400">
                       {t("creation.noCreationsDescription")}
                     </p>
-                    <Link href={`/${locale}/create`}>
+                    <Link href={`/${locale}/create-dynamic-comic`}>
                       <Button className="h-12 px-8 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105">
                         <Plus className="h-5 w-5 mr-2" />
                         {t("creation.createCreation")}

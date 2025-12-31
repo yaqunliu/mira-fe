@@ -10,6 +10,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { SidebarWrapper } from '@/components/business/sidebar-wrapper';
 import '../globals.css';
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 export default async function LocaleLayout({
   children,
   params
@@ -31,10 +33,12 @@ export default async function LocaleLayout({
           <QueryProvider>
             <AuthProvider>
               <NextIntlClientProvider messages={messages}>
-                <SidebarWrapper locale={locale}>
-                  {children}
-                </SidebarWrapper>
-                <Toaster position="top-right" visibleToasts={2} richColors closeButton />
+                <TooltipProvider delayDuration={100}>
+                  <SidebarWrapper locale={locale}>
+                    {children}
+                  </SidebarWrapper>
+                  <Toaster position="top-right" visibleToasts={2} richColors closeButton />
+                </TooltipProvider>
               </NextIntlClientProvider>
             </AuthProvider>
           </QueryProvider>

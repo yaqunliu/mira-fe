@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
-import { FileVideoCamera, BookOpenText, Sparkles } from "lucide-react";
+import { FileVideoCamera, BookOpenText, Sparkles, FileText } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
@@ -23,7 +23,7 @@ export default function WorkspacePage() {
   const { user, isAuthenticated } = useAuthStore();
   const queryClient = useQueryClient();
   const prevPathnameRef = useRef<string | null>(null);
-  
+
   // 初始化 Supabase 认证，确保 session 同步到 auth store
   const { loading: authLoading } = useSupabaseAuth();
   const { token } = useAuthStore();
@@ -31,12 +31,12 @@ export default function WorkspacePage() {
   useEffect(() => {
     // 等待 Supabase 认证初始化完成后再检查
     if (authLoading) return;
-    
+
     // 检查认证状态：需要 isAuthenticated 为 true 且有 user.id，或者有 token（可能正在同步中）
     // 给一点时间让 token 同步完成
     const hasAuth = isAuthenticated && user?.id;
     const hasToken = !!token;
-    
+
     if (!hasAuth && !hasToken) {
       // 如果既没有认证状态也没有 token，才跳转到登录页
       router.push(`/${locale}/auth/login`);
@@ -62,7 +62,7 @@ export default function WorkspacePage() {
 
     const workspacePath = `/${locale}/workspace`;
     const isWorkspacePage = pathname === workspacePath;
-    
+
     // 首次加载时，prevPathnameRef.current 为 null；从其他页面返回时，prevPathnameRef.current 不等于当前路径
     const wasNotWorkspace = prevPathnameRef.current && prevPathnameRef.current !== workspacePath;
     const isFirstLoad = prevPathnameRef.current === null && isWorkspacePage;
@@ -128,12 +128,12 @@ export default function WorkspacePage() {
           <div className="mb-8">
             <div
               className="group relative overflow-hidden cursor-pointer rounded-3xl"
-              onClick={() => router.push(`/${locale}/create`)}
+              onClick={() => router.push(`/${locale}/create-dynamic-comic`)}
             >
               {/* 背景渐变和模糊效果 - 使用柔和的颜色 */}
               <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 opacity-95 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="absolute inset-0 bg-gradient-to-br from-slate-500/20 via-slate-400/20 to-slate-600/20 dark:from-slate-600/15 dark:via-slate-500/15 dark:to-slate-700/15 blur-2xl group-hover:blur-3xl transition-all duration-500" />
-              
+
               {/* 内容 */}
               <div className="relative p-5 md:p-8 min-h-[140px] md:min-h-[160px] flex flex-col md:flex-row items-center justify-between gap-4 md:gap-5">
                 <div className="flex items-center gap-4 md:gap-5 flex-1">
@@ -149,7 +149,7 @@ export default function WorkspacePage() {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="px-5 md:px-6 py-2.5 md:py-3 bg-white/15 dark:bg-white/10 rounded-lg md:rounded-xl backdrop-blur-sm border-2 border-white/25 dark:border-white/15 group-hover:bg-white/25 dark:group-hover:bg-white/15 transition-all duration-300 group-hover:scale-105 shadow-xl">
                     <span className="text-base md:text-lg font-bold text-white/95 dark:text-white flex items-center gap-2 md:gap-3">
@@ -189,18 +189,18 @@ export default function WorkspacePage() {
               </div>
             </div>
 
-            {/* 我的小说 - 现代化设计 */}
+            {/* 我的文案 - 现代化设计 */}
             <div className="space-y-5">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg">
-                  <BookOpenText className="w-6 h-6 text-white" />
+                  <FileText className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent">
                     {t("home.myNovels")}
                   </h2>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {t("home.manageYourNovels") || "管理您的小说作品"}
+                    {t("home.manageYourNovels")}
                   </p>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { CustomTabs } from "@/components/ui/custom-tabs";
 import {
   Search,
   BookOpen,
@@ -17,6 +18,7 @@ import {
   Loader2,
   Smile,
   Upload,
+  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Novel, Chapter, ChapterListItem } from "@/types";
@@ -25,6 +27,16 @@ import { novelApi } from "@/lib/api/novel";
 import { useQuery } from "@tanstack/react-query";
 import LoadingIcon from "../ui/loading-icon";
 import { useTranslations } from "next-intl";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export interface NovelSelectProps {
   // 章节列表（可选，如果不传则从选中的小说中获取）
@@ -84,14 +96,30 @@ export function NovelSelect({
   const [chapterPage, setChapterPage] = useState(1);
   const [chapterPageInput, setChapterPageInput] = useState("");
   const chapterPageSize = 10;
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<string>("novel");
+
+  // 当 selectedNovel 变化时，如果它有 type，自动切换到对应的 tab
+  useEffect(() => {
+    if (selectedNovel && selectedNovel.type) {
+      setActiveTab(selectedNovel.type);
+    }
+  }, [selectedNovel]);
+
+  // 创建项目和章节的状态
+  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [isChapterDialogOpen, setIsChapterDialogOpen] = useState(false);
+  const [newChapterTitle, setNewChapterTitle] = useState("");
+  const [newChapterContent, setNewChapterContent] = useState("");
 
   const {
     data: novelsResponse,
     isFetching: isNovelsLoading,
     refetch: refetchNovels,
   } = useQuery({
-    queryKey: ["novels"],
-    queryFn: () => novelApi.getNovels(),
+    queryKey: ["novels", activeTab],
+    queryFn: () => novelApi.getNovels({ type: activeTab }),
   });
   const novels = (novelsResponse as any)?.data?.items || [];
   // 当前显示的小说（固定小说或选中的小说）
@@ -102,9 +130,9 @@ export function NovelSelect({
     data: chaptersResponse,
     isLoading: isChaptersLoading,
   } = useQuery({
-    queryKey: ["chapters", currentNovel?.uuid || currentNovel?.novel_id, chapterPage, chapterPageSize],
-    queryFn: () => novelApi.getChapters((currentNovel!.uuid || currentNovel!.novel_id) as string, { page: chapterPage, page_size: chapterPageSize }),
-    enabled: !!(currentNovel?.uuid || currentNovel?.novel_id) && !chapters,
+    queryKey: ["chapters", currentNovel?.uuid, chapterPage, chapterPageSize],
+    queryFn: () => novelApi.getChapters(currentNovel!.uuid as string, { page: chapterPage, page_size: chapterPageSize }),
+    enabled: !!currentNovel?.uuid && !chapters,
   });
 
   // 当前显示的章节列表
@@ -139,7 +167,7 @@ export function NovelSelect({
   // 过滤后的章节列表
   const filteredChapters = useMemo(() => {
     if (!chapterSearchTerm) return currentChapters;
-    return currentChapters.filter((chapter) =>
+    return currentChapters.filter((chapter: Chapter) =>
       chapter.title.toLowerCase().includes(chapterSearchTerm.toLowerCase())
     );
   }, [currentChapters, chapterSearchTerm]);
@@ -164,6 +192,67 @@ export function NovelSelect({
   useEffect(() => {
     setCurrentPage(1);
   }, [novelSearchTerm]);
+
+  // 创建项目的 mutation
+  const createProjectMutation = useMutation({
+    mutationFn: (title: string) =>
+      novelApi.createNovel({ title, type: 'script', author: 'User' }),
+    onSuccess: (response: any) => {
+      toast.success(t("createProjectSuccess") || "项目创建成功");
+      setIsProjectDialogOpen(false);
+      setNewProjectTitle("");
+      queryClient.invalidateQueries({ queryKey: ["novels"] });
+    },
+    onError: (error: any) => {
+      toast.error(t("createProjectFailed") || "项目创建失败");
+    }
+  });
+
+  // 创建章节的 mutation
+  const createChapterMutation = useMutation({
+    mutationFn: ({ novelId, title, content }: { novelId: string; title: string; content: string }) =>
+      novelApi.createChapter(novelId, { title, content }),
+    onSuccess: (response: any) => {
+      toast.success(t("createChapterSuccess") || "文案创建成功");
+      setIsChapterDialogOpen(false);
+      setNewChapterTitle("");
+      setNewChapterContent("");
+      queryClient.invalidateQueries({ queryKey: ["chapters"] });
+      // 自动选中新创建的章节
+      const newChapter = response?.data?.data || response?.data;
+      if (newChapter) {
+        handleChapterToggle(newChapter);
+      }
+    },
+    onError: (error: any) => {
+      toast.error(t("createChapterFailed") || "文案创建失败");
+    }
+  });
+
+  const handleCreateProject = () => {
+    if (!newProjectTitle.trim()) {
+      toast.error(t("projectTitleEmpty") || "项目名称不能为空");
+      return;
+    }
+    createProjectMutation.mutate(newProjectTitle.trim());
+  };
+
+  const handleCreateChapter = () => {
+    if (!currentNovel) return;
+    if (!newChapterTitle.trim()) {
+      toast.error(t("chapterTitleEmpty") || "文案标题不能为空");
+      return;
+    }
+    if (!newChapterContent.trim()) {
+      toast.error(t("chapterContentEmpty") || "文案内容不能为空");
+      return;
+    }
+    createChapterMutation.mutate({
+      novelId: (currentNovel.uuid || currentNovel.novel_id) as string,
+      title: newChapterTitle.trim(),
+      content: newChapterContent.trim(),
+    });
+  };
 
   // 处理小说选择
   const handleNovelSelect = (novel: Novel) => {
@@ -200,7 +289,7 @@ export function NovelSelect({
     if (selectedChapters.length === filteredChapters.length) {
       onChaptersChange?.([]);
     } else {
-      onChaptersChange?.(filteredChapters.map((ch) => ch as Chapter));
+      onChaptersChange?.(filteredChapters.map((ch: any) => ch as Chapter));
     }
   };
 
@@ -255,6 +344,22 @@ export function NovelSelect({
     }
     return (
       <div className={cn("w-full", novelClassName)}>
+        <div className="mb-4">
+          <CustomTabs
+            variant="pills"
+            value={activeTab}
+            onValueChange={(val) => {
+              setActiveTab(val);
+              // Reset selection when tab changes
+              onNovelChange?.(null);
+              onChaptersChange?.([]);
+            }}
+            items={[
+              { value: "novel", label: t("novel.typeNovel"), content: null },
+              { value: "script", label: t("novel.typeScript"), content: null },
+            ]}
+          />
+        </div>
         {showSearch && (
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -276,7 +381,16 @@ export function NovelSelect({
               className="mt-4 text-xs sm:text-sm whitespace-nowrap"
             >
               <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              <span>{t("novel.uploadNovel")}</span>
+              <span>{t("createVideo.uploadNovel")}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsProjectDialogOpen(true)}
+              className="mt-2 text-xs sm:text-sm whitespace-nowrap"
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span>{t("createVideo.createProject")}</span>
             </Button>
           </div>
         ) : (
@@ -388,7 +502,16 @@ export function NovelSelect({
               className="text-xs sm:text-sm whitespace-nowrap min-w-fit"
             >
               <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-              <span>{t("novel.uploadNovel")}</span>
+              <span>{t("createVideo.uploadNovel")}</span>
+            </Button>
+            <Button
+              variant="link"
+              size="sm"
+              onClick={() => setIsProjectDialogOpen(true)}
+              className="text-xs sm:text-sm whitespace-nowrap min-w-fit"
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span>{t("createVideo.createProject")}</span>
             </Button>
           </div>
         )}
@@ -400,11 +523,25 @@ export function NovelSelect({
     return (
       <div className={cn("w-full flex flex-col flex-1 min-h-0", chapterClassName)}>
         {/* 章节列表区域 - 可滚动 */}
+        <div className="flex-shrink-0 flex items-center justify-between px-2 mb-2">
+          <div className="text-sm font-medium text-gray-300">
+            {t("createVideo.selectScript")}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsChapterDialogOpen(true)}
+            className="h-8 text-xs px-2 border-orange-500/50 text-orange-500 hover:bg-orange-500/10"
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            {t("createVideo.addChapter")}
+          </Button>
+        </div>
         <div className="flex-1 min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="space-y-2 p-2">
             {filteredChapters.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
-                {chapterSearchTerm ? t("novel.noNovels") : t("novel.chapters")}
+                {chapterSearchTerm ? t("novel.noNovels") : t("createVideo.selectScript")}
               </div>
             ) : (
               filteredChapters.map((chapter: Chapter) => {
@@ -459,8 +596,8 @@ export function NovelSelect({
             )}
           </div>
         </div>
-        
-        
+
+
         {/* 分页控件 - 固定在底部 */}
         {!chapters && chaptersTotalPages > 1 && (
           <div className="flex items-center justify-center gap-2 p-3 border-t border-gray-500/20 flex-shrink-0 bg-card">
@@ -476,7 +613,7 @@ export function NovelSelect({
             >
               <ChevronLeft className="w-3 h-3" />
             </Button>
-            
+
             <div className="flex items-center gap-1">
               <span className="text-xs text-muted-foreground">
                 {chapterPage} / {chaptersTotalPages}
@@ -522,7 +659,7 @@ export function NovelSelect({
                 跳转
               </Button>
             </div>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -558,6 +695,69 @@ export function NovelSelect({
         onOpenChange={setShowUploadModal}
         onComplete={handleUpload}
       />
+
+      {/* 创建项目对话框 */}
+      <Dialog open={isProjectDialogOpen} onOpenChange={setIsProjectDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("createVideo.createProject")}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("projectTitle") || "项目名称"}</label>
+              <Input
+                value={newProjectTitle}
+                onChange={(e) => setNewProjectTitle(e.target.value)}
+                placeholder={t("projectTitlePlaceholder") || "请输入项目名称"}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsProjectDialogOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button onClick={handleCreateProject} disabled={createProjectMutation.isPending}>
+              {createProjectMutation.isPending ? t("common.loading") : t("common.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 添加新文案对话框 */}
+      <Dialog open={isChapterDialogOpen} onOpenChange={setIsChapterDialogOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{t("createVideo.addChapter")}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("chapterTitle") || "文案标题"}</label>
+              <Input
+                value={newChapterTitle}
+                onChange={(e) => setNewChapterTitle(e.target.value)}
+                placeholder={t("chapterTitlePlaceholder") || "请输入标题"}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t("chapterContent") || "文案内容"}</label>
+              <textarea
+                value={newChapterContent}
+                onChange={(e) => setNewChapterContent(e.target.value)}
+                placeholder={t("chapterContentPlaceholder") || "请输入文案内容..."}
+                className="w-full h-48 p-3 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsChapterDialogOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button onClick={handleCreateChapter} disabled={createChapterMutation.isPending}>
+              {createChapterMutation.isPending ? t("common.loading") : t("common.confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

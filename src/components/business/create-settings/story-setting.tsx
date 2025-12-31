@@ -42,26 +42,26 @@ export function StorySetting() {
   const [selectedChapters, setSelectedChapters] = useState<Chapter[]>([]);
   const [creationId, setCreationId] = useState<string | null>(null);
   const [isLoadingFromUrl, setIsLoadingFromUrl] = useState(false);
-  
+
   // 模型配置状态
   const [llmModel, setLlmModel] = useState<string>("");
   const [textToImageModel, setTextToImageModel] = useState<string>("");
   const [imageToImageModel, setImageToImageModel] = useState<string>("");
   const [narrationMode, setNarrationMode] = useState<"original" | "rewrite">("original");
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
-  
+
   // 获取模型配置列表
   const { data: modelConfigsData } = useQuery({
     queryKey: ["modelConfigs"],
     queryFn: () => modelConfigApi.getAllModels(),
   });
-  
+
   const modelConfigs = modelConfigsData?.data || {
     llm: [],
     text_to_image: [],
     image_to_image: [],
   };
-  
+
   // 初始化默认模型
   useEffect(() => {
     if (modelConfigs.llm.length > 0 && !llmModel) {
@@ -77,7 +77,7 @@ export function StorySetting() {
       setImageToImageModel(defaultImageToImage.model_name);
     }
   }, [modelConfigs, llmModel, textToImageModel, imageToImageModel]);
-  const {data: creation, isLoading} = useQuery({
+  const { data: creation, isLoading } = useQuery({
     queryKey: ["creation", creationId],
     queryFn: () => creationApi.queryCreationById(creationId as string),
     enabled: !!creationId,
@@ -111,7 +111,7 @@ export function StorySetting() {
   useEffect(() => {
     if (selectedNovel && chapterIdFromUrl && selectedChapters.length === 0) {
       setIsLoadingFromUrl(true);
-      
+
       const chapters = (selectedNovel as any)?.chapters || [];
       const targetChapter = chapters.find((chapter: Chapter) => {
         // 同时匹配uuid和chapter_id，以支持新旧数据
@@ -119,7 +119,7 @@ export function StorySetting() {
         const id = String((chapter as any).chapter_id || chapter.chapter_id || "");
         return uuid === String(chapterIdFromUrl) || id === String(chapterIdFromUrl);
       });
-      
+
       if (targetChapter) {
         // 如果小说数据中有章节，直接使用
         setSelectedChapters([targetChapter]);
@@ -177,12 +177,12 @@ export function StorySetting() {
       const newCreationUuid = response?.data?.uuid || response?.data?.data?.uuid;
       const newCreationId = response?.data?.creation_id || response?.data?.data?.creation_id || response?.data || response;
       const creationIdToUse = newCreationUuid || String(newCreationId);
-      
+
       if (creationIdToUse) {
         setCreationId(creationIdToUse);
         toast.success(t("creation.characterAnalysisStart") || "开始分析章节内容...");
         // 跳转到创作页面，显示分析进度
-        router.replace(`/${locale}/create?creationId=${creationIdToUse}`);
+        router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationIdToUse}`);
       } else {
         throw new Error(t("creation.taskIdNotFound") || "未获取到创作ID");
       }
@@ -214,7 +214,7 @@ export function StorySetting() {
       if (existingCreation?.data) {
         // 如果已有创作，直接跳转到该创作
         const creationUuid = (existingCreation.data as any).uuid || existingCreation.data.creation_id;
-        router.replace(`/${locale}/create?creationId=${creationUuid}`);
+        router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
         return; // 直接返回，不创建新创作
       }
     } catch (error) {
@@ -245,7 +245,7 @@ export function StorySetting() {
       image_to_image_model: imageToImageModel,
       narration_mode: narrationMode,
     };
-    
+
     // 调用创建接口
     return new Promise<void>((resolve, reject) => {
       createCreationMutation.mutate(
@@ -320,7 +320,7 @@ export function StorySetting() {
             <FileText className="w-5 h-5 text-blue-500" />
             {t("createVideo.selectScript")}
           </div>
-          
+
           {/* 显示加载状态 */}
           {isLoadingFromUrl && (
             <div className="flex items-center justify-center gap-2 py-4 flex-shrink-0">
@@ -338,7 +338,7 @@ export function StorySetting() {
               tabsListClassName="p-0 rounded-b-none flex-shrink-0"
               tabsTriggerClassName="rounded-b-none"
               tabsContentClassName="bg-white dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounded-b-lg flex-1 min-h-0 overflow-hidden flex flex-col"
-              onValueChange={(value) => {}}
+              onValueChange={(value) => { }}
               items={[
                 {
                   value: "novel",
@@ -385,188 +385,188 @@ export function StorySetting() {
                                   {t("creation.config") || "配置"}
                                 </Button>
                               </DialogTrigger>
-                            <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-white/10">
-                              <div className="overflow-y-auto flex-1 px-6 py-5">
-                                <DialogHeader className="mb-6">
-                                  <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30">
-                                      <Settings className="w-5 h-5 text-amber-400" />
+                              <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-white/10">
+                                <div className="overflow-y-auto flex-1 px-6 py-5">
+                                  <DialogHeader className="mb-6">
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <div className="p-2 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30">
+                                        <Settings className="w-5 h-5 text-amber-400" />
+                                      </div>
+                                      <DialogTitle className="text-2xl font-bold text-white">
+                                        {t("creation.modelConfig") || "创作配置"}
+                                      </DialogTitle>
                                     </div>
-                                    <DialogTitle className="text-2xl font-bold text-white">
-                                      {t("creation.modelConfig") || "创作配置"}
-                                    </DialogTitle>
-                                  </div>
-                                  <DialogDescription className="text-slate-400 text-sm">
-                                    {t("creation.modelConfigDescription") || "选择用于生成创作的模型和模式"}
-                                  </DialogDescription>
-                                </DialogHeader>
-                              
-                              <div className="space-y-5">
-                                {/* LLM 模型选择 */}
-                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                                    {t("creation.llmModel") || "文生文模型"}
-                                  </Label>
-                                  <Select value={llmModel} onValueChange={setLlmModel}>
-                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                      <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-white/10">
-                                      {modelConfigs.llm.map((model) => (
-                                        <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
-                                          {model.display_name}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  {llmModel && (() => {
-                                    const selectedModel = modelConfigs.llm.find(m => m.model_name === llmModel);
-                                    return selectedModel && (
-                                      <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
-                                        {selectedModel.description && (
-                                          <p className="text-slate-300">{selectedModel.description}</p>
+                                    <DialogDescription className="text-slate-400 text-sm">
+                                      {t("creation.modelConfigDescription") || "选择用于生成创作的模型和模式"}
+                                    </DialogDescription>
+                                  </DialogHeader>
+
+                                  <div className="space-y-5">
+                                    {/* LLM 模型选择 */}
+                                    <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                      <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                        {t("creation.llmModel") || "文生文模型"}
+                                      </Label>
+                                      <Select value={llmModel} onValueChange={setLlmModel}>
+                                        <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-slate-800 border-white/10">
+                                          {modelConfigs.llm.map((model) => (
+                                            <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
+                                              {model.display_name}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      {llmModel && (() => {
+                                        const selectedModel = modelConfigs.llm.find(m => m.model_name === llmModel);
+                                        return selectedModel && (
+                                          <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
+                                            {selectedModel.description && (
+                                              <p className="text-slate-300">{selectedModel.description}</p>
+                                            )}
+                                            <div className="flex items-center gap-4 flex-wrap">
+                                              <span>
+                                                {t("creation.maxTokens") || "最大Token数"}: <span className="text-white font-medium">{selectedModel.config?.max_tokens || "-"}</span>
+                                              </span>
+                                              <span>
+                                                {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
+
+                                    {/* 文生图模型选择 */}
+                                    <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                      <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
+                                        {t("creation.textToImageModel") || "文生图模型"}
+                                      </Label>
+                                      <Select value={textToImageModel} onValueChange={setTextToImageModel}>
+                                        <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-slate-800 border-white/10">
+                                          {modelConfigs.text_to_image.map((model) => (
+                                            <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
+                                              {model.display_name}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      {textToImageModel && (() => {
+                                        const selectedModel = modelConfigs.text_to_image.find(m => m.model_name === textToImageModel);
+                                        return selectedModel && (
+                                          <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
+                                            {selectedModel.description && (
+                                              <p className="text-slate-300">{selectedModel.description}</p>
+                                            )}
+                                            <div className="flex items-center gap-4 flex-wrap">
+                                              <span>
+                                                {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
+                                              </span>
+                                              <span>
+                                                {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
+
+                                    {/* 图生图模型选择 */}
+                                    <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                      <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
+                                        {t("creation.imageToImageModel") || "图生图模型"}
+                                      </Label>
+                                      <Select value={imageToImageModel} onValueChange={setImageToImageModel}>
+                                        <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-slate-800 border-white/10">
+                                          {modelConfigs.image_to_image.map((model) => (
+                                            <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
+                                              {model.display_name}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      {imageToImageModel && (() => {
+                                        const selectedModel = modelConfigs.image_to_image.find(m => m.model_name === imageToImageModel);
+                                        return selectedModel && (
+                                          <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
+                                            {selectedModel.description && (
+                                              <p className="text-slate-300">{selectedModel.description}</p>
+                                            )}
+                                            <div className="flex items-center gap-4 flex-wrap">
+                                              <span>
+                                                {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
+                                              </span>
+                                              <span>
+                                                {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
+
+                                    {/* 解说词模式选择 */}
+                                    <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                      <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+                                        {t("creation.narrationMode") || "解说词模式"}
+                                      </Label>
+                                      <Select value={narrationMode} onValueChange={(value) => setNarrationMode(value as "original" | "rewrite")}>
+                                        <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-slate-800 border-white/10">
+                                          <SelectItem value="original" className="text-white hover:bg-white/10">
+                                            {t("creation.originalMode") || "原文模式"}
+                                          </SelectItem>
+                                          <SelectItem value="rewrite" className="text-white hover:bg-white/10">
+                                            {t("creation.rewriteMode") || "爽文模式"}
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <div className="text-xs text-slate-400 pt-2 border-t border-white/10">
+                                        {narrationMode === "original" ? (
+                                          <p className="text-slate-300">{t("creation.originalModeDesc") || "保持原文内容，仅进行场景分解"}</p>
+                                        ) : (
+                                          <p className="text-slate-300">{t("creation.rewriteModeDesc") || "改写缩短文本，使用快节奏的解说方式"}</p>
                                         )}
-                                        <div className="flex items-center gap-4 flex-wrap">
-                                          <span>
-                                            {t("creation.maxTokens") || "最大Token数"}: <span className="text-white font-medium">{selectedModel.config?.max_tokens || "-"}</span>
-                                          </span>
-                                          <span>
-                                            {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
-                                          </span>
-                                        </div>
                                       </div>
-                                    );
-                                  })()}
-                                </div>
-                                
-                                {/* 文生图模型选择 */}
-                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
-                                    {t("creation.textToImageModel") || "文生图模型"}
-                                  </Label>
-                                  <Select value={textToImageModel} onValueChange={setTextToImageModel}>
-                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                      <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-white/10">
-                                      {modelConfigs.text_to_image.map((model) => (
-                                        <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
-                                          {model.display_name}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  {textToImageModel && (() => {
-                                    const selectedModel = modelConfigs.text_to_image.find(m => m.model_name === textToImageModel);
-                                    return selectedModel && (
-                                      <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
-                                        {selectedModel.description && (
-                                          <p className="text-slate-300">{selectedModel.description}</p>
-                                        )}
-                                        <div className="flex items-center gap-4 flex-wrap">
-                                          <span>
-                                            {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
-                                          </span>
-                                          <span>
-                                            {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
-                                          </span>
-                                        </div>
-                                      </div>
-                                    );
-                                  })()}
-                                </div>
-                                
-                                {/* 图生图模型选择 */}
-                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
-                                    {t("creation.imageToImageModel") || "图生图模型"}
-                                  </Label>
-                                  <Select value={imageToImageModel} onValueChange={setImageToImageModel}>
-                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                      <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-white/10">
-                                      {modelConfigs.image_to_image.map((model) => (
-                                        <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
-                                          {model.display_name}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  {imageToImageModel && (() => {
-                                    const selectedModel = modelConfigs.image_to_image.find(m => m.model_name === imageToImageModel);
-                                    return selectedModel && (
-                                      <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
-                                        {selectedModel.description && (
-                                          <p className="text-slate-300">{selectedModel.description}</p>
-                                        )}
-                                        <div className="flex items-center gap-4 flex-wrap">
-                                          <span>
-                                            {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
-                                          </span>
-                                          <span>
-                                            {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
-                                          </span>
-                                        </div>
-                                      </div>
-                                    );
-                                  })()}
-                                </div>
-                                
-                                {/* 解说词模式选择 */}
-                                <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                  <Label className="text-sm font-semibold text-white flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
-                                    {t("creation.narrationMode") || "解说词模式"}
-                                  </Label>
-                                  <Select value={narrationMode} onValueChange={(value) => setNarrationMode(value as "original" | "rewrite")}>
-                                    <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-white/10">
-                                      <SelectItem value="original" className="text-white hover:bg-white/10">
-                                        {t("creation.originalMode") || "原文模式"}
-                                      </SelectItem>
-                                      <SelectItem value="rewrite" className="text-white hover:bg-white/10">
-                                        {t("creation.rewriteMode") || "爽文模式"}
-                                      </SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <div className="text-xs text-slate-400 pt-2 border-t border-white/10">
-                                    {narrationMode === "original" ? (
-                                      <p className="text-slate-300">{t("creation.originalModeDesc") || "保持原文内容，仅进行场景分解"}</p>
-                                    ) : (
-                                      <p className="text-slate-300">{t("creation.rewriteModeDesc") || "改写缩短文本，使用快节奏的解说方式"}</p>
-                                    )}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </div>
-                            <div className="flex-shrink-0 px-6 py-4 border-t border-white/10 bg-slate-900/50">
-                                <Button
-                                  onClick={() => setIsConfigDialogOpen(false)}
-                                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium"
-                                >
-                                  {t("common.confirm") || "确认"}
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                          
-                          {/* 下一步按钮 */}
-                          <Button
-                            variant="default"
-                            size="lg"
-                            onClick={() => analyseContent()}
-                            disabled={createCreationMutation.isPending || isLoading || isSubmittingAnalysis}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl flex-shrink-0"
-                          >
-                            {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.analyzeCharacters")}
-                            <ArrowRight className="w-4 h-4 ml-1" />
-                          </Button>
+                                <div className="flex-shrink-0 px-6 py-4 border-t border-white/10 bg-slate-900/50">
+                                  <Button
+                                    onClick={() => setIsConfigDialogOpen(false)}
+                                    className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium"
+                                  >
+                                    {t("common.confirm") || "确认"}
+                                  </Button>
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+
+                            {/* 下一步按钮 */}
+                            <Button
+                              variant="default"
+                              size="lg"
+                              onClick={() => analyseContent()}
+                              disabled={createCreationMutation.isPending || isLoading || isSubmittingAnalysis}
+                              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl flex-shrink-0"
+                            >
+                              {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.analyzeCharacters")}
+                              <ArrowRight className="w-4 h-4 ml-1" />
+                            </Button>
                           </div>
                         </div>
                       )}

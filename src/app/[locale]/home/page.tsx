@@ -100,7 +100,7 @@ export default function HomePage() {
           }
 
           const { user: currentUser, isAuthenticated: currentAuth } = useAuthStore.getState()
-          
+
           if (currentAuth && currentUser && currentUser.id) {
             if (checkInterval) {
               clearInterval(checkInterval)
@@ -150,7 +150,7 @@ export default function HomePage() {
     if (!isAuthenticated) {
       router.push(`/${locale}/auth/login`)
     } else {
-      router.push(`/${locale}/workspace`)
+      router.push(`/${locale}/create-dynamic-comic`)
     }
   }
 
@@ -239,7 +239,7 @@ export default function HomePage() {
             </div>
           </div>
 
-        <div className="relative">
+          <div className="relative">
             <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-tr from-orange-300/50 via-amber-200/40 to-purple-300/40 blur-2xl dark:from-orange-500/10 dark:via-white/5 dark:to-purple-500/10" />
             <div className="rounded-3xl border border-white/60 bg-white/70 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
               <div className="flex flex-col gap-4 p-6">

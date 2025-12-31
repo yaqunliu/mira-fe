@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
-import { Play, ChevronRight } from "lucide-react";
+import { Play, ChevronRight, ImageOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import creationApi from "@/lib/api/creation";
@@ -40,16 +40,16 @@ export function CreationOverview() {
 
   // 所有创作都可以点击进入详情
   const handleCreationClick = (creation: ICreation) => {
-    const creationUuid = (creation as any).uuid || creation.creation_id;
-    window.open(`/${locale}/create?creationId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+    const creationUuid = creation.uuid;
+    window.open(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
     const statusInfo = CreationStatusMap[status as keyof typeof CreationStatusMap] || { label: t("common.unknown"), color: "bg-gray-500" };
-    
+
     let displayLabel = statusInfo.label;
     let bgColor = statusInfo.color;
-    
+
     if (status === CreationStatus.COMPLETED) {
       displayLabel = t("common.completed");
       bgColor = "bg-green-600";
@@ -88,7 +88,7 @@ export function CreationOverview() {
         <Button
           size="sm"
           onClick={() => {
-            router.push(`/${locale}/create`);
+            router.push(`/${locale}/create-dynamic-comic`);
           }}
           className="text-xs"
         >
@@ -102,7 +102,7 @@ export function CreationOverview() {
   const renderCreationContent = (creation: ICreation) => {
     // 获取封面图：优先使用场景的第一张分镜图
     const coverImage = creation.scenes?.[0]?.shots?.[0]?.image_url;
-    
+
     return (
       <div className="relative aspect-[16/9] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
         {/* 封面背景 */}
@@ -113,7 +113,19 @@ export function CreationOverview() {
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-400/90 via-pink-500/90 to-red-500/90 dark:from-purple-600/90 dark:via-pink-700/90 dark:to-red-800/90" />
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-800/50">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+            
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div className="p-3 rounded-full bg-white/50 dark:bg-white/5 border border-zinc-200/50 dark:border-white/10 shadow-sm backdrop-blur-sm">
+                <ImageOff className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
+              </div>
+              <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 tracking-widest">
+                暂无预览
+              </span>
+            </div>
+          </div>
         )}
 
         {/* 遮罩层 */}

@@ -26,6 +26,7 @@ import {
   ChevronRight,
   Wand2,
   Repeat,
+  FileText,
 } from 'lucide-react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,11 @@ import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LanguageToggle } from '@/components/business/language-toggle'
 import { CheckinButton } from '@/components/business/checkin-button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface NavItem {
   label: string
@@ -90,7 +96,7 @@ export function AppSidebar() {
     {
       label: t('create', { default: '创作' }),
       icon: Wand2,
-      href: `/${locale}/create`,
+      href: `/${locale}/create-dynamic-comic`,
       translationKey: 'create',
     },
     {
@@ -100,10 +106,10 @@ export function AppSidebar() {
       translationKey: 'creations',
     },
     {
-      label: t('novels', { default: '小说列表' }),
-      icon: BookOpen,
-      href: `/${locale}/novels`,
-      translationKey: 'novels',
+      label: t('scripts', { default: '文案列表' }),
+      icon: FileText,
+      href: `/${locale}/scripts`,
+      translationKey: 'scripts',
     },
   ]
 
@@ -120,12 +126,12 @@ export function AppSidebar() {
     if (supabase) {
       await supabase.auth.signOut()
     }
-    
+
     // 清空所有用户相关的 React Query 缓存
     clearUserDataCache(queryClient)
     // 清空 auth store 和其他 store 的数据
     logout()
-    
+
     // 跳转到登录页
     router.push(`/${locale}/auth/login`)
     if (window.innerWidth < 1024) {
@@ -141,7 +147,7 @@ export function AppSidebar() {
   }
 
   const [isMobile, setIsMobile] = useState(false)
-  
+
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024
@@ -179,7 +185,7 @@ export function AppSidebar() {
           >
             <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" />
           </Button>
-          
+
           <div className="flex items-center gap-2">
             {isAuthenticated && (
               <>
@@ -299,18 +305,18 @@ export function AppSidebar() {
                   key={item.href}
                   onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    'w-full flex items-center rounded-xl transition-all duration-200 group relative',
-                    isCollapsed ? 'justify-center px-3 py-2.5' : 'gap-3 px-3 py-2.5',
+                    'w-full flex items-center rounded-xl transition-all duration-300 group relative',
+                    isCollapsed ? 'justify-center h-12 p-0' : 'gap-3 px-3 py-2.5',
                     active
-                      ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 border border-blue-200/50 dark:border-blue-800/50'
-                      : 'hover:bg-gray-100/50 dark:hover:bg-white/5 border border-transparent'
+                      ? 'bg-blue-600 shadow-blue-500/30 text-white shadow-lg'
+                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                   )}
                 >
                   <Icon className={cn(
                     'h-5 w-5 flex-shrink-0 transition-colors',
                     active
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400'
+                      ? 'text-white'
+                      : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200'
                   )} />
                   {(!isCollapsed || isMobile) && (
                     <span className={cn(
@@ -328,90 +334,104 @@ export function AppSidebar() {
           </nav>
 
           {/* 底部功能区 */}
-          <div className="p-3 border-t border-gray-200/50 dark:border-white/10 space-y-3">
+          <div className={cn("border-t border-gray-200/50 dark:border-white/10", isCollapsed ? "p-2 space-y-2" : "p-3 space-y-3")}>
             {/* 积分显示 */}
             {isAuthenticated && (
-              <div className="space-y-2">
-                <button
-                  onClick={() => handleNavClick(`/${locale}/points`)}
-                  className={cn(
-                    'w-full rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50 hover:shadow-md transition-all',
-                    isCollapsed ? 'p-2 flex flex-col items-center justify-center gap-1' : 'p-3'
-                  )}
-                >
-                  <div className={cn(
-                    'flex items-center',
-                    isCollapsed ? 'flex-col gap-1' : 'gap-3 w-full'
-                  )}>
-                    {!isCollapsed && (
-                      <div className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex-shrink-0">
+              <div className={cn(isCollapsed ? "flex flex-col items-center gap-2" : "space-y-3")}>
+                {/* 积分显示 */}
+                {isCollapsed ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleNavClick(`/${locale}/points`)}
+                        className="rounded-lg transition-all duration-300 relative group overflow-hidden w-11 h-11 flex items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500 shadow-md hover:shadow-lg hover:scale-105"
+                      >
+                        <Coins className="h-4.5 w-4.5 text-white" />
+                        <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-white/30 border border-white/20" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>{t('points', { default: '积分' })}: {currentBalance?.available_points?.toLocaleString() ?? 0}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <button
+                    onClick={() => handleNavClick(`/${locale}/points`)}
+                    className="w-full p-3 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border border-amber-200/50 dark:border-amber-800/50 rounded-xl hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex-shrink-0 shadow-sm">
                         <Coins className="h-4 w-4 text-white" />
                       </div>
-                    )}
-                    {!isCollapsed && (
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 flex flex-col items-start">
                         {balanceLoading ? (
                           <Skeleton className="h-5 w-20 bg-amber-200/50 dark:bg-amber-800/30" />
                         ) : (
                           <>
-                            <div className="text-lg font-bold text-amber-700 dark:text-amber-300">
+                            <div className="text-lg font-bold text-amber-700 dark:text-amber-300 lining-nums">
                               {currentBalance?.available_points?.toLocaleString() ?? 0}
                             </div>
-                            <div className="text-xs text-amber-600 dark:text-amber-400">
-                              {t('points', { default: '积分' })}
+                            <div className="text-xs text-amber-600/80 dark:text-amber-400/80 font-medium">
+                              {t('points', { default: '积分余额' })}
                             </div>
                           </>
                         )}
                       </div>
-                    )}
-                    {isCollapsed && !balanceLoading && (
-                      <>
-                        <div className="text-xs font-bold text-amber-700 dark:text-amber-300 text-center">
-                          {currentBalance?.available_points?.toLocaleString() ?? 0}
-                        </div>
-                        <Coins className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-                      </>
-                    )}
-                  </div>
-                </button>
-                {/* 充值按钮 */}
-                <button
-                  onClick={() => window.open(`/${locale}/pricing`, '_blank', 'noopener,noreferrer')}
-                  className={cn(
-                    'w-full flex items-center rounded-lg text-sm font-medium transition-all',
-                    isCollapsed
-                      ? 'justify-center px-2 py-2 bg-transparent hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300'
-                      : 'justify-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-md hover:shadow-lg'
-                  )}
-                >
+                    </div>
+                  </button>
+                )}
+
+                <div className={cn("flex", isCollapsed ? "flex-col gap-2" : "gap-2 w-full")}>
+                  {/* 充值按钮 */}
                   {isCollapsed ? (
-                    <span className="text-xs font-medium">{t('rechargeShort', { default: '充值' })}</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => window.open(`/${locale}/pricing`, '_blank', 'noopener,noreferrer')}
+                          className="rounded-lg transition-all duration-300 flex items-center justify-center w-11 h-11 bg-white dark:bg-slate-800 border-2 border-dashed border-blue-200 dark:border-blue-700 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+                        >
+                          <Sparkles className="h-4 w-4 flex-shrink-0" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>{t('recharge', { default: '立即充值' })}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   ) : (
-                    <>
+                    <button
+                      onClick={() => window.open(`/${locale}/pricing`, '_blank', 'noopener,noreferrer')}
+                      className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-2.5 px-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                    >
                       <Sparkles className="h-4 w-4 flex-shrink-0" />
-                      <span>{t('recharge', { default: '立即充值' })}</span>
-                    </>
+                      <span className="text-sm font-semibold">{t('recharge', { default: '充值' })}</span>
+                    </button>
                   )}
-                </button>
-                {/* 订阅管理按钮 */}
-                <button
-                  onClick={() => window.open(`/${locale}/subscriptions`, '_blank', 'noopener,noreferrer')}
-                  className={cn(
-                    'w-full flex items-center rounded-lg text-sm font-medium transition-all',
-                    isCollapsed
-                      ? 'justify-center px-2 py-2 bg-transparent hover:bg-gray-100 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300'
-                      : 'justify-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-md hover:shadow-lg'
-                  )}
-                >
+
+                  {/* 订阅管理按钮 */}
                   {isCollapsed ? (
-                    <span className="text-xs font-medium">{t('subscriptionsShort', { default: '订阅' })}</span>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => window.open(`/${locale}/subscriptions`, '_blank', 'noopener,noreferrer')}
+                          className="rounded-lg transition-all duration-300 flex items-center justify-center w-11 h-11 bg-white dark:bg-slate-800 border-2 border-dashed border-emerald-200 dark:border-emerald-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400"
+                        >
+                          <Repeat className="h-4 w-4 flex-shrink-0" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>{t('subscriptions', { default: '我的订阅' })}</p>
+                      </TooltipContent>
+                    </Tooltip>
                   ) : (
-                    <>
+                    <button
+                      onClick={() => window.open(`/${locale}/subscriptions`, '_blank', 'noopener,noreferrer')}
+                      className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-2.5 px-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm hover:shadow-md"
+                    >
                       <Repeat className="h-4 w-4 flex-shrink-0" />
-                      <span>{t('subscriptions', { default: '我的订阅' })}</span>
-                    </>
+                      <span className="text-sm font-semibold">{t('subscriptionsShort', { default: '订阅' })}</span>
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
             )}
 
@@ -485,7 +505,7 @@ export function AppSidebar() {
             </div>
           </div>
         </div>
-      </aside>
+      </aside >
     </>
   )
 }

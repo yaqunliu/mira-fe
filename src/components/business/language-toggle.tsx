@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useTranslations } from 'next-intl'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { cn } from '@/lib/utils'
 
@@ -17,6 +17,7 @@ export function LanguageToggle() {
   const t = useTranslations('language')
   const params = useParams()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const router = useRouter()
   const currentLocale = (params?.locale as string) || routing.defaultLocale
 
@@ -34,7 +35,13 @@ export function LanguageToggle() {
     } else {
       segments.unshift('', locale)
     }
-    const newPath = segments.join('/')
+    let newPath = segments.join('/')
+    
+    // 保留查询参数
+    if (searchParams && searchParams.toString()) {
+      newPath += `?${searchParams.toString()}`
+    }
+    
     router.push(newPath)
   }
 

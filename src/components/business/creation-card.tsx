@@ -3,6 +3,7 @@ import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { ImageOff } from "lucide-react";
 
 function VideoCard({ creation }: { creation: ICreation }) {
   const router = useRouter();
@@ -20,13 +21,13 @@ function VideoCard({ creation }: { creation: ICreation }) {
     }
 
     // 根据状态返回对应的徽章
-    if (status === CreationStatus.COMPLETED || status === "completed") {
+    if (status === CreationStatus.COMPLETED) {
       return (
         <Badge variant="default" className={cn("text-xs", "bg-green-700/80")}>
           {t("common.completed")}
         </Badge>
       );
-    } else if (status === CreationStatus.FAILED || status === "failed") {
+    } else if (status === CreationStatus.FAILED) {
       return (
         <Badge variant="destructive" className={cn("text-xs", "bg-red-500")}>
           {t("common.error")}
@@ -43,15 +44,11 @@ function VideoCard({ creation }: { creation: ICreation }) {
   };
 
   const handleCreationClick = (creation: ICreation) => {
-    // 如果创作未完成，可以点击跳转到创作页面
-    const status = creation.status;
-    if (status && status !== CreationStatus.COMPLETED && status !== "completed" && status !== CreationStatus.FAILED && status !== "failed") {
-      const creationId = (creation as any).creation_id || creation.creationId;
-      router.push(`/${locale}/create?creation=${creationId}`);
-    }
+    const creationId = (creation as any).uuid || creation.creation_id;
+    router.push(`/${locale}/dynamic-comic-editor?taskId=${creationId}`);
   };
   // 兼容两种字段名格式
-  const creationId = (creation as any).creation_id || creation.creationId || "";
+  const creationId = (creation as any).creation_id || creation.creation_id || (creation as any).uuid || "";
   const videoUrl = (creation as any).video_url || (creation as any).videoUrl || "";
 
   return (
@@ -71,12 +68,18 @@ function VideoCard({ creation }: { creation: ICreation }) {
         </div>
       )}
       {!videoUrl && (
-        <div className="relative w-full bg-black overflow-hidden aspect-video">
-          <img
-            src={"https://zhuluoji.cn-sh2.ufileos.com/images-frontend/test/placeholder.png"}
-            alt={creation.title}
-            className="absolute inset-0 w-full aspect-video object-cover"
-          />
+        <div className="relative w-full aspect-video bg-zinc-100 dark:bg-zinc-800/50 flex flex-col items-center justify-center overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+          
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <div className="p-3 rounded-full bg-white/50 dark:bg-white/5 border border-zinc-200/50 dark:border-white/10 shadow-sm backdrop-blur-sm">
+              <ImageOff className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
+            </div>
+            <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 tracking-widest">
+              暂无预览
+            </span>
+          </div>
         </div>
       )}
 

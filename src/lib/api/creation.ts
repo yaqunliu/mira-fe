@@ -46,10 +46,14 @@ const creationApi = {
     return apiClient.get<ApiResponse<ICreation[]>>(url) as unknown as Promise<ICreation[]>;
   },
   queryCreationById: async (
-    creationId: string
+    creationId: string,
+    excludeTimeline: boolean = false
   ): Promise<{ data: ICreation; message: string }> => {
+    const url = excludeTimeline 
+      ? `/api/v1/creations/${creationId}?exclude_timeline=true` 
+      : `/api/v1/creations/${creationId}`;
     return apiClient.get<ApiResponse<ICreation>>(
-      `/api/v1/creations/${creationId}`
+      url
     ) as unknown as Promise<{ data: ICreation; message: string }>;
   },
   // 快速获取创作信息（简化版，速度更快）
@@ -60,16 +64,27 @@ const creationApi = {
       `/api/v1/creations/${creationId}/simple`
     ) as unknown as Promise<{ data: ICreation; message: string }>;
   },
-  // 生成分镜图片
+  // 生成分镜图片（批量或指定）
   generateShots: async (
     creationId: string,
-    imageCount: number
+    forceRegenerate: boolean = false,
+    shotIds?: string[]
   ): Promise<{ data: { task_id: string; message: string } }> => {
     return apiClient.post<{ task_id: string; message: string }>(
       `/api/v1/creations/${creationId}/generate-shots`,
       {
-        image_count: imageCount,
+        force_regenerate: forceRegenerate,
+        shot_ids: shotIds
       }
+    ) as unknown as Promise<{ data: { task_id: string; message: string } }>;
+  },
+
+  // 手动启动分镜拆解任务（第三步：分镜分析）
+  analyzeShots: async (
+    creationId: string
+  ): Promise<{ data: { task_id: string; message: string } }> => {
+    return apiClient.post<{ task_id: string; message: string }>(
+      `/api/v1/creations/${creationId}/analyze-shots`
     ) as unknown as Promise<{ data: { task_id: string; message: string } }>;
   },
 
@@ -133,6 +148,17 @@ const creationApi = {
     }>;
   },
 
+  // 更新创作
+  updateCreation: async (
+    creationId: string,
+    data: Partial<ICreation>
+  ): Promise<{ data: ICreation; message: string }> => {
+    return apiClient.put<ApiResponse<ICreation>>(
+      `/api/v1/creations/${creationId}`,
+      data
+    ) as unknown as Promise<{ data: ICreation; message: string }>;
+  },
+
   // 删除创作
   deleteCreation: async (creationId: string) => {
     return apiClient.delete(`/api/v1/creations/${creationId}`);
@@ -167,6 +193,21 @@ const creationApi = {
       {
         narration_mode: narrationMode,
       }
+    ) as unknown as Promise<{ data: { task_id: string; creation_uuid: string }; message: string }>;
+  },
+
+  // 批量生成场景图片
+  generateSceneImages: async (
+    creationId: string,
+    forceRegenerate: boolean = false
+  ): Promise<{ data: { task_id: string; creation_uuid: string }; message: string }> => {
+    const creationUuid = String(creationId);
+    // 这里使用 params 传参，因为后端接口可能使用了 Query 参数或者 Body 参数
+    // 根据后端代码：@router.post("/{creation_uuid}/generate-scene-images") async def start_generate_scene_images(..., force_regenerate: bool = False, ...)
+    // force_regenerate 是 Query 参数
+    return apiClient.post<{ task_id: string; creation_uuid: string }>(
+      `/api/v1/creations/${creationUuid}/generate-scene-images?force_regenerate=${forceRegenerate}`,
+      {}
     ) as unknown as Promise<{ data: { task_id: string; creation_uuid: string }; message: string }>;
   },
 };

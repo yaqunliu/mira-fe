@@ -22,9 +22,9 @@ export interface BottomSheetProps {
   /** 打开状态变化回调 */
   onOpenChange: (open: boolean) => void;
   /** 弹窗标题 */
-  title: string;
+  title: React.ReactNode;
   /** 副标题/描述（可选） */
-  description?: string;
+  description?: React.ReactNode;
   /** 弹窗内容 */
   children: React.ReactNode;
   /** 底部操作按钮 */
@@ -95,16 +95,14 @@ export function BottomSheet({
 
   // 根据断点设置弹窗高度
   const getSheetHeight = () => {
-    const screenSize = getScreenSize();
-    const baseHeight = {
-      xs: 500,  // 小屏手机
-      sm: 600,  // 大屏手机
-      md: 700,  // 平板
-      lg: 800   // 桌面
-    }[screenSize];
-
-    // 如果有键盘，减去键盘高度
-    return baseHeight //keyboardHeight > 0 ? baseHeight - keyboardHeight : baseHeight;
+    if (typeof window === "undefined") return "auto";
+    // 使用视口高度的百分比，适配横屏和竖屏
+    const vh = window.innerHeight;
+    // 强制限制最大高度，避免在横屏模式下过高
+    // 如果是横屏（宽 > 高），最大高度设为 85%
+    // 如果是竖屏，保持 90%
+    const isLandscape = typeof window !== "undefined" && window.innerWidth > window.innerHeight;
+    return Math.min(vh * (isLandscape ? 0.85 : 0.9), 800);
   };
 
   // 监听键盘高度变化
@@ -152,7 +150,7 @@ export function BottomSheet({
         {/* 弹窗内容 */}
         <DialogPrimitive.Content
           className={cn(
-            "fixed left-0 right-0 bottom-0 z-50 w-full flex flex-col",
+            "fixed left-0 right-0 bottom-0 z-50 w-full max-w-5xl mx-auto flex flex-col",
             "shadow-2xl rounded-t-3xl overflow-hidden",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",

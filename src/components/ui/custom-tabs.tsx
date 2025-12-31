@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";
 
 export interface TabItem {
   value: string;
-  label: string;
+  label: React.ReactNode;
   content: React.ReactNode;
   disabled?: boolean;
 }
@@ -20,7 +20,7 @@ export interface CustomTabsProps {
   tabsListClassName?: string;
   tabsTriggerClassName?: string;
   tabsContentClassName?: string;
-  variant?: "default" | "grid" | "underline" | "pills";
+  variant?: "default" | "grid" | "underline" | "pills" | "segmented";
   size?: "sm" | "md" | "lg";
 }
 
@@ -40,6 +40,10 @@ const variants = {
   pills: {
     list: "bg-white dark:bg-gray-800 border-[1.5px] border-gray-400 dark:border-gray-700 rounded-lg p-1",
     trigger: "data-[state=active]:bg-orange-500 data-[state=active]:text-white rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200",
+  },
+  segmented: {
+    list: "grid w-full bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800",
+    trigger: "rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm py-3 text-sm font-medium transition-all duration-200 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 data-[state=active]:scale-[1.02]",
   },
 };
 
@@ -79,7 +83,7 @@ export function CustomTabs({
     5: "grid-cols-5",
     6: "grid-cols-6",
   };
-  const gridCols = variant === "grid" ? gridColsMap[items.length] || `grid-cols-${items.length}` : "";
+  const gridCols = (variant === "grid" || variant === "segmented") ? gridColsMap[items.length] || `grid-cols-${items.length}` : "";
 
   return (
     <Tabs

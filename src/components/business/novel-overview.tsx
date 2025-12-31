@@ -12,6 +12,7 @@ import { Novel } from "@/types";
 import { NovelUploadModal } from "../modals/novel-upload-modal";
 import { useAuthStore } from "@/stores/auth";
 import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
+import { cn } from "@/lib/utils";
 
 export function NovelOverview() {
   const router = useRouter();
@@ -40,20 +41,20 @@ export function NovelOverview() {
 
   // 处理 API 返回数据，兼容多种格式
   const responseData = novelsResponse as any;
-  const novels: Novel[] = 
+  const novels: Novel[] =
     responseData?.data?.items ||  // { data: { items: [...] } }
     responseData?.data ||         // { data: [...] }
     responseData?.items ||        // { items: [...] }
     (Array.isArray(responseData) ? responseData : []); // 直接数组
-  
+
   const displayNovels = novels.slice(0, 5); // 显示前5本小说
 
   const handleViewMore = () => {
-    router.push(`/${locale}/novels`);
+    router.push(`/${locale}/scripts`);
   };
 
   const handleNovelClick = (novelUuid: string) => {
-    window.open(`/${locale}/novels/${novelUuid}`, '_blank', 'noopener,noreferrer');
+    window.open(`/${locale}/scripts/${novelUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleUploadClick = () => {
@@ -96,7 +97,7 @@ export function NovelOverview() {
             {t("novel.uploadNovel")}
           </Button>
         </div>
-        
+
         {/* 上传弹窗 - 空状态也需要显示 */}
         <NovelUploadModal
           open={showUploadModal}
@@ -111,55 +112,69 @@ export function NovelOverview() {
     <div className="space-y-3">
       {/* 书籍网格布局：横版一行6个（5个小说+1个查看更多），竖版两行每行3个 */}
       <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
-        {displayNovels.map((novel: Novel) => (
-          <div
-            key={novel.novel_id}
-            onClick={() => handleNovelClick(novel.uuid || novel.novel_id)}
-            className="group cursor-pointer"
-          >
-            {/* 书籍封面 */}
-            <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-              {/* 封面背景 */}
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "url(/novel-cover.png) no-repeat center center / cover",
-                }}
-              />
-              <div className="absolute backdrop-opacity-10 inset-0 blur-lg backdrop-blur-md bg-gradient-to-br from-orange-500/40 to-stone-500/70" />
+        {displayNovels.map((novel: Novel & { type?: string }) => {
+          const isNovel = novel.type === 'novel';
+          const coverImage = isNovel ? '/novel-cover.png' : '/article-cover.png';
 
-              {/* 封面装饰线条 */}
-              <div className="absolute inset-0 border-2 border-amber-200/30 dark:border-amber-400/20 m-2 rounded-sm" />
+          return (
+            <div
+              key={novel.uuid}
+              onClick={() => handleNovelClick(novel.uuid)}
+              className="group cursor-pointer"
+            >
+              {/* 书籍封面 */}
+              <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
+                {/* 封面背景 */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background: `url(${coverImage}) no-repeat center center / cover`,
+                  }}
+                />
+                <div className={cn(
+                  "absolute backdrop-opacity-10 inset-0 blur-lg backdrop-blur-md bg-gradient-to-br",
+                  isNovel
+                    ? "from-orange-500/40 to-stone-500/70"
+                    : "from-blue-500/40 to-cyan-500/70"
+                )} />
 
-              {/* 封面内容 */}
-              <div className="relative h-full flex flex-col justify-between p-3">
-                {/* 书名 */}
-                <div className="flex-1 flex items-center justify-center">
-                  <h3 className="font-bold text-sm text-center text-white line-clamp-3 leading-relaxed">
-                    {novel.title}
-                  </h3>
-                </div>
+                {/* 封面装饰线条 */}
+                <div className={cn(
+                  "absolute inset-0 border-2 m-2 rounded-sm",
+                  isNovel
+                    ? "border-amber-200/30 dark:border-amber-400/20"
+                    : "border-cyan-200/30 dark:border-cyan-400/20"
+                )} />
 
-                {/* 作者和章节信息 */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center gap-1 text-white/90">
-                    <User className="h-3 w-3" />
-                    <span className="text-xs font-medium line-clamp-1">
-                      {novel.author}
-                    </span>
+                {/* 封面内容 */}
+                <div className="relative h-full flex flex-col justify-between p-3">
+                  {/* 书名 */}
+                  <div className="flex-1 flex items-center justify-center">
+                    <h3 className="font-bold text-sm text-center text-white line-clamp-3 leading-relaxed">
+                      {novel.title}
+                    </h3>
                   </div>
-                  <div className="flex items-center justify-center gap-1 text-white/80">
-                    <BookOpen className="h-3 w-3 flex-shrink-0" />
-                    <span className="text-xs whitespace-nowrap">
-                      {novel?.chapter_count || 0} {t("home.chapters")}
-                    </span>
+
+                  {/* 作者和章节信息 */}
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-center gap-1 text-white/90">
+                      <User className="h-3 w-3" />
+                      <span className="text-xs font-medium line-clamp-1">
+                        {novel.author}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-center gap-1 text-white/80">
+                      <BookOpen className="h-3 w-3 flex-shrink-0" />
+                      <span className="text-xs whitespace-nowrap">
+                        {novel?.chapter_count || 0} {t("home.chapters")}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* 查看更多卡片 */}
         {novels.length > 0 && (
