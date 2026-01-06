@@ -55,7 +55,7 @@ export const scriptApi = {
         // 使用传入的 type，如果没有则默认传 type=script (旧逻辑兼容) 或不传 (后端处理全部)
         const scriptParams = { ...params };
         // 如果 activeTab 是 all，params.type 会是 undefined，这正是我们想要的
-        return apiClient.get('/api/v1/novels/', { params: scriptParams });
+        return apiClient.get('/api/v1/novels', { params: scriptParams });
     },
 
     // 创建文案组 - 使用 novels create endpoint，type 自动设为 'script'

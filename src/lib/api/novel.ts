@@ -22,7 +22,7 @@ export const novelApi = {
     }
 
     const queryString = queryParams.toString()
-    const url = `/api/v1/novels/${queryString ? `?${queryString}` : ''}`
+    const url = `/api/v1/novels${queryString ? `?${queryString}` : ''}`
 
     return apiClient.get<Novel[]>(url)
   },

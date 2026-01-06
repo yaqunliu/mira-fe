@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -11,7 +10,6 @@ import sceneApi from '@/lib/api/scene';
 import shotApi from '@/lib/api/shot';
 import { IScene, IShot } from '@/types/scene';
 import taskApi from '@/lib/api/task';
-import { Textarea } from '@/components/ui/textarea';
 
 // Explicitly define TaskStatus if not available from types or import it if it exists
 enum TaskStatus {
@@ -22,7 +20,6 @@ enum TaskStatus {
 }
 
 export function VisualGeneration() {
-  const t = useTranslations('creation');
   const { creation, nextStep, updateShot, updateScene } = useCreationV2Store();
   const [regeneratingScenes, setRegeneratingScenes] = useState<Map<number, string>>(new Map());
   const [regeneratingShots, setRegeneratingShots] = useState<Map<number, string>>(new Map());
@@ -43,9 +40,9 @@ export function VisualGeneration() {
             });
             
             // Refresh scene data to get new image
-            const updatedScene = await sceneApi.getScene(sceneId);
-            if (updatedScene) {
-                updateScene(sceneId, updatedScene);
+            const response = await sceneApi.getSceneWithShots(String(sceneId));
+            if (response.data) {
+                updateScene(sceneId, response.data);
                 toast.success("场景重新生成完成");
             }
           } else if (status === 'failed' || status === TaskStatus.FAILURE || status === 'failure') {
@@ -73,11 +70,17 @@ export function VisualGeneration() {
               return newMap;
             });
             
-            // Refresh shot data to get new image
-            const updatedShot = await shotApi.getShot(shotId);
-            if (updatedShot) {
-                updateShot(shotId, updatedShot);
-                toast.success("分镜重新生成完成");
+            // Scene will be refreshed to get updated shot data
+            // Find the scene that contains this shot and refresh it
+            const scene = creation?.scenes?.find((s: any) =>
+              s.shots?.some((shot: any) => shot.shot_id === shotId)
+            );
+            if (scene?.uuid) {
+                const response = await sceneApi.getSceneWithShots(scene.uuid);
+                if (response.data) {
+                    updateScene(scene.scene_id, response.data);
+                    toast.success("分镜重新生成完成");
+                }
             }
           } else if (status === 'failed' || status === TaskStatus.FAILURE || status === 'failure') {
             setRegeneratingShots(prev => {
