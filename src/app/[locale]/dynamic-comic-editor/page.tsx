@@ -7,7 +7,7 @@ import { VideoPreview } from '@/components/business/video-preview';
 import { AssetManager } from '@/components/business/asset-manager';
 import { useTimelineStore } from '@/stores/timeline';
 import { TimelineProject, TimelineTrack } from '@/types/timeline';
-import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, X, Edit2, FolderOpen, Check, FolderDown, HelpCircle, ArrowRight } from 'lucide-react';
+import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, X, Edit2, FolderOpen, Check, FolderDown, HelpCircle, ArrowRight, Download, History } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import creationApi from '@/lib/api/creation';
 import characterApi from '@/lib/api/character';
@@ -32,8 +32,8 @@ import { Progress } from "@/components/ui/progress";
 import { CharacterEditModal } from "@/components/modals/character-edit-modal";
 import { SceneEditModal } from "@/components/modals/scene-edit-modal";
 import { ShotEditModal } from "@/components/modals/shot-edit-modal";
-import { ExportDialog } from "@/components/timeline/export-dialog";
-import { ExportHistory } from "@/components/creation/export-history";
+import { ExportTriggerDialog } from "@/components/timeline/export-trigger-dialog";
+import { ExportPreviewDialog } from "@/components/timeline/export-preview-dialog";
 import { produce } from 'immer';
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -97,7 +97,8 @@ export default function DynamicComicEditor() {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
     // Export Dialog State
-    const [showExportDialog, setShowExportDialog] = useState(false);
+    const [showExportTriggerDialog, setShowExportTriggerDialog] = useState(false);
+    const [showExportPreviewDialog, setShowExportPreviewDialog] = useState(false);
     const [exportProgress, setExportProgress] = useState<{
         percent: number;
         status: string;
@@ -2076,19 +2077,33 @@ export default function DynamicComicEditor() {
                     </Button>
                     <Button
                         size="sm"
+                        variant="outline"
+                        className="border-purple-600/50 hover:bg-purple-900/30 text-purple-400 text-xs h-8 gap-2"
+                        onClick={() => setShowExportPreviewDialog(true)}
+                    >
+                        <History size={14} />
+                        导出历史
+                    </Button>
+                    <Button
+                        size="sm"
                         className={cn(
-                            "text-white text-xs h-8 min-w-[120px]",
-                            exportProgress ? "bg-green-600 hover:bg-green-500" : "bg-blue-600 hover:bg-blue-500"
+                            "text-white text-xs h-8 gap-2",
+                            exportProgress
+                                ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                                : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                         )}
-                        onClick={() => setShowExportDialog(true)}
+                        onClick={() => setShowExportTriggerDialog(true)}
                     >
                         {exportProgress ? (
-                            <div className="flex items-center gap-2">
+                            <>
                                 <Loader2 size={14} className="animate-spin" />
                                 <span>导出中 {exportProgress.percent}%</span>
-                            </div>
+                            </>
                         ) : (
-                            t('exportVideo')
+                            <>
+                                <Download size={14} />
+                                导出视频
+                            </>
                         )}
                     </Button>
                 </div>
@@ -2997,12 +3012,21 @@ export default function DynamicComicEditor() {
                 variant={confirmDialog.variant}
             />
 
-            {/* Export Dialog */}
+            {/* Export Trigger Dialog */}
             {taskId && (
-                <ExportDialog
+                <ExportTriggerDialog
                     creationId={taskId}
-                    isOpen={showExportDialog}
-                    onClose={() => setShowExportDialog(false)}
+                    isOpen={showExportTriggerDialog}
+                    onClose={() => setShowExportTriggerDialog(false)}
+                />
+            )}
+
+            {/* Export Preview Dialog */}
+            {taskId && (
+                <ExportPreviewDialog
+                    creationId={taskId}
+                    isOpen={showExportPreviewDialog}
+                    onClose={() => setShowExportPreviewDialog(false)}
                 />
             )}
 
