@@ -35,7 +35,8 @@ export interface TimelineState {
   zoom: number;             // 缩放比例（像素/秒）
   visibleStartTime: number; // 可见时间范围起始（秒）
   visibleEndTime: number;   // 可见时间范围结束（秒）
-  selectedClipId?: string;  // 当前选中的片段ID
+  selectedClipId?: string;  // 当前选中的片段ID（单选模式）
+  selectedClipIds: string[]; // 批量选中的片段ID列表
   selectedTrackId?: string; // 当前选中的轨道ID
   project: TimelineProject; // 项目数据
   past: TimelineProject[];  // 历史快照（撤销栈）

@@ -850,7 +850,14 @@ export default function DynamicComicEditor() {
         }
 
         try {
-            const updatedAt = new Date(shot.status_detail.video_updated_at);
+            // 后端返回的时间可能没有时区信息，需要补充 'Z' 表示 UTC 时间
+            let timeStr = shot.status_detail.video_updated_at;
+            // 如果时间字符串没有时区信息（不包含 'Z' 或 '+' 或 '-'），添加 'Z'
+            if (!timeStr.includes('Z') && !timeStr.includes('+') && !timeStr.match(/-\d{2}:\d{2}$/)) {
+                timeStr = timeStr + 'Z';
+            }
+
+            const updatedAt = new Date(timeStr);
             const now = new Date();
             const updatedAtTime = updatedAt.getTime();
             const nowTime = now.getTime();
@@ -861,7 +868,8 @@ export default function DynamicComicEditor() {
             console.log('⏰ Time check:', {
                 shot_id: shot.shot_id,
                 updated_at_string: shot.status_detail.video_updated_at,
-                updated_at_parsed: updatedAt.toISOString(),
+                updated_at_parsed: timeStr,
+                updated_at_date: updatedAt.toISOString(),
                 now: now.toISOString(),
                 updated_at_ms: updatedAtTime,
                 now_ms: nowTime,
@@ -1027,18 +1035,27 @@ export default function DynamicComicEditor() {
             // 检查是否在1小时内
             if (shot.status_detail.video_updated_at) {
                 try {
-                    // 后端返回的是UTC时间（ISO格式），JavaScript会自动处理时区
-                    const updatedAt = new Date(shot.status_detail.video_updated_at);
+                    // 后端返回的时间可能没有时区信息，需要补充 'Z' 表示 UTC 时间
+                    let timeStr = shot.status_detail.video_updated_at;
+                    // 如果时间字符串没有时区信息（不包含 'Z' 或 '+' 或 '-'），添加 'Z'
+                    if (!timeStr.includes('Z') && !timeStr.includes('+') && !timeStr.match(/-\d{2}:\d{2}$/)) {
+                        timeStr = timeStr + 'Z';
+                    }
+
+                    const updatedAt = new Date(timeStr);
                     const now = new Date();
                     const hoursSince = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60);
 
                     // 调试日志
-                    console.log('Video generation status check:', {
+                    console.log('📹 Video generation status check:', {
                         shot_id: shot.shot_id,
                         video_status: shot.status_detail.video_status,
-                        updated_at: shot.status_detail.video_updated_at,
-                        hours_since: hoursSince,
-                        result: hoursSince < 1 ? 'generating' : 'failed (timeout)'
+                        updated_at_original: shot.status_detail.video_updated_at,
+                        updated_at_parsed: timeStr,
+                        updated_at_date: updatedAt.toISOString(),
+                        now: now.toISOString(),
+                        hours_since: hoursSince.toFixed(2),
+                        result: hoursSince < 1 ? 'generating ✅' : 'failed (timeout) ❌'
                     });
 
                     if (hoursSince < 1) {

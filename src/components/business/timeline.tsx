@@ -21,9 +21,10 @@ export const Timeline: React.FC = () => {
   const visibleStartTime = useTimelineStore(state => state.visibleStartTime);
   const visibleEndTime = useTimelineStore(state => state.visibleEndTime);
   const selectedClipId = useTimelineStore(state => state.selectedClipId);
+  const selectedClipIds = useTimelineStore(state => state.selectedClipIds);
   const selectedTrackId = useTimelineStore(state => state.selectedTrackId);
   const project = useTimelineStore(state => state.project);
-  
+
   const addTrack = useTimelineStore(state => state.addTrack);
   const removeTrack = useTimelineStore(state => state.removeTrack);
   const renameTrack = useTimelineStore(state => state.renameTrack);
@@ -32,6 +33,12 @@ export const Timeline: React.FC = () => {
   const updateClip = useTimelineStore(state => state.updateClip);
   const selectClip = useTimelineStore(state => state.selectClip);
   const selectTrack = useTimelineStore(state => state.selectTrack);
+  const toggleClipSelection = useTimelineStore(state => state.toggleClipSelection);
+  const clearSelection = useTimelineStore(state => state.clearSelection);
+  const selectAllClips = useTimelineStore(state => state.selectAllClips);
+  const moveSelectedClips = useTimelineStore(state => state.moveSelectedClips);
+  const deleteSelectedClips = useTimelineStore(state => state.deleteSelectedClips);
+  const batchMoveClips = useTimelineStore(state => state.batchMoveClips);
   const zoomIn = useTimelineStore(state => state.zoomIn);
   const zoomOut = useTimelineStore(state => state.zoomOut);
   const scrollTimeline = useTimelineStore(state => state.scrollTimeline);
@@ -60,6 +67,12 @@ export const Timeline: React.FC = () => {
   const dragOriginalDurationRef = useRef(0);
   const dragOriginalSourceStartRef = useRef(0);
   const dragOriginalSourceEndRef = useRef(0);
+  // 保存多选时所有clips的原始位置
+  const dragOriginalClipsPositionsRef = useRef<Map<string, { trackId: string; startTime: number }>>(new Map());
+  // 保存播放头拖动时的吸附时间
+  const playheadDragSnappedTimeRef = useRef<number | null>(null);
+  // 标记是否刚刚完成拖动（用于忽略拖动后的 click 事件）
+  const justDraggedRef = useRef(false);
 
   const [editingTrackId, setEditingTrackId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -97,6 +110,53 @@ export const Timeline: React.FC = () => {
         inputRef.current.focus();
     }
   }, [editingTrackId]);
+
+  // 键盘快捷键处理
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 如果正在编辑，不处理快捷键
+      if (editingTrackId || isEditModalOpen) return;
+
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
+
+      // Ctrl/Cmd + A: 全选
+      if (ctrlOrCmd && e.key === 'a') {
+        e.preventDefault();
+        selectAllClips();
+        return;
+      }
+
+      // Delete/Backspace: 删除选中的片段
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedClipIds.length > 0) {
+        e.preventDefault();
+        deleteSelectedClips();
+        toast.success(`已删除 ${selectedClipIds.length} 个片段`);
+        return;
+      }
+
+      // Escape: 清除选择
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        clearSelection();
+        return;
+      }
+
+      // 方向键: 移动选中的片段
+      if (selectedClipIds.length > 0 && ['ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        const shiftAmount = e.shiftKey ? 1 : 0.1; // Shift 键按住时移动 1 秒，否则 0.1 秒
+        const direction = e.key === 'ArrowLeft' ? -1 : 1;
+        moveSelectedClips(direction * shiftAmount);
+        return;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editingTrackId, isEditModalOpen, selectedClipIds, selectAllClips, deleteSelectedClips, clearSelection, moveSelectedClips]);
 
   const handleStartRenaming = (track: TimelineTrack) => {
     if (track.isLocked) return;
@@ -704,10 +764,10 @@ export const Timeline: React.FC = () => {
   const renderClip = (clip: TimelineTrackClip, trackId: string, trackType: string) => {
     const clipPosition = getPixelPosition(clip.startInTimeline);
     const clipWidth = clip.duration * zoom;
-    const isSelected = selectedClipId === clip.id;
+    const isSelected = selectedClipId === clip.id || selectedClipIds.includes(clip.id);
 
     // 根据类型定义不同的渐变和边框颜色
-    const styleClasses = trackType === 'video' 
+    const styleClasses = trackType === 'video'
         ? `bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-blue-500/30 ${isSelected ? 'ring-2 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'hover:border-blue-500/50'}`
         : trackType === 'audio'
         ? `bg-gradient-to-r from-emerald-900/40 to-teal-900/40 border-emerald-500/30 ${isSelected ? 'ring-2 ring-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'hover:border-emerald-500/50'}`
@@ -729,14 +789,46 @@ export const Timeline: React.FC = () => {
         }}
         onClick={(e) => {
           e.stopPropagation();
-          selectClip(clip.id);
+          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+          const isMultiSelect = isMac ? e.metaKey : e.ctrlKey;
+          if (isMultiSelect) {
+            toggleClipSelection(clip.id, true);
+          } else {
+            selectClip(clip.id);
+          }
         }}
         onMouseDown={(e) => {
           // 播放时禁止拖拽
           if (isPlaying) return;
-          
+
           e.stopPropagation();
           e.preventDefault();
+
+          // 检查是否按住了 Ctrl/Cmd 键（用于多选）
+          const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+          const isMultiSelectKey = isMac ? e.metaKey : e.ctrlKey;
+
+          // 如果没有按住多选键，且拖动的 clip 不在选中列表中，先选中它（清除其他选中）
+          if (!isMultiSelectKey && !selectedClipIds.includes(clip.id)) {
+            selectClip(clip.id);
+          }
+
+          // 保存所有选中clips的原始位置（用于多选拖动）
+          const state = useTimelineStore.getState();
+          const currentSelectedIds = state.selectedClipIds.length > 0 ? state.selectedClipIds : [clip.id];
+          dragOriginalClipsPositionsRef.current.clear();
+
+          state.project.tracks.forEach(track => {
+            track.clips.forEach(c => {
+              if (currentSelectedIds.includes(c.id)) {
+                dragOriginalClipsPositionsRef.current.set(c.id, {
+                  trackId: track.id,
+                  startTime: c.startInTimeline
+                });
+              }
+            });
+          });
+
           saveHistory();
           isDraggingRef.current = true;
           dragTypeRef.current = 'moveClip';
@@ -874,53 +966,124 @@ export const Timeline: React.FC = () => {
         if (rafRef.current) {
           cancelAnimationFrame(rafRef.current);
         }
-        
+
         rafRef.current = requestAnimationFrame(() => {
           const rect = timelineRef.current?.getBoundingClientRect();
           if (rect) {
             const scrollLeft = timelineRef.current?.scrollLeft || 0;
             const clickX = e.clientX - rect.left + scrollLeft - 160;
-            const newTime = Math.max(0, getTimeFromPixel(clickX));
+            let newTime = Math.max(0, getTimeFromPixel(clickX));
+
+            // 保存当前时间（不应用吸附）
+            playheadDragSnappedTimeRef.current = newTime;
+
+            // 获取最新状态
+            const state = useTimelineStore.getState();
+            const { project } = state;
+
+            // 收集所有 clip 的起始和结束时间点作为吸附点
+            const snapPoints: number[] = [0]; // 时间轴起点
+            project.tracks.forEach(track => {
+              track.clips.forEach(clip => {
+                snapPoints.push(clip.startInTimeline); // 片段开始
+                snapPoints.push(clip.startInTimeline + clip.duration); // 片段结束
+              });
+            });
+
+            // 检查是否接近任何吸附点（仅用于显示指示线）
+            const PLAYHEAD_SNAP_THRESHOLD = 0.5; // 播放头吸附阈值（秒）
+            let snappedTime: number | null = null;
+
+            for (const snapPoint of snapPoints) {
+              if (Math.abs(newTime - snapPoint) < PLAYHEAD_SNAP_THRESHOLD) {
+                snappedTime = snapPoint;
+                break;
+              }
+            }
+
+            // 显示吸附指示线，但不立即应用吸附
+            if (snappedTime !== null) {
+              setSnapIndicator(snappedTime);
+            } else {
+              setSnapIndicator(null);
+            }
+
+            // 播放头跟随鼠标移动到原始位置（不吸附）
             seek(newTime);
           }
         });
       }
       else if (dragTypeRef.current === 'moveClip') {
         if (draggedClipIdRef.current && draggedTrackIdRef.current) {
-          const rawStartTime = Math.max(0, dragOriginalStartRef.current + timeDelta);
-          
-          // 获取最新的状态（避免闭包问题）
-          const state = useTimelineStore.getState();
-          const { project, currentTime: latestCurrentTime } = state;
-          
-          // 找到当前轨道
-          const currentTrack = project.tracks.find(t => t.id === draggedTrackIdRef.current);
-          if (!currentTrack) return;
-          
-          // 找到被拖拽的片段
-          const draggedClip = currentTrack.clips.find(c => c.id === draggedClipIdRef.current);
-          if (!draggedClip) return;
-          
-          // 检查吸附（包括播放头和其他片段）
-          const snapResult = findSnapPoint(
-            rawStartTime, 
-            draggedClip.duration, 
-            currentTrack, 
-            draggedClipIdRef.current, 
-            SNAP_THRESHOLD,
-            [latestCurrentTime]
-          );
-          
-          const finalStartTime = snapResult.time;
-          
-          if (snapResult.snapped && snapResult.snapTime !== undefined) {
-            setSnapIndicator(snapResult.snapTime);
-          } else {
-            setSnapIndicator(null);
+          // 使用 RAF 来优化性能，确保每帧只更新一次
+          if (rafRef.current) {
+            cancelAnimationFrame(rafRef.current);
           }
-          
-          // 直接移动，不强制防止重叠（用户可以自由控制）
-          moveClip(draggedClipIdRef.current, draggedTrackIdRef.current, finalStartTime);
+
+          rafRef.current = requestAnimationFrame(() => {
+            const rawStartTime = Math.max(0, dragOriginalStartRef.current + timeDelta);
+
+            // 获取最新的状态（避免闭包问题）
+            const state = useTimelineStore.getState();
+            const { project, currentTime: latestCurrentTime } = state;
+
+            // 找到当前轨道
+            const currentTrack = project.tracks.find(t => t.id === draggedTrackIdRef.current);
+            if (!currentTrack) return;
+
+            // 找到被拖拽的片段
+            const draggedClip = currentTrack.clips.find(c => c.id === draggedClipIdRef.current);
+            if (!draggedClip) return;
+
+            // 检查是否是多选状态
+            const isMultiSelect = dragOriginalClipsPositionsRef.current.size > 1;
+
+            // 对于多选，需要创建一个临时轨道来检查吸附，排除所有被选中的clips
+            let trackForSnap = currentTrack;
+            if (isMultiSelect) {
+              const selectedIds = Array.from(dragOriginalClipsPositionsRef.current.keys());
+              trackForSnap = {
+                ...currentTrack,
+                clips: currentTrack.clips.filter(c => !selectedIds.includes(c.id))
+              };
+            }
+
+            // 检查吸附（包括播放头和其他片段）
+            const snapResult = findSnapPoint(
+              rawStartTime,
+              draggedClip.duration,
+              trackForSnap,
+              draggedClipIdRef.current,
+              SNAP_THRESHOLD,
+              [latestCurrentTime]
+            );
+
+            const finalStartTime = snapResult.time;
+            const moveDelta = finalStartTime - dragOriginalStartRef.current;
+
+            if (snapResult.snapped && snapResult.snapTime !== undefined) {
+              setSnapIndicator(snapResult.snapTime);
+            } else {
+              setSnapIndicator(null);
+            }
+
+            if (isMultiSelect) {
+              // 批量移动所有选中的片段 - 一次性更新，避免多次渲染
+              const moves: Array<{ clipId: string; trackId: string; startTime: number }> = [];
+              dragOriginalClipsPositionsRef.current.forEach((originalPos, clipId) => {
+                const newStartTime = Math.max(0, originalPos.startTime + moveDelta);
+                moves.push({
+                  clipId,
+                  trackId: originalPos.trackId,
+                  startTime: newStartTime
+                });
+              });
+              batchMoveClips(moves);
+            } else {
+              // 单个移动
+              moveClip(draggedClipIdRef.current, draggedTrackIdRef.current, finalStartTime);
+            }
+          });
         }
       }
       else if (dragTypeRef.current === 'trimStart') {
@@ -1004,17 +1167,67 @@ export const Timeline: React.FC = () => {
     };
 
     const handleMouseUp = () => {
+      // 如果发生了拖动，立即设置标志以忽略后续的 click 事件（在应用吸附之前）
+      if (isDraggingRef.current) {
+        justDraggedRef.current = true;
+        // 延迟后重置标志，防止影响后续的正常点击
+        setTimeout(() => {
+          justDraggedRef.current = false;
+        }, 100);
+      }
+
+      // 如果是播放头拖动，在松手时应用吸附
+      if (dragTypeRef.current === 'playhead' && playheadDragSnappedTimeRef.current !== null) {
+        const currentTime = playheadDragSnappedTimeRef.current;
+
+        // 获取最新状态
+        const state = useTimelineStore.getState();
+        const { project } = state;
+
+        // 收集所有 clip 的起始和结束时间点作为吸附点
+        const snapPoints: number[] = [0]; // 时间轴起点
+        project.tracks.forEach(track => {
+          track.clips.forEach(clip => {
+            snapPoints.push(clip.startInTimeline); // 片段开始
+            snapPoints.push(clip.startInTimeline + clip.duration); // 片段结束
+          });
+        });
+
+        // 检查是否接近任何吸附点
+        const PLAYHEAD_SNAP_THRESHOLD = 0.5; // 播放头吸附阈值（秒）
+        let snappedTime: number | null = null;
+
+        for (const snapPoint of snapPoints) {
+          if (Math.abs(currentTime - snapPoint) < PLAYHEAD_SNAP_THRESHOLD) {
+            snappedTime = snapPoint;
+            break;
+          }
+        }
+
+        // 如果找到吸附点，应用吸附
+        if (snappedTime !== null) {
+          seek(snappedTime);
+        }
+      }
+
+      // 清理状态
       isDraggingRef.current = false;
       dragTypeRef.current = null;
       draggedClipIdRef.current = null;
       draggedTrackIdRef.current = null;
+      playheadDragSnappedTimeRef.current = null; // 清除播放头吸附时间
       setSnapIndicator(null); // 清除吸附指示线
     };
 
     const handleClick = (e: MouseEvent) => {
+      // 如果刚刚完成拖动，忽略这个 click 事件
+      if (justDraggedRef.current) {
+        return;
+      }
+
       // 只有在没有发生拖动的情况下才处理点击 seek
       const target = e.target as HTMLElement;
-      
+
       // 检查是否点击了点击区域或者时间轴容器
       if (target.closest('.timeline-click-area') || target === timelineRef.current || target === timelineRef.current?.firstChild) {
         // 如果是点击了轨道内容区域但不是具体的片段
@@ -1266,14 +1479,15 @@ export const Timeline: React.FC = () => {
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  
+
                   // 如果正在播放，先暂停
                   if (isPlaying) {
                     useTimelineStore.getState().pause();
                   }
-                  
+
                   isDraggingRef.current = true;
                   dragTypeRef.current = 'playhead';
+                  playheadDragSnappedTimeRef.current = null; // 重置吸附时间
                 }}
             />
 
@@ -1284,14 +1498,15 @@ export const Timeline: React.FC = () => {
                 onMouseDown={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  
+
                   // 如果正在播放，先暂停
                   if (isPlaying) {
                     useTimelineStore.getState().pause();
                   }
-                  
+
                   isDraggingRef.current = true;
                   dragTypeRef.current = 'playhead';
+                  playheadDragSnappedTimeRef.current = null; // 重置吸附时间
                 }}
             >
               {/* 增加可点击区域的透明层 */}

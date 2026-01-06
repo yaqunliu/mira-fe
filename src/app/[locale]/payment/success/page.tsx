@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { useSupabaseAuth } from '@/hooks/use-supabase-auth'
 
 export default function PaymentSuccessPage() {
   const t = useTranslations()
@@ -21,6 +22,7 @@ export default function PaymentSuccessPage() {
   const locale = (params?.locale as string) || 'zh'
   const queryClient = useQueryClient()
   const { setBalance } = usePointsStore()
+  const { loading: authLoading } = useSupabaseAuth()
   const [orderStatus, setOrderStatus] = useState<'loading' | 'success' | 'pending' | 'failed'>('loading')
   const [order, setOrder] = useState<any>(null)
   const hasRefreshedRef = useRef(false) // 标记是否已刷新过数据
@@ -55,6 +57,9 @@ export default function PaymentSuccessPage() {
       return
     }
 
+    // 等待认证完成后再开始查询
+    if (authLoading) return
+
     // 立即查询一次订单状态
     checkOrderStatus()
 
@@ -69,7 +74,7 @@ export default function PaymentSuccessPage() {
         pollIntervalRef.current = null
       }
     }
-  }, [orderUuid])
+  }, [orderUuid, authLoading])
 
   const checkOrderStatus = async () => {
     if (!orderUuid) return

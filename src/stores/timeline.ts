@@ -31,6 +31,7 @@ const initialState: TimelineState = {
   visibleStartTime: 0,
   visibleEndTime: 30, // 初始显示30秒
   selectedClipId: undefined,
+  selectedClipIds: [],
   selectedTrackId: undefined,
   project: createInitialProject(),
   past: [],
@@ -65,6 +66,14 @@ export const useTimelineStore = create<TimelineState & {
   // 选择操作
   selectClip: (clipId?: string) => void;
   selectTrack: (trackId?: string) => void;
+  toggleClipSelection: (clipId: string, isMultiSelect: boolean) => void;
+  clearSelection: () => void;
+  selectAllClips: () => void;
+
+  // 批量操作
+  moveSelectedClips: (deltaTime: number) => void;
+  deleteSelectedClips: () => void;
+  batchMoveClips: (moves: Array<{ clipId: string; trackId: string; startTime: number }>) => void;
 
   // 缩放控制
   zoomIn: () => void;
@@ -186,13 +195,43 @@ export const useTimelineStore = create<TimelineState & {
         id: `clip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         layer: track.clips.length + 1,
       };
+
+      // 检查是否有重叠的片段，如果有，将后面的片段向后移动
+      const newClipStart = newClip.startInTimeline;
+      const newClipEnd = newClipStart + newClip.duration;
+
+      // 找出所有在新片段结束时间之后开始的片段（这些不需要移动）
+      // 以及所有与新片段有重叠的片段（这些需要移动）
+      const overlappingClips = track.clips.filter((clip: TimelineTrackClip) => {
+        const clipEnd = clip.startInTimeline + clip.duration;
+        // 如果现有片段的结束时间 > 新片段的开始时间，说明有重叠
+        return clipEnd > newClipStart && clip.startInTimeline < newClipEnd;
+      });
+
+      // 如果有重叠的片段，将它们及其后面的所有片段向后移动
+      if (overlappingClips.length > 0) {
+        // 找出需要移动的最小起始时间
+        const minOverlapStart = Math.min(...overlappingClips.map((c: TimelineTrackClip) => c.startInTimeline));
+
+        // 计算需要移动的距离（新片段的结束时间 - 最早重叠片段的开始时间）
+        const shiftAmount = newClipEnd - minOverlapStart;
+
+        // 将所有起始时间 >= minOverlapStart 的片段向后移动
+        track.clips.forEach((clip: TimelineTrackClip) => {
+          if (clip.startInTimeline >= minOverlapStart) {
+            clip.startInTimeline += shiftAmount;
+          }
+        });
+      }
+
       track.clips.push(newClip);
 
       // 更新项目总时长
-      const clipEnd = newClip.startInTimeline + newClip.duration;
-      if (clipEnd > state.project.duration) {
-        state.project.duration = clipEnd;
-      }
+      const maxClipEnd = Math.max(
+        ...track.clips.map((c: TimelineTrackClip) => c.startInTimeline + c.duration),
+        state.project.duration
+      );
+      state.project.duration = maxClipEnd;
 
       // 选择新添加的片段
       state.selectedClipId = newClip.id;
@@ -289,8 +328,165 @@ export const useTimelineStore = create<TimelineState & {
   })),
 
   // 选择操作
-  selectClip: (clipId) => set({ selectedClipId: clipId }),
+  selectClip: (clipId) => set({
+    selectedClipId: clipId,
+    selectedClipIds: clipId ? [clipId] : []
+  }),
   selectTrack: (trackId) => set({ selectedTrackId: trackId }),
+
+  // 批量选择功能
+  toggleClipSelection: (clipId, isMultiSelect) => set((state) => {
+    if (!isMultiSelect) {
+      // 单选模式：清除之前的选择，只选中当前片段
+      return {
+        selectedClipId: clipId,
+        selectedClipIds: [clipId]
+      };
+    } else {
+      // 多选模式：切换当前片段的选中状态
+      const isSelected = state.selectedClipIds.includes(clipId);
+      const newSelectedIds = isSelected
+        ? state.selectedClipIds.filter(id => id !== clipId)
+        : [...state.selectedClipIds, clipId];
+
+      return {
+        selectedClipId: newSelectedIds.length > 0 ? newSelectedIds[0] : undefined,
+        selectedClipIds: newSelectedIds
+      };
+    }
+  }),
+
+  clearSelection: () => set({
+    selectedClipId: undefined,
+    selectedClipIds: []
+  }),
+
+  selectAllClips: () => set((state) => {
+    const allClipIds: string[] = [];
+    state.project.tracks.forEach(track => {
+      track.clips.forEach(clip => {
+        allClipIds.push(clip.id);
+      });
+    });
+    return {
+      selectedClipId: allClipIds.length > 0 ? allClipIds[0] : undefined,
+      selectedClipIds: allClipIds
+    };
+  }),
+
+  // 批量移动选中的片段
+  moveSelectedClips: (deltaTime) => set(produce((state) => {
+    if (state.selectedClipIds.length === 0) return;
+
+    // 保存历史
+    state.past.push(JSON.parse(JSON.stringify(state.project)));
+    if (state.past.length > 50) state.past.shift();
+    state.future = [];
+
+    // 移动所有选中的片段
+    state.project.tracks.forEach((track: TimelineTrack) => {
+      track.clips.forEach((clip: TimelineTrackClip) => {
+        if (state.selectedClipIds.includes(clip.id)) {
+          const newStartTime = Math.max(0, clip.startInTimeline + deltaTime);
+          clip.startInTimeline = newStartTime;
+        }
+      });
+    });
+
+    // 更新项目总时长
+    let maxEnd = 0;
+    state.project.tracks.forEach((track: TimelineTrack) => {
+      track.clips.forEach((clip: TimelineTrackClip) => {
+        const clipEnd = clip.startInTimeline + clip.duration;
+        if (clipEnd > maxEnd) maxEnd = clipEnd;
+      });
+    });
+    state.project.duration = Math.max(maxEnd, state.project.duration);
+  })),
+
+  // 批量删除选中的片段
+  deleteSelectedClips: () => set(produce((state) => {
+    if (state.selectedClipIds.length === 0) return;
+
+    // 保存历史
+    state.past.push(JSON.parse(JSON.stringify(state.project)));
+    if (state.past.length > 50) state.past.shift();
+    state.future = [];
+
+    // 从所有轨道中删除选中的片段
+    state.project.tracks.forEach((track: TimelineTrack) => {
+      track.clips = track.clips.filter((clip: TimelineTrackClip) =>
+        !state.selectedClipIds.includes(clip.id)
+      );
+    });
+
+    // 清除选择
+    state.selectedClipId = undefined;
+    state.selectedClipIds = [];
+  })),
+
+  // 批量移动多个clips（一次性更新，避免多次渲染）
+  batchMoveClips: (moves) => set(produce((state) => {
+    if (moves.length === 0) return;
+
+    // 为每个要移动的clip创建映射
+    const moveMap = new Map(moves.map(m => [m.clipId, m]));
+
+    // 第一步：直接更新所有clips的位置（不移除）
+    state.project.tracks.forEach((track: TimelineTrack) => {
+      track.clips.forEach((clip: TimelineTrackClip) => {
+        const moveInfo = moveMap.get(clip.id);
+        if (moveInfo && moveInfo.trackId === track.id) {
+          // 同轨道移动：直接更新位置
+          clip.startInTimeline = moveInfo.startTime;
+        }
+      });
+    });
+
+    // 第二步：处理跨轨道移动（如果有的话）
+    const clipsToMove: Array<{ clip: TimelineTrackClip; fromTrackId: string; toTrackId: string; newStartTime: number }> = [];
+
+    state.project.tracks.forEach((track: TimelineTrack) => {
+      track.clips.forEach((clip: TimelineTrackClip) => {
+        const moveInfo = moveMap.get(clip.id);
+        if (moveInfo && moveInfo.trackId !== track.id) {
+          // 跨轨道移动：记录下来
+          clipsToMove.push({
+            clip,
+            fromTrackId: track.id,
+            toTrackId: moveInfo.trackId,
+            newStartTime: moveInfo.startTime
+          });
+        }
+      });
+    });
+
+    // 执行跨轨道移动
+    clipsToMove.forEach(({ clip, fromTrackId, toTrackId, newStartTime }) => {
+      // 从源轨道移除
+      const sourceTrack = state.project.tracks.find((t: TimelineTrack) => t.id === fromTrackId);
+      if (sourceTrack) {
+        sourceTrack.clips = sourceTrack.clips.filter((c: TimelineTrackClip) => c.id !== clip.id);
+      }
+
+      // 添加到目标轨道
+      const targetTrack = state.project.tracks.find((t: TimelineTrack) => t.id === toTrackId);
+      if (targetTrack) {
+        clip.startInTimeline = newStartTime;
+        targetTrack.clips.push(clip);
+      }
+    });
+
+    // 更新项目总时长
+    let maxEnd = 0;
+    state.project.tracks.forEach((track: TimelineTrack) => {
+      track.clips.forEach((clip: TimelineTrackClip) => {
+        const clipEnd = clip.startInTimeline + clip.duration;
+        if (clipEnd > maxEnd) maxEnd = clipEnd;
+      });
+    });
+    state.project.duration = Math.max(maxEnd, state.project.duration);
+  })),
 
   // 缩放控制
   zoomIn: () => set((state) => {

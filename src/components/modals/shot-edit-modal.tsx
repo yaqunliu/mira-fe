@@ -367,8 +367,8 @@ export function ShotEditModal({
                             )}
                         </div>
 
-                        {/* Video Prompt Editing Area */}
-                        <div className="space-y-2">
+                        {/* Video Prompt Editing Area - 已隐藏 */}
+                        {/* <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <Label className="text-sm font-medium">{t('videoPrompt')}</Label>
                                 <Button
@@ -425,7 +425,7 @@ export function ShotEditModal({
                                     {videoPrompt || <span className="text-slate-500 italic">{t('clickToAddVideoPrompt')}</span>}
                                 </div>
                             )}
-                        </div>
+                        </div> */}
 
                         {/* Form / Display Area */}
                         <div className="space-y-4">

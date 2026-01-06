@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import QRCode from 'qrcode'
 import Image from 'next/image'
+import { useSupabaseAuth } from '@/hooks/use-supabase-auth'
 
 export default function WechatPaymentPage() {
   const t = useTranslations()
@@ -15,7 +16,8 @@ export default function WechatPaymentPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const locale = (params?.locale as string) || 'zh'
-  
+  const { loading: authLoading } = useSupabaseAuth()
+
   const codeUrl = searchParams?.get('code_url')
   const orderUuid = searchParams?.get('order_uuid')
   const [orderStatus, setOrderStatus] = useState<'pending' | 'paid' | 'failed'>('pending')
@@ -23,10 +25,10 @@ export default function WechatPaymentPage() {
   const [order, setOrder] = useState<any>(null)
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('')
 
-  // 获取订单信息
+  // 获取订单信息（等待认证完成后再调用）
   useEffect(() => {
-    if (!orderUuid) return
-    
+    if (!orderUuid || authLoading) return
+
     const fetchOrder = async () => {
       try {
         const orderData = await ordersApi.get(orderUuid)
@@ -35,16 +37,16 @@ export default function WechatPaymentPage() {
         console.error('获取订单信息失败:', error)
       }
     }
-    
-    fetchOrder()
-  }, [orderUuid])
 
-  // 轮询订单状态
+    fetchOrder()
+  }, [orderUuid, authLoading])
+
+  // 轮询订单状态（等待认证完成后再开始）
   useEffect(() => {
-    if (!orderUuid) return
-    
+    if (!orderUuid || authLoading) return
+
     let interval: NodeJS.Timeout | null = null
-    
+
     const pollOrderStatus = async () => {
       try {
         const orderData = await ordersApi.get(orderUuid)
@@ -80,7 +82,7 @@ export default function WechatPaymentPage() {
 
     // 立即查询一次
     pollOrderStatus()
-    
+
     // 每3秒轮询一次，一直轮询直到订单状态变为最终状态
     interval = setInterval(pollOrderStatus, 3000)
     setPolling(true)
@@ -92,7 +94,7 @@ export default function WechatPaymentPage() {
       }
       setPolling(false)
     }
-  }, [orderUuid, locale, router])
+  }, [orderUuid, locale, router, authLoading])
 
   if (!codeUrl) {
     return (
