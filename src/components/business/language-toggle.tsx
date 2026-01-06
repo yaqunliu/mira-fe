@@ -24,7 +24,6 @@ export function LanguageToggle() {
   const languages = [
     { code: 'zh', name: t('zh') },
     { code: 'en', name: t('en') },
-    { code: 'ja', name: t('ja') },
   ]
 
   const handleLanguageChange = (locale: string) => {

@@ -1,154 +1,342 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import ReactPlayer from 'react-player';
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { useTimelineStore } from '@/stores/timeline';
-import { Film, Volume2, VolumeX } from 'lucide-react';
+import { Film, Volume2, VolumeX, Loader2 } from 'lucide-react';
+import { TimelineTrackClip } from '@/types/timeline';
 
-export const VideoPreview: React.FC = () => {
-  const { currentTime, project, isPlaying, seek } = useTimelineStore();
-  const videoPlayerRef = useRef<any>(null);
-  const audioPlayerRef = useRef<any>(null);
-  const [isMuted, setIsMuted] = useState(false);
-  const lastUpdateTimeRef = useRef<number>(0);
+interface PlayerItemProps {
+  clip: TimelineTrackClip;
+  isPlaying: boolean;
+  isVisible: boolean;
+  isMuted: boolean;
+  onReady: (clipId: string) => void;
+  setPlayer: (clipId: string, player: any) => void;
+  onError?: (e: any) => void;
+}
 
-  // 查找当前时间对应的视频片段
-  const getCurrentVideoClip = () => {
-    const videoTrack = project.tracks.find(t => t.type === 'video');
-    if (!videoTrack) return null;
-    
-    return videoTrack.clips.find(clip => 
-      currentTime >= clip.startInTimeline && 
-      currentTime < clip.startInTimeline + clip.duration
-    );
-  };
+const PlayerItem = React.memo(({ clip, isPlaying, isVisible, isMuted, onReady, setPlayer, onError }: PlayerItemProps) => {
+  const isAudio = clip.url.match(/\.(mp3|wav|ogg|m4a)$/i);
+  
+  // 提取计算逻辑到组件内部
+  const getClipPos = useCallback((time: number) => {
+    return clip.sourceStart + (time - clip.startInTimeline);
+  }, [clip.sourceStart, clip.startInTimeline]);
 
-  // 查找当前时间对应的音频片段
-  const getCurrentAudioClip = () => {
-    const audioTrack = project.tracks.find(t => t.type === 'audio');
-    if (!audioTrack) return null;
-    
-    return audioTrack.clips.find(clip => 
-      currentTime >= clip.startInTimeline && 
-      currentTime < clip.startInTimeline + clip.duration
-    );
-  };
+  const handleRef = useCallback((el: HTMLMediaElement | null) => {
+    if (el) {
+      const playerWrapper = {
+        getInternalPlayer: () => el,
+        getCurrentTime: () => el.currentTime,
+        seekTo: (amount: number) => {
+          if (Math.abs(el.currentTime - amount) > 0.05) {
+            el.currentTime = amount;
+          }
+        }
+      };
+      setPlayer(clip.id, playerWrapper);
+    }
+  }, [clip.id, setPlayer]);
 
-  const currentVideoClip = getCurrentVideoClip();
-  const currentAudioClip = getCurrentAudioClip();
-
-  // 计算当前片段内的播放位置
-  const getClipPlaybackPosition = (clip: any) => {
-    if (!clip) return 0;
-    const offset = currentTime - clip.startInTimeline;
-    return clip.sourceStart + offset;
-  };
-
-  // 当 currentTime 变化时，同步播放器
   useEffect(() => {
-    if (!isPlaying) {
-      // 如果不在播放状态，手动seek到正确位置
-      const videoPosition = getClipPlaybackPosition(currentVideoClip);
-      const audioPosition = getClipPlaybackPosition(currentAudioClip);
+    const el = document.querySelector(`[data-media-id="${clip.id}"]`) as HTMLMediaElement;
+    if (el) {
+      // 设置音量
+      el.volume = clip.volume ?? 1;
       
-      if (videoPlayerRef.current && currentVideoClip) {
-        videoPlayerRef.current.seekTo(videoPosition, 'seconds');
-      }
-      if (audioPlayerRef.current && currentAudioClip) {
-        audioPlayerRef.current.seekTo(audioPosition, 'seconds');
+      if (isPlaying && isVisible) {
+        const targetPos = getClipPos(useTimelineStore.getState().currentTime);
+        if (Math.abs(el.currentTime - targetPos) > 0.1) {
+          el.currentTime = targetPos;
+        }
+        el.play().catch(e => console.error(`[PlayerItem] Play failed for ${clip.id}:`, e));
+      } else {
+        el.pause();
       }
     }
-  }, [currentTime, currentVideoClip?.id, currentAudioClip?.id, isPlaying]);
+  }, [isPlaying, isVisible, clip.id, getClipPos]);
 
-  // 播放器进度回调 - 用于同步时间轴
-  const handleVideoProgress = (state: any) => {
-    if (!isPlaying || !currentVideoClip) return;
-    
-    // 避免频繁更新，每100ms更新一次
-    const now = Date.now();
-    if (now - lastUpdateTimeRef.current < 100) return;
-    lastUpdateTimeRef.current = now;
-    
-    const newTime = currentVideoClip.startInTimeline + state.playedSeconds - currentVideoClip.sourceStart;
-    
-    // 如果播放到片段结束，跳到下一秒
-    if (newTime >= currentVideoClip.startInTimeline + currentVideoClip.duration) {
-      seek(currentVideoClip.startInTimeline + currentVideoClip.duration);
-    } else {
-      seek(newTime);
-    }
-  };
+  if (isAudio) {
+    return (
+      <audio
+        data-media-id={clip.id}
+        ref={handleRef}
+        src={clip.url}
+        muted={isMuted || clip.isMuted}
+        onCanPlay={() => {
+          onReady(clip.id);
+        }}
+        onError={(e) => {
+          onError?.(e);
+        }}
+        preload="auto"
+      />
+    );
+  }
 
   return (
-    <div className="w-full h-full bg-black flex flex-col items-center justify-center relative">
-      {/* 视频播放器 */}
-      {currentVideoClip ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <ReactPlayer
-            ref={videoPlayerRef}
-            url={currentVideoClip.url}
-            playing={isPlaying}
-            volume={0} // 视频静音，音频由独立的音频轨道播放
-            muted={true}
-            width="100%"
-            height="100%"
-            progressInterval={100}
-            onProgress={handleVideoProgress}
-            onEnded={() => {
-              // 播放结束，跳到下一个片段
-              if (currentVideoClip) {
-                seek(currentVideoClip.startInTimeline + currentVideoClip.duration);
-              }
-            }}
-            style={{ maxWidth: '100%', maxHeight: '100%' }}
-          />
-        </div>
-      ) : (
-        <div className="text-slate-600 flex flex-col items-center">
-          <Film size={48} className="mb-4 opacity-50" />
-          <p className="text-sm">当前时间没有视频片段</p>
-          <p className="text-xs text-slate-700 mt-2">请点击"加载测试媒体"按钮</p>
-        </div>
-      )}
+    <video
+      data-media-id={clip.id}
+      ref={handleRef}
+      src={clip.url}
+      className="w-full h-full object-contain"
+      muted={true} // 视频轨道强制静音，只保留画面
+      playsInline
+      onCanPlay={() => {
+        onReady(clip.id);
+      }}
+      onError={(e) => {
+        onError?.(e);
+      }}
+      preload="auto"
+    />
+  );
+}, (prev, next) => {
+  return (
+    prev.clip.id === next.clip.id &&
+    prev.clip.url === next.clip.url &&
+    prev.isPlaying === next.isPlaying &&
+    prev.isVisible === next.isVisible &&
+    prev.isMuted === next.isMuted &&
+    prev.clip.volume === next.clip.volume &&
+    prev.clip.isMuted === next.clip.isMuted
+  );
+});
 
-      {/* 隐藏的音频播放器 */}
-      {currentAudioClip && (
-        <div className="hidden">
-          <ReactPlayer
-            ref={audioPlayerRef}
-            url={currentAudioClip.url}
-            playing={isPlaying}
-            volume={isMuted ? 0 : 1}
-            muted={isMuted}
-            progressInterval={100}
-            style={{ display: 'none' }}
-          />
+export const VideoPreview: React.FC = () => {
+  const currentTime = useTimelineStore(state => state.currentTime);
+  const isPlaying = useTimelineStore(state => state.isPlaying);
+  const project = useTimelineStore(state => state.project);
+  
+  // 计算当前可见和预加载片段
+  const { visibleClips, preloadingClips } = useMemo(() => {
+    const visible: TimelineTrackClip[] = [];
+    const preloading: TimelineTrackClip[] = [];
+    const time = Math.round(currentTime * 100) / 100;
+    const preloadWindow = 5; // 预加载未来5秒的片段
+    
+    project.tracks.forEach(track => {
+      track.clips.forEach(clip => {
+        const isVisible = time >= clip.startInTimeline && time < clip.startInTimeline + clip.duration;
+        const isUpcoming = !isVisible && clip.startInTimeline > time && clip.startInTimeline <= time + preloadWindow;
+        
+        if (isVisible) {
+          visible.push(clip);
+        } else if (isUpcoming) {
+          preloading.push(clip);
+        }
+      });
+    });
+    return { visibleClips: visible, preloadingClips: preloading };
+  }, [currentTime, project.tracks]);
+
+  // 合并所有需要渲染的片段
+  const allRenderedClips = useMemo(() => {
+    // 使用 Map 以 clip.id 为键进行去重，确保 visible 优先
+    const map = new Map<string, { clip: TimelineTrackClip, isVisible: boolean }>();
+    preloadingClips.forEach(clip => map.set(clip.id, { clip, isVisible: false }));
+    visibleClips.forEach(clip => map.set(clip.id, { clip, isVisible: true }));
+    return Array.from(map.values());
+  }, [visibleClips, preloadingClips]);
+
+  const [isMuted, setIsMuted] = useState(false);
+  const [isReady, setIsReady] = useState<Record<string, boolean>>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  const playerRefs = useRef<Record<string, any>>({});
+  const lastSeekTimeRef = useRef<Record<string, number>>({});
+  
+  // 使用 Ref 追踪最新的 currentTime，避免 handlePlayerReady 因依赖 currentTime 而频繁重建导致的闭包失效
+  const currentTimeRef = useRef(currentTime);
+  useEffect(() => {
+    currentTimeRef.current = currentTime;
+  }, [currentTime]);
+  
+  // 计算片段内的播放位置
+  const getClipPlaybackPosition = useCallback((time: number, clip: TimelineTrackClip) => {
+    const offset = time - clip.startInTimeline;
+    return clip.sourceStart + offset;
+  }, []);
+
+  const handleSetPlayer = useCallback((clipId: string, player: any) => {
+    if (player) {
+      playerRefs.current[clipId] = player;
+    }
+  }, []);
+
+  const handlePlayerReady = useCallback((clipId: string) => {
+    setIsReady(prev => ({ ...prev, [clipId]: true }));
+    const player = playerRefs.current[clipId];
+    if (player) {
+      // 查找对应的 clip
+      const clip = project.tracks
+        .flatMap(t => t.clips)
+        .find(c => c.id === clipId);
+      
+      if (clip) {
+        player.seekTo(getClipPlaybackPosition(currentTimeRef.current, clip), 'seconds');
+      }
+    }
+  }, [project.tracks, getClipPlaybackPosition]);
+
+  const handlePlayerError = useCallback((clipId: string, e: any) => {
+    console.error(`Player error for clip ${clipId}:`, e);
+    setErrors(prev => ({ ...prev, [clipId]: String(e) }));
+  }, []);
+
+  // 分离视频、音频和字幕片段
+  const videoRenderItems = useMemo(() => {
+    return allRenderedClips.filter(({ clip }) => clip.url && !clip.url.match(/\.(mp3|wav|ogg|m4a)$/i));
+  }, [allRenderedClips]);
+
+  const audioRenderItems = useMemo(() => {
+    return allRenderedClips.filter(({ clip }) => clip.url && clip.url.match(/\.(mp3|wav|ogg|m4a)$/i));
+  }, [allRenderedClips]);
+
+  const subtitleRenderItems = useMemo(() => {
+    return allRenderedClips.filter(({ clip }) => clip.text && !clip.url);
+  }, [allRenderedClips]);
+
+  // 同步播放器进度
+  useEffect(() => {
+    // 只有在非播放状态（如拖动进度条）才强制同步预览画面
+    if (isPlaying) return;
+
+    allRenderedClips.forEach(({ clip, isVisible }) => {
+      const player = playerRefs.current[clip.id];
+      if (player && typeof player.getCurrentTime === 'function') {
+        // 如果是可见片段，根据当前时间计算位置
+        // 如果是预加载片段，定位到开头 (sourceStart)
+        const targetPos = isVisible 
+          ? getClipPlaybackPosition(currentTime, clip)
+          : clip.sourceStart;
+          
+        const currentPos = player.getCurrentTime();
+        const drift = Math.abs(currentPos - targetPos);
+        
+        // 暂停状态下，只要有微小偏差就同步，确保预览精准
+        if (drift > 0.03) {
+          const now = Date.now();
+          if (now - (lastSeekTimeRef.current[clip.id] || 0) > 40) {
+            player.seekTo(targetPos);
+            lastSeekTimeRef.current[clip.id] = now;
+          }
+        }
+      }
+    });
+  }, [currentTime, isPlaying, allRenderedClips, getClipPlaybackPosition]);
+
+  return (
+    <div className="w-full h-full bg-black flex items-center justify-center relative overflow-hidden group">
+      {/* 时间和状态指示器 (仅在播放或有错误时显示) */}
+      <div className="absolute top-4 left-4 z-50 pointer-events-none flex flex-col gap-2">
+        <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}`} />
+          <span className="text-xs font-mono text-white/90 tracking-widest">{formatTime(currentTime)} / {formatTime(project.duration)}</span>
+          <span className="text-[10px] text-white/40 border-l border-white/10 pl-2 ml-1">
+            {visibleClips.length} 片段
+          </span>
         </div>
-      )}
-
-      {/* 音量控制按钮 */}
-      <button
-        onClick={() => setIsMuted(!isMuted)}
-        className="absolute bottom-4 right-4 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white backdrop-blur-sm transition-all z-10 border border-white/10"
-        title={isMuted ? '取消静音' : '静音'}
-      >
-        {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
-      </button>
-
-      {/* 时间显示 */}
-      <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded text-white text-sm font-mono border border-white/10">
-        {formatTime(currentTime)} / {formatTime(project.duration)}
+        
+        {Object.keys(errors).map(clipId => (
+          <div key={clipId} className="bg-red-500/80 backdrop-blur-md px-3 py-1.5 rounded-md border border-red-400/20 text-[10px] text-white max-w-[200px] truncate">
+            错误: {clipId}
+          </div>
+        ))}
       </div>
 
-      {/* 当前片段信息 */}
-      {currentVideoClip && (
-        <div className="absolute top-4 right-4 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded text-white text-xs border border-white/10">
-          <div className="flex items-center gap-2">
-            <Film size={12} />
-            <span>Clip {currentVideoClip.id}</span>
+      {/* 视频层 */}
+      <div className="absolute inset-0 z-10">
+        {videoRenderItems.length > 0 ? (
+          videoRenderItems.map(({ clip, isVisible }) => (
+            <div 
+              key={clip.id} 
+              className={`absolute inset-0 flex items-center justify-center ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+              style={{ zIndex: clip.layer || 1 }}
+            >
+              <PlayerItem 
+                clip={clip}
+                isPlaying={isPlaying}
+                isVisible={isVisible}
+                isMuted={isMuted}
+                setPlayer={handleSetPlayer}
+                onReady={handlePlayerReady}
+                onError={(e) => handlePlayerError(clip.id, e)}
+              />
+              {isVisible && !isReady[clip.id] && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 gap-3">
+            <div className="p-4 bg-slate-900/50 rounded-full">
+              <Film size={48} strokeWidth={1.5} />
+            </div>
+            <p className="text-sm font-medium tracking-wide">暂无可见视频素材</p>
+          </div>
+        )}
+      </div>
+
+      {/* 字幕层 */}
+      <div className="absolute bottom-0 left-0 right-0 z-30 flex items-end justify-center pb-12 pointer-events-none">
+        {subtitleRenderItems
+          .filter(({ isVisible }) => isVisible)
+          .map(({ clip }) => (
+            <div
+              key={clip.id}
+              className="px-6 py-3 bg-black/75 backdrop-blur-sm rounded-lg max-w-[85%] text-center"
+              style={{ zIndex: clip.layer || 100 }}
+            >
+              <p className="text-white text-lg leading-relaxed font-medium whitespace-pre-wrap break-words">
+                {clip.text}
+              </p>
+            </div>
+          ))}
+      </div>
+
+      {/* 音频层 (透明但占据微小空间以确保浏览器加载) */}
+      <div className="absolute opacity-0 pointer-events-none w-1 h-1 overflow-hidden" aria-hidden="true" style={{ left: -100, top: -100 }}>
+        {audioRenderItems.map(({ clip, isVisible }) => (
+          <PlayerItem
+            key={clip.id}
+            clip={clip}
+            isPlaying={isPlaying}
+            isVisible={isVisible}
+            isMuted={isMuted}
+            setPlayer={handleSetPlayer}
+            onReady={handlePlayerReady}
+            onError={(e) => handlePlayerError(clip.id, e)}
+          />
+        ))}
+      </div>
+
+      {/* 预览控制遮罩 */}
+      <div className="absolute bottom-4 right-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+        <button 
+          onClick={() => setIsMuted(!isMuted)}
+          className="p-2 bg-slate-900/80 hover:bg-slate-800 text-white rounded-full backdrop-blur-md border border-white/10 transition-all active:scale-95"
+          title={isMuted ? '取消静音' : '静音'}
+        >
+          {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
+      </div>
+
+      {/* 播放状态指示器 */}
+      {!isPlaying && videoRenderItems.some(item => item.isVisible) && (
+        <div className="absolute inset-0 z-20 bg-black/10 flex items-center justify-center pointer-events-none">
+          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
+            <div className="w-0 h-0 border-l-[15px] border-l-white border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent ml-1" />
           </div>
         </div>
       )}
+
+      {/* 时间显示 */}
+      <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded text-white text-sm font-mono border border-white/10 z-30">
+        {formatTime(currentTime)} / {formatTime(project.duration)}
+      </div>
     </div>
   );
 };

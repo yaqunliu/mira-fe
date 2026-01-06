@@ -9,8 +9,11 @@ export interface StepStatus {
 export interface CreationMetadata {
   steps: {
     characterAnalysis: StepStatus;
-    storyboardGeneration: StepStatus;
-    sceneGeneration: StepStatus;
+    characterImageGeneration: StepStatus;
+    sceneAnalysis: StepStatus;
+    sceneImageGeneration: StepStatus;
+    shotAnalysis: StepStatus;
+    shotImageGeneration: StepStatus;
     videoGeneration: StepStatus;
   };
 }
@@ -23,8 +26,11 @@ export const DEFAULT_STEP_STATUS: StepStatus = {
 export const DEFAULT_METADATA: CreationMetadata = {
   steps: {
     characterAnalysis: { ...DEFAULT_STEP_STATUS },
-    storyboardGeneration: { ...DEFAULT_STEP_STATUS },
-    sceneGeneration: { ...DEFAULT_STEP_STATUS },
+    characterImageGeneration: { ...DEFAULT_STEP_STATUS },
+    sceneAnalysis: { ...DEFAULT_STEP_STATUS },
+    sceneImageGeneration: { ...DEFAULT_STEP_STATUS },
+    shotAnalysis: { ...DEFAULT_STEP_STATUS },
+    shotImageGeneration: { ...DEFAULT_STEP_STATUS },
     videoGeneration: { ...DEFAULT_STEP_STATUS },
   },
 };

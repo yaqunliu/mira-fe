@@ -55,7 +55,7 @@ export interface Storyboard {
   chapterId: string;
   order: number;
   description: string;
-  narration: string;
+  narration: { 角色: string; 内容: string }[];
   imageUrl?: string;
   prompt?: string;
   createdAt: string;
@@ -68,7 +68,7 @@ export interface Shot {
   title: string;
   associatedCharacters: string[];
   sceneDescription: string;
-  narration: string;
+  narration: { 角色: string; 内容: string }[];
   imagePrompt: string;
   shotImage: string;
 }
@@ -162,7 +162,7 @@ export interface StoryboardItem {
   storyboard_characters: string[];
   storyboard_description: string;
   storyboard_prompt: string;
-  storyboard_narration?: string;
+  storyboard_narration?: string[];
 }
 
 export interface Scene {
@@ -193,7 +193,7 @@ export interface AIGeneratedImage {
   title: string;
   image_url: string;
   prompt: string;
-  narration: string;
+  narration: NarrationItem[];
   status?: "pending" | "generating" | "completed" | "failed";
   progress?: number;
   createdAt?: string;
@@ -258,13 +258,18 @@ export interface ShotGenerationProgress {
   failed_count: number;
 }
 
+export interface NarrationItem {
+  角色: string;
+  内容: string;
+}
+
 export interface GeneratedShot {
   shot_id: number;
   uuid?: string;  // UUID字段
   title: string;
   image_url: string;
   status: "pending" | "generating" | "completed" | "failed";
-  narration?: string;
+  narration: NarrationItem[];
   prompt?: string;
   image_prompt?: string; // API 可能返回 image_prompt 字段
 }

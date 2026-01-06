@@ -58,11 +58,18 @@ export function StoryboardEditModal({
     (shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean)
   );
 
+  const getNarrationString = (narration: string | string[]) => {
+    if (Array.isArray(narration)) {
+      return narration.join("\n");
+    }
+    return narration || "";
+  };
+
   const form = useForm<EditStoryboardFormData>({
     resolver: zodResolver(editStoryboardSchema),
     defaultValues: {
       title: shot.title || "",
-      narration: shot.narration || "",
+      narration: getNarrationString(shot.narration),
     },
   });
 
@@ -84,7 +91,7 @@ export function StoryboardEditModal({
       setSelectedCharacters(characterIds);
       form.reset({
         title: shot.title || "",
-        narration: shot.narration || "",
+        narration: getNarrationString(shot.narration),
       });
     }
   }, [(shot as any)?.shot_id || (shot as any)?.uuid, isOpen, form]);
@@ -107,11 +114,14 @@ export function StoryboardEditModal({
         toast.error(`分镜ID格式错误：${uuidString}，应该是UUID格式`);
         return;
       }
+
+      const narrationArray = data.narration.split("\n").filter(s => s.trim() !== "");
+
       // 调用 API 更新分镜
       // 更新标题/旁白
       await shotApi.updateShot(uuidString, {
         title: data.title,
-        narration: data.narration,
+        narration: narrationArray,
         character_ids: selectedCharacters,
       });
 
@@ -121,7 +131,7 @@ export function StoryboardEditModal({
       const updatedShot: IShot = {
         ...shot,
         title: data.title,
-        narration: data.narration,
+        narration: narrationArray,
         characters: availableCharacters.filter((c) =>
           selectedCharacters.includes(Number(c.character_id))
         ),
@@ -156,6 +166,9 @@ export function StoryboardEditModal({
           <DialogTitle className="flex items-center gap-2 text-base">
             编辑分镜
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            修改分镜标题、旁白和关联角色。
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

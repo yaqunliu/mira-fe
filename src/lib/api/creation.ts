@@ -210,6 +210,67 @@ const creationApi = {
       {}
     ) as unknown as Promise<{ data: { task_id: string; creation_uuid: string }; message: string }>;
   },
+
+  // 批量生成所有视频
+  generateAllVideos: async (
+    creationUuid: string
+  ): Promise<{ data: { task_id: string; total_shots: number; shots_with_images: number }; message: string }> => {
+    return apiClient.post(
+      `/api/v1/creations/${creationUuid}/generate-all-videos`,
+      {}
+    ) as unknown as Promise<{ data: { task_id: string; total_shots: number; shots_with_images: number }; message: string }>;
+  },
+
+  // 导出视频
+  exportVideo: async (
+    creationUuid: string
+  ): Promise<{ data: { task_id: string; creation_uuid: string }; message: string }> => {
+    return apiClient.post(
+      `/api/v1/creations/${creationUuid}/export`,
+      {}
+    ) as unknown as Promise<{ data: { task_id: string; creation_uuid: string }; message: string }>;
+  },
+
+  // 获取导出历史
+  getExportHistory: async (
+    creationUuid: string
+  ): Promise<{
+    data: {
+      creation_uuid: string;
+      outputs: Array<{
+        video_url: string | null;
+        export_at: string;
+        duration?: number;
+        resolution?: string;
+        file_size?: number;
+        status: string;
+        error?: string;
+        error_type?: string;
+      }>;
+      total: number;
+    };
+    message: string;
+  }> => {
+    return apiClient.get(
+      `/api/v1/creations/${creationUuid}/export-history`
+    ) as unknown as Promise<{
+      data: {
+        creation_uuid: string;
+        outputs: Array<{
+          video_url: string | null;
+          export_at: string;
+          duration?: number;
+          resolution?: string;
+          file_size?: number;
+          status: string;
+          error?: string;
+          error_type?: string;
+        }>;
+        total: number;
+      };
+      message: string;
+    }>;
+  },
 };
 
 export default creationApi;

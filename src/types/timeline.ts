@@ -38,4 +38,6 @@ export interface TimelineState {
   selectedClipId?: string;  // 当前选中的片段ID
   selectedTrackId?: string; // 当前选中的轨道ID
   project: TimelineProject; // 项目数据
+  past: TimelineProject[];  // 历史快照（撤销栈）
+  future: TimelineProject[]; // 未来快照（重做栈）
 }

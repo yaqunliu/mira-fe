@@ -3,10 +3,10 @@ import { persist } from 'zustand/middleware'
 
 interface UIState {
   sidebarOpen: boolean
-  language: 'en' | 'zh' | 'ja'
+  language: 'en' | 'zh'
   setSidebarOpen: (open: boolean) => void
   toggleSidebar: () => void
-  setLanguage: (language: 'en' | 'zh' | 'ja') => void
+  setLanguage: (language: 'en' | 'zh') => void
 }
 
 export const useUIStore = create<UIState>()(
@@ -23,7 +23,7 @@ export const useUIStore = create<UIState>()(
         set((state) => ({ sidebarOpen: !state.sidebarOpen }))
       },
       
-      setLanguage: (language: 'en' | 'zh' | 'ja') => {
+      setLanguage: (language: 'en' | 'zh') => {
         set({ language })
       },
     }),

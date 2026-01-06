@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Save, X } from "lucide-react";
 import { toast } from "sonner";
-import { AIGeneratedImage } from "@/types";
+import { AIGeneratedImage, NarrationItem } from "@/types";
 import React from "react";
 import { useTranslations } from "next-intl";
 
@@ -24,13 +24,15 @@ const getEditNarrationSchema = (t: any) => z.object({
   narration: z.string().min(1, t("storyboard.editNarration") + " " + t("common.error")),
 });
 
-type EditNarrationFormData = z.infer<typeof editNarrationSchema>;
+type EditNarrationFormData = {
+  narration: string;
+};
 
 interface NarrationEditBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   image: AIGeneratedImage | null;
-  onSave: (imageId: string, newNarration: string) => Promise<void>;
+  onSave: (imageId: string, newNarration: NarrationItem[]) => Promise<void>;
 }
 
 /**
@@ -47,10 +49,17 @@ export function NarrationEditBottomSheet({
   const t = useTranslations();
   const [isLoading, setIsLoading] = useState(false);
 
+  const getNarrationString = (narration: NarrationItem[]) => {
+    if (Array.isArray(narration)) {
+      return narration.map(item => item.内容).join("\n");
+    }
+    return "";
+  };
+
   const form = useForm<EditNarrationFormData>({
     resolver: zodResolver(getEditNarrationSchema(t)),
     defaultValues: {
-      narration: image?.narration || "",
+      narration: getNarrationString(image?.narration || []),
     },
   });
 
@@ -58,7 +67,7 @@ export function NarrationEditBottomSheet({
   React.useEffect(() => {
     if (image) {
       form.reset({
-        narration: image.narration,
+        narration: getNarrationString(image.narration),
       });
     }
   }, [image, form]);
@@ -68,7 +77,12 @@ export function NarrationEditBottomSheet({
     
     setIsLoading(true);
     try {
-      await onSave(image.image_id, data.narration);
+      const narrationArray: NarrationItem[] = data.narration
+        .split("\n")
+        .filter((s: string) => s.trim() !== "")
+        .map(s => ({ 角色: "旁白", 内容: s.trim() }));
+        
+      await onSave(image.image_id, narrationArray);
       toast.success(t("common.success"));
       onClose();
     } catch (error) {

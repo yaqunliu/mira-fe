@@ -21,13 +21,30 @@ export function ensureMetadata(creation: ICreation): ICreation {
 
 /**
  * Gets the status of a specific step from the creation metadata.
+ * Includes timeout logic (1 hour).
  */
 export function getStepStatus(
   creation: ICreation,
   step: keyof CreationMetadata["steps"]
 ): StepStatus {
   const metadata = (creation.extra_data as unknown as CreationMetadata) || DEFAULT_METADATA;
-  return metadata.steps?.[step] || DEFAULT_METADATA.steps[step];
+  const stepData = metadata.steps?.[step] || DEFAULT_METADATA.steps[step];
+  
+  // 超时检查：如果处于 pending 或 processing 状态超过 1 小时，标记为超时失败
+  const TIMEOUT_MS = 60 * 60 * 1000; // 1 小时
+  if (
+    (stepData.status === 'processing' || stepData.status === 'pending') && 
+    stepData.updatedAt && 
+    Date.now() - stepData.updatedAt > TIMEOUT_MS
+  ) {
+    return {
+      ...stepData,
+      status: 'failed',
+      error: 'timeout'
+    };
+  }
+  
+  return stepData;
 }
 
 /**

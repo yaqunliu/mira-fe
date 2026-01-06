@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -94,6 +94,9 @@ export function SceneEditModal({
                             </Button>
                         )}
                     </DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Edit scene details including location, time, and atmosphere.
+                    </DialogDescription>
                 </DialogHeader>
                 
                 <div className="space-y-6 mt-2">

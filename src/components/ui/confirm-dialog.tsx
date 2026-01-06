@@ -56,15 +56,19 @@ export function ConfirmDialog({
               </div>
             )}
             <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-              {title}
-            </DialogTitle>
-          </div>
-          {description && (
-            <DialogDescription className="pt-2 text-base text-gray-600 dark:text-gray-400">
-              {description}
-            </DialogDescription>
-          )}
-        </DialogHeader>
+            {title}
+          </DialogTitle>
+        </div>
+        {description ? (
+          <DialogDescription className="pt-2 text-base text-gray-600 dark:text-gray-400">
+            {description}
+          </DialogDescription>
+        ) : (
+          <DialogDescription className="sr-only">
+            Confirmation dialog for {title}
+          </DialogDescription>
+        )}
+      </DialogHeader>
         <DialogFooter className="gap-3 sm:gap-3">
           <Button
             variant="ghost"

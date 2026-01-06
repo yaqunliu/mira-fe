@@ -44,7 +44,9 @@ function transformShotsToSceneGroups(shotsData: ShotsTaskResponse): SceneGroup[]
         title: shot.title,
         image_url: shot.image_url || "",
         prompt: shot.image_prompt || shot.prompt || "", // 优先使用 image_prompt
-        narration: shot.narration || "",
+        narration: Array.isArray(shot.narration) 
+          ? shot.narration 
+          : (shot.narration ? [shot.narration] : []),
         characters: shotAny.characters || [], // 保留角色关联数据（shotsTaskData 中可能没有此字段）
         status: shot.status === "completed" ? "completed"
               : shot.status === "failed" ? "failed"
@@ -545,8 +547,8 @@ export default function CreateCreation() {
     setIsGeneratingShots(true);
     toast.info(t("creation.shotsGenerationStart"));
     
-    // 传递 image_count 参数，图片数量等于分镜数量
-    const response = await creationApi.generateShots(creationId, shotCount);
+    // 启动分镜生成任务
+    const response = await creationApi.generateShots(creationId);
     const taskId = response?.data?.task_id;
     
     if (taskId) {

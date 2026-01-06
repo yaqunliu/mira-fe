@@ -162,8 +162,11 @@ export default function ScriptDetailPage() {
     }, [finalItems.length, itemPage, itemsTotalPages, isItemsLoading]);
 
     const handleCreateVideo = async (itemUuid?: string) => {
+        // 获取实际的类型（novel 或 script）
+        const contentType = script?.type || 'script';
+
         if (!itemUuid) {
-            router.push(`/${locale}/create-dynamic-comic?novel=${scriptId}&type=script`);
+            router.push(`/${locale}/create-dynamic-comic?novel=${scriptId}&type=${contentType}`);
             return;
         }
 
@@ -178,7 +181,7 @@ export default function ScriptDetailPage() {
             }
         } catch (error) { }
 
-        router.push(`/${locale}/create-dynamic-comic?novel=${scriptId}&chapter=${itemUuid}&type=script`);
+        router.push(`/${locale}/create-dynamic-comic?novel=${scriptId}&chapter=${itemUuid}&type=${contentType}`);
     };
 
     const handleStartEditScriptTitle = () => {

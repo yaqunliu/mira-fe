@@ -6,7 +6,7 @@ const shotApi = {
   // 更新分镜
   updateShot: async (
     shotUuid: string,
-    data: Partial<IShot> & { character_ids?: number[] }
+    data: Partial<IShot>
   ): Promise<{ data: IShot; message: string }> => {
     return apiClient.put<ApiResponse<IShot>>(
       `/api/v1/shots/${shotUuid}`,
@@ -46,6 +46,52 @@ const shotApi = {
       `/api/v1/shots/${shotUuid}/characters`,
       {
         character_ids: characterIds
+      }
+    ) as unknown as Promise<{ data: IShot; message: string }>;
+  },
+
+  // 更新旁白
+  updateNarration: async (
+    shotUuid: string,
+    narration: string[]
+  ): Promise<{ data: IShot; message: string }> => {
+    return apiClient.put<ApiResponse<IShot>>(
+      `/api/v1/shots/${shotUuid}/narration`,
+      {
+        narration: narration
+      }
+    ) as unknown as Promise<{ data: IShot; message: string }>;
+  },
+
+  // 生成分镜视频（首次）
+  generateShotVideo: async (
+    shotUuid: string
+  ): Promise<{ data: { task_id: string; shot_uuid: string; video_duration: number; required_points: number }; message: string }> => {
+    return apiClient.post(
+      `/api/v1/shots/${shotUuid}/generate-video`,
+      {}
+    ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string; video_duration: number; required_points: number }; message: string }>;
+  },
+
+  // 生成视频提示词
+  generateVideoPrompt: async (
+    shotUuid: string
+  ): Promise<{ data: { task_id: string; shot_uuid: string }; message: string }> => {
+    return apiClient.post(
+      `/api/v1/shots/${shotUuid}/generate-video-prompt`,
+      {}
+    ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string }; message: string }>;
+  },
+
+  // 更新视频提示词
+  updateVideoPrompt: async (
+    shotUuid: string,
+    videoPrompt: string
+  ): Promise<{ data: IShot; message: string }> => {
+    return apiClient.put<ApiResponse<IShot>>(
+      `/api/v1/shots/${shotUuid}`,
+      {
+        extra_data: { video_prompt: videoPrompt }
       }
     ) as unknown as Promise<{ data: IShot; message: string }>;
   },

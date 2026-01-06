@@ -94,9 +94,19 @@ export function ShotItem({
               <Mic className="h-3 w-3" />
               旁白
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              {currentShot.narration || "暂无旁白"}
-            </p>
+            <div className="space-y-1">
+              {Array.isArray(currentShot.narration) && currentShot.narration.length > 0 ? (
+                currentShot.narration.map((text, idx) => (
+                  <p key={idx} className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic">
+                    "{text}"
+                  </p>
+                ))
+              ) : (
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic opacity-50">
+                  暂无旁白
+                </p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

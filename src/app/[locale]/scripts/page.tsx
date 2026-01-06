@@ -282,13 +282,23 @@ export default function ScriptsPage() {
                                     className="pl-11 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
                                 />
                             </div>
-                            <Button
-                                onClick={() => router.push(`/${locale}/scripts/create`)}
-                                className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105"
-                            >
-                                <Plus className="h-5 w-5 mr-2" />
-                                {t("createVideo.createProject")}
-                            </Button>
+                            <div className="flex gap-3">
+                                <Button
+                                    onClick={() => router.push(`/${locale}/novels/upload`)}
+                                    variant="outline"
+                                    className="h-12 px-6 rounded-xl border-2 border-green-500/50 hover:border-green-500 hover:bg-green-500/10 text-green-600 dark:text-green-400 shadow-lg shadow-green-500/20 hover:shadow-green-500/30 transition-all duration-200 hover:scale-105"
+                                >
+                                    <BookOpen className="h-5 w-5 mr-2" />
+                                    {t("novel.uploadNovel")}
+                                </Button>
+                                <Button
+                                    onClick={() => router.push(`/${locale}/scripts/create`)}
+                                    className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105"
+                                >
+                                    <Plus className="h-5 w-5 mr-2" />
+                                    {t("createVideo.createProject")}
+                                </Button>
+                            </div>
                         </div>
 
                         <div className="max-w-md">
@@ -344,6 +354,14 @@ export default function ScriptsPage() {
                                         <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">暂无内容</h3>
                                         <p className="text-gray-600 dark:text-gray-400">开始您的创作之旅吧</p>
                                         <div className="flex gap-4 justify-center">
+                                            <Button
+                                                onClick={() => router.push(`/${locale}/novels/upload`)}
+                                                variant="outline"
+                                                className="h-12 px-8 rounded-xl border-2 border-green-500/50 hover:border-green-500 hover:bg-green-500/10 text-green-600 dark:text-green-400 shadow-lg shadow-green-500/20"
+                                            >
+                                                <BookOpen className="h-5 w-5 mr-2" />
+                                                {t("novel.uploadNovel")}
+                                            </Button>
                                             <Button
                                                 onClick={() => router.push(`/${locale}/scripts/create`)}
                                                 className="h-12 px-8 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30"

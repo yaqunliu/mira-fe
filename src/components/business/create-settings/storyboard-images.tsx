@@ -23,18 +23,17 @@ import {
   Film,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AIGeneratedImage, SceneGroup, ShotGenerationProgress, TaskStatus } from "@/types";
+import { AIGeneratedImage, SceneGroup, ShotGenerationProgress, TaskStatus, NarrationItem } from "@/types";
 import { StoryboardEditBottomSheet } from "@/components/modals/storyboard-edit-bottom-sheet";
 import { NarrationEditBottomSheet } from "@/components/modals/narration-edit-bottom-sheet";
 import shotApi from "@/lib/api/shot";
 import taskApi from "@/lib/api/task";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-import { useTaskSubmission } from "@/hooks/use-task-submission";
 
 interface StoryboardImagesProps {
   data: SceneGroup[];
-  onUpdateNarration?: (imageId: string, newNarration: string) => Promise<void>;
+  onUpdateNarration?: (imageId: string, newNarration: NarrationItem[]) => Promise<void>;
   onImageUpdated?: (imageId: string, newImageUrl: string) => void;
   className?: string;
   onComplete: () => void;
@@ -59,9 +58,7 @@ export function StoryboardImages({
   imageModelName,
 }: StoryboardImagesProps) {
   const t = useTranslations();
-  const [editingImageId, setEditingImageId] = useState<string | null>(null);
-  const [editingPrompt, setEditingPrompt] = useState<string>("");
-  const [editingNarration, setEditingNarration] = useState<string>("");
+  const [editingNarration, setEditingNarration] = useState<NarrationItem[]>([]);
   const [previewImageId, setPreviewImageId] = useState<string | null>(null);
   const [regeneratingIds, setRegeneratingIds] = useState<Set<string>>(
     new Set()
@@ -78,7 +75,7 @@ export function StoryboardImages({
   const [localImageUpdates, setLocalImageUpdates] = useState<Record<string, string>>({});
   
   // 本地旁白数据状态（用于更新旁白）
-  const [localNarrationUpdates, setLocalNarrationUpdates] = useState<Record<string, string>>({});
+  const [localNarrationUpdates, setLocalNarrationUpdates] = useState<Record<string, NarrationItem[]>>({});
   
   // 轮询定时器引用
   const pollTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
@@ -107,10 +104,10 @@ export function StoryboardImages({
 
   // 保存旁白编辑
   const handleSaveNarration = useCallback(
-    async (imageId: string, newNarration: string) => {
+    async (imageId: string, newNarration: NarrationItem[]) => {
       try {
         // 调用 API 更新旁白
-        await shotApi.updateNarration(imageId, newNarration);
+        await shotApi.updateNarration(imageId, newNarration as any);
         
         // 更新本地状态
         setLocalNarrationUpdates(prev => ({
@@ -244,7 +241,7 @@ export function StoryboardImages({
 
   // 重新生成图片
   const handleRegenerateImage = useCallback(
-    async (imageId: string, newPrompt: string, selectedCharacters?: number[]) => {
+    async (imageId: string, selectedCharacters?: number[]) => {
       // 如果已经在生成中或正在提交，直接返回
       if (regeneratingIds.has(imageId) || submittingIdsRef.current.has(imageId)) {
         return;
@@ -297,8 +294,8 @@ export function StoryboardImages({
           // 添加到正在生成的列表
           setRegeneratingIds(prev => new Set(prev).add(imageId));
           
-          // 调用 API 开始生成（使用UUID）
-          const response = await shotApi.regenerateShot(shotUuid, newPrompt);
+          // 调用 API 开始生成（使用UUID），不传递 prompt，让后端重新生成
+          const response = await shotApi.regenerateShotImage(shotUuid);
           const taskId = response?.data?.task_id;
           
           if (!taskId) {
@@ -608,7 +605,7 @@ export function StoryboardImages({
                           <div className="flex items-start gap-2 text-gray-800 dark:text-white">
                             <Mic className="w-4 h-4 flex-shrink-0 mt-0.5" />
                             <p className="text-sm leading-relaxed line-clamp-2 flex-1 min-w-0">
-                              {localNarrationUpdates[image.image_id] || image.narration}
+                              {(localNarrationUpdates[image.image_id] || image.narration).join(" ")}
                             </p>
                             <button
                               onClick={() => handleStartEditNarration(image)}
@@ -708,7 +705,7 @@ export function StoryboardImages({
                             </div>
                           ) : (
                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2">
-                              {image.narration || "暂无旁白"}
+                              {image.narration.length > 0 ? image.narration.join(" ") : "暂无旁白"}
                             </p>
                           )}
                         </div> */}

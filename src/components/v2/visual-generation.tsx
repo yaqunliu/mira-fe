@@ -26,8 +26,6 @@ export function VisualGeneration() {
   const { creation, nextStep, updateShot, updateScene } = useCreationV2Store();
   const [regeneratingScenes, setRegeneratingScenes] = useState<Map<number, string>>(new Map());
   const [regeneratingShots, setRegeneratingShots] = useState<Map<number, string>>(new Map());
-  const [editingShotId, setEditingShotId] = useState<number | null>(null);
-  const [editPrompt, setEditPrompt] = useState("");
 
   // Polling for tasks
   useEffect(() => {
@@ -116,24 +114,14 @@ export function VisualGeneration() {
   const handleRegenerateShot = async (shot: IShot) => {
     if (!shot.uuid) return;
     try {
-      const prompt = editingShotId === shot.shot_id ? editPrompt : shot.image_prompt;
-      const res = await shotApi.regenerateShot(shot.uuid, prompt);
+      // 不再传递提示词，让后端重新生成
+      const res = await shotApi.regenerateShotImage(shot.uuid);
       if (res.data.task_id) {
         setRegeneratingShots(prev => new Map(prev).set(shot.shot_id, res.data.task_id));
         toast.success("分镜生成任务已提交");
-        setEditingShotId(null);
       }
     } catch (error) {
       toast.error("提交失败");
-    }
-  };
-
-  const toggleEditShot = (shot: IShot) => {
-    if (editingShotId === shot.shot_id) {
-      setEditingShotId(null);
-    } else {
-      setEditingShotId(shot.shot_id);
-      setEditPrompt(shot.image_prompt || "");
     }
   };
 
@@ -152,8 +140,8 @@ export function VisualGeneration() {
       </div>
 
       <div className="grid gap-6">
-        <Accordion type="multiple" defaultValue={creation.scenes?.map(s => `scene-${s.scene_id}`) || []} className="w-full">
-          {creation.scenes?.map((scene, index) => (
+        <Accordion type="multiple" defaultValue={creation.scenes?.map((s: any) => `scene-${s.scene_id}`) || []} className="w-full">
+          {creation.scenes?.map((scene: any, index: number) => (
             <AccordionItem key={scene.scene_id} value={`scene-${scene.scene_id}`}>
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-4 w-full pr-4">
@@ -198,13 +186,6 @@ export function VisualGeneration() {
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                              <Button 
                                 size="sm" 
-                                variant="secondary"
-                                onClick={() => toggleEditShot(shot)}
-                             >
-                               编辑提示词
-                             </Button>
-                             <Button 
-                                size="sm" 
                                 disabled={regeneratingShots.has(shot.shot_id)}
                                 onClick={() => handleRegenerateShot(shot)}
                              >
@@ -223,23 +204,9 @@ export function VisualGeneration() {
                            <div className="flex justify-between items-start mb-2">
                               <Badge variant="outline">分镜 {shot.shot_number}</Badge>
                            </div>
-                           {editingShotId === shot.shot_id ? (
-                             <div className="space-y-2">
-                               <Textarea 
-                                  value={editPrompt} 
-                                  onChange={(e) => setEditPrompt(e.target.value)} 
-                                  className="text-xs h-20"
-                               />
-                               <div className="flex justify-end gap-2">
-                                 <Button size="sm" variant="ghost" onClick={() => setEditingShotId(null)}>取消</Button>
-                                 <Button size="sm" onClick={() => handleRegenerateShot(shot)}>生成</Button>
-                               </div>
-                             </div>
-                           ) : (
-                             <p className="text-xs text-muted-foreground line-clamp-3" title={shot.image_prompt}>
-                                {shot.image_prompt || shot.description}
-                             </p>
-                           )}
+                           <p className="text-xs text-muted-foreground line-clamp-3">
+                              {shot.description}
+                           </p>
                         </CardContent>
                       </Card>
                     ))}
@@ -251,4 +218,5 @@ export function VisualGeneration() {
       </div>
     </div>
   );
+}
 }

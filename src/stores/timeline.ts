@@ -27,12 +27,14 @@ const createInitialProject = (): TimelineProject => ({
 const initialState: TimelineState = {
   currentTime: 0,
   isPlaying: false,
-  zoom: 100, // 100px per second
+  zoom: 44, // 44px per second (相当于从100缩小2次)
   visibleStartTime: 0,
   visibleEndTime: 30, // 初始显示30秒
   selectedClipId: undefined,
   selectedTrackId: undefined,
   project: createInitialProject(),
+  past: [],
+  future: [],
 };
 
 export const useTimelineStore = create<TimelineState & {
@@ -42,10 +44,16 @@ export const useTimelineStore = create<TimelineState & {
   stop: () => void;
   seek: (time: number) => void;
 
+  // 历史记录
+  undo: () => void;
+  redo: () => void;
+  saveHistory: () => void;
+
   // 轨道操作
   addTrack: (type: 'video' | 'audio' | 'text', name: string) => void;
   removeTrack: (trackId: string) => void;
   renameTrack: (trackId: string, name: string) => void;
+  reorderTracks: (fromIndex: number, toIndex: number) => void;
 
   // 片段操作
   addClip: (trackId: string, clip: Omit<TimelineTrackClip, 'id'>) => void;
@@ -77,8 +85,40 @@ export const useTimelineStore = create<TimelineState & {
   stop: () => set({ isPlaying: false, currentTime: 0 }),
   seek: (time) => set({ currentTime: time }),
 
+  // 历史记录
+  undo: () => set((state) => {
+    if (state.past.length === 0) return state;
+    const previous = state.past[state.past.length - 1];
+    const newPast = state.past.slice(0, state.past.length - 1);
+    return {
+      project: previous,
+      past: newPast,
+      future: [state.project, ...state.future].slice(0, 50),
+    };
+  }),
+  redo: () => set((state) => {
+    if (state.future.length === 0) return state;
+    const next = state.future[0];
+    const newFuture = state.future.slice(1);
+    return {
+      project: next,
+      past: [...state.past, state.project].slice(-50),
+      future: newFuture,
+    };
+  }),
+  saveHistory: () => set(produce((state) => {
+    state.past.push(JSON.parse(JSON.stringify(state.project)));
+    if (state.past.length > 50) state.past.shift();
+    state.future = [];
+  })),
+
   // 轨道操作
   addTrack: (type, name) => set(produce((state) => {
+    // 保存历史
+    state.past.push(JSON.parse(JSON.stringify(state.project)));
+    if (state.past.length > 50) state.past.shift();
+    state.future = [];
+
     const newTrack: TimelineTrack = {
       id: `track-${Date.now()}`,
       type,
@@ -92,6 +132,11 @@ export const useTimelineStore = create<TimelineState & {
     // 不能删除包含片段的轨道
     const track = state.project.tracks.find((t: TimelineTrack) => t.id === trackId);
     if (track && track.clips.length === 0) {
+      // 保存历史
+      state.past.push(JSON.parse(JSON.stringify(state.project)));
+      if (state.past.length > 50) state.past.shift();
+      state.future = [];
+
       state.project.tracks = state.project.tracks.filter((t: TimelineTrack) => t.id !== trackId);
       if (state.selectedTrackId === trackId) {
         state.selectedTrackId = undefined;
@@ -101,18 +146,44 @@ export const useTimelineStore = create<TimelineState & {
 
   renameTrack: (trackId, name) => set(produce((state) => {
     const track = state.project.tracks.find((t: TimelineTrack) => t.id === trackId);
-    if (track) {
+    if (track && track.name !== name) {
+      // 保存历史
+      state.past.push(JSON.parse(JSON.stringify(state.project)));
+      if (state.past.length > 50) state.past.shift();
+      state.future = [];
+
       track.name = name;
     }
+  })),
+
+  reorderTracks: (fromIndex, toIndex) => set(produce((state) => {
+    if (fromIndex === toIndex) return;
+    if (fromIndex < 0 || fromIndex >= state.project.tracks.length) return;
+    if (toIndex < 0 || toIndex >= state.project.tracks.length) return;
+
+    // 保存历史
+    state.past.push(JSON.parse(JSON.stringify(state.project)));
+    if (state.past.length > 50) state.past.shift();
+    state.future = [];
+
+    // 重新排序
+    const [movedTrack] = state.project.tracks.splice(fromIndex, 1);
+    state.project.tracks.splice(toIndex, 0, movedTrack);
   })),
 
   // 片段操作
   addClip: (trackId, clipData) => set(produce((state) => {
     const track = state.project.tracks.find((t: TimelineTrack) => t.id === trackId);
     if (track) {
+      // 保存历史
+      state.past.push(JSON.parse(JSON.stringify(state.project)));
+      if (state.past.length > 50) state.past.shift();
+      state.future = [];
+
+      // 使用更安全的ID生成方式，避免同一毫秒内的冲突
       const newClip: TimelineTrackClip = {
         ...clipData,
-        id: `clip-${Date.now()}`,
+        id: `clip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         layer: track.clips.length + 1,
       };
       track.clips.push(newClip);
@@ -152,6 +223,11 @@ export const useTimelineStore = create<TimelineState & {
     for (const track of state.project.tracks) {
       const clipIndex = track.clips.findIndex((c: TimelineTrackClip) => c.id === clipId);
       if (clipIndex !== -1) {
+        // 保存历史 (删除片段是单次操作，保留自动保存)
+        state.past.push(JSON.parse(JSON.stringify(state.project)));
+        if (state.past.length > 50) state.past.shift();
+        state.future = [];
+
         track.clips.splice(clipIndex, 1);
         if (state.selectedClipId === clipId) {
           state.selectedClipId = undefined;
@@ -218,29 +294,50 @@ export const useTimelineStore = create<TimelineState & {
 
   // 缩放控制
   zoomIn: () => set((state) => {
-    const newZoom = Math.min(state.zoom * 1.5, 1000); // 最大1000px/s
-    // 保持当前时间在视窗中心
-    const centerTime = (state.visibleStartTime + state.visibleEndTime) / 2;
-    const newVisibleDuration = (state.visibleEndTime - state.visibleStartTime) / 1.5;
+    const oldZoom = state.zoom;
+    const newZoom = Math.min(oldZoom * 1.5, 150); // 最大150px/s (44是中间值)
+    if (newZoom === oldZoom) return state;
+
+    const oldVisibleDuration = state.visibleEndTime - state.visibleStartTime;
+    // 保持像素宽度恒定: newVisibleDuration * newZoom = oldVisibleDuration * oldZoom
+    const newVisibleDuration = (oldVisibleDuration * oldZoom) / newZoom;
+    
+    // 保持当前播放时间在视窗中的相对位置
+    const centerTime = state.currentTime;
+    // 计算当前播放时间在旧视窗中的百分比位置
+    const relativePos = (state.currentTime - state.visibleStartTime) / oldVisibleDuration;
+    
     return {
       zoom: newZoom,
-      visibleStartTime: centerTime - newVisibleDuration / 2,
-      visibleEndTime: centerTime + newVisibleDuration / 2,
+      visibleStartTime: centerTime - relativePos * newVisibleDuration,
+      visibleEndTime: centerTime + (1 - relativePos) * newVisibleDuration,
     };
   }),
 
   zoomOut: () => set((state) => {
-    const newZoom = Math.max(state.zoom / 1.5, 10); // 最小10px/s
-    // 保持当前时间在视窗中心
-    const centerTime = (state.visibleStartTime + state.visibleEndTime) / 2;
-    const newVisibleDuration = (state.visibleEndTime - state.visibleStartTime) * 1.5;
+    const oldZoom = state.zoom;
+    const newZoom = Math.max(oldZoom / 1.5, 13); // 最小13px/s (使44成为中间值)
+    if (newZoom === oldZoom) return state;
+
+    const oldVisibleDuration = state.visibleEndTime - state.visibleStartTime;
+    const newVisibleDuration = (oldVisibleDuration * oldZoom) / newZoom;
+    
+    const centerTime = state.currentTime;
+    const relativePos = (state.currentTime - state.visibleStartTime) / oldVisibleDuration;
+    
+    let newStartTime = centerTime - relativePos * newVisibleDuration;
+    let newEndTime = centerTime + (1 - relativePos) * newVisibleDuration;
+
+    // 边界处理
+    if (newStartTime < 0) {
+        newEndTime -= newStartTime;
+        newStartTime = 0;
+    }
+    
     return {
       zoom: newZoom,
-      visibleStartTime: Math.max(0, centerTime - newVisibleDuration / 2),
-      visibleEndTime: Math.min(
-        state.project.duration,
-        centerTime + newVisibleDuration / 2
-      ),
+      visibleStartTime: newStartTime,
+      visibleEndTime: newEndTime,
     };
   }),
 
@@ -259,11 +356,21 @@ export const useTimelineStore = create<TimelineState & {
   }),
 
   // 导入/导出
-  importProject: (project) => set((state) => ({
-    ...state,
-    project,
-    visibleEndTime: Math.min(30, project.duration), // 重置可见范围
-  })),
+  importProject: (project) => set((state) => {
+    // 只在非初始状态时保存历史（避免初次加载时有撤销历史）
+    const isInitialState = state.project.tracks.every(track => track.clips.length === 0) && state.past.length === 0;
+    const past = isInitialState
+      ? []
+      : [...state.past, JSON.parse(JSON.stringify(state.project))].slice(-50);
+
+    return {
+      ...state,
+      project,
+      past,
+      future: [],
+      visibleEndTime: Math.min(30, project.duration), // 重置可见范围
+    };
+  }),
 
   exportProject: () => get().project,
 }));
