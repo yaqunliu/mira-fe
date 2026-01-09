@@ -37,6 +37,7 @@ import { ExportPreviewDialog } from "@/components/timeline/export-preview-dialog
 import { produce } from 'immer';
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ImagePreview } from "@/components/ui/image-preview";
 import { cn } from "@/lib/utils";
 
 // API BASE URL
@@ -116,7 +117,8 @@ export default function DynamicComicEditor() {
         variant: 'default' as 'default' | 'destructive'
     });
 
-    const { importProject, project, addClip, currentTime } = useTimelineStore();
+    const { importProject, project, addClip, currentTime, addTrack } = useTimelineStore();
+    const tracks = project.tracks;
 
     // 自动获取媒体时长并更新时间轴
     const updateClipDuration = (clipId: string, url: string) => {
@@ -207,9 +209,9 @@ export default function DynamicComicEditor() {
     };
 
     // Asset Management Functions
-    const loadAssets = async (novelId: number) => {
+    const loadAssets = async (novelId: number | string) => {
         try {
-            const res = await assetApi.getAssets(novelId);
+            const res = await assetApi.getAssets(Number(novelId));
             if (res.success && res.data) {
                 setAssets(res.data);
             }
@@ -815,7 +817,7 @@ export default function DynamicComicEditor() {
         } catch (error: any) {
             console.error('Failed to start batch video generation:', error);
             if (error.response?.status === 402) {
-                toast.error(tCommon('insufficientPoints'));
+                toast.error(tC('insufficientPoints'));
             } else {
                 toast.error(t('failedToStartBatchGeneration'));
             }
@@ -918,7 +920,7 @@ export default function DynamicComicEditor() {
         } catch (error: any) {
             console.error('Failed to generate video:', error);
             if (error.response?.status === 402) {
-                toast.error(tCommon('insufficientPoints'));
+                toast.error(tC('insufficientPoints'));
             } else {
                 toast.error(t('failedToGenerateVideo'));
             }
@@ -1157,7 +1159,7 @@ export default function DynamicComicEditor() {
 
         // 逐个添加到时间轴
         shotsWithVideo.forEach((shot) => {
-            const duration = shot.video_duration || shot.duration || 5;
+            const duration = shot.video_duration || 5;
 
             // 找到可用的视频轨道
             const videoTrack = findAvailableTrack('video', currentPosition, duration);
@@ -1248,7 +1250,7 @@ export default function DynamicComicEditor() {
         let addedCount = 0;
 
         // 计算时长
-        const durationInSeconds = shot.video_duration || shot.duration || 5;
+        const durationInSeconds = shot.video_duration || 5;
 
         // 使用当前播放头位置作为起始时间
         const startTime = currentTime;
@@ -1298,9 +1300,9 @@ export default function DynamicComicEditor() {
                     const subtitleText = narrationItem.内容 || narrationItem.content || '';
 
                     if (subtitleText.trim()) {
-                        // 根据文本长度估算时长 (对半调整: 从3.5改为7)
+                        // 根据文本长度估算时长（原本按 7 字/秒计算，现缩短 1/3，按约 10.5 字/秒计算）
                         const textLength = subtitleText.length;
-                        const estimatedDuration = Math.max(2, textLength / 7);
+                        const estimatedDuration = Math.max(1.5, textLength / 10.5);
 
                         addClip(textTrack.id, {
                             url: '',
@@ -1599,7 +1601,7 @@ export default function DynamicComicEditor() {
         let currentTime = 0;
 
         shots.forEach((shot: any, index: number) => {
-            const duration = shot.duration || 5;
+            const duration = shot.video_duration || 5;
 
             // Video Clip
             const videoUrl = shot.video_url || shot.image_url || (shot["视频本地路径"] ? `${API_BASE_URL}/static/videos/${shot["视频本地路径"].split('/').pop()}` : null);
@@ -2268,75 +2270,65 @@ export default function DynamicComicEditor() {
                                                     <User size={10} />
                                                     {t('appearanceCharacters')}
                                                 </h3>
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                                                <div className="grid grid-cols-3 gap-2">
                                                     {creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").map((char: ICharacter) => (
-                                                        <Card key={char.uuid || char.character_id} className="bg-slate-800/40 border-slate-800 hover:bg-slate-800/60 hover:border-slate-700 transition-all group p-2">
-                                                            <div className="flex gap-3 items-center">
-                                                                {/* Avatar / Image */}
-                                                                <div className="w-12 h-12 shrink-0 rounded-md overflow-hidden bg-slate-800 border border-slate-700 relative group-hover:border-slate-600 transition-colors">
-                                                                    {regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating' ? (
-                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/50">
-                                                                            <Loader2 className="w-3.5 h-3.5 text-orange-500 animate-spin mb-1" />
-                                                                            <span className="text-[8px] text-slate-500">{tC('generating')}</span>
-                                                                        </div>
-                                                                    ) : char.image_url ? (
-                                                                        <div className="relative w-full h-full group/image">
-                                                                            <img 
-                                                                                src={char.image_url} 
-                                                                                alt={char.name} 
-                                                                                className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-500"
+                                                        <Card key={char.uuid || char.character_id} className="bg-slate-800/40 border-slate-800 hover:bg-slate-800/60 hover:border-slate-700 transition-all group overflow-hidden flex flex-col relative">
+                                                            {/* Avatar / Image (Optimized for 3-column grid, landscape, adaptive height) */}
+                                                            <div className="w-full h-auto shrink-0 bg-slate-800 relative group-hover:border-slate-600 transition-colors">
+                                                                {regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating' ? (
+                                                                    <div className="w-full aspect-[16/9] flex items-center justify-center bg-slate-900/50">
+                                                                        <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                                                                    </div>
+                                                                ) : char.image_url ? (
+                                                                    <div className="relative w-full h-auto group/image">
+                                                                        <img 
+                                                                            src={char.image_url} 
+                                                                            alt={char.name} 
+                                                                            className="w-full h-auto object-contain bg-slate-900/30 cursor-pointer hover:scale-105 transition-transform duration-500 block"
+                                                                            onClick={() => handleImagePreview(char.image_url!)}
+                                                                        />
+                                                                        {/* Hover Actions Overlay */}
+                                                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center justify-center gap-2">
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
                                                                                 onClick={() => handleImagePreview(char.image_url!)}
-                                                                            />
-                                                                        </div>
-                                                                    ) : (
-                                                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-900/50">
-                                                                            <ImageIcon size={14} className="opacity-30 mb-0.5" />
-                                                                            <span className="text-[8px] opacity-50 scale-90">
-                                                                                {(creation && getStepStatus(creation, 'characterImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
-                                                                            </span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-
-                                                                {/* Info */}
-                                                                <div className="flex-1 min-w-0">
-                                                                    <div className="flex flex-col gap-1.5">
-                                                                        <h4 className="font-medium text-slate-200 text-sm truncate leading-none">{char.name}</h4>
-                                                                        <div className="flex items-center gap-1.5">
-                                                                            {(regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating') && (
-                                                                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
-                                                                                    {tC('generating')}
-                                                                                </Badge>
-                                                                            )}
-                                                                            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-slate-700 text-slate-500 shrink-0 font-normal">
-                                                                                {t('person')}
-                                                                            </Badge>
+                                                                                title={t('preview')}
+                                                                            >
+                                                                                <Maximize2 size={14} />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
+                                                                                onClick={() => handleEditCharacter(char)}
+                                                                                title={t('edit')}
+                                                                            >
+                                                                                <PenLine size={14} />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-7 w-7 text-orange-400 hover:bg-orange-500/20 rounded-full"
+                                                                                onClick={() => handleRegenerateSingleCharacter(char)}
+                                                                                disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
+                                                                                title={t('regenerate')}
+                                                                            >
+                                                                                <RotateCcw size={14} className={(regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating') ? "animate-spin" : ""} />
+                                                                            </Button>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                                
-                                                                {/* Actions */}
-                                                                <div className="flex items-center gap-1">
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        className="h-8 w-8 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
-                                                                        onClick={() => handleRegenerateSingleCharacter(char)}
-                                                                        disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
-                                                                        title={t('regenerate')}
-                                                                    >
-                                                                        <RotateCcw size={14} className={(regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating') ? "animate-spin" : ""} />
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-full"
-                                                                        onClick={() => handleEditCharacter(char)}
-                                                                        title={t('edit')}
-                                                                    >
-                                                                        <PenLine size={14} />
-                                                                    </Button>
-                                                                </div>
+                                                                ) : (
+                                                                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-900/50">
+                                                                        <ImageIcon size={14} className="opacity-30" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Bottom Info (Minimal) */}
+                                                            <div className="p-1 bg-slate-900/80 backdrop-blur-sm absolute bottom-0 left-0 right-0 border-t border-slate-800/50">
+                                                                <p className="text-[9px] text-slate-300 truncate text-center font-medium">{char.name}</p>
                                                             </div>
                                                         </Card>
                                                     ))}
@@ -2427,23 +2419,11 @@ export default function DynamicComicEditor() {
                                         )}
                                         
                                         {/* Image Preview Modal */}
-                                        <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-                                            <DialogContent showCloseButton={false} className="bg-transparent border-0 shadow-none max-w-[90vw] max-h-[90vh] p-0 flex items-center justify-center">
-                                                {previewImage && (
-                                                    <img 
-                                                        src={previewImage} 
-                                                        alt="Preview" 
-                                                        className="max-w-full max-h-[85vh] rounded-lg shadow-2xl"
-                                                    />
-                                                )}
-                                                <button 
-                                                    className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                                                    onClick={() => setIsPreviewOpen(false)}
-                                                >
-                                                    <X size={20} />
-                                                </button>
-                                            </DialogContent>
-                                        </Dialog>
+                                        <ImagePreview 
+                                            open={isPreviewOpen} 
+                                            onOpenChange={setIsPreviewOpen} 
+                                            src={previewImage || ""} 
+                                        />
                                     </>
                                 )}
 
@@ -2797,187 +2777,187 @@ export default function DynamicComicEditor() {
                                                     </Card>
                                                 )}
 
-                                                {creation.scenes.map((scene: any, idx: number) => {
-                                                     if (!scene.shots || scene.shots.length === 0) return null;
-                                                     
-                                                     // Sort shots by shot_number
-                                                    const sortedShots = [...(scene.shots || [])].sort((a: any, b: any) => a.shot_number - b.shot_number);
-
-                                                     return (
-                                                        <div key={idx} className="space-y-2 mb-6">
-                                                            <div className="flex items-center gap-2 px-1">
-                                                                <Badge variant="outline" className="text-[10px] bg-slate-900/50 border-slate-700 text-slate-400">
-                                                                    {t('sceneIndex', { index: idx + 1 })}
-                                                                </Badge>
-                                                                <span className="text-xs font-medium text-slate-500 truncate max-w-[200px]">{scene.location}</span>
-                                                            </div>
-                                                            
-                                                            <div className="grid grid-cols-1 gap-2">
-                                                                {sortedShots.map((shot: any, shotIdx: number) => (
-                                                                    <div
-                                                                        key={shot.uuid || shotIdx}
-                                                                        className="group flex gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative bg-slate-900/20"
-                                                                        draggable={!!(shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0))}
-                                                                        onDragStart={(e) => {
-                                                                            const hasContent = shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0);
-                                                                            if (!hasContent) {
-                                                                                e.preventDefault();
-                                                                                return;
-                                                                            }
-                                                                            e.dataTransfer.setData('application/json', JSON.stringify({
-                                                                                type: 'shot',
-                                                                                shot: shot,
-                                                                                shotNumber: shot.shot_number
-                                                                            }));
-                                                                            e.dataTransfer.effectAllowed = 'copy';
-                                                                        }}
-                                                                        onClick={() => setEditingShot(shot)}
-                                                                    >
-                                                                        {/* Image Thumbnail */}
-                                                                        <div className="w-20 h-12 rounded bg-slate-800 overflow-hidden shrink-0 relative border border-slate-800">
-                                                                            {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
-                                                                                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
-                                                                                    <Loader2 className="w-4 h-4 text-orange-500 animate-spin mb-0.5" />
-                                                                                    <span className="text-[9px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
-                                                                                </div>
-                                                                            ) : shot.image_url ? (
-                                                                                <>
-                                                                                    <img src={shot.image_url} alt={`Shot ${shot.shot_number}`} className="w-full h-full object-cover" />
-                                                                                    {/* Video Generating Overlay Badge */}
-                                                                                    {isVideoGenerating(shot) && (
-                                                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                                                                                            <div className="flex flex-col items-center">
-                                                                                                <Loader2 className="w-4 h-4 text-purple-400 animate-spin mb-0.5" />
-                                                                                                <span className="text-[8px] text-purple-400 font-medium">视频生成中</span>
-                                                                                            </div>
+                                                {/* All Shots List - Flattened and sorted by shot_number */}
+                                                <div className="grid grid-cols-1 gap-2 mb-6">
+                                                    {(() => {
+                                                        const allShots: any[] = [];
+                                                        creation.scenes.forEach((scene: any, sceneIdx: number) => {
+                                                            if (scene.shots) {
+                                                                scene.shots.forEach((shot: any) => {
+                                                                    allShots.push({
+                                                                        ...shot,
+                                                                        _sceneTitle: scene.title || scene.location || t('sceneIndex', { index: sceneIdx + 1 }),
+                                                                        _sceneIdx: sceneIdx
+                                                                    });
+                                                                });
+                                                            }
+                                                        });
+                                                        
+                                                        return allShots
+                                                            .sort((a, b) => a.shot_number - b.shot_number)
+                                                            .map((shot: any, shotIdx: number) => (
+                                                                <div
+                                                                    key={shot.uuid || shotIdx}
+                                                                    className="group flex gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative bg-slate-900/20"
+                                                                    draggable={!!(shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0))}
+                                                                    onDragStart={(e) => {
+                                                                        const hasContent = shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0);
+                                                                        if (!hasContent) {
+                                                                            e.preventDefault();
+                                                                            return;
+                                                                        }
+                                                                        e.dataTransfer.setData('application/json', JSON.stringify({
+                                                                            type: 'shot',
+                                                                            shot: shot,
+                                                                            shotNumber: shot.shot_number
+                                                                        }));
+                                                                        e.dataTransfer.effectAllowed = 'copy';
+                                                                    }}
+                                                                    onClick={() => setEditingShot(shot)}
+                                                                >
+                                                                    {/* Image Thumbnail */}
+                                                                    <div className="w-20 h-12 rounded bg-slate-800 overflow-hidden shrink-0 relative border border-slate-800">
+                                                                        {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
+                                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
+                                                                                <Loader2 className="w-4 h-4 text-orange-500 animate-spin mb-0.5" />
+                                                                                <span className="text-[9px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
+                                                                            </div>
+                                                                        ) : shot.image_url ? (
+                                                                            <>
+                                                                                <img src={shot.image_url} alt={`Shot ${shot.shot_number}`} className="w-full h-full object-cover" />
+                                                                                {/* Video Generating Overlay Badge */}
+                                                                                {isVideoGenerating(shot) && (
+                                                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                                                                        <div className="flex flex-col items-center">
+                                                                                            <Loader2 className="w-4 h-4 text-purple-400 animate-spin mb-0.5" />
+                                                                                            <span className="text-[8px] text-purple-400 font-medium">视频生成中</span>
                                                                                         </div>
-                                                                                    )}
-                                                                                </>
-                                                                            ) : (
-                                                                                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
-                                                                                    <ImageIcon size={16} className="opacity-50 mb-0.5" />
-                                                                                    <span className="text-[8px] opacity-50 scale-90">
-                                                                                        {(creation && getStepStatus(creation, 'shotImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
-                                                                                    </span>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                        
-                                                                        {/* Content */}
-                                                                        <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                                                            <div className="flex items-center gap-2">
-                                                                                 <span className="text-[10px] font-bold text-slate-500">#{shot.shot_number}</span>
-                                                                                 <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 bg-slate-800 text-slate-400 shrink-0 font-normal">
-                                                                                     {scene.title || scene.location || `Scene ${idx + 1}`}
+                                                                                    </div>
+                                                                                )}
+                                                                            </>
+                                                                        ) : (
+                                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
+                                                                                <ImageIcon size={16} className="opacity-50 mb-0.5" />
+                                                                                <span className="text-[8px] opacity-50 scale-90">
+                                                                                    {(creation && getStepStatus(creation, 'shotImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                    
+                                                                    {/* Content */}
+                                                                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                             <span className="text-[10px] font-bold text-slate-500">#{shot.shot_number}</span>
+                                                                             <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 bg-slate-800 text-slate-400 shrink-0 font-normal">
+                                                                                 {shot._sceneTitle}
+                                                                             </Badge>
+                                                                             {shot.video_duration && (
+                                                                                 <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-slate-600 text-slate-500 shrink-0 font-normal">
+                                                                                     {shot.video_duration}s
                                                                                  </Badge>
-                                                                                 {shot.duration && (
-                                                                                     <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-slate-600 text-slate-500 shrink-0 font-normal">
-                                                                                         {shot.duration}s
-                                                                                     </Badge>
-                                                                                 )}
-                                                                                 {(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') && (
-                                                                                    <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
-                                                                                        {tC('generating')}
-                                                                                    </Badge>
-                                                                                )}
-                                                                                {/* Video Status Badge */}
-                                                                                {shot.video_url && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-blue-600 text-white shrink-0 font-normal">
-                                                                                        <Film className="w-2 h-2 mr-0.5" />
-                                                                                        视频
-                                                                                    </Badge>
-                                                                                )}
-                                                                                {/* Audio Status Badge */}
-                                                                                {shot.audio_url && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-emerald-600 text-white shrink-0 font-normal">
-                                                                                        <Music className="w-2 h-2 mr-0.5" />
-                                                                                        音频
-                                                                                    </Badge>
-                                                                                )}
-                                                                                {/* Subtitle Status Badge */}
-                                                                                {shot.narration && shot.narration.length > 0 && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-amber-600 text-white shrink-0 font-normal">
-                                                                                        <Type className="w-2 h-2 mr-0.5" />
-                                                                                        字幕
-                                                                                    </Badge>
-                                                                                )}
-                                                                                {/* Video Generating Badge */}
-                                                                                {getVideoGenerationStatus(shot) === 'generating' && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-purple-500 text-white animate-pulse shrink-0 font-normal">
-                                                                                        <Loader2 className="w-2 h-2 mr-0.5 animate-spin" />
-                                                                                        生成中
-                                                                                    </Badge>
-                                                                                )}
-                                                                            </div>
-                                                                            <div className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                                                                                {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"]) || t('noDescription')}
-                                                                            </div>
+                                                                             )}
+                                                                             {(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') && (
+                                                                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
+                                                                                    {tC('generating')}
+                                                                                </Badge>
+                                                                            )}
+                                                                             {/* Video Status Badge */}
+                                                                             {shot.video_url && (
+                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-blue-600 text-white shrink-0 font-normal">
+                                                                                     <Film className="w-2 h-2 mr-0.5" />
+                                                                                     视频
+                                                                                 </Badge>
+                                                                             )}
+                                                                             {/* Audio Status Badge */}
+                                                                             {shot.audio_url && (
+                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-emerald-600 text-white shrink-0 font-normal">
+                                                                                     <Music className="w-2 h-2 mr-0.5" />
+                                                                                     音频
+                                                                                 </Badge>
+                                                                             )}
+                                                                             {/* Subtitle Status Badge */}
+                                                                             {shot.narration && shot.narration.length > 0 && (
+                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-amber-600 text-white shrink-0 font-normal">
+                                                                                     <Type className="w-2 h-2 mr-0.5" />
+                                                                                     字幕
+                                                                                 </Badge>
+                                                                             )}
+                                                                             {/* Video Generating Badge */}
+                                                                             {getVideoGenerationStatus(shot) === 'generating' && (
+                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-purple-500 text-white animate-pulse shrink-0 font-normal">
+                                                                                     <Loader2 className="w-2 h-2 mr-0.5 animate-spin" />
+                                                                                     生成中
+                                                                                 </Badge>
+                                                                             )}
                                                                         </div>
-
-                                                                        {/* Hover Actions */}
-                                                                        <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/90 p-1 rounded-md backdrop-blur-sm shadow-xl border border-slate-700/50">
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
-                                                                                onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    handleRegenerateShotImage(shot.uuid || String(shot.shot_id));
-                                                                                }}
-                                                                                disabled={regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating'}
-                                                                                title={t('regenerate')}
-                                                                            >
-                                                                                <RotateCcw size={12} className={(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') ? "animate-spin" : ""} />
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-blue-400/80 hover:text-blue-400 hover:bg-slate-700/50 rounded-full"
-                                                                                onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    setEditingShot(shot);
-                                                                                }}
-                                                                                title={t('edit')}
-                                                                            >
-                                                                                <Edit2 size={12} />
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-purple-400/80 hover:text-purple-400 hover:bg-slate-700/50 rounded-full"
-                                                                                onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    handleGenerateShotVideo(shot);
-                                                                                }}
-                                                                                disabled={!shot.image_url || isVideoGenerating(shot)}
-                                                                                title={shot.video_url ? t('regenerateVideo') : t('generateVideo')}
-                                                                            >
-                                                                                {isVideoGenerating(shot) ? (
-                                                                                    <Loader2 size={12} className="animate-spin" />
-                                                                                ) : (
-                                                                                    <Film size={12} />
-                                                                                )}
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-green-400/80 hover:text-green-400 hover:bg-slate-700/50 rounded-full"
-                                                                                onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    handleAddShotToTracks(shot);
-                                                                                }}
-                                                                                disabled={!shot.video_url && !shot.audio_url && (!shot.narration || shot.narration.length === 0)}
-                                                                                title={t('addToTracks')}
-                                                                            >
-                                                                                <FolderDown size={12} />
-                                                                            </Button>
+                                                                        <div className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                                                                            {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"]) || t('noDescription')}
                                                                         </div>
                                                                     </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                     );
-                                                })}
+
+                                                                    {/* Hover Actions */}
+                                                                    <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/90 p-1 rounded-md backdrop-blur-sm shadow-xl border border-slate-700/50">
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleRegenerateShotImage(shot.uuid || String(shot.shot_id));
+                                                                            }}
+                                                                            disabled={regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating'}
+                                                                            title={t('regenerate')}
+                                                                        >
+                                                                            <RotateCcw size={12} className={(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') ? "animate-spin" : ""} />
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-6 w-6 text-blue-400/80 hover:text-blue-400 hover:bg-slate-700/50 rounded-full"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                setEditingShot(shot);
+                                                                            }}
+                                                                            title={t('edit')}
+                                                                        >
+                                                                            <Edit2 size={12} />
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-6 w-6 text-purple-400/80 hover:text-purple-400 hover:bg-slate-700/50 rounded-full"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleGenerateShotVideo(shot);
+                                                                            }}
+                                                                            disabled={!shot.image_url || isVideoGenerating(shot)}
+                                                                            title={shot.video_url ? t('regenerateVideo') : t('generateVideo')}
+                                                                        >
+                                                                            {isVideoGenerating(shot) ? (
+                                                                                <Loader2 size={12} className="animate-spin" />
+                                                                            ) : (
+                                                                                <Film size={12} />
+                                                                            )}
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-6 w-6 text-green-400/80 hover:text-green-400 hover:bg-slate-700/50 rounded-full"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleAddShotToTracks(shot);
+                                                                            }}
+                                                                            disabled={!shot.video_url && !shot.audio_url && (!shot.narration || shot.narration.length === 0)}
+                                                                            title={t('addToTracks')}
+                                                                        >
+                                                                            <FolderDown size={12} />
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                            ));
+                                                    })()}
+                                                </div>
                                             </div>
                                         )}
 
@@ -3000,7 +2980,7 @@ export default function DynamicComicEditor() {
                                 {activeTab === "assets" && creation?.novel_id && (
                                     <div className="h-full -m-4">
                                         <AssetManager
-                                            novelId={creation.novel_id}
+                                            novelId={Number(creation.novel_id)}
                                             assets={assets}
                                             onAssetsChange={handleAssetsChange}
                                         />

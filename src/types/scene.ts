@@ -41,10 +41,9 @@ export interface IShot {
     video_url: string | null;
     audio_url: string | null;
     video_status?: string;
-    video_duration?: number;
+    video_duration: number;
     status_detail?: IShotStatusDetail;
     extra_data?: Record<string, any>;
-    duration: number;
     created_at: string;
     updated_at: string | null;
     characters: ICharacter[];

@@ -17,8 +17,12 @@ import { Loader2, Video, AlertCircle, CheckCircle2, RefreshCw, Play, Pause, Mic 
 import { VoiceItem } from "@/types/voice";
 import { TimelineProject, TimelineTrack, TimelineTrackClip, TaskStatus } from "@/types";
 import { IScene, IShot } from "@/types/scene";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+
+interface FlattenedShot extends IShot {
+  sceneTitle: string;
+  sceneId: number;
+}
 
 export function VideoGeneration() {
   const { creation, updateShot, updateScene } = useCreationV2Store();
@@ -126,9 +130,9 @@ export function VideoGeneration() {
     let currentTime = 0;
     let totalDuration = 0;
 
-    creation.scenes.forEach((scene: IScene, sceneIndex: number) => {
-      scene.shots?.forEach((shot: IShot, shotIndex: number) => {
-        const duration = shot.duration || 5; // Default to 5s if missing
+    creation.scenes.forEach((scene: IScene) => {
+      scene.shots?.forEach((shot: IShot) => {
+        const duration = shot.video_duration || 5; // Default to 5s if missing
         
         // Add video clip
         if (shot.video_url || shot.image_url) {
@@ -387,7 +391,7 @@ export function VideoGeneration() {
   const handleRegenerateShotAudio = async (shot: IShot) => {
     if (!shot.uuid) return;
     try {
-      const res = await shotApi.regenerateShotAudio(shot.uuid);
+      const res = await shotApi.generateShotAudio(shot.uuid);
       if (res.data.task_id) {
         setRegeneratingShotAudios(prev => new Map(prev).set(shot.shot_id, res.data.task_id));
         toast.success("分镜音频生成任务已提交");
@@ -438,7 +442,7 @@ export function VideoGeneration() {
     }
   };
 
-  const handleVoiceSelect = (voiceId: string, voice: VoiceItem) => {
+  const handleVoiceSelect = (voiceId: string) => {
     setSelectedVoiceId(voiceId);
   };
 
@@ -601,96 +605,82 @@ export function VideoGeneration() {
                 {/* Shot List for Individual Regeneration */}
                 <div className="border rounded-lg p-4 bg-muted/20">
                   <h3 className="text-lg font-medium mb-4">分镜视频列表</h3>
-                  <Accordion type="multiple" className="w-full">
-                    {creation.scenes?.map((scene: IScene, index: number) => (
-                      <AccordionItem key={scene.scene_id} value={`scene-${scene.scene_id}`}>
-                        <AccordionTrigger className="hover:no-underline px-2">
-                           <div className="flex items-center justify-between w-full pr-4">
-                             <span className="font-medium">场景 {index + 1}: {scene.title}</span>
-                             <Button 
-                               size="sm" 
-                               variant="outline"
-                               disabled={regeneratingSceneVideos.has(scene.scene_id)}
-                               onClick={(e) => handleRegenerateSceneVideos(scene, e)}
-                             >
-                               {regeneratingSceneVideos.has(scene.scene_id) ? (
-                                 <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                               ) : (
-                                 <RefreshCw className="w-3 h-3 mr-1" />
-                               )}
-                               重新生成场景视频
-                             </Button>
-                           </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="p-2 space-y-4">
-                           {scene.shots?.map((shot: IShot) => (
-                             <div key={shot.shot_id} className="flex gap-4 items-start border p-3 rounded bg-background">
-                               <div className="w-40 aspect-video bg-black rounded relative group">
-                                  {shot.video_url ? (
-                                    <>
-                                      <video
-                                        ref={el => { if (el) shotVideoRefs.current[shot.shot_id] = el; }}
-                                        src={shot.video_url}
-                                        className="w-full h-full object-contain"
-                                        onEnded={() => setPlayingShotId(null)}
-                                      />
-                                      <div 
-                                        className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer"
-                                        onClick={() => togglePlayShot(shot.shot_id)}
-                                      >
-                                        {playingShotId === shot.shot_id ? (
-                                          <Pause className="w-8 h-8 text-white opacity-80" />
-                                        ) : (
-                                          <Play className="w-8 h-8 text-white opacity-80" />
-                                        )}
-                                      </div>
-                                    </>
+                  <div className="space-y-4">
+                    {/* Flatten and sort all shots by shot_number */}
+                    {creation.scenes
+                      ?.flatMap((scene: IScene) =>
+                        (scene.shots || []).map((shot: IShot) => ({
+                          ...shot,
+                          sceneTitle: scene.title,
+                          sceneId: scene.scene_id
+                        }))
+                      )
+                      .sort((a: FlattenedShot, b: FlattenedShot) => (a.shot_number || 0) - (b.shot_number || 0))
+                      .map((shot: FlattenedShot) => (
+                        <div key={shot.shot_id} className="flex gap-4 items-start border p-3 rounded bg-background">
+                          <div className="w-40 aspect-video bg-black rounded relative group">
+                            {shot.video_url ? (
+                              <>
+                                <video
+                                  ref={el => { if (el) shotVideoRefs.current[shot.shot_id] = el; }}
+                                  src={shot.video_url}
+                                  className="w-full h-full object-contain"
+                                  onEnded={() => setPlayingShotId(null)}
+                                />
+                                <div
+                                  className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer"
+                                  onClick={() => togglePlayShot(shot.shot_id)}
+                                >
+                                  {playingShotId === shot.shot_id ? (
+                                    <Pause className="w-8 h-8 text-white opacity-80" />
                                   ) : (
-                                     <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
-                                       无视频
-                                     </div>
+                                    <Play className="w-8 h-8 text-white opacity-80" />
                                   )}
-                               </div>
-                               <div className="flex-1 space-y-2">
-                                  <div className="flex justify-between">
-                                    <Badge variant="outline">分镜 {shot.shot_number}</Badge>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      disabled={regeneratingShotVideos.has(shot.shot_id)}
-                                      onClick={() => handleRegenerateShotVideo(shot)}
-                                    >
-                                      {regeneratingShotVideos.has(shot.shot_id) ? (
-                                        <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                      ) : (
-                                        <RefreshCw className="w-3 h-3 mr-1" />
-                                      )}
-                                      重新生成视频
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      disabled={regeneratingShotAudios.has(shot.shot_id)}
-                                      onClick={() => handleRegenerateShotAudio(shot)}
-                                    >
-                                      {regeneratingShotAudios.has(shot.shot_id) ? (
-                                        <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                      ) : (
-                                        <Mic className="w-3 h-3 mr-1" />
-                                      )}
-                                      重新生成音频
-                                    </Button>
-                                  </div>
-                                  <p className="text-sm text-muted-foreground line-clamp-2">
-                                    {shot.description || shot.image_prompt}
-                                  </p>
-                               </div>
-                             </div>
-                           ))}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
+                                </div>
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                                无视频
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            <div className="flex justify-between">
+                              <Badge variant="outline">分镜 {shot.shot_number}</Badge>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={regeneratingShotVideos.has(shot.shot_id)}
+                                onClick={() => handleRegenerateShotVideo(shot)}
+                              >
+                                {regeneratingShotVideos.has(shot.shot_id) ? (
+                                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                ) : (
+                                  <RefreshCw className="w-3 h-3 mr-1" />
+                                )}
+                                重新生成视频
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                disabled={regeneratingShotAudios.has(shot.shot_id)}
+                                onClick={() => handleRegenerateShotAudio(shot)}
+                              >
+                                {regeneratingShotAudios.has(shot.shot_id) ? (
+                                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                ) : (
+                                  <Mic className="w-3 h-3 mr-1" />
+                                )}
+                                重新生成音频
+                              </Button>
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {shot.description || shot.image_prompt}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </div>
             </div>

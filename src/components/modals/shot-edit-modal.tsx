@@ -54,7 +54,7 @@ export function ShotEditModal({
     const [characterIds, setCharacterIds] = useState<number[]>(
         shot.characters?.map(c => c.character_id) || []
     );
-    const [duration, setDuration] = useState<number>(shot.duration || 5);
+    const [videoDuration, setVideoDuration] = useState<number>(shot.video_duration || 5);
 
     // Video-related state
     const [videoPrompt, setVideoPrompt] = useState<string>('');
@@ -73,7 +73,7 @@ export function ShotEditModal({
             const ids = shot.characters?.map(c => c.character_id).filter(id => id !== undefined && id !== null) || (shot as any).associated_characters || [];
             setCharacterIds(ids);
             setVideoPrompt((shot.extra_data as any)?.video_prompt || '');
-            setDuration(shot.duration || 5);
+            setVideoDuration(shot.video_duration || 5);
             setIsEditing(false); // Reset editing mode
             setIsEditingVideoPrompt(false);
         }
@@ -89,7 +89,7 @@ export function ShotEditModal({
                 image_prompt: imagePrompt,
                 scene_id: parseInt(sceneId),
                 associated_characters: characterIds,
-                duration: duration
+                video_duration: videoDuration
             });
 
             toast.success(tCommon('save') + " " + tCommon('success'));
@@ -130,8 +130,8 @@ export function ShotEditModal({
             return;
         }
 
-        // Calculate duration based on text length (approx 3.5 chars per second, min 2s)
-        const duration = Math.max(2, Math.ceil(item.内容.length / 3.5));
+        // Calculate duration based on text length (originally 3.5 chars/s, shortened by 1/3 to approx 5.2 chars/s, min 1.5s)
+        const duration = Math.max(1.5, Math.ceil(item.内容.length / 5.2));
         // 只显示纯文本内容,不显示角色名
         const displayText = item.内容;
 
@@ -461,13 +461,13 @@ export function ShotEditModal({
                                         min={1}
                                         max={60}
                                         step={0.5}
-                                        value={duration}
-                                        onChange={(e) => setDuration(parseFloat(e.target.value) || 5)}
+                                        value={videoDuration}
+                                        onChange={(e) => setVideoDuration(parseFloat(e.target.value) || 5)}
                                         className="bg-slate-800 border-slate-700 h-9 text-sm"
                                     />
                                 ) : (
                                     <div className="text-sm text-slate-300 bg-slate-800/30 p-2 rounded-md border border-slate-800">
-                                        {duration}s
+                                        {videoDuration}s
                                     </div>
                                 )}
                             </div>
@@ -637,6 +637,8 @@ export function ShotEditModal({
             {/* Fullscreen Preview */}
             <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
                 <DialogContent showCloseButton={true} className="bg-transparent border-0 shadow-none max-w-[95vw] max-h-[95vh] p-0 flex items-center justify-center">
+                    <DialogTitle className="sr-only">图片预览</DialogTitle>
+                    <DialogDescription className="sr-only">分镜图片预览</DialogDescription>
                     {shot.image_url && (
                         <img 
                             src={shot.image_url} 

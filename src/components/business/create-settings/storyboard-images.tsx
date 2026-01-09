@@ -438,298 +438,183 @@ export function StoryboardImages({
           </Card>
         )}
 
-        {/* 场景分组展示 */}
-        <div className="space-y-8">
-          {data.map((scene, sceneIndex) => (
-            <div key={scene.scene_id} className="space-y-4">
-              {/* 场景标题 */}
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-blue-500/30">
-                  {sceneIndex + 1}
-                </div>
-                <h4 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                  {scene.scene_title}
-                </h4>
-                {/* <Badge variant="outline" className="text-xs">
-                  {scene.images.length} 张分镜
-                </Badge> */}
-              </div>
+        {/* 所有分镜扁平化展示 */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-blue-500/30">
+              <Film className="w-4 h-4" />
+            </div>
+            <h4 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+              {t("storyboard.allShots")}
+            </h4>
+          </div>
 
-              {/* 分镜图片网格 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {scene.images.map((image, imageIndex) => {
-                  const isEditing = editingImageId === image.image_id;
-                  const isRegenerating = regeneratingIds.has(image.image_id);
-                  const isGenerating = image.status === "generating";
-                  const isPending = image.status === "pending";
+          {/* 分镜图片网格 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allImages.map((image, imageIndex) => {
+              const isRegenerating = regeneratingIds.has(image.image_id);
+              const isGenerating = image.status === "generating";
+              const isPending = image.status === "pending";
 
-                  return (
-                    <div key={image.image_id} className="space-y-4">
-                      <div className="flex items-center gap-1">
-                        {/* 分镜编号 */}
-                        <div className="flex items-center justify-between">
-                          <Badge
+              return (
+                <div key={image.image_id} className="space-y-4">
+                  <div className="flex items-center gap-1">
+                    {/* 分镜编号 */}
+                    <div className="flex items-center justify-between">
+                      <Badge
+                        variant="secondary"
+                        className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+                      >
+                        {t("storyboard.shotNumber", { number: imageIndex + 1 })}
+                      </Badge>
+                      {isRegenerating && (
+                        <div className="flex items-center gap-1 text-orange-500">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span className="text-xs">{t("storyboard.regenerating")}</span>
+                        </div>
+                      )}
+                    </div>
+                    {/* 图片标题 */}
+                    <h5 className="text-sm font-medium text-gray-800 dark:text-gray-100">
+                      {image.title}
+                    </h5>
+                  </div>
+                  {/* 图片容器 */}
+                  <div className="relative bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden group min-h-[120px] border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-xl transition-all duration-300">
+                    {isPending ? (
+                      // 待生成状态
+                      <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6 relative">
+                        <ImageIcon className="w-10 h-10 text-gray-400" />
+                        <p className="text-sm text-gray-500">{t("storyboard.pending")}</p>
+                        {/* 待生成也允许手动重新生成/提交 */}
+                        <div className="absolute top-2 right-2">
+                          <Button
+                            size="sm"
                             variant="secondary"
-                            className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+                            className="h-8 w-8 p-0 border border-orange-300/60"
+                            onClick={() => handleStartEdit(image)}
+                            title={t("storyboard.regenerateImage")}
                           >
-                            {t("storyboard.shotNumber", { number: imageIndex + 1 })}
-                          </Badge>
-                          {isRegenerating && (
-                            <div className="flex items-center gap-1 text-orange-500">
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              <span className="text-xs">{t("storyboard.regenerating")}</span>
+                            <RefreshCw className="w-4 h-4 text-orange-500" />
+                          </Button>
+                        </div>
+                      </div>
+                    ) : isGenerating ? (
+                      // 生成中状态
+                      <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 py-6">
+                        <div className="relative">
+                          <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
+                          <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-orange-500" />
+                        </div>
+                        <div className="text-center space-y-2">
+                          <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {t("storyboard.generating")}
+                          </p>
+                          {image.progress !== undefined && (
+                            <div className="w-32">
+                              <Progress
+                                value={image.progress}
+                                className="h-1"
+                              />
+                              <p className="text-xs text-gray-500 mt-1">
+                                {Math.round(image.progress)}%
+                              </p>
                             </div>
                           )}
                         </div>
-                        {/* 图片标题 */}
-                        <h5 className="text-sm font-medium text-gray-800 dark:text-gray-100">
-                          {image.title}
-                        </h5>
                       </div>
-                      {/* 图片容器 */}
-                      <div className="relative bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden group min-h-[120px] border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-xl transition-all duration-300">
-                        {isPending ? (
-                          // 待生成状态
-                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6 relative">
-                            <ImageIcon className="w-10 h-10 text-gray-400" />
-                            <p className="text-sm text-gray-500">{t("storyboard.pending")}</p>
-                            {/* 待生成也允许手动重新生成/提交 */}
-                            <div className="absolute top-2 right-2">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                className="h-8 w-8 p-0 border border-orange-300/60"
-                                onClick={() => handleStartEdit(image)}
-                                title={t("storyboard.regenerateImage")}
-                              >
-                                <RefreshCw className="w-4 h-4 text-orange-500" />
-                              </Button>
-                            </div>
-                          </div>
-                        ) : isGenerating ? (
-                          // 生成中状态
-                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 py-6">
-                            <div className="relative">
-                              <div className="w-16 h-16 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin"></div>
-                              <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-orange-500" />
-                            </div>
-                            <div className="text-center space-y-2">
-                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {t("storyboard.generating")}
-                              </p>
-                              {image.progress !== undefined && (
-                                <div className="w-32">
-                                  <Progress
-                                    value={image.progress}
-                                    className="h-1"
-                                  />
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    {Math.round(image.progress)}%
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ) : image.status === "failed" ? (
-                          // 生成失败状态
-                          <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 text-red-500 py-6 relative">
-                            <X className="w-12 h-12" />
-                            <p className="text-sm font-medium">{t("storyboard.generationFailed")}</p>
-                            {/* 重新生成按钮 */}
-                            <div className="absolute top-2 right-2">
-                              <Button
-                                size="sm"
-                                variant="secondary"
-                                className="h-8 w-8 p-0 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30"
-                                onClick={() => handleStartEdit(image)}
-                                title={t("storyboard.regenerateImage")}
-                              >
-                                <RefreshCw className="w-4 h-4 text-red-600 dark:text-red-400" />
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          // 正常图片显示
-                          <>
-                            <img
-                              src={localImageUpdates[image.image_id] || image.image_url}
-                              alt={`${image.title} - 分镜图片 ${
-                                imageIndex + 1
-                              }`}
-                              className={cn(
-                                "w-full object-cover cursor-pointer",
-                                isRegenerating && "opacity-50"
-                              )}
-                              onClick={() => handlePreviewImage(image.image_id)}
-                            />
-                            {/* 重新生成中的遮罩 */}
-                            {isRegenerating && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                <div className="flex flex-col items-center gap-2">
-                                  <Loader2 className="w-8 h-8 animate-spin text-white" />
-                                  <span className="text-white text-sm">{t("storyboard.regenerating")}</span>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* 操作按钮 */}
-                            <div className="absolute top-2 right-2">
-                              <div className="flex gap-1">
-                                {/* <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  className="h-8 w-8 p-0 bg-black/40 hover:bg-black/50"
-                                  onClick={() =>
-                                    handlePreviewImage(image.image_id)
-                                  }
-                                >
-                                  <Maximize2 className="w-4 h-4" />
-                                </Button> */}
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  className="h-8 w-8 p-0 bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/90 hover:to-purple-600/90 border-0 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 rounded-xl"
-                                  onClick={() => handleStartEdit(image)}
-                                >
-                                  <PenLine className="w-4 h-4 text-white" />
-                                </Button>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      {/* 内容区域 */}
-                      <div className="space-y-3">
-                        {(localNarrationUpdates[image.image_id] || image.narration) && (
-                          <div className="flex items-start gap-2 text-gray-800 dark:text-white">
-                            <Mic className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                            <p className="text-sm leading-relaxed line-clamp-2 flex-1 min-w-0">
-                              {(localNarrationUpdates[image.image_id] || image.narration).join(" ")}
-                            </p>
-                            <button
-                              onClick={() => handleStartEditNarration(image)}
-                              className="flex-shrink-0 p-1 hover:bg-gray-200 dark:hover:bg-white/20 rounded transition-colors"
-                              title={t("storyboard.editNarration")}
-                            >
-                              <PenLine className="w-3 h-3 text-gray-600 dark:text-gray-500" />
-                            </button>
-                          </div>
-                        )}
-                        {/* 提示词编辑 */}
-                        {/* <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              提示词
-                            </label>
-                            {!isEditing && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-6 px-2 text-xs"
-                                onClick={() => handleStartEdit(image)}
-                              >
-                                <Edit3 className="w-3 h-3 mr-1" />
-                                编辑
-                              </Button>
-                            )}
-                          </div>
-
-                          {isEditing ? (
-                            <div className="space-y-2">
-                              <Textarea
-                                value={editingPrompt}
-                                onChange={(e) =>
-                                  setEditingPrompt(e.target.value)
-                                }
-                                placeholder="输入新的提示词..."
-                                className="min-h-[60px] text-sm"
-                              />
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  onClick={handleSaveEdit}
-                                  disabled={isRegenerating}
-                                  className="flex-1"
-                                >
-                                  <Check className="w-3 h-3 mr-1" />
-                                  保存
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={handleCancelEdit}
-                                  className="flex-1"
-                                >
-                                  <X className="w-3 h-3 mr-1" />
-                                  取消
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-3">
-                              {image.prompt}
-                            </p>
-                          )}
-                        </div> */}
-
-                        {/* 旁白编辑 */}
-                        {/* <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              旁白
-                            </label>
-                            {!isEditing && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="h-6 px-2 text-xs"
-                                onClick={() => handleStartEditNarration(image)}
-                              >
-                                <Edit3 className="w-3 h-3 mr-1" />
-                                编辑
-                              </Button>
-                            )}
-                          </div>
-
-                          {isEditing ? (
-                            <div className="space-y-2">
-                              <Textarea
-                                value={editingNarration}
-                                onChange={(e) =>
-                                  setEditingNarration(e.target.value)
-                                }
-                                placeholder="输入旁白内容..."
-                                className="min-h-[60px] text-sm"
-                              />
-                            </div>
-                          ) : (
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed line-clamp-2">
-                              {image.narration.length > 0 ? image.narration.join(" ") : "暂无旁白"}
-                            </p>
-                          )}
-                        </div> */}
-
+                    ) : image.status === "failed" ? (
+                      // 生成失败状态
+                      <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-4 text-red-500 py-6 relative">
+                        <X className="w-12 h-12" />
+                        <p className="text-sm font-medium">{t("storyboard.generationFailed")}</p>
                         {/* 重新生成按钮 */}
-                        {(image.status === "completed" || image.status === "failed") && !isEditing && (
+                        <div className="absolute top-2 right-2">
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="w-full"
+                            variant="secondary"
+                            className="h-8 w-8 p-0 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30"
                             onClick={() => handleStartEdit(image)}
-                            disabled={isRegenerating}
+                            title={t("storyboard.regenerateImage")}
                           >
-                            <RefreshCw className="w-4 h-4 mr-2" />
-                            {t("storyboard.regenerateImage")}
+                            <RefreshCw className="w-4 h-4 text-red-600 dark:text-red-400" />
                           </Button>
-                        )}
+                        </div>
                       </div>
+                    ) : (
+                      // 正常图片显示
+                      <>
+                        <img
+                          src={localImageUpdates[image.image_id] || image.image_url}
+                          alt={`${image.title} - 分镜图片 ${
+                            imageIndex + 1
+                          }`}
+                          className={cn(
+                            "w-full object-cover cursor-pointer",
+                            isRegenerating && "opacity-50"
+                          )}
+                          onClick={() => handlePreviewImage(image.image_id)}
+                        />
+                        {/* 重新生成中的遮罩 */}
+                        {isRegenerating && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <div className="flex flex-col items-center gap-2">
+                              <Loader2 className="w-8 h-8 animate-spin text-white" />
+                              <span className="text-white text-sm">{t("storyboard.regenerating")}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 操作按钮 */}
+                        <div className="absolute top-2 right-2">
+                          <div className="flex gap-1">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="h-8 w-8 p-0 bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/90 hover:to-purple-600/90 border-0 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 rounded-xl"
+                              onClick={() => handleStartEdit(image)}
+                            >
+                              <PenLine className="w-4 h-4 text-white" />
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* 旁白展示区域 */}
+                  <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-100 dark:border-gray-700/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-1.5 text-gray-500">
+                        <Mic className="w-3.5 h-3.5" />
+                        <span className="text-xs font-medium uppercase tracking-wider">{t("storyboard.narration")}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleStartEditNarration(image)}
+                        className="flex-shrink-0 p-1 hover:bg-gray-200 dark:hover:bg-white/20 rounded transition-colors"
+                        title={t("storyboard.editNarration")}
+                      >
+                        <PenLine className="w-3.5 h-3.5 text-blue-500" />
+                      </button>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+                    
+                    <div className="space-y-1.5">
+                      {(localNarrationUpdates[image.image_id] || image.narration || []).length > 0 ? (
+                        (localNarrationUpdates[image.image_id] || image.narration || []).map((n, idx) => (
+                          <div key={idx} className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                            <span className="font-semibold text-blue-600 dark:text-blue-400 mr-1">{n.角色}:</span>
+                            {n.内容}
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-gray-400 italic italic">{t("storyboard.noNarration")}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
       {/* 底部操作浮层 */}

@@ -73,6 +73,26 @@ const shotApi = {
     ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string; video_duration: number; required_points: number }; message: string }>;
   },
 
+  // 重新生成分镜视频
+  regenerateShotVideo: async (
+    shotUuid: string
+  ): Promise<{ data: { task_id: string; shot_uuid: string }; message: string }> => {
+    return apiClient.post(
+      `/api/v1/shots/${shotUuid}/regenerate-video`,
+      {}
+    ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string }; message: string }>;
+  },
+
+  // 生成分镜音频
+  generateShotAudio: async (
+    shotUuid: string
+  ): Promise<{ data: { task_id: string; shot_uuid: string }; message: string }> => {
+    return apiClient.post(
+      `/api/v1/shots/${shotUuid}/generate-audio`,
+      {}
+    ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string }; message: string }>;
+  },
+
   // 生成视频提示词
   generateVideoPrompt: async (
     shotUuid: string

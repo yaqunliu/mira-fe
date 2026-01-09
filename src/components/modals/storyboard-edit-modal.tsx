@@ -27,13 +27,14 @@ import { Badge } from "@/components/ui/badge";
 import { PencilLine, Save, X } from "lucide-react";
 import { StoryboardItem as StoryboardItemType } from "@/types";
 import { toast } from "sonner";
-import { IShot } from "@/types/scene";
+import { IShot, INarrationItem } from "@/types/scene";
 import { ICharacter } from "@/types/character";
 import shotApi from "@/lib/api/shot";
 
 const editStoryboardSchema = z.object({
   title: z.string().min(1, "标题不能为空"),
   narration: z.string().min(1, "旁白不能为空"),
+  video_duration: z.number().min(1, "时长不能小于1秒").max(60, "时长不能超过60秒"),
 });
 
 type EditStoryboardFormData = z.infer<typeof editStoryboardSchema>;
@@ -58,11 +59,11 @@ export function StoryboardEditModal({
     (shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean)
   );
 
-  const getNarrationString = (narration: string | string[]) => {
+  const getNarrationString = (narration: INarrationItem[]) => {
     if (Array.isArray(narration)) {
-      return narration.join("\n");
+      return narration.map(item => item.内容).join("\n");
     }
-    return narration || "";
+    return "";
   };
 
   const form = useForm<EditStoryboardFormData>({
@@ -70,6 +71,7 @@ export function StoryboardEditModal({
     defaultValues: {
       title: shot.title || "",
       narration: getNarrationString(shot.narration),
+      video_duration: shot.video_duration || 5,
     },
   });
 
@@ -92,6 +94,7 @@ export function StoryboardEditModal({
       form.reset({
         title: shot.title || "",
         narration: getNarrationString(shot.narration),
+        video_duration: shot.video_duration || 5,
       });
     }
   }, [(shot as any)?.shot_id || (shot as any)?.uuid, isOpen, form]);
@@ -115,14 +118,21 @@ export function StoryboardEditModal({
         return;
       }
 
-      const narrationArray = data.narration.split("\n").filter(s => s.trim() !== "");
+      const narrationArray: INarrationItem[] = data.narration
+        .split("\n")
+        .filter((s) => s.trim() !== "")
+        .map((content) => ({
+          角色: "旁白",
+          内容: content,
+        }));
 
       // 调用 API 更新分镜
-      // 更新标题/旁白
+      // 更新标题/旁白/时长
       await shotApi.updateShot(uuidString, {
         title: data.title,
         narration: narrationArray,
-        character_ids: selectedCharacters,
+        associated_characters: selectedCharacters,
+        video_duration: data.video_duration,
       });
 
       // 单独更新角色关联（确保关联表同步）
@@ -132,6 +142,7 @@ export function StoryboardEditModal({
         ...shot,
         title: data.title,
         narration: narrationArray,
+        video_duration: data.video_duration,
         characters: availableCharacters.filter((c) =>
           selectedCharacters.includes(Number(c.character_id))
         ),
@@ -183,32 +194,58 @@ export function StoryboardEditModal({
             </div>
 
             {/* 标题 */}
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-gray-800 dark:text-gray-300">标题</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="输入分镜标题..."
-                      style={{ borderColor: '#514f4f' }}
-                      {...field}
-                      onFocus={(e) => {
-                        // 延迟取消文本选择，避免浏览器自动选中
-                        setTimeout(() => {
-                          e.target.setSelectionRange(
-                            e.target.value.length,
-                            e.target.value.length
-                          );
-                        }, 0);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-8">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800 dark:text-gray-300">标题</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="输入分镜标题..."
+                          style={{ borderColor: '#514f4f' }}
+                          {...field}
+                          onFocus={(e) => {
+                            setTimeout(() => {
+                              e.target.setSelectionRange(
+                                e.target.value.length,
+                                e.target.value.length
+                              );
+                            }, 0);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="col-span-4">
+                <FormField
+                  control={form.control}
+                  name="video_duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800 dark:text-gray-300">时长 (秒)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={60}
+                          step={0.5}
+                          style={{ borderColor: '#514f4f' }}
+                          {...field}
+                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
             {/* 关联角色 */}
             <div className="space-y-2">

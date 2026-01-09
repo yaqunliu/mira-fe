@@ -51,7 +51,11 @@ export function ShotItem({
                   <Badge variant="secondary" className="text-xs bg-orange-400/40">
                     {`分镜 ${index + 1}`} 
                   </Badge>
-                <div className="text-md font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground ml-1">
+                    <Clock className="h-3 w-3" />
+                    <span>{currentShot.video_duration || 5}s</span>
+                  </div>
+                <div className="text-md font-semibold text-gray-900 dark:text-gray-100 ml-2">
                   {currentShot.title}
                 </div>
               </div>
@@ -96,9 +100,9 @@ export function ShotItem({
             </div>
             <div className="space-y-1">
               {Array.isArray(currentShot.narration) && currentShot.narration.length > 0 ? (
-                currentShot.narration.map((text, idx) => (
+                currentShot.narration.map((item, idx) => (
                   <p key={idx} className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic">
-                    "{text}"
+                    "{typeof item === 'string' ? item : item.内容}"
                   </p>
                 ))
               ) : (

@@ -504,81 +504,105 @@ export function CharacterSetting({
                      return (
                     <Card
                       key={originalIndex}
-                      className="group bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900 transition-all duration-300 overflow-hidden"
+                      className="group bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900 transition-all duration-300 overflow-hidden flex flex-col"
                     >
-                        <div className="flex p-3 gap-3">
-                            {/* 左侧：头像/图片 */}
-                            <div className="w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-slate-800 border border-slate-700 relative group-hover:border-slate-600 transition-colors">
+                        <div className="flex flex-col">
+                            {/* 顶部：图片 (16:9 横版，高度自适应) */}
+                            <div className="w-full h-auto shrink-0 rounded-t-lg overflow-hidden bg-slate-800 border-b border-slate-700 relative group-hover:border-slate-600 transition-colors">
                                 {regeneratingCharacters.has(character.uuid || String(character.character_id)) ? (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                                    <div className="w-full aspect-[16/9] flex items-center justify-center">
+                                        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
                                     </div>
                                 ) : character.image_url ? (
-                                    <div className="relative w-full h-full">
+                                    <div className="relative w-full h-auto">
                                         <img 
                                             src={character.image_url} 
                                             alt={character.name} 
-                                            className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-500"
+                                            className="w-full h-auto object-contain bg-slate-900/30 cursor-pointer hover:scale-110 transition-transform duration-500 block"
                                             onClick={() => handleImageClick(character.image_url!)}
                                         />
                                         {/* 悬浮操作层 */}
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                             <button 
                                                 onClick={() => handleImageClick(character.image_url!)}
-                                                className="p-1.5 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                title="预览"
                                             >
-                                                <Maximize2 size={12} />
+                                                <Maximize2 size={18} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleEditCharacter(originalIndex)}
+                                                className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                title="编辑"
+                                            >
+                                                <PenLine size={18} />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleRegenerateSingleCharacter(character)}
+                                                className="p-2 bg-orange-500/30 hover:bg-orange-500/50 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                title="重新生成"
+                                            >
+                                                <RotateCcw size={18} />
                                             </button>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 text-slate-500">
-                                        <div className="w-8 h-8 mb-1 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
-                                            <ImageIcon size={14} className="opacity-50" />
+                                        <div className="w-10 h-10 mb-2 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
+                                            <ImageIcon size={20} className="opacity-50" />
                                         </div>
-                                        <span className="text-[10px] font-medium opacity-70">等待生成</span>
+                                        <span className="text-xs font-medium opacity-70">等待生成</span>
                                     </div>
                                 )}
                             </div>
 
-                            {/* 右侧：信息与操作 */}
-                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                            {/* 下部：信息与操作 */}
+                            <div className="p-4 flex-1 flex flex-col justify-between">
                                 <div>
-                                    <div className="flex items-center justify-between mb-1">
-                                        <h4 className="font-medium text-slate-200 truncate pr-2">{character.name}</h4>
-                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-slate-700 text-slate-500 shrink-0">
-                                            角色
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="text-base font-semibold text-slate-200 truncate pr-4">{character.name}</h4>
+                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-700 text-slate-500 shrink-0">
+                                            出镜角色
                                         </Badge>
                                     </div>
-                                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                                        {character.appearance || character.basic_info || "暂无描述"}
-                                    </p>
+                                    <div className="space-y-2">
+                                        {character.appearance && (
+                                            <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                                                <span className="text-slate-500 mr-1">外貌:</span>
+                                                {character.appearance}
+                                            </p>
+                                        )}
+                                        {!character.appearance && (
+                                            <p className="text-xs text-slate-500 italic">暂无特征描述</p>
+                                        )}
+                                    </div>
                                 </div>
                                 
-                                <div className="flex items-center gap-2 mt-2">
+                                <div className="flex items-center gap-2 mt-4">
                                     <Button 
-                                        variant="ghost" 
+                                        variant="outline" 
                                         size="sm" 
-                                        className="h-6 px-2 text-[10px] text-slate-400 hover:text-white hover:bg-slate-800"
+                                        className="h-8 px-3 text-xs border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
                                         onClick={() => handleEditCharacter(originalIndex)}
                                     >
                                         <PenLine size={12} className="mr-1" />
                                         编辑
                                     </Button>
                                     <Button 
-                                        variant="ghost" 
+                                        variant="secondary" 
                                         size="sm" 
-                                        className="h-6 px-2 text-[10px] text-orange-400 hover:text-orange-300 hover:bg-orange-950/30 ml-auto"
+                                        className="h-8 px-3 text-xs bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20 ml-auto"
                                         onClick={() => handleRegenerateSingleCharacter(character)}
                                     >
                                         <RotateCcw size={12} className="mr-1" />
-                                        {character.image_url ? "重新生成" : "生成图片"}
+                                        {character.image_url ? "重新生成" : "生成参考图"}
                                     </Button>
                                 </div>
                             </div>
                         </div>
                     </Card>
-                  );})}
+                     );
+                  })}
               </div>
             </div>
           )}
@@ -590,13 +614,13 @@ export function CharacterSetting({
                 <Mic className="w-4 h-4" />
                 声音角色
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="flex flex-col gap-4">
                   {voiceCharacters.map((character) => {
                      const originalIndex = characters.findIndex(c => c.character_id === character.character_id || c.uuid === character.uuid);
                      return (
                     <Card
                       key={originalIndex}
-                      className="bg-slate-900/30 border-slate-800/50 hover:border-blue-900/50 hover:bg-slate-900/50 transition-all duration-300"
+                      className="w-full bg-slate-900/30 border-slate-800/50 hover:border-blue-900/50 hover:bg-slate-900/50 transition-all duration-300"
                     >
                          <div className="flex p-3 gap-3 items-center">
                             {/* 左侧：图标 */}

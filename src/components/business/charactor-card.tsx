@@ -1,4 +1,4 @@
-import { Character } from "@/types";
+import { ICharacter } from "@/types/character";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ function CharactorCard({
   canRegenerateImage = false,
   onRegenerateImage,
 }: {
-  character: Character;
+  character: ICharacter;
   canRegenerateImage?: boolean;
   onRegenerateImage?: (characterId: string) => void;
 }) {
@@ -172,11 +172,11 @@ function CharactorCard({
 
         <div className="flex justify-center">
           {imageUrl ? (
-            <div className="relative">
+            <div className="relative w-full">
               <img
                 src={imageUrl}
                 alt={character.name}
-                className="w-42 object-cover rounded cursor-pointer hover:opacity-90 transition-opacity"
+                className="w-full h-auto object-contain rounded cursor-pointer hover:opacity-90 transition-opacity bg-slate-100 dark:bg-zinc-800/50"
                 onClick={() => handleImageClick(imageUrl)}
               />
               {/* 重新生成按钮 */}
@@ -203,8 +203,8 @@ function CharactorCard({
               </div>
             </div>
           ) : (
-            <div className="flex justify-center">
-              <div className="flex justify-center items-center w-[150px] aspect-[3/4] rounded-lg bg-slate-200 dark:bg-zinc-700">
+            <div className="flex justify-center w-full">
+              <div className="flex justify-center items-center w-full aspect-[16/9] rounded-lg bg-slate-200 dark:bg-zinc-700">
                 <span className="text-sm tracking-wider font-bold text-secondary">
                   {t("character.characterImage")}
                 </span>

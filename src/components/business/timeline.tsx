@@ -8,10 +8,11 @@ import { Plus, Trash2, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Play, Pause, 
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { findSnapPoint, checkOverlap, findNonOverlappingPosition } from '@/lib/timeline-utils';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 
 export const Timeline: React.FC = () => {
   const t = useTranslations('Timeline');
@@ -88,6 +89,9 @@ export const Timeline: React.FC = () => {
 
   // 编辑模态框状态
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddSubtitleModalOpen, setIsAddSubtitleModalOpen] = useState(false);
+  const [newSubtitleText, setNewSubtitleText] = useState('');
+  const [newSubtitleDuration, setNewSubtitleDuration] = useState('2');
   const [editingClip, setEditingClip] = useState<TimelineTrackClip | null>(null);
   const [editingTrackType, setEditingTrackType] = useState<'audio' | 'text' | null>(null);
   const [editVolume, setEditVolume] = useState(100);
@@ -219,12 +223,49 @@ export const Timeline: React.FC = () => {
     setEditingTrackType(null);
   };
 
+  // 处理新增文案
+  const handleAddSubtitle = () => {
+    if (!newSubtitleText.trim()) {
+      toast.error('请输入文案内容');
+      return;
+    }
+
+    const duration = parseFloat(newSubtitleDuration);
+    if (isNaN(duration) || duration <= 0) {
+      toast.error('请输入有效的时长');
+      return;
+    }
+
+    // 寻找第一个文字轨道
+    const textTrack = project.tracks.find(t => t.type === 'text');
+    if (!textTrack) {
+      toast.error('未找到文字轨道');
+      return;
+    }
+
+    addClip(textTrack.id, {
+      url: '',
+      text: newSubtitleText.trim(),
+      startInTimeline: currentTime,
+      duration: duration,
+      sourceStart: 0,
+      sourceEnd: duration,
+      layer: textTrack.clips.length + 1,
+      volume: 1,
+    });
+
+    toast.success('已添加文案到轨道');
+    setIsAddSubtitleModalOpen(false);
+    setNewSubtitleText('');
+    setNewSubtitleDuration('2');
+  };
+
   // 一键添加分镜所有素材到轨道
   const addShotAssetsToTracks = (shot: any) => {
     let addedCount = 0;
 
     // 计算时长
-    const durationInSeconds = shot.video_duration || shot.duration || 5;
+    const durationInSeconds = shot.video_duration || 5;
 
     // 使用当前播放头位置作为起始时间
     const startTime = currentTime;
@@ -273,9 +314,9 @@ export const Timeline: React.FC = () => {
           .filter((text: string) => text.trim())
           .join('\n');
 
-        // 根据文本长度估算时长
+        // 根据文本长度估算时长（原本按 3.5 字/秒计算，现缩短 1/3，按约 5.2 字/秒计算）
         const textLength = subtitleText.length;
-        const estimatedDuration = Math.max(2, textLength / 3.5);
+        const estimatedDuration = Math.max(1.5, textLength / 5.2);
 
         addClip(textTrack.id, {
           url: '',
@@ -583,7 +624,7 @@ export const Timeline: React.FC = () => {
                 const dropTime = offsetX / zoom;
 
                 // 使用shot的video_duration或默认5秒
-                const durationInSeconds = shot.video_duration || shot.duration || 5;
+                const durationInSeconds = shot.video_duration || 5;
 
                 // 根据轨道类型添加不同的素材
                 if (track.type === 'video') {
@@ -638,10 +679,10 @@ export const Timeline: React.FC = () => {
                     .filter(text => text.trim())
                     .join('\n');
 
-                  // 根据文本长度估算时长（中文：每秒约3-4个字，英文：每秒约15个字符）
-                  // 平均按每秒3.5个中文字符计算，最少2秒
+                  // 根据文本长度估算时长（原本按 3.5 字/秒计算，现缩短 1/3，按约 5.2 字/秒计算）
+                  // 平均按每秒 5.2 个中文字符计算，最少 1.5 秒
                   const textLength = subtitleText.length;
-                  const estimatedDuration = Math.max(2, textLength / 3.5);
+                  const estimatedDuration = Math.max(1.5, textLength / 5.2);
 
                   // 添加字幕到文字轨道
                   addClip(track.id, {
@@ -1330,6 +1371,14 @@ export const Timeline: React.FC = () => {
                 <Plus size={14} className="group-hover:scale-110 transition-transform" />
                 <span>{t('subtitle')}</span>
             </button>
+            <div className="w-px h-4 bg-zinc-800 mx-1 self-center" />
+            <button
+                onClick={() => setIsAddSubtitleModalOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md hover:bg-purple-500/20 hover:border-purple-500/30 transition-all text-xs font-medium group"
+            >
+                <Edit2 size={14} className="group-hover:scale-110 transition-transform" />
+                <span>新增文案</span>
+            </button>
           </div>
         </div>
 
@@ -1594,6 +1643,51 @@ export const Timeline: React.FC = () => {
             </Button>
             <Button onClick={handleSaveEdit} className="bg-blue-600 hover:bg-blue-700">
               {t('save')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 新增文案模态框 */}
+      <Dialog open={isAddSubtitleModalOpen} onOpenChange={setIsAddSubtitleModalOpen}>
+        <DialogContent className="bg-slate-900 border-slate-700">
+          <DialogHeader>
+            <DialogTitle>新增文案</DialogTitle>
+            <DialogDescription>
+              在播放头位置添加一段自定义文案。
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="text-sm text-slate-300">文案内容</Label>
+              <Textarea
+                value={newSubtitleText}
+                onChange={(e) => setNewSubtitleText(e.target.value)}
+                rows={4}
+                className="bg-slate-800 border-slate-700 text-slate-200"
+                placeholder="请输入文案内容..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-sm text-slate-300">持续时长 (秒)</Label>
+              <Input
+                type="number"
+                step="0.1"
+                min="0.1"
+                value={newSubtitleDuration}
+                onChange={(e) => setNewSubtitleDuration(e.target.value)}
+                className="bg-slate-800 border-slate-700 text-slate-200"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddSubtitleModalOpen(false)}>
+              {t('cancel')}
+            </Button>
+            <Button onClick={handleAddSubtitle} className="bg-purple-600 hover:bg-purple-700">
+              添加
             </Button>
           </DialogFooter>
         </DialogContent>

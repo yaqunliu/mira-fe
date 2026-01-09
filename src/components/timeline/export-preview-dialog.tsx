@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -269,6 +269,8 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
       {previewUrl && (
         <Dialog open={!!previewUrl} onOpenChange={closePreview}>
           <DialogContent className="sm:max-w-[90vw] max-h-[90vh] border-slate-800 bg-black p-0 overflow-hidden">
+            <DialogTitle className="sr-only">视频预览</DialogTitle>
+            <DialogDescription className="sr-only">导出结果视频预览播放器</DialogDescription>
             <div className="relative w-full h-full">
               {/* 关闭按钮 */}
               <Button

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack -H 0.0.0.0",
+    "dev": "next dev --turbopack -H 0.0.0.0 -p 3001",
     "build:with-check": "next build --turbopack",
     "build": "next build --turbopack --no-lint",
     "start": "next start -H 0.0.0.0 -p 8001",
