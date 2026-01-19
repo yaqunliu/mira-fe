@@ -66,7 +66,11 @@
     "passwordPlaceholder": "Enter password",
     "confirmPasswordPlaceholder": "Enter password again",
     "serverError": "Server error",
-    "networkError": "Network error, please try again later"
+    "networkError": "Network error, please try again later",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "agreementPrefix": "By logging in / registering, you agree to our ",
+    "and": " and "
   },
   "home": {
     "title": "AI Animation Short",

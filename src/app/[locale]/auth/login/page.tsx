@@ -86,9 +86,16 @@ export default function LoginPage() {
         </Card>
 
         {/* 底部装饰文字 */}
-        <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-          登录即表示您同意我们的服务条款和隐私政策
-        </p>
+        <div className="text-center text-xs text-gray-500 dark:text-gray-400">
+          {t('agreementPrefix')}
+          <Link href={`/${locale}/privacy`} className="underline hover:text-blue-500 transition-colors">
+            {t('privacyPolicy')}
+          </Link>
+          {t('and')}
+          <Link href={`/${locale}/terms`} className="underline hover:text-blue-500 transition-colors">
+            {t('termsOfService')}
+          </Link>
+        </div>
       </div>
 
       <style jsx global>{`

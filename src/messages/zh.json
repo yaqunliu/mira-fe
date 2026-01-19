@@ -66,7 +66,11 @@
     "passwordPlaceholder": "请输入密码",
     "confirmPasswordPlaceholder": "请再次输入密码",
     "serverError": "服务器错误",
-    "networkError": "网络错误，请稍后重试"
+    "networkError": "网络错误，请稍后重试",
+    "privacyPolicy": "隐私政策",
+    "termsOfService": "服务条款",
+    "agreementPrefix": "登录 / 注册 即代表您同意我们的 ",
+    "and": " 和 "
   },
   "home": {
     "title": "AI动画短剧",
