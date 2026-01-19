@@ -47,6 +47,7 @@ export function StorySetting() {
   const [llmModel, setLlmModel] = useState<string>("");
   const [textToImageModel, setTextToImageModel] = useState<string>("");
   const [imageToImageModel, setImageToImageModel] = useState<string>("");
+  const [videoModel, setVideoModel] = useState<string>("");
   const [narrationMode, setNarrationMode] = useState<"original" | "rewrite">("original");
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
 
@@ -60,23 +61,33 @@ export function StorySetting() {
     llm: [],
     text_to_image: [],
     image_to_image: [],
+    video: [],
   };
+
+  const llmModels = modelConfigs?.llm || [];
+  const textToImageModels = modelConfigs?.text_to_image || [];
+  const imageToImageModels = modelConfigs?.image_to_image || [];
+  const videoModels = modelConfigs?.video || [];
 
   // 初始化默认模型
   useEffect(() => {
-    if (modelConfigs.llm.length > 0 && !llmModel) {
-      const defaultLlm = modelConfigs.llm.find((m) => m.is_default) || modelConfigs.llm[0];
+    if (llmModels.length > 0 && !llmModel) {
+      const defaultLlm = llmModels.find((m) => m.is_default) || llmModels[0];
       setLlmModel(defaultLlm.model_name);
     }
-    if (modelConfigs.text_to_image.length > 0 && !textToImageModel) {
-      const defaultTextToImage = modelConfigs.text_to_image.find((m) => m.is_default) || modelConfigs.text_to_image[0];
+    if (textToImageModels.length > 0 && !textToImageModel) {
+      const defaultTextToImage = textToImageModels.find((m) => m.is_default) || textToImageModels[0];
       setTextToImageModel(defaultTextToImage.model_name);
     }
-    if (modelConfigs.image_to_image.length > 0 && !imageToImageModel) {
-      const defaultImageToImage = modelConfigs.image_to_image.find((m) => m.is_default) || modelConfigs.image_to_image[0];
+    if (imageToImageModels.length > 0 && !imageToImageModel) {
+      const defaultImageToImage = imageToImageModels.find((m) => m.is_default) || imageToImageModels[0];
       setImageToImageModel(defaultImageToImage.model_name);
     }
-  }, [modelConfigs, llmModel, textToImageModel, imageToImageModel]);
+    if (videoModels.length > 0 && !videoModel) {
+      const defaultVideo = videoModels.find((m) => m.is_default) || videoModels[0];
+      setVideoModel(defaultVideo.model_name);
+    }
+  }, [llmModels, textToImageModels, imageToImageModels, videoModels, llmModel, textToImageModel, imageToImageModel, videoModel]);
   const { data: creation, isLoading } = useQuery({
     queryKey: ["creation", creationId],
     queryFn: () => creationApi.queryCreationById(creationId as string),
@@ -243,6 +254,7 @@ export function StorySetting() {
       llm_model: llmModel,
       text_to_image_model: textToImageModel,
       image_to_image_model: imageToImageModel,
+      video_model: videoModel,
       narration_mode: narrationMode,
     };
 
@@ -413,7 +425,7 @@ export function StorySetting() {
                                           <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
-                                          {modelConfigs.llm.map((model) => (
+                                          {llmModels.map((model) => (
                                             <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
                                               {model.display_name}
                                             </SelectItem>
@@ -421,7 +433,7 @@ export function StorySetting() {
                                         </SelectContent>
                                       </Select>
                                       {llmModel && (() => {
-                                        const selectedModel = modelConfigs.llm.find(m => m.model_name === llmModel);
+                                        const selectedModel = llmModels.find(m => m.model_name === llmModel);
                                         return selectedModel && (
                                           <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
                                             {selectedModel.description && (
@@ -451,7 +463,7 @@ export function StorySetting() {
                                           <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
-                                          {modelConfigs.text_to_image.map((model) => (
+                                          {textToImageModels.map((model) => (
                                             <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
                                               {model.display_name}
                                             </SelectItem>
@@ -459,7 +471,7 @@ export function StorySetting() {
                                         </SelectContent>
                                       </Select>
                                       {textToImageModel && (() => {
-                                        const selectedModel = modelConfigs.text_to_image.find(m => m.model_name === textToImageModel);
+                                        const selectedModel = textToImageModels.find(m => m.model_name === textToImageModel);
                                         return selectedModel && (
                                           <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
                                             {selectedModel.description && (
@@ -489,7 +501,7 @@ export function StorySetting() {
                                           <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
-                                          {modelConfigs.image_to_image.map((model) => (
+                                          {imageToImageModels.map((model) => (
                                             <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
                                               {model.display_name}
                                             </SelectItem>
@@ -497,7 +509,7 @@ export function StorySetting() {
                                         </SelectContent>
                                       </Select>
                                       {imageToImageModel && (() => {
-                                        const selectedModel = modelConfigs.image_to_image.find(m => m.model_name === imageToImageModel);
+                                        const selectedModel = imageToImageModels.find(m => m.model_name === imageToImageModel);
                                         return selectedModel && (
                                           <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
                                             {selectedModel.description && (
@@ -509,6 +521,44 @@ export function StorySetting() {
                                               </span>
                                               <span>
                                                 {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                              </span>
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
+
+                                    {/* 视频模型选择 */}
+                                    <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                      <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>
+                                        {t("creation.videoModel") || "视频模型"}
+                                      </Label>
+                                      <Select value={videoModel} onValueChange={setVideoModel}>
+                                        <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-slate-800 border-white/10">
+                                          {videoModels.map((model) => (
+                                            <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
+                                              {model.display_name}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                      {videoModel && (() => {
+                                        const selectedModel = videoModels.find(m => m.model_name === videoModel);
+                                        return selectedModel && (
+                                          <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
+                                            {selectedModel.description && (
+                                              <p className="text-slate-300">{selectedModel.description}</p>
+                                            )}
+                                            <div className="flex items-center gap-4 flex-wrap">
+                                              <span>
+                                                {t("creation.videoDuration") || "视频时长"}: <span className="text-white font-medium">{selectedModel.config?.durations?.[0] || "-"}s</span>
+                                              </span>
+                                              <span>
+                                                {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
                                               </span>
                                             </div>
                                           </div>

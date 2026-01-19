@@ -7,38 +7,49 @@ import { VideoPreview } from '@/components/business/video-preview';
 import { AssetManager } from '@/components/business/asset-manager';
 import { useTimelineStore } from '@/stores/timeline';
 import { TimelineProject, TimelineTrack } from '@/types/timeline';
-import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, X, Edit2, FolderOpen, Check, FolderDown, HelpCircle, ArrowRight, Download, History } from 'lucide-react';
+import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useQuery } from '@tanstack/react-query';
 import creationApi from '@/lib/api/creation';
 import characterApi from '@/lib/api/character';
 import sceneApi from '@/lib/api/scene';
 import shotApi from '@/lib/api/shot';
 import taskApi from '@/lib/api/task';
 import assetApi from '@/lib/api/asset';
+import modelConfigApi from '@/lib/api/model-config';
 import { ICreation } from '@/types/creation';
 import { ICharacter } from '@/types/character';
 import { IAsset } from '@/types/asset';
 import { TaskStatus } from '@/types';
 import { ensureMetadata, hasTriggeredCharacterAnalysis, createUpdatedMetadata, getStepStatus } from '@/utils/creation-metadata';
 import { CustomTabs } from "@/components/ui/custom-tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Progress } from "@/components/ui/progress";
 import { CharacterEditModal } from "@/components/modals/character-edit-modal";
 import { SceneEditModal } from "@/components/modals/scene-edit-modal";
 import { ShotEditModal } from "@/components/modals/shot-edit-modal";
+import { VideoGenerationDialog } from "@/components/modals/video-generation-dialog";
 import { ExportTriggerDialog } from "@/components/timeline/export-trigger-dialog";
 import { ExportPreviewDialog } from "@/components/timeline/export-preview-dialog";
 import { produce } from 'immer';
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ImagePreview } from "@/components/ui/image-preview";
-import { cn } from "@/lib/utils";
+import { cn, downloadFile } from "@/lib/utils";
 
 // API BASE URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -57,6 +68,24 @@ export default function DynamicComicEditor() {
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [creation, setCreation] = useState<ICreation | null>(null);
     const [activeTab, setActiveTab] = useState("characters");
+    const [videoModel, setVideoModel] = useState<string>("");
+    const [textToImageModel, setTextToImageModel] = useState<string>("");
+    const [imageToImageModel, setImageToImageModel] = useState<string>("");
+
+    // Fetch model configs
+    const { data: modelConfigsData } = useQuery({
+        queryKey: ["modelConfigs"],
+        queryFn: () => modelConfigApi.getAllModels(),
+    });
+
+    const modelConfigs = modelConfigsData?.data || {
+        video: [],
+        text_to_image: [],
+        image_to_image: [],
+    };
+    const videoModels = modelConfigs?.video || [];
+    const textToImageModels = modelConfigs?.text_to_image || [];
+    const imageToImageModels = modelConfigs?.image_to_image || [];
 
     // Asset Management State
     const [assets, setAssets] = useState<IAsset[]>([]);
@@ -86,6 +115,20 @@ export default function DynamicComicEditor() {
 
     // Video Generation State
     const [isGeneratingAllVideos, setIsGeneratingAllVideos] = useState(false);
+    const [isVideoDialogOpen, setIsVideoDialogOpen] = useState(false);
+    const [selectedShotForVideo, setSelectedShotForVideo] = useState<any | null>(null);
+    const [isGeneratingSingleVideo, setIsGeneratingSingleVideo] = useState(false);
+    const [videoConfigDialog, setVideoConfigDialog] = useState<{
+        isOpen: boolean;
+        shot: any | null;
+        nextShot: any | null;
+        isRegenerate: boolean;
+    }>({
+        isOpen: false,
+        shot: null,
+        nextShot: null,
+        isRegenerate: false
+    });
     const [videoGenerationProgress, setVideoGenerationProgress] = useState({
         total: 0,
         completed: 0,
@@ -100,6 +143,7 @@ export default function DynamicComicEditor() {
     // Export Dialog State
     const [showExportTriggerDialog, setShowExportTriggerDialog] = useState(false);
     const [showExportPreviewDialog, setShowExportPreviewDialog] = useState(false);
+    const [showModelSettings, setShowModelSettings] = useState(false);
     const [exportProgress, setExportProgress] = useState<{
         percent: number;
         status: string;
@@ -116,6 +160,71 @@ export default function DynamicComicEditor() {
         onConfirm: () => {},
         variant: 'default' as 'default' | 'destructive'
     });
+
+    // Initialize models
+    useEffect(() => {
+        // 优先从 creation 获取已保存的模型
+        const extraData = creation?.extra_data as any || {};
+        const savedVideoModel = extraData?.video_model;
+        const savedTextToImageModel = extraData?.text_to_image_model;
+        const savedImageToImageModel = extraData?.image_to_image_model;
+
+        // Video Model
+        if (savedVideoModel && !videoModel) {
+            setVideoModel(savedVideoModel);
+        } else if (videoModels.length > 0 && !videoModel) {
+            const defaultVideo = videoModels.find((m: any) => m.is_default) || videoModels[0];
+            setVideoModel(defaultVideo.model_name);
+        }
+
+        // Text to Image Model
+        if (savedTextToImageModel && !textToImageModel) {
+            setTextToImageModel(savedTextToImageModel);
+        } else if (textToImageModels.length > 0 && !textToImageModel) {
+            const defaultModel = textToImageModels.find((m: any) => m.is_default) || textToImageModels[0];
+            setTextToImageModel(defaultModel.model_name);
+        }
+
+        // Image to Image Model
+        if (savedImageToImageModel && !imageToImageModel) {
+            setImageToImageModel(savedImageToImageModel);
+        } else if (imageToImageModels.length > 0 && !imageToImageModel) {
+            const defaultModel = imageToImageModels.find((m: any) => m.is_default) || imageToImageModels[0];
+            setImageToImageModel(defaultModel.model_name);
+        }
+    }, [videoModels, textToImageModels, imageToImageModels, videoModel, textToImageModel, imageToImageModel, creation?.extra_data]);
+
+    const handleModelChange = async (type: 'video' | 'text_to_image' | 'image_to_image', newModel: string) => {
+        if (type === 'video') setVideoModel(newModel);
+        if (type === 'text_to_image') setTextToImageModel(newModel);
+        if (type === 'image_to_image') setImageToImageModel(newModel);
+
+        if (creation?.uuid) {
+            try {
+                const updatedExtraData = {
+                    ...(creation.extra_data || {}),
+                    [`${type}_model`]: newModel
+                };
+                // Special case for consistency with existing keys
+                if (type === 'text_to_image') updatedExtraData.text_to_image_model = newModel;
+                if (type === 'image_to_image') updatedExtraData.image_to_image_model = newModel;
+                if (type === 'video') updatedExtraData.video_model = newModel;
+
+                await creationApi.updateCreation(creation.uuid, {
+                    extra_data: updatedExtraData
+                });
+                // 更新本地 creation 状态，防止重新初始化覆盖
+                setCreation({
+                    ...creation,
+                    extra_data: updatedExtraData
+                });
+                toast.success("模型配置已更新");
+            } catch (error) {
+                console.error("Failed to update model:", error);
+                toast.error("更新模型配置失败");
+            }
+        }
+    };
 
     const { importProject, project, addClip, currentTime, addTrack } = useTimelineStore();
     const tracks = project.tracks;
@@ -902,10 +1011,49 @@ export default function DynamicComicEditor() {
             return;
         }
 
+        // Find next shot for tail frame selection
+        let nextShot: any = null;
+        if (creation?.scenes) {
+            let foundCurrent = false;
+            for (const scene of creation.scenes) {
+                if (scene.shots) {
+                    for (const s of scene.shots) {
+                        if (foundCurrent) {
+                            nextShot = s;
+                            break;
+                        }
+                        if (s.shot_id === shot.shot_id || s.uuid === shot.uuid) {
+                            foundCurrent = true;
+                        }
+                    }
+                }
+                if (nextShot) break;
+            }
+        }
+
+        setVideoConfigDialog({
+            isOpen: true,
+            shot,
+            nextShot,
+            isRegenerate: !!shot.video_url
+        });
+    };
+
+    const handleConfirmVideoGeneration = async (data: { lastFrameImageUrl?: string }) => {
+        const { shot, isRegenerate } = videoConfigDialog;
+        if (!shot) return;
+
+        setIsGeneratingSingleVideo(true);
         try {
             const shotUuid = shot.uuid || String(shot.shot_id);
-            await shotApi.generateShotVideo(shotUuid);
+            if (isRegenerate) {
+                await shotApi.regenerateShotVideo(shotUuid, videoModel, data.lastFrameImageUrl);
+            } else {
+                await shotApi.generateShotVideo(shotUuid, videoModel, data.lastFrameImageUrl);
+            }
+            
             toast.success(t('videoGenerationStarted'));
+            setVideoConfigDialog({ ...videoConfigDialog, isOpen: false });
 
             // Immediately refresh to show generating status
             if (creation?.uuid) {
@@ -924,6 +1072,8 @@ export default function DynamicComicEditor() {
             } else {
                 toast.error(t('failedToGenerateVideo'));
             }
+        } finally {
+            setIsGeneratingSingleVideo(false);
         }
     };
 
@@ -1851,7 +2001,7 @@ export default function DynamicComicEditor() {
                                     setCreation(res.data);
                                 }
                             }
-                            toast.success("Scene image regenerated successfully");
+                            toast.success(t('regenerateSceneImageSuccess'));
                         } else if (rawTask.status === TaskStatus.FAILURE) {
                              setRegeneratingScenes(prev => {
                                 const newMap = new Map(prev);
@@ -2067,6 +2217,17 @@ export default function DynamicComicEditor() {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
+                    {/* Model Settings Button */}
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-slate-700 hover:bg-slate-800 text-slate-300 text-xs h-8 gap-2"
+                        onClick={() => setShowModelSettings(true)}
+                    >
+                        <Settings size={14} className="text-blue-400" />
+                        {t('modelSettings') || '模型设置'}
+                    </Button>
+
                     <Button
                         size="sm"
                         variant="outline"
@@ -2891,7 +3052,7 @@ export default function DynamicComicEditor() {
                                                                                  </Badge>
                                                                              )}
                                                                         </div>
-                                                                        <div className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
+                                                                        <div className="text-xs text-slate-300 leading-relaxed max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
                                                                             {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"]) || t('noDescription')}
                                                                         </div>
                                                                     </div>
@@ -2951,6 +3112,25 @@ export default function DynamicComicEditor() {
                                                                             disabled={!shot.video_url && !shot.audio_url && (!shot.narration || shot.narration.length === 0)}
                                                                             title={t('addToTracks')}
                                                                         >
+                                                                            <Plus size={12} />
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            size="icon"
+                                                                            className="h-6 w-6 text-green-500/80 hover:text-green-500 hover:bg-slate-700/50 rounded-full"
+                                                                            onClick={async (e) => {
+                                                                                e.stopPropagation();
+                                                                                if (!shot.video_url && !shot.audio_url) {
+                                                                                    toast.error(t('noDownloadableResources'));
+                                                                                    return;
+                                                                                }
+                                                                                toast.info(shot.audio_url ? t('preparingDownloadVideoAudio') : t('preparingDownloadVideo'));
+                                                                                const formattedNumber = String(shot.shot_number || 0).padStart(4, '0');
+                                                                                if (shot.video_url) await downloadFile(shot.video_url, `${formattedNumber}_video.mp4`);
+                                                                                if (shot.audio_url) await downloadFile(shot.audio_url, `${formattedNumber}_audio.mp3`);
+                                                                            }}
+                                                                            title={t('oneClickDownload')}
+                                                                        >
                                                                             <FolderDown size={12} />
                                                                         </Button>
                                                                     </div>
@@ -2966,6 +3146,21 @@ export default function DynamicComicEditor() {
                                                 isOpen={!!editingShot}
                                                 onClose={() => setEditingShot(null)}
                                                 shot={editingShot}
+                                                nextShot={(() => {
+                                                    if (!creation?.scenes) return undefined;
+                                                    let foundCurrent = false;
+                                                    for (const scene of creation.scenes) {
+                                                        if (scene.shots) {
+                                                            for (const s of scene.shots) {
+                                                                if (foundCurrent) return s;
+                                                                if (s.shot_id === editingShot.shot_id || s.uuid === editingShot.uuid) {
+                                                                    foundCurrent = true;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    return undefined;
+                                                })()}
                                                 availableCharacters={creation?.characters || []}
                                                 availableScenes={creation?.scenes || []}
                                                 onSuccess={handleShotUpdateSuccess}
@@ -3035,6 +3230,9 @@ export default function DynamicComicEditor() {
                             <HelpCircle className="h-5 w-5 text-blue-500" />
                             {t('usageGuideTitle')}
                         </DialogTitle>
+                        <DialogDescription className="sr-only">
+                            {t('usageGuideDesc') || '如何使用动态漫编辑器进行创作的指南'}
+                        </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                         {/* Step 1 */}
@@ -3099,6 +3297,128 @@ export default function DynamicComicEditor() {
                     </div>
                 </DialogContent>
             </Dialog>
+
+            {/* Model Settings Dialog */}
+            <Dialog open={showModelSettings} onOpenChange={setShowModelSettings}>
+                <DialogContent className="sm:max-w-[500px] bg-slate-900 border-slate-800 text-white">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+                            <Settings className="h-5 w-5 text-blue-400" />
+                            {t('modelSettings') || '模型设置'}
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-400">
+                            {t('modelSettingsDesc') || '配置用于视频、文生图和图生图的 AI 模型'}
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6 py-6">
+                        {/* Video Model */}
+                        <div className="space-y-3">
+                            <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                <Film className="w-4 h-4 text-purple-400" />
+                                {t('videoModel') || '视频生成模型'}
+                            </Label>
+                            <Select value={videoModel} onValueChange={(val) => handleModelChange('video', val)}>
+                                <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                    <SelectValue placeholder="选择视频模型" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                    {videoModels.map((model: any) => (
+                                        <SelectItem 
+                                            key={model.model_name} 
+                                            value={model.model_name}
+                                            className="focus:bg-slate-700 focus:text-white"
+                                        >
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="font-medium">{model.display_name}</span>
+                                                {model.description && (
+                                                    <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                )}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Text to Image Model */}
+                        <div className="space-y-3">
+                            <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                <Type className="w-4 h-4 text-blue-400" />
+                                {t('textToImageModel') || '文生图模型'}
+                            </Label>
+                            <Select value={textToImageModel} onValueChange={(val) => handleModelChange('text_to_image', val)}>
+                                <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                    <SelectValue placeholder="选择文生图模型" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                    {textToImageModels.map((model: any) => (
+                                        <SelectItem 
+                                            key={model.model_name} 
+                                            value={model.model_name}
+                                            className="focus:bg-slate-700 focus:text-white"
+                                        >
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="font-medium">{model.display_name}</span>
+                                                {model.description && (
+                                                    <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                )}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Image to Image Model */}
+                        <div className="space-y-3">
+                            <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                <ImageIcon className="w-4 h-4 text-green-400" />
+                                {t('imageToImageModel') || '图生图模型'}
+                            </Label>
+                            <Select value={imageToImageModel} onValueChange={(val) => handleModelChange('image_to_image', val)}>
+                                <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                    <SelectValue placeholder="选择图生图模型" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                    {imageToImageModels.map((model: any) => (
+                                        <SelectItem 
+                                            key={model.model_name} 
+                                            value={model.model_name}
+                                            className="focus:bg-slate-700 focus:text-white"
+                                        >
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="font-medium">{model.display_name}</span>
+                                                {model.description && (
+                                                    <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                )}
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end">
+                        <Button onClick={() => setShowModelSettings(false)} className="bg-blue-600 hover:bg-blue-500 text-white">
+                            {tC('ok')}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Video Generation Config Dialog */}
+            {videoConfigDialog.shot && (
+                <VideoGenerationDialog
+                    isOpen={videoConfigDialog.isOpen}
+                    onClose={() => setVideoConfigDialog({ ...videoConfigDialog, isOpen: false })}
+                    onConfirm={handleConfirmVideoGeneration}
+                    shot={videoConfigDialog.shot}
+                    nextShot={videoConfigDialog.nextShot}
+                    isGenerating={isGeneratingSingleVideo}
+                />
+            )}
         </div>
         </TooltipProvider>
     );

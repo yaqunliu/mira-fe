@@ -17,12 +17,14 @@ const shotApi = {
   // 重新生成分镜图片
   regenerateShotImage: async (
     shotUuid: string,
-    imagePrompt?: string
+    imagePrompt?: string,
+    modelName?: string
   ): Promise<{ data: { task_id: string; shot_uuid: string; image_prompt?: string }; message: string }> => {
     return apiClient.post<{ task_id: string; shot_uuid: string; image_prompt?: string; message: string }>(
       `/api/v1/shots/${shotUuid}/regenerate`,
       {
-        image_prompt: imagePrompt
+        image_prompt: imagePrompt,
+        model_name: modelName
       }
     ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string; image_prompt?: string }; message: string }>;
   },
@@ -65,21 +67,31 @@ const shotApi = {
 
   // 生成分镜视频（首次）
   generateShotVideo: async (
-    shotUuid: string
+    shotUuid: string,
+    modelName?: string,
+    lastFrameImageUrl?: string
   ): Promise<{ data: { task_id: string; shot_uuid: string; video_duration: number; required_points: number }; message: string }> => {
     return apiClient.post(
       `/api/v1/shots/${shotUuid}/generate-video`,
-      {}
+      { 
+        model_name: modelName,
+        last_frame_image_url: lastFrameImageUrl
+      }
     ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string; video_duration: number; required_points: number }; message: string }>;
   },
 
   // 重新生成分镜视频
   regenerateShotVideo: async (
-    shotUuid: string
+    shotUuid: string,
+    modelName?: string,
+    lastFrameImageUrl?: string
   ): Promise<{ data: { task_id: string; shot_uuid: string }; message: string }> => {
     return apiClient.post(
       `/api/v1/shots/${shotUuid}/regenerate-video`,
-      {}
+      { 
+        model_name: modelName,
+        last_frame_image_url: lastFrameImageUrl
+      }
     ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string }; message: string }>;
   },
 

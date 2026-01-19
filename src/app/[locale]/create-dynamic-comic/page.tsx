@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Book, FileText, ChevronRight, Check, ArrowLeft, Loader2, PlayCircle, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { useAuthStore } from "@/stores/auth";
 
 // API BASE URL
@@ -481,6 +481,9 @@ export default function CreateDynamicComicPage() {
                                                     <DialogContent className="bg-zinc-900 border-zinc-700 text-white">
                                                         <DialogHeader>
                                                             <DialogTitle>创建新项目</DialogTitle>
+                                                            <DialogDescription className="sr-only">
+                                                                输入项目名称以开始新的动态漫创作
+                                                            </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="py-4">
                                                             <Label className="mb-2 block">项目名称</Label>
@@ -513,6 +516,9 @@ export default function CreateDynamicComicPage() {
                                                             <DialogContent className="bg-zinc-900 border-zinc-700 text-white max-w-2xl">
                                                                 <DialogHeader>
                                                                     <DialogTitle>添加新文案</DialogTitle>
+                                                                    <DialogDescription className="sr-only">
+                                                                        在当前选中的位置插入一段新的字幕文案
+                                                                    </DialogDescription>
                                                                 </DialogHeader>
                                                                 <div className="space-y-4 py-4">
                                                                     <div>

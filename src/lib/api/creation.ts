@@ -17,6 +17,7 @@ const creationApi = {
       llm_model?: string;
       text_to_image_model?: string;
       image_to_image_model?: string;
+      video_model?: string;
       narration_mode?: string;
     };
   }) => {
@@ -93,7 +94,8 @@ const creationApi = {
     creationId: string,
     voiceId: string,
     voiceSpeed: number = 1,
-    forceRegenerate: boolean = false
+    forceRegenerate: boolean = false,
+    videoModel?: string
   ): Promise<{
     data: { task_id: string; creation_id: number; voice_id: string };
   }> => {
@@ -103,6 +105,7 @@ const creationApi = {
         voice_id: voiceId,
         voice_speed: voiceSpeed,
         force_regenerate: forceRegenerate,
+        video_model: videoModel,
       }
     ) as unknown as Promise<{
       data: { task_id: string; creation_id: number; voice_id: string };

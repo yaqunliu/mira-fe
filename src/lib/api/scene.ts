@@ -9,11 +9,14 @@ export interface RegenerateSceneResponse {
 const sceneApi = {
   // 重新生成场景图片
   regenerateSceneImage: async (
-    sceneId: string // UUID字符串
+    sceneId: string, // UUID字符串
+    modelName?: string,
+    imagePrompt?: string
   ): Promise<{ data: RegenerateSceneResponse }> => {
     const sceneUuid = String(sceneId);
     return apiClient.post<RegenerateSceneResponse>(
-      `/api/v1/scenes/${sceneUuid}/regenerate-image`
+      `/api/v1/scenes/${sceneUuid}/regenerate-image`,
+      { model_name: modelName, image_prompt: imagePrompt }
     ) as unknown as Promise<{ data: RegenerateSceneResponse }>;
   },
 
@@ -49,6 +52,7 @@ const sceneApi = {
         space?: string;
         atmosphere?: string;
       };
+      image_prompt?: string;
     }
   ): Promise<{ data: IScene; message: string }> => {
     const sceneUuid = String(sceneId);

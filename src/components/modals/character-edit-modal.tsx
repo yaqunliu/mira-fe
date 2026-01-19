@@ -17,7 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Save, X, Loader2 } from "lucide-react";
+import { Save, X, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { ICharacter } from "@/types/character";
@@ -262,7 +262,30 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
               )}
             />
 
-            {/* Image Prompt Field Removed */}
+            <div className="md:col-span-2 space-y-2 p-3 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30">
+              <FormField
+                control={form.control}
+                name="imagePrompt"
+                render={({ field }) => (
+                  <FormItem className="space-y-0.5">
+                    <FormLabel className="text-xs font-semibold text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3" />
+                      {t("imagePrompt") || "生图提示词"}
+                    </FormLabel>
+                    <FormControl>
+                      <AutosizeTextarea
+                        placeholder={t("imagePromptPlaceholder") || "输入自定义生图提示词..."}
+                        className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
+                        minRows={3}
+                        maxRows={10}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
         )}
       </div>

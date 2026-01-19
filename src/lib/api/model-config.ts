@@ -3,7 +3,7 @@ import { ApiResponse } from "./types";
 
 export interface IModelConfig {
   model_name: string;
-  model_type: "llm" | "text_to_image" | "image_to_image";
+  model_type: "llm" | "text_to_image" | "image_to_image" | "video";
   display_name: string;
   description?: string;
   config?: {
@@ -21,6 +21,7 @@ export interface IModelConfigsResponse {
   llm: IModelConfig[];
   text_to_image: IModelConfig[];
   image_to_image: IModelConfig[];
+  video: IModelConfig[];
 }
 
 const modelConfigApi = {
@@ -33,7 +34,7 @@ const modelConfigApi = {
 
   // 根据类型获取模型配置
   getModelsByType: async (
-    modelType: "llm" | "text_to_image" | "image_to_image"
+    modelType: "llm" | "text_to_image" | "image_to_image" | "video"
   ): Promise<{ data: IModelConfig[]; message: string }> => {
     return apiClient.get<ApiResponse<IModelConfig[]>>(
       `/api/v1/model-configs/?model_type=${modelType}`
@@ -42,7 +43,7 @@ const modelConfigApi = {
 
   // 获取默认模型
   getDefaultModel: async (
-    modelType: "llm" | "text_to_image" | "image_to_image"
+    modelType: "llm" | "text_to_image" | "image_to_image" | "video"
   ): Promise<{ data: IModelConfig; message: string }> => {
     return apiClient.get<ApiResponse<IModelConfig>>(
       `/api/v1/model-configs/default/${modelType}`

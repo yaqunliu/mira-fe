@@ -16,7 +16,8 @@ const characterApi = {
     characterIds: string[],
     style: string,
     creationUuid: string,
-    forceRegenerate: boolean = false
+    forceRegenerate: boolean = false,
+    modelName?: string
   ) => {
     return apiClient.post<{task_id: string, message: string}>(
       `/api/v1/characters/generate-images`,
@@ -24,7 +25,8 @@ const characterApi = {
         character_ids: characterIds,
         visual_style: style,
         creation_uuid: creationUuid,
-        force_regenerate: forceRegenerate
+        force_regenerate: forceRegenerate,
+        model_name: modelName
       }
     );
   },
@@ -44,14 +46,16 @@ const characterApi = {
   regenerateCharacterImage: async (
     characterUuid: string,
     style: string,
-    creationUuid: string
+    creationUuid: string,
+    modelName?: string
   ) => {
     return apiClient.post<{task_id: string, message: string}>(
       `/api/v1/characters/regenerate-image`,
       {
         character_uuid: characterUuid,
         visual_style: style,
-        creation_uuid: creationUuid
+        creation_uuid: creationUuid,
+        model_name: modelName
       }
     );
   },

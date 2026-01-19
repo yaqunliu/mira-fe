@@ -567,10 +567,10 @@ export function CharacterSetting({
                                     </div>
                                     <div className="space-y-2">
                                         {character.appearance && (
-                                            <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                                            <div className="text-xs text-slate-400 leading-relaxed max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
                                                 <span className="text-slate-500 mr-1">外貌:</span>
                                                 {character.appearance}
-                                            </p>
+                                            </div>
                                         )}
                                         {!character.appearance && (
                                             <p className="text-xs text-slate-500 italic">暂无特征描述</p>
@@ -636,9 +636,9 @@ export function CharacterSetting({
                                         声音
                                     </Badge>
                                 </div>
-                                <p className="text-xs text-slate-500 line-clamp-1 truncate">
+                                <div className="text-xs text-slate-500 max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
                                     {character.voice_description || "暂无音色描述"}
-                                </p>
+                                </div>
                             </div>
 
                             {/* 右侧：操作 */}

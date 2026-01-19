@@ -13,11 +13,11 @@ import shotApi from "@/lib/api/shot";
 import sceneApi from "@/lib/api/scene";
 import taskApi from "@/lib/api/task";
 import { toast } from "sonner";
-import { Loader2, Video, AlertCircle, CheckCircle2, RefreshCw, Play, Pause, Mic } from "lucide-react";
-import { VoiceItem } from "@/types/voice";
+import { Loader2, Video, AlertCircle, CheckCircle2, RefreshCw, Play, Pause, Mic, Download, Volume2, FolderDown, RotateCcw, Pencil, Clapperboard, Plus } from "lucide-react";
 import { TimelineProject, TimelineTrack, TimelineTrackClip, TaskStatus } from "@/types";
 import { IScene, IShot } from "@/types/scene";
 import { Badge } from "@/components/ui/badge";
+import { downloadFile } from "@/lib/utils";
 
 interface FlattenedShot extends IShot {
   sceneTitle: string;
@@ -44,7 +44,9 @@ export function VideoGeneration() {
   const [regeneratingSceneVideos, setRegeneratingSceneVideos] = useState<Map<number, string>>(new Map()); // sceneId -> taskId
   const [regeneratingShotAudios, setRegeneratingShotAudios] = useState<Map<number, string>>(new Map()); // shotId -> taskId
   const [playingShotId, setPlayingShotId] = useState<number | null>(null);
+  const [playingAudioShotId, setPlayingAudioShotId] = useState<number | null>(null);
   const shotVideoRefs = useRef<{ [key: number]: HTMLVideoElement }>({});
+  const shotAudioRefs = useRef<{ [key: number]: HTMLAudioElement }>({});
 
   // Sync video player with timeline state
   useEffect(() => {
@@ -432,6 +434,23 @@ export function VideoGeneration() {
     }
   };
 
+  const togglePlayAudio = (shotId: number) => {
+    const audio = shotAudioRefs.current[shotId];
+    if (!audio) return;
+
+    if (playingAudioShotId === shotId) {
+      audio.pause();
+      setPlayingAudioShotId(null);
+    } else {
+      // Pause other playing audios
+      if (playingAudioShotId && shotAudioRefs.current[playingAudioShotId]) {
+        shotAudioRefs.current[playingAudioShotId].pause();
+      }
+      audio.play();
+      setPlayingAudioShotId(shotId);
+    }
+  };
+
   const getStatusMessage = (status: string) => {
     switch (status) {
       case 'pending': return "等待处理...";
@@ -569,6 +588,22 @@ export function VideoGeneration() {
               </div>
 
               <div className="space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-lg font-medium">预览</h3>
+                  {videoUrl && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={async () => {
+                        toast.info("正在准备下载完整视频...");
+                        await downloadFile(videoUrl, `creation_${creation.uuid}_final.mp4`);
+                      }}
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      下载完整视频
+                    </Button>
+                  )}
+                </div>
                 <div className="aspect-video w-full bg-black rounded-lg overflow-hidden relative group">
                   {videoUrl ? (
                     <video
@@ -617,8 +652,8 @@ export function VideoGeneration() {
                       )
                       .sort((a: FlattenedShot, b: FlattenedShot) => (a.shot_number || 0) - (b.shot_number || 0))
                       .map((shot: FlattenedShot) => (
-                        <div key={shot.shot_id} className="flex gap-4 items-start border p-3 rounded bg-background">
-                          <div className="w-40 aspect-video bg-black rounded relative group">
+                        <div key={shot.shot_id} className="group relative flex gap-4 items-start border p-3 rounded bg-background hover:border-blue-500/50 transition-colors">
+                          <div className="w-40 aspect-video bg-black rounded relative overflow-hidden shrink-0">
                             {shot.video_url ? (
                               <>
                                 <video
@@ -628,7 +663,7 @@ export function VideoGeneration() {
                                   onEnded={() => setPlayingShotId(null)}
                                 />
                                 <div
-                                  className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer"
+                                  className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition-colors cursor-pointer"
                                   onClick={() => togglePlayShot(shot.shot_id)}
                                 >
                                   {playingShotId === shot.shot_id ? (
@@ -644,39 +679,105 @@ export function VideoGeneration() {
                               </div>
                             )}
                           </div>
-                          <div className="flex-1 space-y-2">
-                            <div className="flex justify-between">
-                              <Badge variant="outline">分镜 {shot.shot_number}</Badge>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled={regeneratingShotVideos.has(shot.shot_id)}
-                                onClick={() => handleRegenerateShotVideo(shot)}
-                              >
-                                {regeneratingShotVideos.has(shot.shot_id) ? (
-                                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                ) : (
-                                  <RefreshCw className="w-3 h-3 mr-1" />
-                                )}
-                                重新生成视频
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                disabled={regeneratingShotAudios.has(shot.shot_id)}
-                                onClick={() => handleRegenerateShotAudio(shot)}
-                              >
-                                {regeneratingShotAudios.has(shot.shot_id) ? (
-                                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                ) : (
-                                  <Mic className="w-3 h-3 mr-1" />
-                                )}
-                                重新生成音频
-                              </Button>
+                          
+                          <div className="flex-1 min-w-0 pr-32">
+                            <div className="flex items-center gap-3 mb-2">
+                              <span className="text-sm font-medium text-muted-foreground shrink-0">#{shot.shot_number}</span>
+                              <div className="flex items-center gap-2 overflow-hidden flex-wrap">
+                                <span className="text-sm font-medium truncate">{shot.sceneTitle || "场景"}</span>
+                                <Badge variant="secondary" className="bg-slate-100 text-slate-500 border-none h-5 px-1.5 text-[10px]">
+                                  8s
+                                </Badge>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {shot.video_url && (
+                                    <Badge variant="secondary" className="bg-blue-500 text-white border-none gap-1 h-5 px-2 text-[10px]">
+                                      <Video className="w-3 h-3" />
+                                      视频
+                                    </Badge>
+                                  )}
+                                  {shot.audio_url && (
+                                    <Badge variant="secondary" className="bg-green-500 text-white border-none gap-1 h-5 px-2 text-[10px]">
+                                      <Mic className="w-3 h-3" />
+                                      音频
+                                    </Badge>
+                                  )}
+                                  <Badge variant="secondary" className="bg-orange-500 text-white border-none gap-1 h-5 px-2 text-[10px]">
+                                    <CheckCircle2 className="w-3 h-3" />
+                                    字幕
+                                  </Badge>
+                                </div>
+                              </div>
                             </div>
-                            <p className="text-sm text-muted-foreground line-clamp-2">
+                            <div className="text-sm text-muted-foreground leading-relaxed max-h-[80px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                               {shot.description || shot.image_prompt}
-                            </p>
+                            </div>
+                          </div>
+
+                          {/* 悬浮操作面板：强制显示 5 个按钮 */}
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-2 rounded-xl border border-white/20 shadow-2xl z-[100]">
+                            <button
+                              type="button"
+                              className="h-8 w-8 flex items-center justify-center text-orange-400 hover:text-orange-300 hover:bg-white/10 rounded-full transition-colors"
+                              title="重新生成图片"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // 重置逻辑
+                              }}
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              className="h-8 w-8 flex items-center justify-center text-blue-400 hover:text-blue-300 hover:bg-white/10 rounded-full transition-colors"
+                              title="编辑"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // 编辑逻辑
+                              }}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={regeneratingShotVideos.has(shot.shot_id)}
+                              className="h-8 w-8 flex items-center justify-center text-purple-400 hover:text-purple-300 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRegenerateShotVideo(shot);
+                              }}
+                              title="生成视频"
+                            >
+                              <Clapperboard className={`w-4 h-4 ${regeneratingShotVideos.has(shot.shot_id) ? 'animate-spin' : ''}`} />
+                            </button>
+                            <button
+                              type="button"
+                              className="h-8 w-8 flex items-center justify-center text-green-500 hover:text-green-400 hover:bg-white/10 rounded-full transition-colors"
+                              title="添加到轨道"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // 添加逻辑
+                              }}
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              className="h-8 w-8 flex items-center justify-center text-green-500 hover:text-green-400 hover:bg-white/10 rounded-full transition-colors"
+                              title="一键下载"
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                if (!shot.video_url && !shot.audio_url) {
+                                  toast.error("暂无可下载的资源");
+                                  return;
+                                }
+                                toast.info(shot.audio_url ? "正在准备下载视频和音频..." : "正在准备下载视频...");
+                                const formattedNumber = String(shot.shot_number || 0).padStart(4, '0');
+                                if (shot.video_url) await downloadFile(shot.video_url, `${formattedNumber}_video.mp4`);
+                                if (shot.audio_url) await downloadFile(shot.audio_url, `${formattedNumber}_audio.mp3`);
+                              }}
+                            >
+                              <FolderDown className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       ))}

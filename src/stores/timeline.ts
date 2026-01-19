@@ -36,6 +36,7 @@ const initialState: TimelineState = {
   project: createInitialProject(),
   past: [],
   future: [],
+  clipboard: undefined,
 };
 
 export const useTimelineStore = create<TimelineState & {
@@ -85,6 +86,10 @@ export const useTimelineStore = create<TimelineState & {
   // 导入/导出
   importProject: (project: TimelineProject) => void;
   exportProject: () => TimelineProject;
+
+  // 剪贴板操作
+  copySelectedClips: () => void;
+  pasteClips: () => void;
 }>((set, get) => ({
   ...initialState,
 
@@ -569,4 +574,69 @@ export const useTimelineStore = create<TimelineState & {
   }),
 
   exportProject: () => get().project,
+
+  copySelectedClips: () => set((state) => {
+    const selectedIds = state.selectedClipIds.length > 0 
+      ? state.selectedClipIds 
+      : (state.selectedClipId ? [state.selectedClipId] : []);
+    
+    if (selectedIds.length === 0) return state;
+
+    const selectedClips: TimelineTrackClip[] = [];
+    state.project.tracks.forEach(track => {
+      track.clips.forEach(clip => {
+        if (selectedIds.includes(clip.id)) {
+          selectedClips.push(JSON.parse(JSON.stringify(clip)));
+        }
+      });
+    });
+
+    return { clipboard: selectedClips };
+  }),
+
+  pasteClips: () => set(produce((state) => {
+    if (!state.clipboard || state.clipboard.length === 0) return;
+
+    // 找到第一个选中的轨道，或者第一个视频轨道
+    let targetTrackId = state.selectedTrackId;
+    if (!targetTrackId) {
+      const firstVideoTrack = state.project.tracks.find((t: TimelineTrack) => t.type === 'video');
+      if (firstVideoTrack) targetTrackId = firstVideoTrack.id;
+    }
+
+    if (!targetTrackId) return;
+
+    // 保存历史
+    state.past.push(JSON.parse(JSON.stringify(state.project)));
+    if (state.past.length > 50) state.past.shift();
+    state.future = [];
+
+    // 计算偏移量：以剪贴板中第一个片段的起始时间为基准，粘贴到当前时间
+    const baseStartTime = Math.min(...state.clipboard.map((c: TimelineTrackClip) => c.startInTimeline));
+    const offset = state.currentTime - baseStartTime;
+
+    const newClips: string[] = [];
+    state.clipboard.forEach((clip: TimelineTrackClip) => {
+      const newClip: TimelineTrackClip = {
+        ...clip,
+        id: `clip-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        startInTimeline: Math.max(0, clip.startInTimeline + offset),
+      };
+
+      // 粘贴到原始轨道类型匹配的第一个可用轨道，或者当前选中轨道
+      const originalTrack = state.project.tracks.find((t: TimelineTrack) => t.clips.some((c: TimelineTrackClip) => c.id === clip.id));
+      const targetTrack = state.project.tracks.find((t: TimelineTrack) => t.id === targetTrackId) || 
+                          state.project.tracks.find((t: TimelineTrack) => t.type === (originalTrack?.type || 'video'));
+
+      if (targetTrack) {
+        targetTrack.clips.push(newClip);
+        newClips.push(newClip.id);
+      }
+    });
+
+    if (newClips.length > 0) {
+      state.selectedClipIds = newClips;
+      state.selectedClipId = newClips.length === 1 ? newClips[0] : undefined;
+    }
+  })),
 }));

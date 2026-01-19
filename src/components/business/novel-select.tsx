@@ -32,6 +32,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -701,6 +702,9 @@ export function NovelSelect({
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{t("createVideo.createProject")}</DialogTitle>
+            <DialogDescription className="sr-only">
+              输入项目名称并确认以创建新的视频项目
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
@@ -728,6 +732,9 @@ export function NovelSelect({
         <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>{t("createVideo.addChapter")}</DialogTitle>
+            <DialogDescription className="sr-only">
+              输入文案标题和内容以添加新的创作文案
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">

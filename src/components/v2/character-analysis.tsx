@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCreationV2Store } from "@/stores/creation-v2";
 import { CharacterEditModal } from "@/components/modals/character-edit-modal";
 import { ICharacter } from "@/types/character";
-import { PenLine, WandSparkles, ArrowRight, RotateCcw } from "lucide-react";
+import { PenLine, ArrowRight, RotateCcw } from "lucide-react";
 import characterApi from "@/lib/api/character";
 import taskApi from "@/lib/api/task";
 import { toast } from "sonner";
@@ -68,7 +68,8 @@ export function CharacterAnalysis() {
             creation.uuid
         );
         if (response.data && response.data.task_id) {
-            setRegeneratingMap(prev => new Map(prev).set(charId, response.data.task_id));
+            const taskId = response.data.task_id;
+            setRegeneratingMap(prev => new Map(prev).set(charId, taskId));
             toast.success(t("character.regenerationStarted"));
         }
     } catch (error) {
@@ -87,7 +88,7 @@ export function CharacterAnalysis() {
         for (const [charId, taskId] of regeneratingMap.entries()) {
             try {
                 const res = await taskApi.queryTaskStatus(taskId);
-                const task = res.data?.data || res.data; // Handle different response structures
+                const task = res.data; // Task object is already in res.data
                 
                 if (task?.status === TaskStatus.SUCCESS) {
                     newMap.delete(charId);
@@ -138,7 +139,7 @@ export function CharacterAnalysis() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {characters.map((character) => (
+        {characters.map((character: ICharacter) => (
           <Card key={character.uuid || character.character_id} className="overflow-hidden">
              <div className="aspect-[3/4] relative bg-muted group">
                  {character.image_url ? (
@@ -171,7 +172,9 @@ export function CharacterAnalysis() {
              </div>
              <CardContent className="p-4">
                  <h3 className="font-bold text-lg">{character.name}</h3>
-                 <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{character.basic_info}</p>
+                 <div className="text-sm text-muted-foreground leading-relaxed max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 mt-1">
+                    {character.basic_info}
+                 </div>
              </CardContent>
           </Card>
         ))}
@@ -195,7 +198,7 @@ export function CharacterAnalysis() {
       <ImagePreview
         open={!!previewImage}
         onOpenChange={(open) => !open && setPreviewImage(null)}
-        imageUrl={previewImage || ""}
+        src={previewImage || ""}
       />
     </div>
   );

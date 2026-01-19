@@ -13,6 +13,7 @@ export interface IScene {
     created_at: string;
     updated_at: string;
     image_url?: string;
+    image_prompt?: string;
     shots: IShot[];
 }
 

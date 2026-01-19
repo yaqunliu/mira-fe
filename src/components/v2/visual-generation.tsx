@@ -207,9 +207,9 @@ export function VisualGeneration() {
                            <div className="flex justify-between items-start mb-2">
                               <Badge variant="outline">分镜 {shot.shot_number}</Badge>
                            </div>
-                           <p className="text-xs text-muted-foreground line-clamp-3">
+                           <div className="text-xs text-muted-foreground max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                               {shot.description}
-                           </p>
+                           </div>
                         </CardContent>
                       </Card>
                     ))}

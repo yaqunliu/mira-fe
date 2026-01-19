@@ -16,6 +16,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Loader2,
   Volume2,
   Wand,
@@ -26,6 +33,7 @@ import {
   Music,
   AlertCircle,
   RefreshCw,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -33,6 +41,7 @@ import { VoiceSelector } from "./voice-selector";
 import creationApi from "@/lib/api/creation";
 import taskApi from "@/lib/api/task";
 import voiceApi from "@/lib/api/voice";
+import modelConfigApi from "@/lib/api/model-config";
 import type { VoiceItem } from "@/types/voice";
 import { TaskStatus } from "@/types";
 import { CreationStatus } from "@/types/creation";
@@ -96,6 +105,7 @@ export function VideoGenerator({
   const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(null);
   const [selectedVoice, setSelectedVoice] = useState<VoiceItem | null>(null);
   const [voiceSpeed, setVoiceSpeed] = useState<number>(1);
+  const [videoModel, setVideoModel] = useState<string>("");
 
   // 任务状态
   const [taskId, setTaskId] = useState<string | null>(currentTaskId || null);
@@ -193,6 +203,33 @@ export function VideoGenerator({
       return false;
     },
   });
+
+  // 获取模型配置列表
+  const { data: modelConfigsData } = useQuery({
+    queryKey: ["modelConfigs"],
+    queryFn: () => modelConfigApi.getAllModels(),
+  });
+
+  const modelConfigs = modelConfigsData?.data || {
+    video: [],
+  };
+  const videoModels = modelConfigs?.video || [];
+
+  // 初始化视频模型
+  useEffect(() => {
+    // 优先从 creationData 获取已选择的模型
+    const savedVideoModel = (creationData?.extra_data as any)?.video_model;
+    if (savedVideoModel) {
+      setVideoModel(savedVideoModel);
+      return;
+    }
+
+    // 如果没有保存的模型，使用默认模型
+    if (videoModels.length > 0 && !videoModel) {
+      const defaultVideo = videoModels.find((m) => m.is_default) || videoModels[0];
+      setVideoModel(defaultVideo.model_name);
+    }
+  }, [videoModels, videoModel, creationData?.extra_data]);
 
   // 监听creationData中的current_task_id，如果检测到有任务在进行，自动恢复轮询
   useEffect(() => {
@@ -352,7 +389,11 @@ export function VideoGenerator({
       creationData.scenes.forEach((scene) => {
         scene.shots?.forEach((shot) => {
           if (shot.narration) {
-            totalTextBytes += encoder.encode(shot.narration).length
+            // narration 可能是一个数组或字符串，需要统一处理
+            const narrationText = Array.isArray(shot.narration) 
+              ? shot.narration.map((n: any) => n.内容 || n.content || "").join("") 
+              : String(shot.narration);
+            totalTextBytes += encoder.encode(narrationText).length
           }
         })
       })
@@ -385,7 +426,8 @@ export function VideoGenerator({
       creationId,
       selectedVoiceId,
       voiceSpeed,
-      forceRegenerateAudio
+      forceRegenerateAudio,
+      videoModel
     );
     const newTaskId = response?.data?.task_id;
 
@@ -484,7 +526,8 @@ export function VideoGenerator({
         creationId,
         voiceIdToUse,
         voiceSpeedToUse,
-        false // forceRegenerateAudio = false，不重新生成音频
+        false, // forceRegenerateAudio = false，不重新生成音频
+        videoModel
       );
       
       const newTaskId = response?.data?.task_id;

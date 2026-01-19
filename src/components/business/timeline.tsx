@@ -45,6 +45,8 @@ export const Timeline: React.FC = () => {
   const scrollTimeline = useTimelineStore(state => state.scrollTimeline);
   const seek = useTimelineStore(state => state.seek);
   const trimClip = useTimelineStore(state => state.trimClip);
+  const copySelectedClips = useTimelineStore(state => state.copySelectedClips);
+  const pasteClips = useTimelineStore(state => state.pasteClips);
   const moveClip = useTimelineStore(state => state.moveClip);
   const removeClip = useTimelineStore(state => state.removeClip);
   const saveHistory = useTimelineStore(state => state.saveHistory);
@@ -90,6 +92,7 @@ export const Timeline: React.FC = () => {
   // 编辑模态框状态
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddSubtitleModalOpen, setIsAddSubtitleModalOpen] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   const [newSubtitleText, setNewSubtitleText] = useState('');
   const [newSubtitleDuration, setNewSubtitleDuration] = useState('2');
   const [editingClip, setEditingClip] = useState<TimelineTrackClip | null>(null);
@@ -118,8 +121,17 @@ export const Timeline: React.FC = () => {
   // 键盘快捷键处理
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 如果正在编辑，不处理快捷键
-      if (editingTrackId || isEditModalOpen) return;
+      // 只有在鼠标处于时间轴区域内，且没有打开编辑弹窗，且不在输入状态时才触发
+      if (!isHovering || editingTrackId || isEditModalOpen || isAddSubtitleModalOpen) return;
+
+      // 如果用户正在输入（如在其他页面的输入框），不处理快捷键
+      if (
+        document.activeElement?.tagName === 'INPUT' ||
+        document.activeElement?.tagName === 'TEXTAREA' ||
+        (document.activeElement as HTMLElement)?.isContentEditable
+      ) {
+        return;
+      }
 
       const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
       const ctrlOrCmd = isMac ? e.metaKey : e.ctrlKey;
@@ -131,11 +143,27 @@ export const Timeline: React.FC = () => {
         return;
       }
 
+      // Ctrl/Cmd + C: 复制
+      if (ctrlOrCmd && e.key === 'c') {
+        e.preventDefault();
+        copySelectedClips();
+        toast.success(t('copied'));
+        return;
+      }
+
+      // Ctrl/Cmd + V: 粘贴
+      if (ctrlOrCmd && e.key === 'v') {
+        e.preventDefault();
+        pasteClips();
+        toast.success(t('pasted'));
+        return;
+      }
+
       // Delete/Backspace: 删除选中的片段
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedClipIds.length > 0) {
         e.preventDefault();
         deleteSelectedClips();
-        toast.success(`已删除 ${selectedClipIds.length} 个片段`);
+        toast.success(t('deletedClips', { count: selectedClipIds.length }));
         return;
       }
 
@@ -160,7 +188,7 @@ export const Timeline: React.FC = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editingTrackId, isEditModalOpen, selectedClipIds, selectAllClips, deleteSelectedClips, clearSelection, moveSelectedClips]);
+  }, [isHovering, editingTrackId, isEditModalOpen, isAddSubtitleModalOpen, selectedClipIds, selectAllClips, deleteSelectedClips, clearSelection, moveSelectedClips, copySelectedClips, pasteClips, t]);
 
   const handleStartRenaming = (track: TimelineTrack) => {
     if (track.isLocked) return;
@@ -344,6 +372,9 @@ export const Timeline: React.FC = () => {
   // 处理键盘快捷键
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // 只有在鼠标处于时间轴区域内，且没有打开编辑弹窗，且不在输入状态时才触发
+      if (!isHovering || editingTrackId || isEditModalOpen || isAddSubtitleModalOpen) return;
+
       // 如果用户正在输入（如重命名轨道），则不触发快捷键
       if (
         document.activeElement?.tagName === 'INPUT' ||
@@ -380,7 +411,7 @@ export const Timeline: React.FC = () => {
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [selectedClipId, removeClip, undo, redo]);
+  }, [isHovering, editingTrackId, isEditModalOpen, isAddSubtitleModalOpen, selectedClipId, removeClip, undo, redo]);
 
   // 计算时间轴的总宽度（像素）
   const totalDuration = Math.max(project.duration, 30); // 至少显示30秒
@@ -455,6 +486,8 @@ export const Timeline: React.FC = () => {
       return (
       <div
         key={track.id}
+        data-track-id={track.id}
+        data-track-type={track.type}
         draggable={!track.isLocked}
         onDragStart={(e) => {
           if (track.isLocked) {
@@ -676,7 +709,7 @@ export const Timeline: React.FC = () => {
                   // 合并所有字幕内容（只保留内容，不显示发言人）
                   const subtitleText = shot.narration
                     .map((item: any) => item.内容 || item.content || '')
-                    .filter(text => text.trim())
+                    .filter((text: string) => text.trim())
                     .join('\n');
 
                   // 根据文本长度估算时长（原本按 3.5 字/秒计算，现缩短 1/3，按约 5.2 字/秒计算）
@@ -1032,7 +1065,7 @@ export const Timeline: React.FC = () => {
             });
 
             // 检查是否接近任何吸附点（仅用于显示指示线）
-            const PLAYHEAD_SNAP_THRESHOLD = 0.5; // 播放头吸附阈值（秒）
+            const PLAYHEAD_SNAP_THRESHOLD = 0.2; // 播放头吸附阈值（秒）
             let snappedTime: number | null = null;
 
             for (const snapPoint of snapPoints) {
@@ -1055,7 +1088,10 @@ export const Timeline: React.FC = () => {
         });
       }
       else if (dragTypeRef.current === 'moveClip') {
-        if (draggedClipIdRef.current && draggedTrackIdRef.current) {
+        const currentClipId = draggedClipIdRef.current;
+        const currentTrackId = draggedTrackIdRef.current;
+        
+        if (currentClipId && currentTrackId) {
           // 使用 RAF 来优化性能，确保每帧只更新一次
           if (rafRef.current) {
             cancelAnimationFrame(rafRef.current);
@@ -1068,13 +1104,34 @@ export const Timeline: React.FC = () => {
             const state = useTimelineStore.getState();
             const { project, currentTime: latestCurrentTime } = state;
 
+            // 跨轨道拖拽：寻找当前鼠标位置下的轨道
+            let targetTrackId = currentTrackId;
+            const elementsAtPoint = document.elementsFromPoint(e.clientX, e.clientY);
+            const trackElement = elementsAtPoint.find(el => el.hasAttribute('data-track-id'));
+            
+            if (trackElement) {
+              const hoverTrackId = trackElement.getAttribute('data-track-id')!;
+              const hoverTrackType = trackElement.getAttribute('data-track-type')!;
+              
+              // 找到原始轨道以获取类型
+              const sourceTrack = project.tracks.find(t => t.id === currentTrackId);
+              const targetTrack = project.tracks.find(t => t.id === hoverTrackId);
+              
+              if (sourceTrack && targetTrack && sourceTrack.type === hoverTrackType && !targetTrack.isLocked) {
+                targetTrackId = hoverTrackId;
+                // 更新 ref 以便下一次 mousemove 使用
+                draggedTrackIdRef.current = targetTrackId;
+              }
+            }
+
             // 找到当前轨道
-            const currentTrack = project.tracks.find(t => t.id === draggedTrackIdRef.current);
+            const currentTrack = project.tracks.find(t => t.id === targetTrackId);
             if (!currentTrack) return;
 
-            // 找到被拖拽的片段
-            const draggedClip = currentTrack.clips.find(c => c.id === draggedClipIdRef.current);
-            if (!draggedClip) return;
+            // 找到被拖拽片段的引用（用于获取时长）
+            const clipForDuration = currentTrack.clips.find(c => c.id === currentClipId) || 
+                                    project.tracks.flatMap(t => t.clips).find(c => c.id === currentClipId);
+            if (!clipForDuration) return;
 
             // 检查是否是多选状态
             const isMultiSelect = dragOriginalClipsPositionsRef.current.size > 1;
@@ -1092,9 +1149,9 @@ export const Timeline: React.FC = () => {
             // 检查吸附（包括播放头和其他片段）
             const snapResult = findSnapPoint(
               rawStartTime,
-              draggedClip.duration,
+              clipForDuration.duration,
               trackForSnap,
-              draggedClipIdRef.current,
+              currentClipId,
               SNAP_THRESHOLD,
               [latestCurrentTime]
             );
@@ -1113,6 +1170,7 @@ export const Timeline: React.FC = () => {
               const moves: Array<{ clipId: string; trackId: string; startTime: number }> = [];
               dragOriginalClipsPositionsRef.current.forEach((originalPos, clipId) => {
                 const newStartTime = Math.max(0, originalPos.startTime + moveDelta);
+                // 多选跨轨道暂不支持整体偏移轨道，仅支持同轨道批量移动或后续增强
                 moves.push({
                   clipId,
                   trackId: originalPos.trackId,
@@ -1122,7 +1180,7 @@ export const Timeline: React.FC = () => {
               batchMoveClips(moves);
             } else {
               // 单个移动
-              moveClip(draggedClipIdRef.current, draggedTrackIdRef.current, finalStartTime);
+              moveClip(currentClipId, targetTrackId, finalStartTime);
             }
           });
         }
@@ -1235,7 +1293,7 @@ export const Timeline: React.FC = () => {
         });
 
         // 检查是否接近任何吸附点
-        const PLAYHEAD_SNAP_THRESHOLD = 0.5; // 播放头吸附阈值（秒）
+        const PLAYHEAD_SNAP_THRESHOLD = 0.2; // 播放头吸附阈值（秒）
         let snappedTime: number | null = null;
 
         for (const snapPoint of snapPoints) {
@@ -1345,7 +1403,11 @@ export const Timeline: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#09090b] select-none">
+    <div 
+      className="w-full h-full flex flex-col bg-[#09090b] select-none"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
       {/* 控制栏 */}
       <div className="h-14 flex items-center justify-between px-4 bg-zinc-900/50 backdrop-blur-sm border-b border-zinc-800/50 shrink-0 relative">
         <div className="flex items-center gap-4">
@@ -1484,6 +1546,17 @@ export const Timeline: React.FC = () => {
           </button>
 
           <button 
+            onClick={() => {
+              copySelectedClips();
+              toast.success(t('copied'));
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-md transition-all text-xs font-medium group"
+          >
+            <Plus size={14} className="group-hover:scale-110 transition-transform" />
+            <span>{t('copy')}</span>
+          </button>
+
+          <button 
             onClick={() => removeClip(selectedClipId)}
             className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 rounded-md transition-all text-xs font-medium group"
           >
@@ -1598,6 +1671,9 @@ export const Timeline: React.FC = () => {
             <DialogTitle>
               {editingTrackType === 'audio' ? t('editVolume') : t('editSubtitle')}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              {editingTrackType === 'audio' ? '调整音频轨道音量大小' : '修改字幕文本内容'}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">

@@ -41,4 +41,5 @@ export interface TimelineState {
   project: TimelineProject; // 项目数据
   past: TimelineProject[];  // 历史快照（撤销栈）
   future: TimelineProject[]; // 未来快照（重做栈）
+  clipboard?: TimelineTrackClip[]; // 剪贴板
 }
