@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# bash ./deploy-remote.sh --mode pm2 --method git
 # Novel2Video 远程部署脚本
 # 
 # 说明：此脚本在本地运行，通过 SSH 连接到远程服务器执行部署操作

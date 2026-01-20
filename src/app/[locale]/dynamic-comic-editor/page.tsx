@@ -7,7 +7,7 @@ import { VideoPreview } from '@/components/business/video-preview';
 import { AssetManager } from '@/components/business/asset-manager';
 import { useTimelineStore } from '@/stores/timeline';
 import { TimelineProject, TimelineTrack } from '@/types/timeline';
-import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus } from 'lucide-react';
+import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus, Monitor, Smartphone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import creationApi from '@/lib/api/creation';
@@ -71,6 +71,7 @@ export default function DynamicComicEditor() {
     const [videoModel, setVideoModel] = useState<string>("");
     const [textToImageModel, setTextToImageModel] = useState<string>("");
     const [imageToImageModel, setImageToImageModel] = useState<string>("");
+    const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
 
     // Fetch model configs
     const { data: modelConfigsData } = useQuery({
@@ -168,6 +169,12 @@ export default function DynamicComicEditor() {
         const savedVideoModel = extraData?.video_model;
         const savedTextToImageModel = extraData?.text_to_image_model;
         const savedImageToImageModel = extraData?.image_to_image_model;
+        const savedAspectRatio = extraData?.aspect_ratio;
+
+        // Aspect Ratio
+        if (savedAspectRatio && savedAspectRatio !== aspectRatio) {
+            setAspectRatio(savedAspectRatio as "16:9" | "9:16");
+        }
 
         // Video Model
         if (savedVideoModel && !videoModel) {
@@ -222,6 +229,29 @@ export default function DynamicComicEditor() {
             } catch (error) {
                 console.error("Failed to update model:", error);
                 toast.error("更新模型配置失败");
+            }
+        }
+    };
+
+    const handleAspectRatioChange = async (newRatio: "16:9" | "9:16") => {
+        setAspectRatio(newRatio);
+        if (creation?.uuid) {
+            try {
+                const updatedExtraData = {
+                    ...(creation.extra_data || {}),
+                    aspect_ratio: newRatio
+                };
+                await creationApi.updateCreation(creation.uuid, {
+                    extra_data: updatedExtraData
+                });
+                setCreation({
+                    ...creation,
+                    extra_data: updatedExtraData
+                });
+                toast.success("创作比例已更新");
+            } catch (error) {
+                console.error("Failed to update aspect ratio:", error);
+                toast.error("更新创作比例失败");
             }
         }
     };
@@ -2217,6 +2247,32 @@ export default function DynamicComicEditor() {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
+                    {/* Aspect Ratio Selector */}
+                    <div className="flex items-center bg-slate-800/50 border border-slate-700 rounded-md px-1 h-8">
+                        <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
+                            <SelectTrigger className="border-0 bg-transparent hover:bg-slate-700/50 focus:ring-0 focus:ring-offset-0 text-slate-300 text-xs h-7 gap-2 px-2">
+                                <div className="flex items-center gap-1.5">
+                                    {aspectRatio === "16:9" ? <Monitor size={12} className="text-blue-400" /> : <Smartphone size={12} className="text-blue-400" />}
+                                    <SelectValue />
+                                </div>
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-900 border-slate-800 text-white min-w-[120px]">
+                                <SelectItem value="16:9" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
+                                    <div className="flex items-center gap-2">
+                                        <Monitor size={12} className="text-slate-400" />
+                                        <span>{t('landscape') || '横版 (16:9)'}</span>
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="9:16" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
+                                    <div className="flex items-center gap-2">
+                                        <Smartphone size={12} className="text-slate-400" />
+                                        <span>{t('portrait') || '竖版 (9:16)'}</span>
+                                    </div>
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     {/* Model Settings Button */}
                     <Button
                         size="sm"
@@ -2437,7 +2493,10 @@ export default function DynamicComicEditor() {
                                                             {/* Avatar / Image (Optimized for 3-column grid, landscape, adaptive height) */}
                                                             <div className="w-full h-auto shrink-0 bg-slate-800 relative group-hover:border-slate-600 transition-colors">
                                                                 {regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating' ? (
-                                                                    <div className="w-full aspect-[16/9] flex items-center justify-center bg-slate-900/50">
+                                                                    <div className={cn(
+                                                                        "w-full flex items-center justify-center bg-slate-900/50",
+                                                                        aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-[16/9]"
+                                                                    )}>
                                                                         <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
                                                                     </div>
                                                                 ) : char.image_url ? (
@@ -2697,7 +2756,10 @@ export default function DynamicComicEditor() {
                                                         onClick={() => setEditingScene(scene)}
                                                     >
                                                         <div className="group flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative">
-                                                            <div className="w-16 h-9 rounded bg-slate-700 overflow-hidden shrink-0 relative">
+                                                            <div className={cn(
+                                                                "rounded bg-slate-700 overflow-hidden shrink-0 relative",
+                                                                aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-9"
+                                                            )}>
                                                                 {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating' ? (
                                                                     <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
                                                                         <Loader2 className="w-3.5 h-3.5 text-orange-500 animate-spin mb-0.5" />
@@ -2756,6 +2818,7 @@ export default function DynamicComicEditor() {
                                                 onSuccess={handleSceneUpdateSuccess}
                                                 onRegenerateImage={handleRegenerateSceneImage}
                                                 isRegenerating={regeneratingScenes.has(editingScene.uuid || String(editingScene.scene_id))}
+                                                aspectRatio={aspectRatio}
                                             />
                                         )}
                                     </>
@@ -2977,7 +3040,10 @@ export default function DynamicComicEditor() {
                                                                     onClick={() => setEditingShot(shot)}
                                                                 >
                                                                     {/* Image Thumbnail */}
-                                                                    <div className="w-20 h-12 rounded bg-slate-800 overflow-hidden shrink-0 relative border border-slate-800">
+                                                                    <div className={cn(
+                                                                        "rounded bg-slate-800 overflow-hidden shrink-0 relative border border-slate-800",
+                                                                        aspectRatio === "9:16" ? "w-12 h-20" : "w-20 h-12"
+                                                                    )}>
                                                                         {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
                                                                             <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
                                                                                 <Loader2 className="w-4 h-4 text-orange-500 animate-spin mb-0.5" />
@@ -3166,6 +3232,7 @@ export default function DynamicComicEditor() {
                                                 onSuccess={handleShotUpdateSuccess}
                                                 onRegenerateImage={handleRegenerateShotImage}
                                                 isRegenerating={regeneratingShots.has(editingShot.uuid || String(editingShot.shot_id)) || editingShot.status === 'generating'}
+                                                aspectRatio={aspectRatio}
                                             />
                                         )}
                                     </>
@@ -3312,7 +3379,24 @@ export default function DynamicComicEditor() {
                     </DialogHeader>
                     
                     <div className="space-y-6 py-6">
-                        {/* Video Model */}
+                    {/* Aspect Ratio */}
+                    <div className="space-y-3">
+                        <Label className="text-slate-400 flex items-center gap-2">
+                            <Maximize2 className="h-4 w-4" />
+                            {t('aspectRatio') || '生成比例'}
+                        </Label>
+                        <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
+                            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                                <SelectItem value="16:9">{t('landscape') || '横版 (16:9)'}</SelectItem>
+                                <SelectItem value="9:16">{t('portrait') || '竖版 (9:16)'}</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* Video Model */}
                         <div className="space-y-3">
                             <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
                                 <Film className="w-4 h-4 text-purple-400" />
@@ -3417,6 +3501,7 @@ export default function DynamicComicEditor() {
                     shot={videoConfigDialog.shot}
                     nextShot={videoConfigDialog.nextShot}
                     isGenerating={isGeneratingSingleVideo}
+                    aspectRatio={aspectRatio}
                 />
             )}
         </div>

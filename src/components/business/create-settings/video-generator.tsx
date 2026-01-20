@@ -678,12 +678,18 @@ export function VideoGenerator({
                         step="0.1"
                         value={voiceSpeed}
                         onChange={(e) => {
-                          const value = parseFloat(e.target.value);
+                          const val = e.target.value;
+                          if (val === '') {
+                            setVoiceSpeed(1); // Default to 1 if cleared
+                            return;
+                          }
+                          const value = parseFloat(val);
                           if (!isNaN(value) && value >= 0 && value <= 2) {
                             setVoiceSpeed(value);
                           }
                         }}
-                        className="w-20 text-center"
+                        onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                        className="w-16 h-8 text-xs bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-center"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">

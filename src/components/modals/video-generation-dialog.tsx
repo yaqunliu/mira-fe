@@ -15,7 +15,10 @@ interface VideoGenerationDialogProps {
     shot: IShot;
     nextShot?: IShot;
     isGenerating?: boolean;
+    aspectRatio?: "16:9" | "9:16";
 }
+
+import { cn } from '@/lib/utils';
 
 export function VideoGenerationDialog({
     isOpen,
@@ -23,7 +26,8 @@ export function VideoGenerationDialog({
     onConfirm,
     shot,
     nextShot,
-    isGenerating = false
+    isGenerating = false,
+    aspectRatio = "16:9"
 }: VideoGenerationDialogProps) {
     const t = useTranslations('Editor');
     const tCommon = useTranslations('common');
@@ -95,7 +99,10 @@ export function VideoGenerationDialog({
                         {/* First Frame */}
                         <div className="flex-1 space-y-2">
                             <Label className="text-xs text-slate-400">{t('firstFrame') || "首帧 (当前分镜)"}</Label>
-                            <div className="aspect-video rounded-md bg-black border border-slate-800 overflow-hidden">
+                            <div className={cn(
+                                "rounded-md bg-black border border-slate-800 overflow-hidden",
+                                aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-video"
+                            )}>
                                 {shot.image_url ? (
                                     <img src={shot.image_url} alt="First Frame" className="w-full h-full object-cover" />
                                 ) : (
@@ -113,7 +120,10 @@ export function VideoGenerationDialog({
                         {/* Last Frame */}
                         <div className="flex-1 space-y-2">
                             <Label className="text-xs text-slate-400">{t('lastFrame') || "尾帧 (可选)"}</Label>
-                            <div className={`aspect-video rounded-md bg-black border ${useLastFrame ? 'border-purple-500/50' : 'border-slate-800'} overflow-hidden relative group`}>
+                            <div className={cn(
+                                `rounded-md bg-black border ${useLastFrame ? 'border-purple-500/50' : 'border-slate-800'} overflow-hidden relative group`,
+                                aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-video"
+                            )}>
                                 {useLastFrame ? (
                                     <>
                                         {lastFrameType === 'next_shot' && nextShot?.image_url ? (

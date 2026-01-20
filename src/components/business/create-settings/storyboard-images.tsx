@@ -41,6 +41,7 @@ interface StoryboardImagesProps {
   progress?: ShotGenerationProgress;
   availableCharacters?: import("@/types/character").ICharacter[];
   imageModelName?: string;
+  aspectRatio?: "16:9" | "9:16";
 }
 
 // 轮询间隔
@@ -56,6 +57,7 @@ export function StoryboardImages({
   progress,
   availableCharacters = [],
   imageModelName,
+  aspectRatio = "16:9",
 }: StoryboardImagesProps) {
   const t = useTranslations();
   const [editingNarration, setEditingNarration] = useState<NarrationItem[]>([]);
@@ -480,7 +482,10 @@ export function StoryboardImages({
                     </h5>
                   </div>
                   {/* 图片容器 */}
-                  <div className="relative bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden group min-h-[120px] border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-xl transition-all duration-300">
+                  <div className={cn(
+                    "relative bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden group border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-xl transition-all duration-300",
+                    aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-video"
+                  )}>
                     {isPending ? (
                       // 待生成状态
                       <div className="flex flex-col items-center justify-center h-full min-h-[120px] space-y-3 py-6 relative">

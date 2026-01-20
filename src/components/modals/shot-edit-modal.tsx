@@ -26,9 +26,11 @@ interface ShotEditModalProps {
     onSuccess: () => void;
     onRegenerateImage: (shotId: string, imagePrompt?: string) => void;
     isRegenerating: boolean;
+    aspectRatio?: "16:9" | "9:16";
 }
 
 import { useTimelineStore } from '@/stores/timeline';
+import { cn } from '@/lib/utils';
 
 export function ShotEditModal({ 
     isOpen, 
@@ -39,7 +41,8 @@ export function ShotEditModal({
     availableScenes,
     onSuccess,
     onRegenerateImage,
-    isRegenerating
+    isRegenerating,
+    aspectRatio = "16:9"
 }: ShotEditModalProps) {
     const t = useTranslations('Editor');
     const tCommon = useTranslations('common');
@@ -58,7 +61,7 @@ export function ShotEditModal({
     const [characterIds, setCharacterIds] = useState<number[]>(
         shot.characters?.map(c => c.character_id) || []
     );
-    const [videoDuration, setVideoDuration] = useState<number>(shot.video_duration || 5);
+    const [videoDuration, setVideoDuration] = useState<string | number>(shot.video_duration || 5);
 
     // Video-related state
     const [videoPrompt, setVideoPrompt] = useState<string>('');
@@ -66,6 +69,7 @@ export function ShotEditModal({
     const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
     const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
     const [isVideoConfigOpen, setIsVideoConfigOpen] = useState(false);
+    const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
 
     // Reset form when shot changes
     useEffect(() => {
@@ -81,6 +85,13 @@ export function ShotEditModal({
             setVideoDuration(shot.video_duration || 5);
             setIsEditing(false); // Reset editing mode
             setIsEditingVideoPrompt(false);
+            
+            const history = (shot.extra_data as any)?.version_history || [];
+            if (history.length > 0) {
+                setSelectedVersionId(history[history.length - 1].version_id);
+            } else {
+                setSelectedVersionId(null);
+            }
         }
     }, [isOpen, shot]);
 
@@ -88,13 +99,21 @@ export function ShotEditModal({
         setIsSaving(true);
         try {
             const shotUuid = shot.uuid || String(shot.shot_id);
+            
+            // Merge video_prompt into extra_data
+            const updatedExtraData = {
+                ...(shot.extra_data || {}),
+                video_prompt: videoPrompt
+            };
+
             await shotApi.updateShot(shotUuid, {
                 description,
                 narration,
                 image_prompt: imagePrompt,
                 scene_id: parseInt(sceneId),
                 associated_characters: characterIds,
-                video_duration: videoDuration
+                video_duration: typeof videoDuration === 'string' ? parseFloat(videoDuration) || 5 : videoDuration,
+                extra_data: updatedExtraData
             });
 
             toast.success(tCommon('save') + " " + tCommon('success'));
@@ -276,7 +295,10 @@ export function ShotEditModal({
                         {/* Left Column: Media Area */}
                         <div className="space-y-6">
                             {/* Image Area */}
-                            <div className="w-full aspect-video rounded-lg bg-black overflow-hidden border border-slate-800 relative group">
+                            <div className={cn(
+                                "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
+                                aspectRatio === "9:16" ? "aspect-[9/16] max-h-[500px] mx-auto w-fit" : "aspect-video"
+                            )}>
                                 {isRegenerating ? (
                                     <div className="w-full h-full flex items-center justify-center text-orange-500 gap-2">
                                         <Loader2 className="w-6 h-6 animate-spin" />
@@ -322,92 +344,176 @@ export function ShotEditModal({
 
                             {/* Video Preview Area */}
                             <div className="space-y-2">
-                                <Label className="text-sm font-medium">{t('videoPreview')}</Label>
-                                {shot.video_url ? (
-                                    <div className="space-y-2">
-                                        <video
-                                            src={shot.video_url}
-                                            controls
-                                            className="w-full rounded-lg bg-black border border-slate-800"
-                                            preload="metadata"
-                                        />
-                                        <div className="flex gap-2">
+                                <div className="flex items-center justify-between">
+                                    <Label className="text-sm font-medium">{t('videoPreview')}</Label>
+                                    {(shot.extra_data as any)?.version_history?.length > 1 && (
+                                        <Select 
+                                            value={selectedVersionId || undefined} 
+                                            onValueChange={setSelectedVersionId}
+                                        >
+                                            <SelectTrigger className="h-7 w-[180px] text-xs bg-slate-800 border-slate-700">
+                                                <SelectValue placeholder={t('selectVersion') || "选择版本"} />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-slate-800 border-slate-700 text-slate-200">
+                                                {((shot.extra_data as any).version_history as any[]).map((v, idx) => (
+                                                    <SelectItem key={v.version_id} value={v.version_id} className="text-xs">
+                                                        {t('version') || "版本"} {idx + 1} ({new Date(v.created_at).toLocaleString()})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                </div>
+
+                                {(() => {
+                                    const history = (shot.extra_data as any)?.version_history || [];
+                                    const selectedVersion = history.find((v: any) => v.version_id === selectedVersionId) || 
+                                                           (history.length > 0 ? history[history.length - 1] : null);
+                                    
+                                    // Fallback to current shot properties if no history exists
+                                    const displayVideoUrl = selectedVersion?.video_url || shot.video_url;
+                                    const displayAudioUrl = selectedVersion?.audio_url || shot.audio_url;
+
+                                    if (displayVideoUrl) {
+                                        return (
+                                            <div className="space-y-2">
+                                                <div className="relative group/video">
+                                                    <video
+                                                        key={displayVideoUrl}
+                                                        src={displayVideoUrl}
+                                                        controls
+                                                        className="w-full rounded-lg bg-black border border-slate-800"
+                                                        preload="metadata"
+                                                    />
+                                                    {displayAudioUrl && (
+                                                        <div className="mt-2 p-2 rounded bg-slate-800/50 border border-slate-700 flex items-center gap-2">
+                                                            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Audio</div>
+                                                            <audio src={displayAudioUrl} controls className="h-8 flex-1" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={handleGenerateVideo}
+                                                        disabled={isGeneratingVideo}
+                                                        className="border-slate-700 hover:bg-slate-800"
+                                                    >
+                                                        {isGeneratingVideo ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                                        ) : (
+                                                            <RotateCcw className="w-4 h-4 mr-2" />
+                                                        )}
+                                                        {t('regenerateVideo')}
+                                                    </Button>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            const a = document.createElement('a');
+                                                            a.href = displayVideoUrl;
+                                                            a.download = `${shot.title || 'video'}_v${selectedVersionId || 'latest'}.mp4`;
+                                                            a.click();
+                                                        }}
+                                                        className="border-slate-700 hover:bg-slate-800"
+                                                    >
+                                                        <Download className="w-4 h-4 mr-2" />
+                                                        {t('downloadVideo')}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center">
+                                            <Film className="w-12 h-12 mx-auto mb-2 text-slate-600" />
+                                            <p className="text-sm text-slate-500 mb-4">{t('noVideoYet')}</p>
                                             <Button
-                                                size="sm"
-                                                variant="outline"
                                                 onClick={handleGenerateVideo}
-                                                disabled={isGeneratingVideo}
-                                                className="border-slate-700 hover:bg-slate-800"
+                                                disabled={isGeneratingVideo || !shot.image_url}
+                                                className="bg-purple-600 hover:bg-purple-700"
                                             >
                                                 {isGeneratingVideo ? (
                                                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                                                 ) : (
-                                                    <RotateCcw className="w-4 h-4 mr-2" />
+                                                    <Film className="w-4 h-4 mr-2" />
                                                 )}
-                                                {t('regenerateVideo')}
+                                                {t('generateVideo')}
                                             </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={() => {
-                                                    const a = document.createElement('a');
-                                                    a.href = shot.video_url!;
-                                                    a.download = `${shot.title || 'video'}.mp4`;
-                                                    a.click();
-                                                }}
-                                                className="border-slate-700 hover:bg-slate-800"
-                                            >
-                                                <Download className="w-4 h-4 mr-2" />
-                                                {t('downloadVideo')}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center">
-                                        <Film className="w-12 h-12 mx-auto mb-2 text-slate-600" />
-                                        <p className="text-sm text-slate-500 mb-4">{t('noVideoYet')}</p>
-                                        <Button
-                                            onClick={handleGenerateVideo}
-                                            disabled={isGeneratingVideo || !shot.image_url}
-                                            className="bg-purple-600 hover:bg-purple-700"
-                                        >
-                                            {isGeneratingVideo ? (
-                                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                            ) : (
-                                                <Film className="w-4 h-4 mr-2" />
+                                            {!shot.image_url && (
+                                                <p className="text-xs text-red-500 mt-2">{t('needImageFirst')}</p>
                                             )}
-                                            {t('generateVideo')}
-                                        </Button>
-                                        {!shot.image_url && (
-                                            <p className="text-xs text-red-500 mt-2">{t('needImageFirst')}</p>
-                                        )}
-                                    </div>
-                                )}
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
 
                         {/* Right Column: Prompt & Form Area */}
                         <div className="space-y-4">
                             {/* Prompt Editing Area */}
-                            <div className="p-3 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 space-y-2">
-                                <Label className="text-xs font-semibold text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
-                                    <Sparkles className="w-3 h-3" />
-                                    {t('imagePrompt') || "生图提示词"}
-                                </Label>
-                                {isEditing ? (
-                                    <AutosizeTextarea 
-                                        value={imagePrompt} 
-                                        onChange={(e) => setImagePrompt(e.target.value)}
-                                        placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
-                                        className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
-                                        minRows={2}
-                                        maxRows={10}
-                                    />
-                                ) : (
-                                    <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-orange-200/20 hover:scrollbar-thumb-orange-200/40">
-                                        {imagePrompt || tCommon('none')}
+                            <div className="space-y-3">
+                                <div className="p-3 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 space-y-2">
+                                    <Label className="text-xs font-semibold text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                                        <Sparkles className="w-3 h-3" />
+                                        {t('imagePrompt') || "生图提示词"}
+                                    </Label>
+                                    {isEditing ? (
+                                        <AutosizeTextarea 
+                                            value={imagePrompt} 
+                                            onChange={(e) => setImagePrompt(e.target.value)}
+                                            placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
+                                            className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
+                                            minRows={2}
+                                            maxRows={10}
+                                        />
+                                    ) : (
+                                        <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-orange-200/20 hover:scrollbar-thumb-orange-200/40">
+                                            {imagePrompt || tCommon('none')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="p-3 rounded-lg bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-xs font-semibold text-purple-700 dark:text-purple-400 flex items-center gap-1.5">
+                                            <Film className="w-3 h-3" />
+                                            {t('videoPrompt') || "视频提示词"}
+                                        </Label>
+                                        {!isEditing && (
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                onClick={handleRegenerateVideoPrompt}
+                                                disabled={isGeneratingPrompt}
+                                                className="h-6 text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 hover:bg-purple-500/10"
+                                            >
+                                                {isGeneratingPrompt ? (
+                                                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                                ) : (
+                                                    <Sparkles className="w-3 h-3 mr-1" />
+                                                )}
+                                                {t('regeneratePrompt') || "重新生成提示词"}
+                                            </Button>
+                                        )}
                                     </div>
-                                )}
+                                    {isEditing ? (
+                                        <AutosizeTextarea 
+                                            value={videoPrompt} 
+                                            onChange={(e) => setVideoPrompt(e.target.value)}
+                                            placeholder={t('videoPromptPlaceholder') || "输入视频提示词..."}
+                                            className="text-sm resize-none bg-white dark:bg-slate-950 border-purple-200 dark:border-purple-800/50 focus:border-purple-500"
+                                            minRows={2}
+                                            maxRows={10}
+                                        />
+                                    ) : (
+                                        <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-purple-200/20 hover:scrollbar-thumb-purple-200/40">
+                                            {videoPrompt || t('clickToAddVideoPrompt') || tCommon('none')}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
 
                             {/* Form Area */}
@@ -443,9 +549,10 @@ export function ShotEditModal({
                                             type="number"
                                             min={1}
                                             max={60}
-                                            step={0.5}
+                                            step={0.1}
                                             value={videoDuration}
-                                            onChange={(e) => setVideoDuration(parseFloat(e.target.value) || 5)}
+                                            onChange={(e) => setVideoDuration(e.target.value)}
+                                            onWheel={(e) => (e.target as HTMLInputElement).blur()}
                                             className="bg-slate-800 border-slate-700 h-9 text-sm"
                                         />
                                     ) : (

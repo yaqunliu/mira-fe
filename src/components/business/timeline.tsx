@@ -1753,6 +1753,7 @@ export const Timeline: React.FC = () => {
                 min="0.1"
                 value={newSubtitleDuration}
                 onChange={(e) => setNewSubtitleDuration(e.target.value)}
+                onWheel={(e) => (e.target as HTMLInputElement).blur()}
                 className="bg-slate-800 border-slate-700 text-slate-200"
               />
             </div>

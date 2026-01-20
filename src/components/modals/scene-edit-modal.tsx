@@ -10,6 +10,7 @@ import { IScene } from '@/types/scene';
 import sceneApi from '@/lib/api/scene';
 import { toast } from "sonner";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import { cn } from "@/lib/utils";
 
 interface SceneEditModalProps {
     isOpen: boolean;
@@ -18,6 +19,7 @@ interface SceneEditModalProps {
     onSuccess: () => void;
     onRegenerateImage: (sceneId: string, imagePrompt?: string) => void;
     isRegenerating: boolean;
+    aspectRatio?: "16:9" | "9:16";
 }
 
 export function SceneEditModal({ 
@@ -26,7 +28,8 @@ export function SceneEditModal({
     scene, 
     onSuccess,
     onRegenerateImage,
-    isRegenerating
+    isRegenerating,
+    aspectRatio = "16:9"
 }: SceneEditModalProps) {
     const t = useTranslations('Editor');
     const tCommon = useTranslations('common');
@@ -110,7 +113,10 @@ export function SceneEditModal({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800">
                     {/* Left Column: Image Area */}
                     <div className="space-y-4">
-                        <div className="w-full aspect-video rounded-lg bg-black overflow-hidden border border-slate-800 relative group">
+                        <div className={cn(
+                            "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
+                            aspectRatio === "9:16" ? "aspect-[9/16] max-h-[500px] mx-auto w-fit" : "aspect-video"
+                        )}>
                             {isRegenerating ? (
                                 <div className="w-full h-full flex items-center justify-center text-orange-500 gap-2">
                                     <Loader2 className="w-6 h-6 animate-spin" />

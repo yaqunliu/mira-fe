@@ -49,6 +49,7 @@ export function StorySetting() {
   const [imageToImageModel, setImageToImageModel] = useState<string>("");
   const [videoModel, setVideoModel] = useState<string>("");
   const [narrationMode, setNarrationMode] = useState<"original" | "rewrite">("original");
+  const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
 
   // 获取模型配置列表
@@ -256,6 +257,7 @@ export function StorySetting() {
       image_to_image_model: imageToImageModel,
       video_model: videoModel,
       narration_mode: narrationMode,
+      aspect_ratio: aspectRatio,
     };
 
     // 调用创建接口
@@ -414,42 +416,69 @@ export function StorySetting() {
                                   </DialogHeader>
 
                                   <div className="space-y-5">
-                                    {/* LLM 模型选择 */}
-                                    <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                                      <Label className="text-sm font-semibold text-white flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                                        {t("creation.llmModel") || "文生文模型"}
-                                      </Label>
-                                      <Select value={llmModel} onValueChange={setLlmModel}>
-                                        <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-slate-800 border-white/10">
-                                          {llmModels.map((model) => (
-                                            <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
-                                              {model.display_name}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                      {/* 创作比例选择 */}
+                                      <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                        <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
+                                          {t("creation.aspectRatio") || "创作比例"}
+                                        </Label>
+                                        <Select value={aspectRatio} onValueChange={(value: "16:9" | "9:16") => setAspectRatio(value)}>
+                                          <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                            <SelectValue placeholder={t("creation.selectAspectRatio") || "选择比例"} />
+                                          </SelectTrigger>
+                                          <SelectContent className="bg-slate-800 border-white/10">
+                                            <SelectItem value="16:9" className="text-white hover:bg-white/10">
+                                              {t("creation.landscape") || "横版 (16:9)"}
                                             </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                      {llmModel && (() => {
-                                        const selectedModel = llmModels.find(m => m.model_name === llmModel);
-                                        return selectedModel && (
-                                          <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
-                                            {selectedModel.description && (
-                                              <p className="text-slate-300">{selectedModel.description}</p>
-                                            )}
-                                            <div className="flex items-center gap-4 flex-wrap">
-                                              <span>
-                                                {t("creation.maxTokens") || "最大Token数"}: <span className="text-white font-medium">{selectedModel.config?.max_tokens || "-"}</span>
-                                              </span>
-                                              <span>
-                                                {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
-                                              </span>
+                                            <SelectItem value="9:16" className="text-white hover:bg-white/10">
+                                              {t("creation.portrait") || "竖版 (9:16)"}
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                        <div className="text-xs text-slate-400 pt-1">
+                                          <p className="text-slate-300">
+                                            {aspectRatio === "16:9" 
+                                              ? (t("creation.landscapeDesc") || "适合宽屏观看，常用于电影、电视剧。") 
+                                              : (t("creation.portraitDesc") || "适合手机全屏观看，常用于短视频、直播。")}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      {/* LLM 模型选择 */}
+                                      <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                        <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                          <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                          {t("creation.llmModel") || "文生文模型"}
+                                        </Label>
+                                        <Select value={llmModel} onValueChange={setLlmModel}>
+                                          <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                            <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                          </SelectTrigger>
+                                          <SelectContent className="bg-slate-800 border-white/10">
+                                            {llmModels.map((model) => (
+                                              <SelectItem key={model.model_name} value={model.model_name} className="text-white hover:bg-white/10">
+                                                {model.display_name}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                        {llmModel && (() => {
+                                          const selectedModel = llmModels.find(m => m.model_name === llmModel);
+                                          return selectedModel && (
+                                            <div className="text-xs text-slate-400 space-y-1.5 pt-2 border-t border-white/10">
+                                              {selectedModel.description && (
+                                                <p className="text-slate-300 line-clamp-1">{selectedModel.description}</p>
+                                              )}
+                                              <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="whitespace-nowrap">
+                                                  {t("creation.maxTokens") || "最大Token"}: <span className="text-white font-medium">{selectedModel.config?.max_tokens || "-"}</span>
+                                                </span>
+                                              </div>
                                             </div>
-                                          </div>
-                                        );
-                                      })()}
+                                          );
+                                        })()}
+                                      </div>
                                     </div>
 
                                     {/* 文生图模型选择 */}
@@ -590,6 +619,34 @@ export function StorySetting() {
                                           <p className="text-slate-300">{t("creation.originalModeDesc") || "保持原文内容，仅进行场景分解"}</p>
                                         ) : (
                                           <p className="text-slate-300">{t("creation.rewriteModeDesc") || "改写缩短文本，使用快节奏的解说方式"}</p>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* 创作比例选择 */}
+                                    <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                                      <Label className="text-sm font-semibold text-white flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
+                                        {t("createVideo.aspectRatio") || "创作比例"}
+                                      </Label>
+                                      <Select value={aspectRatio} onValueChange={(value) => setAspectRatio(value as "16:9" | "9:16")}>
+                                        <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-slate-800 border-white/10">
+                                          <SelectItem value="16:9" className="text-white hover:bg-white/10">
+                                            {t("createVideo.landscape") || "横版 (16:9)"}
+                                          </SelectItem>
+                                          <SelectItem value="9:16" className="text-white hover:bg-white/10">
+                                            {t("createVideo.portrait") || "竖版 (9:16)"}
+                                          </SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <div className="text-xs text-slate-400 pt-2 border-t border-white/10">
+                                        {aspectRatio === "16:9" ? (
+                                          <p className="text-slate-300">{t("createVideo.landscapeDesc") || "适合电脑和电视播放"}</p>
+                                        ) : (
+                                          <p className="text-slate-300">{t("createVideo.portraitDesc") || "适合手机短视频播放"}</p>
                                         )}
                                       </div>
                                     </div>

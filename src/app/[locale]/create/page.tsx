@@ -655,6 +655,7 @@ export default function CreateCreation() {
               (curCreation as any)?.extra_data?.image_to_image_model ||
               (curCreation as any)?.extra_data?.text_to_image_model
             }
+            aspectRatio={(curCreation as any)?.extra_data?.aspect_ratio}
           />
         );
       case 4:

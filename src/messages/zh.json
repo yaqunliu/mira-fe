@@ -161,7 +161,12 @@
     "next": "下一步",
     "analyzeCharacters": "开始创作",
     "generateShotImages": "生成分镜图片",
-    "generateVideo": "生成视频"
+    "generateVideo": "生成视频",
+    "aspectRatio": "创作比例",
+    "landscape": "横版 (16:9)",
+    "portrait": "竖版 (9:16)",
+    "landscapeDesc": "适合电脑和电视播放",
+    "portraitDesc": "适合手机短视频播放"
   },
   "scene": {
     "sceneDisplay": "场景展示",
@@ -739,6 +744,11 @@
     "regenerateConfirmDesc": "重新生成后，当前的图片将无法找回。确定要继续吗？",
     "regenerationFailed": "启动重新生成失败",
     "noShotImage": "暂无分镜图",
+    "selectVersion": "选择版本",
+    "version": "版本",
+    "aspectRatio": "生成比例",
+    "landscape": "横版 (16:9)",
+    "portrait": "竖版 (9:16)",
     "noDownloadableResources": "暂无可下载的资源",
     "preparingDownloadVideoAudio": "正在准备下载视频和音频...",
     "preparingDownloadVideo": "正在准备下载视频...",

@@ -158,7 +158,12 @@
     "next": "Next",
     "analyzeCharacters": "Start Creating",
     "generateShotImages": "Generate Shot Images",
-    "generateVideo": "Generate Video"
+    "generateVideo": "Generate Video",
+    "aspectRatio": "Aspect Ratio",
+    "landscape": "Landscape (16:9)",
+    "portrait": "Portrait (9:16)",
+    "landscapeDesc": "Suitable for computer and TV playback",
+    "portraitDesc": "Suitable for mobile short video playback"
   },
   "scene": {
     "sceneDisplay": "Scene Display",
@@ -839,7 +844,12 @@
     "useExistingPrompt": "Use Existing Prompt",
     "useExistingPromptDesc": "Keep the current prompt and only regenerate the image.",
     "refreshPrompt": "Regenerate Prompt",
-    "refreshPromptDesc": "Regenerate the prompt based on current settings, then generate the image."
+    "refreshPromptDesc": "Regenerate the prompt based on current settings, then generate the image.",
+    "aspectRatio": "Aspect Ratio",
+    "landscape": "Landscape (16:9)",
+    "portrait": "Portrait (9:16)",
+    "selectVersion": "Select Version",
+    "version": "Version"
   },
   "Timeline": {
     "videoTrack": "Video Track",

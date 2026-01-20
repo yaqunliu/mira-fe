@@ -503,6 +503,7 @@ export default function NovelDetailPage() {
                       setChapterPageInput(value);
                     }
                   }}
+                  onWheel={(e) => (e.target as HTMLInputElement).blur()}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && chapterPageInput) {
                       const page = Number(chapterPageInput);

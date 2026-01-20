@@ -34,7 +34,10 @@ import shotApi from "@/lib/api/shot";
 const editStoryboardSchema = z.object({
   title: z.string().min(1, "标题不能为空"),
   narration: z.string().min(1, "旁白不能为空"),
-  video_duration: z.number().min(1, "时长不能小于1秒").max(60, "时长不能超过60秒"),
+  video_duration: z.any().transform((val) => {
+    const parsed = parseFloat(val);
+    return isNaN(parsed) ? 0 : parsed;
+  }).pipe(z.number().min(1, "时长不能小于1秒").max(60, "时长不能超过60秒")),
 });
 
 type EditStoryboardFormData = z.infer<typeof editStoryboardSchema>;
@@ -234,10 +237,11 @@ export function StoryboardEditModal({
                           type="number"
                           min={1}
                           max={60}
-                          step={0.5}
+                          step={0.1}
                           style={{ borderColor: '#514f4f' }}
                           {...field}
-                          onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          onWheel={(e) => (e.target as HTMLInputElement).blur()}
                         />
                       </FormControl>
                       <FormMessage />
