@@ -15,6 +15,7 @@ import shotApi from '@/lib/api/shot';
 import { toast } from "sonner";
 import { VideoGenerationDialog } from "./video-generation-dialog";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import { ImagePreview } from "@/components/ui/image-preview";
 
 interface ShotEditModalProps {
     isOpen: boolean;
@@ -65,6 +66,7 @@ export function ShotEditModal({
 
     // Video-related state
     const [videoPrompt, setVideoPrompt] = useState<string>('');
+    const [appearanceElements, setAppearanceElements] = useState<string[]>([]);
     const [isEditingVideoPrompt, setIsEditingVideoPrompt] = useState(false);
     const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
     const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
@@ -82,6 +84,12 @@ export function ShotEditModal({
             const ids = shot.characters?.map(c => c.character_id).filter(id => id !== undefined && id !== null) || (shot as any).associated_characters || [];
             setCharacterIds(ids);
             setVideoPrompt((shot.extra_data as any)?.video_prompt || '');
+            
+            // Try to get appearance_elements from root extra_data, fallback to ai_output
+            const extra = shot.extra_data as any;
+            const elements = extra?.appearance_elements || extra?.ai_output?.['出镜元素'] || [];
+            setAppearanceElements(elements);
+            
             setVideoDuration(shot.video_duration || 5);
             setIsEditing(false); // Reset editing mode
             setIsEditingVideoPrompt(false);
@@ -100,10 +108,11 @@ export function ShotEditModal({
         try {
             const shotUuid = shot.uuid || String(shot.shot_id);
             
-            // Merge video_prompt into extra_data
+            // Merge video_prompt and appearance_elements into extra_data
             const updatedExtraData = {
                 ...(shot.extra_data || {}),
-                video_prompt: videoPrompt
+                video_prompt: videoPrompt,
+                appearance_elements: appearanceElements
             };
 
             await shotApi.updateShot(shotUuid, {
@@ -257,6 +266,22 @@ export function ShotEditModal({
                 ? prev.filter(cid => cid !== id)
                 : [...prev, id]
         );
+    };
+
+    const handleUpdateAppearanceElement = (index: number, value: string) => {
+        setAppearanceElements(prev => {
+            const next = [...prev];
+            next[index] = value;
+            return next;
+        });
+    };
+
+    const handleAddAppearanceElement = () => {
+        setAppearanceElements(prev => [...prev, '']);
+    };
+
+    const handleRemoveAppearanceElement = (index: number) => {
+        setAppearanceElements(prev => prev.filter((_, i) => i !== index));
     };
 
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -628,6 +653,59 @@ export function ShotEditModal({
                                     )}
                                 </div>
 
+                                {/* Appearance Elements */}
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Label className="text-xs text-slate-500">出镜元素 (手机、包包等道具)</Label>
+                                        {isEditing && (
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                onClick={handleAddAppearanceElement}
+                                                className="h-6 text-[10px] text-blue-400 hover:text-blue-300"
+                                            >
+                                                <Plus size={10} className="mr-1" />
+                                                {tCommon('add')}
+                                            </Button>
+                                        )}
+                                    </div>
+                                    {isEditing ? (
+                                        <div className="flex flex-wrap gap-2 bg-slate-800/50 p-3 rounded-md border border-slate-800">
+                                            {appearanceElements.map((element, index) => (
+                                                <div key={index} className="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-md px-2 py-1">
+                                                    <Input 
+                                                        value={element}
+                                                        onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
+                                                        className="h-6 w-24 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs p-0"
+                                                        placeholder="元素名称"
+                                                    />
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        size="icon" 
+                                                        onClick={() => handleRemoveAppearanceElement(index)}
+                                                        className="h-4 w-4 text-slate-500 hover:text-red-400"
+                                                    >
+                                                        <X size={10} />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            {appearanceElements.length === 0 && (
+                                                <span className="text-xs text-slate-500 italic">暂无元素</span>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                            {appearanceElements.length > 0 ? appearanceElements.map((element, index) => (
+                                                <Badge key={index} variant="secondary" className="bg-slate-800 text-slate-300 border border-slate-700">
+                                                    {element}
+                                                </Badge>
+                                            )) : (
+                                                <span className="text-sm text-slate-500 italic">{tCommon('none')}</span>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
                                 {/* Description */}
                                 <div className="space-y-2">
                                     <Label className="text-xs text-slate-500">{t('description')}</Label>
@@ -754,19 +832,12 @@ export function ShotEditModal({
             </Dialog>
 
             {/* Fullscreen Preview */}
-            <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-                <DialogContent showCloseButton={true} className="bg-transparent border-0 shadow-none max-w-[95vw] max-h-[95vh] p-0 flex items-center justify-center">
-                    <DialogTitle className="sr-only">图片预览</DialogTitle>
-                    <DialogDescription className="sr-only">分镜图片预览</DialogDescription>
-                    {shot.image_url && (
-                        <img 
-                            src={shot.image_url} 
-                            alt="Preview" 
-                            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
+            <ImagePreview 
+                open={isPreviewOpen} 
+                onOpenChange={setIsPreviewOpen} 
+                src={shot.image_url} 
+                alt="Shot Preview"
+            />
 
             <VideoGenerationDialog 
                 isOpen={isVideoConfigOpen}

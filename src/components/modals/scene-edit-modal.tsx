@@ -10,6 +10,7 @@ import { IScene } from '@/types/scene';
 import sceneApi from '@/lib/api/scene';
 import { toast } from "sonner";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
+import { ImagePreview } from "@/components/ui/image-preview";
 import { cn } from "@/lib/utils";
 
 interface SceneEditModalProps {
@@ -87,6 +88,8 @@ export function SceneEditModal({
         onRegenerateImage(sceneUuid, imagePrompt || undefined);
     };
 
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <DialogContent className="bg-slate-900 border-slate-800 text-slate-200 sm:max-w-[1000px] max-h-[90vh] flex flex-col">
@@ -123,7 +126,12 @@ export function SceneEditModal({
                                     <span className="text-sm">{tCommon('generating')}</span>
                                 </div>
                             ) : scene.image_url ? (
-                                <img src={scene.image_url} alt="Scene" className="w-full h-full object-contain" />
+                                <img 
+                                    src={scene.image_url} 
+                                    alt="Scene" 
+                                    className="w-full h-full object-contain cursor-pointer"
+                                    onClick={() => setIsPreviewOpen(true)}
+                                />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-slate-500">
                                     <LucideMap size={32} className="opacity-50 mb-2" />
@@ -238,6 +246,13 @@ export function SceneEditModal({
                     </DialogFooter>
                 )}
             </DialogContent>
+
+            <ImagePreview 
+                open={isPreviewOpen} 
+                onOpenChange={setIsPreviewOpen} 
+                src={scene.image_url} 
+                alt="Scene Preview"
+            />
         </Dialog>
     );
 }
