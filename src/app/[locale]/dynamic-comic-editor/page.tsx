@@ -2758,7 +2758,7 @@ export default function DynamicComicEditor() {
                                                             <div className="group flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative">
                                                                 <div className={cn(
                                                                     "rounded bg-slate-700 overflow-hidden shrink-0 relative",
-                                                                    aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-9"
+                                                                    "w-16 h-9"
                                                                 )}>
                                                                     {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating' ? (
                                                                         <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">

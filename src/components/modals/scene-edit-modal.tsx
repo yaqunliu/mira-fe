@@ -23,10 +23,10 @@ interface SceneEditModalProps {
     aspectRatio?: "16:9" | "9:16";
 }
 
-export function SceneEditModal({ 
-    isOpen, 
-    onClose, 
-    scene, 
+export function SceneEditModal({
+    isOpen,
+    onClose,
+    scene,
     onSuccess,
     onRegenerateImage,
     isRegenerating,
@@ -34,10 +34,10 @@ export function SceneEditModal({
 }: SceneEditModalProps) {
     const t = useTranslations('Editor');
     const tCommon = useTranslations('common');
-    
+
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    
+
     // Form state
     const [location, setLocation] = useState(scene.location || '');
     const [timeSetting, setTimeSetting] = useState(scene.time_setting || '');
@@ -70,7 +70,7 @@ export function SceneEditModal({
                 },
                 image_prompt: imagePrompt
             });
-            
+
             toast.success(tCommon('save') + " " + tCommon('success'));
             setIsEditing(false);
             onSuccess();
@@ -97,9 +97,9 @@ export function SceneEditModal({
                     <DialogTitle className="flex items-center justify-between">
                         <span>{scene.location || t('sceneDisplay')}</span>
                         {!isEditing && (
-                            <Button 
-                                variant="ghost" 
-                                size="sm" 
+                            <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => setIsEditing(true)}
                                 className="h-8 text-slate-400 hover:text-white"
                             >
@@ -112,13 +112,13 @@ export function SceneEditModal({
                         Edit scene details including location, time, and atmosphere.
                     </DialogDescription>
                 </DialogHeader>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800">
                     {/* Left Column: Image Area */}
                     <div className="space-y-4">
                         <div className={cn(
                             "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
-                            aspectRatio === "9:16" ? "aspect-[9/16] max-h-[500px] mx-auto w-fit" : "aspect-video"
+                            "aspect-video"
                         )}>
                             {isRegenerating ? (
                                 <div className="w-full h-full flex items-center justify-center text-orange-500 gap-2">
@@ -126,9 +126,9 @@ export function SceneEditModal({
                                     <span className="text-sm">{tCommon('generating')}</span>
                                 </div>
                             ) : scene.image_url ? (
-                                <img 
-                                    src={scene.image_url} 
-                                    alt="Scene" 
+                                <img
+                                    src={scene.image_url}
+                                    alt="Scene"
                                     className="w-full h-full object-contain cursor-pointer"
                                     onClick={() => setIsPreviewOpen(true)}
                                 />
@@ -138,7 +138,7 @@ export function SceneEditModal({
                                     <span className="text-xs">{t('noSceneImage')}</span>
                                 </div>
                             )}
-                            
+
                             {/* Regenerate Button */}
                             <Button
                                 variant="secondary"
@@ -156,8 +156,8 @@ export function SceneEditModal({
                             <div className="space-y-2">
                                 <Label className="text-xs text-slate-500">{t('location')}</Label>
                                 {isEditing ? (
-                                    <Input 
-                                        value={location} 
+                                    <Input
+                                        value={location}
                                         onChange={(e) => setLocation(e.target.value)}
                                         className="bg-slate-800 border-slate-700 h-8 text-sm"
                                     />
@@ -168,8 +168,8 @@ export function SceneEditModal({
                             <div className="space-y-2">
                                 <Label className="text-xs text-slate-500">{t('time')}</Label>
                                 {isEditing ? (
-                                    <Input 
-                                        value={timeSetting} 
+                                    <Input
+                                        value={timeSetting}
                                         onChange={(e) => setTimeSetting(e.target.value)}
                                         className="bg-slate-800 border-slate-700 h-8 text-sm"
                                     />
@@ -182,8 +182,8 @@ export function SceneEditModal({
                         <div className="space-y-2">
                             <Label className="text-xs text-slate-500">{t('atmosphere')}</Label>
                             {isEditing ? (
-                                <Input 
-                                    value={atmosphere} 
+                                <Input
+                                    value={atmosphere}
                                     onChange={(e) => setAtmosphere(e.target.value)}
                                     className="bg-slate-800 border-slate-700 h-8 text-sm"
                                 />
@@ -202,8 +202,8 @@ export function SceneEditModal({
                                 {t('imagePrompt') || "生图提示词"}
                             </Label>
                             {isEditing ? (
-                                <AutosizeTextarea 
-                                    value={imagePrompt} 
+                                <AutosizeTextarea
+                                    value={imagePrompt}
                                     onChange={(e) => setImagePrompt(e.target.value)}
                                     placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
                                     className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
@@ -220,8 +220,8 @@ export function SceneEditModal({
                         <div className="space-y-2">
                             <Label className="text-xs text-slate-500">{t('environmentDescription')} (Space Type)</Label>
                             {isEditing ? (
-                                <Textarea 
-                                    value={spaceType} 
+                                <Textarea
+                                    value={spaceType}
                                     onChange={(e) => setSpaceType(e.target.value)}
                                     className="bg-slate-800 border-slate-700 text-sm min-h-[100px]"
                                 />
@@ -247,10 +247,10 @@ export function SceneEditModal({
                 )}
             </DialogContent>
 
-            <ImagePreview 
-                open={isPreviewOpen} 
-                onOpenChange={setIsPreviewOpen} 
-                src={scene.image_url} 
+            <ImagePreview
+                open={isPreviewOpen}
+                onOpenChange={setIsPreviewOpen}
+                src={scene.image_url}
                 alt="Scene Preview"
             />
         </Dialog>

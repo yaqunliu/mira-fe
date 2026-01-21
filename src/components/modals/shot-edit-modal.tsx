@@ -352,7 +352,7 @@ export function ShotEditModal({
                             {/* Image Area */}
                             <div className={cn(
                                 "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
-                                aspectRatio === "9:16" ? "aspect-[9/16] max-h-[500px] mx-auto w-fit" : "aspect-video"
+                                "aspect-video"
                             )}>
                                 {isRegenerating ? (
                                     <div className="w-full h-full flex items-center justify-center text-orange-500 gap-2">
