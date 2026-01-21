@@ -11,7 +11,7 @@ export interface ImagePreviewProps {
   /** 打开状态变化回调 */
   onOpenChange: (open: boolean) => void;
   /** 图片URL */
-  src?: string;
+  src?: string | null;
   /** 图片alt文本 */
   alt?: string;
   /** 自定义类名 */
@@ -128,7 +128,7 @@ export function ImagePreview({
               className="relative transition-transform duration-200 ease-out"
             >
               <img
-                src={src}
+                src={src || ""}
                 alt={alt}
                 className="max-w-[200vw] max-h-[200vh] object-contain rounded-lg shadow-2xl pointer-events-none"
                 draggable={false}

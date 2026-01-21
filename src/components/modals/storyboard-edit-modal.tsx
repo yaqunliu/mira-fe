@@ -24,12 +24,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
-import { PencilLine, Save, X } from "lucide-react";
+import { PencilLine, Save, X, Maximize2, Plus } from "lucide-react";
 import { StoryboardItem as StoryboardItemType } from "@/types";
 import { toast } from "sonner";
 import { IShot, INarrationItem } from "@/types/scene";
 import { ICharacter } from "@/types/character";
 import shotApi from "@/lib/api/shot";
+import { ImagePreview } from "@/components/ui/image-preview";
 
 const editStoryboardSchema = z.object({
   title: z.string().min(1, "标题不能为空"),
@@ -61,6 +62,10 @@ export function StoryboardEditModal({
   const [selectedCharacters, setSelectedCharacters] = useState<number[]>(
     (shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean)
   );
+  const [appearanceElements, setAppearanceElements] = useState<string[]>(
+    shot.extra_data?.appearance_elements || shot.extra_data?.ai_output?.["出镜元素"] || []
+  );
+  const [previewImage, setPreviewImage] = useState<{src: string | null, alt: string} | null>(null);
 
   const getNarrationString = (narration: INarrationItem[]) => {
     if (Array.isArray(narration)) {
@@ -94,6 +99,7 @@ export function StoryboardEditModal({
       }
 
       setSelectedCharacters(characterIds);
+      setAppearanceElements(shot.extra_data?.appearance_elements || shot.extra_data?.ai_output?.["出镜元素"] || []);
       form.reset({
         title: shot.title || "",
         narration: getNarrationString(shot.narration),
@@ -136,6 +142,10 @@ export function StoryboardEditModal({
         narration: narrationArray,
         associated_characters: selectedCharacters,
         video_duration: data.video_duration,
+        extra_data: {
+          ...(shot.extra_data || {}),
+          appearance_elements: appearanceElements
+        }
       });
 
       // 单独更新角色关联（确保关联表同步）
@@ -171,6 +181,20 @@ export function StoryboardEditModal({
     setSelectedCharacters((prev) =>
       prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
     );
+  };
+
+  const handleAddAppearanceElement = () => {
+    setAppearanceElements([...appearanceElements, ""]);
+  };
+
+  const handleUpdateAppearanceElement = (index: number, value: string) => {
+    const updated = [...appearanceElements];
+    updated[index] = value;
+    setAppearanceElements(updated);
+  };
+
+  const handleRemoveAppearanceElement = (index: number) => {
+    setAppearanceElements(appearanceElements.filter((_, i) => i !== index));
   };
 
   return (
@@ -251,6 +275,47 @@ export function StoryboardEditModal({
               </div>
             </div>
 
+            {/* 出镜元素 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-gray-800 dark:text-gray-300">出镜元素 (手机、包包等道具)</FormLabel>
+                <Button 
+                  type="button"
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleAddAppearanceElement}
+                  className="h-6 text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  <Plus size={10} className="mr-1" />
+                  添加
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2 p-3 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+                {appearanceElements.map((element, index) => (
+                  <div key={index} className="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-2 py-1">
+                    <Input 
+                      value={element}
+                      onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
+                      className="h-6 w-24 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs p-0"
+                      placeholder="元素名称"
+                    />
+                    <Button 
+                      type="button"
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleRemoveAppearanceElement(index)}
+                      className="h-4 w-4 text-gray-400 hover:text-red-500"
+                    >
+                      <X size={10} />
+                    </Button>
+                  </div>
+                ))}
+                {appearanceElements.length === 0 && (
+                  <span className="text-xs text-gray-400 italic">暂无元素</span>
+                )}
+              </div>
+            </div>
+
             {/* 关联角色 */}
             <div className="space-y-2">
               <FormLabel className="text-gray-800 dark:text-gray-300">关联角色</FormLabel>
@@ -275,11 +340,27 @@ export function StoryboardEditModal({
                         }}
                       >
                         {character.image_url ? (
-                          <img
-                            src={character.image_url}
-                            alt={character.name}
-                            className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700"
-                          />
+                          <div className="relative group/char">
+                            <img
+                              src={character.image_url}
+                              alt={character.name}
+                              className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
+                            />
+                            <div 
+                                className="absolute inset-0 bg-black/40 opacity-0 group-hover/char:opacity-100 transition-opacity flex items-center justify-center rounded cursor-pointer"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreviewImage({src: character.image_url || null, alt: character.name});
+                                }}
+                            >
+                                <div className="flex flex-col items-center gap-1">
+                                    <Maximize2 className="w-4 h-4 text-white" />
+                                    <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-white/20 text-white border-none backdrop-blur-sm">
+                                        预览
+                                    </Badge>
+                                </div>
+                            </div>
+                          </div>
                         ) : (
                           <div className="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500">
                             无图
@@ -338,6 +419,14 @@ export function StoryboardEditModal({
           </form>
         </Form>
       </DialogContent>
+      {previewImage && (
+        <ImagePreview
+          open={!!previewImage}
+          onOpenChange={(open) => !open && setPreviewImage(null)}
+          src={previewImage.src}
+          alt={previewImage.alt}
+        />
+      )}
     </Dialog>
   );
 }

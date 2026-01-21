@@ -7,6 +7,7 @@ import { z } from "zod";
 import { BottomSheet } from "@/components/ui/bottom-sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ImagePreview } from "@/components/ui/image-preview";
 import { Input } from "@/components/ui/input";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 import {
@@ -45,18 +46,28 @@ type EditCharacterFormData = {
 };
 
 function CharacterFormFields({ form, character, t }: { form: any, character: ICharacter, t: any }) {
+  const [previewImage, setPreviewImage] = useState<{src: string | null, alt: string} | null>(null);
+
   return (
     <div className="space-y-3">
       {/* 图片预览区域 */}
       {character.body !== null && character.body !== "" && (
         <div className="flex items-center gap-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
-          <div className="w-20 h-20 shrink-0 rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center relative group">
+          <div 
+            className="w-20 h-20 shrink-0 rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center relative group cursor-pointer"
+            onClick={() => character.image_url && setPreviewImage({src: character.image_url, alt: character.name})}
+          >
             {character.image_url ? (
-              <img
-                src={character.image_url}
-                alt={character.name}
-                className="w-full h-full object-cover"
-              />
+              <>
+                <img
+                  src={character.image_url}
+                  alt={character.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <span className="text-[10px] text-white font-medium">点击预览</span>
+                </div>
+              </>
             ) : (
               <span className="text-[10px] text-slate-400">暂未生成</span>
             )}
@@ -68,6 +79,15 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
              </p>
           </div>
         </div>
+      )}
+
+      {previewImage && (
+        <ImagePreview 
+          open={!!previewImage}
+          onOpenChange={(open) => !open && setPreviewImage(null)}
+          src={previewImage.src}
+          alt={previewImage.alt}
+        />
       )}
 
       {/* 基础信息区域 - 更紧凑 */}
