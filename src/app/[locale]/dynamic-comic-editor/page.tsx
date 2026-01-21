@@ -101,7 +101,7 @@ export default function DynamicComicEditor() {
     const [editingCharacter, setEditingCharacter] = useState<ICharacter | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    
+
     // Scene Management State
     const [isAnalyzingScenes, setIsAnalyzingScenes] = useState(false);
     const [isGeneratingSceneImages, setIsGeneratingSceneImages] = useState(false);
@@ -158,7 +158,7 @@ export default function DynamicComicEditor() {
         open: false,
         title: "",
         description: "",
-        onConfirm: () => {},
+        onConfirm: () => { },
         variant: 'default' as 'default' | 'destructive'
     });
 
@@ -264,11 +264,11 @@ export default function DynamicComicEditor() {
         const isAudio = url.match(/\.(mp3|wav|ogg|m4a)$/i);
         const element = document.createElement(isAudio ? 'audio' : 'video');
         element.src = url;
-        
+
         element.onloadedmetadata = () => {
             const duration = element.duration;
             console.log(`[Media Duration] ${url}: ${duration}s`);
-            
+
             const state = useTimelineStore.getState();
             const newProject = produce(state.project, draft => {
                 let targetTrackType: 'video' | 'audio' = isAudio ? 'audio' : 'video';
@@ -281,7 +281,7 @@ export default function DynamicComicEditor() {
                         // 更新当前片段时长
                         track.clips[clipIndex].duration = duration;
                         track.clips[clipIndex].sourceEnd = duration;
-                        
+
                         // 重新计算该轨道后续所有片段的开始时间，确保紧密排列
                         let timePointer = 0;
                         track.clips.forEach(clip => {
@@ -302,10 +302,10 @@ export default function DynamicComicEditor() {
                         for (let i = 0; i < clipCount; i++) {
                             const vClip = videoTrack.clips[i];
                             const aClip = audioTrack.clips[i];
-                            
+
                             // 以视频时长为基准进行强制对齐
                             const maxClipDuration = Math.max(vClip.duration, aClip.duration);
-                            
+
                             vClip.startInTimeline = timePointer;
                             vClip.duration = maxClipDuration;
                             vClip.sourceEnd = maxClipDuration;
@@ -318,7 +318,7 @@ export default function DynamicComicEditor() {
                         }
                     }
                 }
-                
+
                 // 更新项目总时长
                 let maxDuration = 30;
                 draft.tracks.forEach(track => {
@@ -329,7 +329,7 @@ export default function DynamicComicEditor() {
                 });
                 draft.duration = maxDuration;
             });
-            
+
             state.importProject(newProject);
         };
     };
@@ -367,27 +367,27 @@ export default function DynamicComicEditor() {
 
     const handleAnalyzeCharacters = async (currentCreation: ICreation) => {
         if (!currentCreation) return;
-        
+
         try {
             toast.info(t('analyzingCharacters'));
-            
+
             // 1. Update local metadata state to 'processing'
             const newMetadata = createUpdatedMetadata(currentCreation, 'characterAnalysis', {
                 triggered: true,
                 status: 'processing'
             });
-            
+
             // 2. Persist metadata update
             await creationApi.updateCreation(currentCreation.uuid, {
                 extra_data: newMetadata as any
             });
-            
+
             // Update local state
             setCreation({ ...currentCreation, extra_data: newMetadata as any });
 
             // 3. Call actual API
             const res = await creationApi.analyzeCharacters(currentCreation.uuid);
-            
+
             if (res && res.data && res.data.task_id) {
                 const taskId = res.data.task_id;
                 // Update with task_id
@@ -395,25 +395,25 @@ export default function DynamicComicEditor() {
                     taskId: taskId,
                     status: 'processing'
                 });
-                 await creationApi.updateCreation(currentCreation.uuid, {
+                await creationApi.updateCreation(currentCreation.uuid, {
                     extra_data: taskMetadata as any
                 });
-                 setCreation({ ...currentCreation, extra_data: taskMetadata as any });
-                 toast.success(t('analysisStarted'));
+                setCreation({ ...currentCreation, extra_data: taskMetadata as any });
+                toast.success(t('analysisStarted'));
 
-                 // Start Polling
-                 pollAnalysisTask(taskId, currentCreation.uuid);
+                // Start Polling
+                pollAnalysisTask(taskId, currentCreation.uuid);
             }
 
         } catch (error) {
             console.error("Failed to start analysis", error);
             toast.error(t('error'));
-             // Revert or set to failed
-             const failedMetadata = createUpdatedMetadata(currentCreation, 'characterAnalysis', {
+            // Revert or set to failed
+            const failedMetadata = createUpdatedMetadata(currentCreation, 'characterAnalysis', {
                 status: 'failed',
                 error: 'Failed to start'
             });
-             setCreation({ ...currentCreation, extra_data: failedMetadata as any });
+            setCreation({ ...currentCreation, extra_data: failedMetadata as any });
         }
     };
 
@@ -422,7 +422,7 @@ export default function DynamicComicEditor() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const status = data.data.status;
                     if (status === 'SUCCESS') {
@@ -432,9 +432,9 @@ export default function DynamicComicEditor() {
                         if (creationRes && creationRes.data) {
                             setCreation(creationRes.data);
                             // Update metadata to success
-                              const completedMetadata = createUpdatedMetadata(creationRes.data, 'characterAnalysis', {
-                                 status: 'success'
-                             });
+                            const completedMetadata = createUpdatedMetadata(creationRes.data, 'characterAnalysis', {
+                                status: 'success'
+                            });
                             await creationApi.updateCreation(creationUuid, {
                                 extra_data: completedMetadata as any
                             });
@@ -442,17 +442,17 @@ export default function DynamicComicEditor() {
                     } else if (status === 'FAILURE' || status === 'REVOKED') {
                         toast.error(t('analysisFailed'));
                         // Reload to get latest state
-                         const creationRes = await creationApi.queryCreationById(creationUuid);
-                         if (creationRes && creationRes.data) {
-                             const failedMetadata = createUpdatedMetadata(creationRes.data, 'characterAnalysis', {
+                        const creationRes = await creationApi.queryCreationById(creationUuid);
+                        if (creationRes && creationRes.data) {
+                            const failedMetadata = createUpdatedMetadata(creationRes.data, 'characterAnalysis', {
                                 status: 'failed',
                                 error: data.data.message || 'Task failed'
                             });
-                             await creationApi.updateCreation(creationUuid, {
+                            await creationApi.updateCreation(creationUuid, {
                                 extra_data: failedMetadata as any
                             });
                             setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
-                         }
+                        }
                     } else {
                         // Continue polling
                         setTimeout(checkStatus, 2000);
@@ -467,27 +467,27 @@ export default function DynamicComicEditor() {
 
     const handleAnalyzeScenes = async () => {
         if (!creation) return;
-        
+
         try {
             setIsAnalyzingScenes(true);
             toast.info(t('analyzingScenes'));
-            
+
             // 1. Update local metadata state to 'processing'
             const newMetadata = createUpdatedMetadata(creation, 'sceneAnalysis', {
                 triggered: true,
                 status: 'processing'
             });
-            
+
             // 2. Persist metadata update
             await creationApi.updateCreation(creation.uuid, {
                 extra_data: newMetadata as any
             });
-            
+
             // Update local state
             setCreation({ ...creation, extra_data: newMetadata as any });
 
             const res = await creationApi.generatePlaybook(creation.uuid, "original");
-            
+
             if (res && res.data && res.data.task_id) {
                 const taskId = res.data.task_id;
                 // Update with task_id
@@ -499,7 +499,7 @@ export default function DynamicComicEditor() {
                     extra_data: taskMetadata as any
                 });
                 setCreation(prev => prev ? { ...prev, extra_data: taskMetadata as any } : null);
-                
+
                 toast.success(t('sceneAnalysisStarted'));
                 pollPlaybookTask(taskId, creation.uuid);
             }
@@ -521,7 +521,7 @@ export default function DynamicComicEditor() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const status = data.data.status;
                     if (status === 'SUCCESS') {
@@ -546,13 +546,13 @@ export default function DynamicComicEditor() {
                         const creationRes = await creationApi.queryCreationById(creationUuid);
                         if (creationRes && creationRes.data) {
                             const failedMetadata = createUpdatedMetadata(creationRes.data, 'sceneAnalysis', {
-                               status: 'failed',
-                               error: data.data.message || 'Task failed'
-                           });
+                                status: 'failed',
+                                error: data.data.message || 'Task failed'
+                            });
                             await creationApi.updateCreation(creationUuid, {
-                               extra_data: failedMetadata as any
-                           });
-                           setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
+                                extra_data: failedMetadata as any
+                            });
+                            setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
                         }
                     } else {
                         // Continue polling
@@ -581,7 +581,7 @@ export default function DynamicComicEditor() {
                 toast.success(t('regenerating'));
             }
         } catch (error: any) {
-             toast.error(error.message || t('regenerationFailed'));
+            toast.error(error.message || t('regenerationFailed'));
         }
     };
 
@@ -604,12 +604,12 @@ export default function DynamicComicEditor() {
                 triggered: true,
                 status: 'processing'
             });
-            
+
             // 2. Persist metadata update
             await creationApi.updateCreation(creation.uuid, {
                 extra_data: newMetadata as any
             });
-            
+
             // Update local state
             setCreation({ ...creation, extra_data: newMetadata as any });
 
@@ -630,7 +630,7 @@ export default function DynamicComicEditor() {
                 toast.success(t('generationStarted'));
                 pollSceneImageTask(taskId, creation.uuid);
             } else {
-                 setIsGeneratingSceneImages(false);
+                setIsGeneratingSceneImages(false);
             }
         } catch (error: any) {
             console.error("Failed to start scene image generation", error);
@@ -650,7 +650,7 @@ export default function DynamicComicEditor() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const status = data.data.status;
                     if (status === 'SUCCESS') {
@@ -675,13 +675,13 @@ export default function DynamicComicEditor() {
                         const creationRes = await creationApi.queryCreationById(creationUuid);
                         if (creationRes && creationRes.data) {
                             const failedMetadata = createUpdatedMetadata(creationRes.data, 'sceneImageGeneration', {
-                               status: 'failed',
-                               error: data.data.message || 'Task failed'
-                           });
+                                status: 'failed',
+                                error: data.data.message || 'Task failed'
+                            });
                             await creationApi.updateCreation(creationUuid, {
-                               extra_data: failedMetadata as any
-                           });
-                           setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
+                                extra_data: failedMetadata as any
+                            });
+                            setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
                         }
                     } else {
                         // Continue polling
@@ -699,27 +699,27 @@ export default function DynamicComicEditor() {
     // Shot Logic
     const handleAnalyzeShots = async () => {
         if (!creation) return;
-        
+
         try {
             setIsAnalyzingShots(true);
             toast.info(t('analyzingShots') || "Analyzing Shots...");
-            
+
             // 1. Update local metadata state to 'processing'
             const newMetadata = createUpdatedMetadata(creation, 'shotAnalysis', {
                 triggered: true,
                 status: 'processing'
             });
-            
+
             // 2. Persist metadata update
             await creationApi.updateCreation(creation.uuid, {
                 extra_data: newMetadata as any
             });
-            
+
             // Update local state
             setCreation({ ...creation, extra_data: newMetadata as any });
 
             const res = await creationApi.analyzeShots(creation.uuid);
-            
+
             if (res && res.data && res.data.task_id) {
                 const taskId = res.data.task_id;
                 // Update with task_id
@@ -753,7 +753,7 @@ export default function DynamicComicEditor() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const status = data.data.status;
                     if (status === 'SUCCESS') {
@@ -778,13 +778,13 @@ export default function DynamicComicEditor() {
                         const creationRes = await creationApi.queryCreationById(creationUuid);
                         if (creationRes && creationRes.data) {
                             const failedMetadata = createUpdatedMetadata(creationRes.data, 'shotAnalysis', {
-                               status: 'failed',
-                               error: data.data.message || 'Task failed'
-                           });
+                                status: 'failed',
+                                error: data.data.message || 'Task failed'
+                            });
                             await creationApi.updateCreation(creationUuid, {
-                               extra_data: failedMetadata as any
-                           });
-                           setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
+                                extra_data: failedMetadata as any
+                            });
+                            setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
                         }
                     } else {
                         setTimeout(checkStatus, 2000);
@@ -808,12 +808,12 @@ export default function DynamicComicEditor() {
                 triggered: true,
                 status: 'processing'
             });
-            
+
             // 2. Persist metadata update
             await creationApi.updateCreation(creation.uuid, {
                 extra_data: newMetadata as any
             });
-            
+
             // Update local state
             setCreation({ ...creation, extra_data: newMetadata as any });
 
@@ -834,7 +834,7 @@ export default function DynamicComicEditor() {
                 toast.success(t('generationStarted'));
                 pollShotImageTask(taskId, creation.uuid);
             } else {
-                 setIsGeneratingShotImages(false);
+                setIsGeneratingShotImages(false);
             }
         } catch (error: any) {
             console.error("Failed to start shot image generation", error);
@@ -854,7 +854,7 @@ export default function DynamicComicEditor() {
             try {
                 const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`);
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const status = data.data.status;
                     if (status === 'SUCCESS') {
@@ -878,13 +878,13 @@ export default function DynamicComicEditor() {
                         const creationRes = await creationApi.queryCreationById(creationUuid);
                         if (creationRes && creationRes.data) {
                             const failedMetadata = createUpdatedMetadata(creationRes.data, 'shotImageGeneration', {
-                               status: 'failed',
-                               error: data.data.message || 'Task failed'
-                           });
+                                status: 'failed',
+                                error: data.data.message || 'Task failed'
+                            });
                             await creationApi.updateCreation(creationUuid, {
-                               extra_data: failedMetadata as any
-                           });
-                           setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
+                                extra_data: failedMetadata as any
+                            });
+                            setCreation({ ...creationRes.data, extra_data: failedMetadata as any });
                         }
                     } else {
                         setTimeout(checkStatus, 3000);
@@ -912,7 +912,7 @@ export default function DynamicComicEditor() {
                 toast.success(t('regenerating'));
             }
         } catch (error: any) {
-             toast.error(error.message || t('regenerationFailed'));
+            toast.error(error.message || t('regenerationFailed'));
         }
     };
 
@@ -1081,7 +1081,7 @@ export default function DynamicComicEditor() {
             } else {
                 await shotApi.generateShotVideo(shotUuid, videoModel, data.lastFrameImageUrl);
             }
-            
+
             toast.success(t('videoGenerationStarted'));
             setVideoConfigDialog({ ...videoConfigDialog, isOpen: false });
 
@@ -1603,11 +1603,11 @@ export default function DynamicComicEditor() {
                 // 1. Try to fetch as Creation (UUID)
                 try {
                     // Check if taskId is a valid UUID format (simple check)
-                    if (taskId.length > 20) { 
+                    if (taskId.length > 20) {
                         const creationRes = await creationApi.queryCreationById(taskId);
                         if (creationRes && creationRes.data) {
                             let creationData = creationRes.data;
-                            
+
                             // Metadata Initialization
                             const initializedCreation = ensureMetadata(creationData);
                             // Check if we need to update the backend (deep comparison is expensive, checking if reference changed is enough as ensureMetadata returns new object only if changed)
@@ -1622,7 +1622,7 @@ export default function DynamicComicEditor() {
                                     console.error("Failed to persist metadata initialization", e);
                                 }
                             }
-                            
+
                             setCreation(creationData);
                             setProjectTitle(creationData.title || t('newProject'));
 
@@ -1638,7 +1638,7 @@ export default function DynamicComicEditor() {
                                 const project = convertToTimelineProject(creationData);
                                 importProject(project);
                             }
-                            
+
                             // Check if character analysis is needed
                             // Re-check logic: if triggered but processing/idle, we might need to poll or show processing state
                             const charAnalysisStep = getStepStatus(creationData, 'characterAnalysis');
@@ -1662,7 +1662,7 @@ export default function DynamicComicEditor() {
                                     }, 1000);
                                 }
                             } else if (!hasTriggeredCharacterAnalysis(creationData)) {
-                                 setTimeout(() => {
+                                setTimeout(() => {
                                     toast.info(t('pleaseAnalyzeCharacters'), {
                                         description: t('analyzeCharactersDescription'),
                                         duration: 5000,
@@ -1742,7 +1742,7 @@ export default function DynamicComicEditor() {
     const convertToTimelineProject = (backendResult: any): TimelineProject => {
         // Handle both Creation object (with shots/scenes) and direct shot_data list
         let shots: any[] = [];
-        
+
         if (backendResult.scenes) {
             // Flatten scenes to shots
             shots = backendResult.scenes.flatMap((scene: any) => scene.shots || []);
@@ -1852,7 +1852,7 @@ export default function DynamicComicEditor() {
             }
         }
     };
-    
+
     const handleImagePreview = (url: string) => {
         setPreviewImage(url);
         setIsPreviewOpen(true);
@@ -1860,7 +1860,7 @@ export default function DynamicComicEditor() {
 
     const handleRegenerateSingleCharacter = async (character: ICharacter) => {
         if (!creation?.uuid) return;
-        
+
         const characterUuid = character.uuid || (character.character_id ? String(character.character_id) : '');
         if (!characterUuid) return;
 
@@ -1868,7 +1868,7 @@ export default function DynamicComicEditor() {
             try {
                 const response = await characterApi.regenerateCharacterImage(
                     characterUuid,
-                    creation.extra_data?.visual_style || "anime", 
+                    creation.extra_data?.visual_style || "anime",
                     creation.uuid
                 );
 
@@ -1904,7 +1904,7 @@ export default function DynamicComicEditor() {
         setIsGenerating(true);
 
         try {
-            const characterIds = charactersToGenerate.map(c => 
+            const characterIds = charactersToGenerate.map(c =>
                 c.uuid || (c.character_id ? String(c.character_id) : '')
             ).filter(id => id);
 
@@ -1914,21 +1914,21 @@ export default function DynamicComicEditor() {
                 creation.uuid,
                 false // force_regenerate
             );
-            
+
             // For batch generation, we might want to track a main task or just rely on polling the creation
             // Assuming the API returns a main task ID or we just poll the creation
-             if (response.data && response.data.task_id) {
-                 toast.success(t('generationStarted') || "生成任务已开始");
-                 // Here we could track the main task, but simpler to just poll creation or rely on the polling effect
-                 // However, to show "Generating" state, we might need to know when it finishes.
-                 // For now, let's just set isGenerating to false after a timeout or when creation updates.
-                 // Or better, track the task if possible.
-                 // Since we don't have a dedicated state for "Batch Generation Task", we'll just let the global poller handle updates
-                 // and maybe set a timeout to clear loading state.
-                 setTimeout(() => setIsGenerating(false), 5000); 
-             } else {
-                 setIsGenerating(false);
-             }
+            if (response.data && response.data.task_id) {
+                toast.success(t('generationStarted') || "生成任务已开始");
+                // Here we could track the main task, but simpler to just poll creation or rely on the polling effect
+                // However, to show "Generating" state, we might need to know when it finishes.
+                // For now, let's just set isGenerating to false after a timeout or when creation updates.
+                // Or better, track the task if possible.
+                // Since we don't have a dedicated state for "Batch Generation Task", we'll just let the global poller handle updates
+                // and maybe set a timeout to clear loading state.
+                setTimeout(() => setIsGenerating(false), 5000);
+            } else {
+                setIsGenerating(false);
+            }
 
         } catch (error: any) {
             setIsGenerating(false);
@@ -1941,7 +1941,7 @@ export default function DynamicComicEditor() {
         setIsGenerating(true);
 
         try {
-            const characterIds = charactersToGenerate.map(c => 
+            const characterIds = charactersToGenerate.map(c =>
                 c.uuid || (c.character_id ? String(c.character_id) : '')
             ).filter(id => id);
 
@@ -1953,7 +1953,7 @@ export default function DynamicComicEditor() {
             );
             if (response.data && response.data.task_id) {
                 toast.success(t('regenerating') || "重新生成中...");
-                setTimeout(() => setIsGenerating(false), 5000); 
+                setTimeout(() => setIsGenerating(false), 5000);
             } else {
                 setIsGenerating(false);
             }
@@ -2025,7 +2025,7 @@ export default function DynamicComicEditor() {
                                 return newMap;
                             });
                             // Refresh creation to get new image url
-                             if (creation?.uuid) {
+                            if (creation?.uuid) {
                                 const res = await creationApi.queryCreationById(creation.uuid);
                                 if (res && res.data) {
                                     setCreation(res.data);
@@ -2033,7 +2033,7 @@ export default function DynamicComicEditor() {
                             }
                             toast.success(t('regenerateSceneImageSuccess'));
                         } else if (rawTask.status === TaskStatus.FAILURE) {
-                             setRegeneratingScenes(prev => {
+                            setRegeneratingScenes(prev => {
                                 const newMap = new Map(prev);
                                 newMap.delete(sceneId);
                                 return newMap;
@@ -2072,7 +2072,7 @@ export default function DynamicComicEditor() {
                                 return newMap;
                             });
                             // Refresh creation
-                             if (creation?.uuid) {
+                            if (creation?.uuid) {
                                 const res = await creationApi.queryCreationById(creation.uuid);
                                 if (res && res.data) {
                                     setCreation(res.data);
@@ -2080,7 +2080,7 @@ export default function DynamicComicEditor() {
                             }
                             toast.success(t('regenerateShotImageSuccess'));
                         } else if (rawTask.status === TaskStatus.FAILURE) {
-                             setRegeneratingShots(prev => {
+                            setRegeneratingShots(prev => {
                                 const newMap = new Map(prev);
                                 newMap.delete(shotId);
                                 return newMap;
@@ -2177,17 +2177,17 @@ export default function DynamicComicEditor() {
         return (
             <TooltipProvider>
                 <div className="flex flex-col items-center justify-center h-screen bg-slate-950 text-white">
-                <div className="w-full max-w-md px-8 text-center">
-                    <div className="relative mb-8 flex justify-center">
-                        <Loader2 className="w-16 h-16 animate-spin text-blue-500" />
+                    <div className="w-full max-w-md px-8 text-center">
+                        <div className="relative mb-8 flex justify-center">
+                            <Loader2 className="w-16 h-16 animate-spin text-blue-500" />
+                        </div>
+                        <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            {t('generatingDynamicComic')}
+                        </h2>
+                        <p className="text-slate-400 mb-8 whitespace-pre-wrap min-h-[3em]">
+                            {statusMessage}
+                        </p>
                     </div>
-                    <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                        {t('generatingDynamicComic')}
-                    </h2>
-                    <p className="text-slate-400 mb-8 whitespace-pre-wrap min-h-[3em]">
-                        {statusMessage}
-                    </p>
-                </div>
                 </div>
             </TooltipProvider>
         );
@@ -2211,702 +2211,702 @@ export default function DynamicComicEditor() {
         <TooltipProvider>
             <div className="h-screen w-full flex flex-col bg-slate-950 font-sans text-slate-200">
                 {/* Header */}
-            <div className="h-14 bg-slate-900 border-b border-slate-800 px-4 pl-16 flex items-center justify-between shrink-0 z-20">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => router.back()}
-                        className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400"
-                    >
-                        <ChevronLeft size={20} />
-                    </button>
-                    <div>
-                        {isEditingTitle ? (
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    value={projectTitle}
-                                    onChange={(e) => setProjectTitle(e.target.value)}
-                                    className="h-7 text-sm bg-slate-800 border-slate-700 text-white w-64"
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') handleTitleSave();
-                                        if (e.key === 'Escape') {
-                                            setProjectTitle(creation?.title || t('newProject'));
-                                            setIsEditingTitle(false);
+                <div className="h-14 bg-slate-900 border-b border-slate-800 px-4 pl-16 flex items-center justify-between shrink-0 z-20">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => router.back()}
+                            className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400"
+                        >
+                            <ChevronLeft size={20} />
+                        </button>
+                        <div>
+                            {isEditingTitle ? (
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        value={projectTitle}
+                                        onChange={(e) => setProjectTitle(e.target.value)}
+                                        className="h-7 text-sm bg-slate-800 border-slate-700 text-white w-64"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') handleTitleSave();
+                                            if (e.key === 'Escape') {
+                                                setProjectTitle(creation?.title || t('newProject'));
+                                                setIsEditingTitle(false);
+                                            }
+                                        }}
+                                        autoFocus
+                                        onBlur={handleTitleSave}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="group flex items-center gap-2 cursor-pointer" onClick={() => setIsEditingTitle(true)}>
+                                    <h1 className="text-sm font-bold text-white tracking-tight">{projectTitle}</h1>
+                                    <Pencil size={12} className="text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                            )}
+                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">Dynamic Comic Editor</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {/* Aspect Ratio Selector */}
+                        <div className="flex items-center bg-slate-800/50 border border-slate-700 rounded-md px-1 h-8">
+                            <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
+                                <SelectTrigger className="border-0 bg-transparent hover:bg-slate-700/50 focus:ring-0 focus:ring-offset-0 text-slate-300 text-xs h-7 gap-2 px-2">
+                                    <div className="flex items-center gap-1.5">
+                                        {aspectRatio === "16:9" ? <Monitor size={12} className="text-blue-400" /> : <Smartphone size={12} className="text-blue-400" />}
+                                        <SelectValue />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent className="bg-slate-900 border-slate-800 text-white min-w-[120px]">
+                                    <SelectItem value="16:9" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
+                                        <div className="flex items-center gap-2">
+                                            <Monitor size={12} className="text-slate-400" />
+                                            <span>{t('landscape') || '横版 (16:9)'}</span>
+                                        </div>
+                                    </SelectItem>
+                                    <SelectItem value="9:16" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
+                                        <div className="flex items-center gap-2">
+                                            <Smartphone size={12} className="text-slate-400" />
+                                            <span>{t('portrait') || '竖版 (9:16)'}</span>
+                                        </div>
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Model Settings Button */}
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-slate-700 hover:bg-slate-800 text-slate-300 text-xs h-8 gap-2"
+                            onClick={() => setShowModelSettings(true)}
+                        >
+                            <Settings size={14} className="text-blue-400" />
+                            {t('modelSettings') || '模型设置'}
+                        </Button>
+
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-blue-600/50 hover:bg-blue-900/30 text-blue-400 text-xs h-8 gap-2"
+                            onClick={() => setShowUsageGuide(true)}
+                        >
+                            <HelpCircle size={14} />
+                            {t('usageGuide')}
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className={cn(
+                                "border-slate-700 hover:bg-slate-800 text-slate-300 text-xs h-8 gap-2",
+                                saveStatus === 'saving' && "text-blue-400 border-blue-700/50",
+                                saveStatus === 'unsaved' && "text-amber-400 border-amber-700/50"
+                            )}
+                            onClick={handleSave}
+                            disabled={saveStatus === 'saving'}
+                        >
+                            {saveStatus === 'saving' ? (
+                                <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                                <Save size={14} />
+                            )}
+                            {saveStatus === 'saving' ? '保存中...' : '保存'}
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-purple-600/50 hover:bg-purple-900/30 text-purple-400 text-xs h-8 gap-2"
+                            onClick={() => setShowExportPreviewDialog(true)}
+                        >
+                            <History size={14} />
+                            导出历史
+                        </Button>
+                        <Button
+                            size="sm"
+                            className={cn(
+                                "text-white text-xs h-8 gap-2",
+                                exportProgress
+                                    ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+                                    : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                            )}
+                            onClick={() => setShowExportTriggerDialog(true)}
+                        >
+                            {exportProgress ? (
+                                <>
+                                    <Loader2 size={14} className="animate-spin" />
+                                    <span>导出中 {exportProgress.percent}%</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Download size={14} />
+                                    导出视频
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Main Workspace */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Top Section: Preview & Properties */}
+                    <div className="flex-1 flex min-h-0">
+                        {/* Preview Area (Left) */}
+                        <div className="flex-1 bg-black flex items-center justify-center relative border-r border-slate-800">
+                            <VideoPreview />
+                        </div>
+
+                        {/* Properties Panel (Right) */}
+                        <div className="w-[40%] bg-slate-900 flex flex-col border-l border-slate-800 shrink-0">
+                            <div className="p-2">
+                                <CustomTabs
+                                    value={activeTab}
+                                    onValueChange={setActiveTab}
+                                    variant="segmented"
+                                    items={[
+                                        {
+                                            value: "characters",
+                                            label: <div className="flex items-center gap-2"><User size={14} /><span>{t('characters')}</span></div>,
+                                            content: null
+                                        },
+                                        {
+                                            value: "scenes",
+                                            label: <div className="flex items-center gap-2"><LucideMap size={14} /><span>{t('scenes')}</span></div>,
+                                            content: null
+                                        },
+                                        {
+                                            value: "shots",
+                                            label: <div className="flex items-center gap-2"><ImageIcon size={14} /><span>{t('shots')}</span></div>,
+                                            content: null
+                                        },
+                                        {
+                                            value: "assets",
+                                            label: <div className="flex items-center gap-2"><FolderOpen size={14} /><span>素材</span></div>,
+                                            content: null
                                         }
-                                    }}
-                                    autoFocus
-                                    onBlur={handleTitleSave}
+                                    ]}
+                                    className="w-full"
                                 />
                             </div>
-                        ) : (
-                            <div className="group flex items-center gap-2 cursor-pointer" onClick={() => setIsEditingTitle(true)}>
-                                <h1 className="text-sm font-bold text-white tracking-tight">{projectTitle}</h1>
-                                <Pencil size={12} className="text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                        )}
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest">Dynamic Comic Editor</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-3">
-                    {/* Aspect Ratio Selector */}
-                    <div className="flex items-center bg-slate-800/50 border border-slate-700 rounded-md px-1 h-8">
-                        <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
-                            <SelectTrigger className="border-0 bg-transparent hover:bg-slate-700/50 focus:ring-0 focus:ring-offset-0 text-slate-300 text-xs h-7 gap-2 px-2">
-                                <div className="flex items-center gap-1.5">
-                                    {aspectRatio === "16:9" ? <Monitor size={12} className="text-blue-400" /> : <Smartphone size={12} className="text-blue-400" />}
-                                    <SelectValue />
-                                </div>
-                            </SelectTrigger>
-                            <SelectContent className="bg-slate-900 border-slate-800 text-white min-w-[120px]">
-                                <SelectItem value="16:9" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
-                                    <div className="flex items-center gap-2">
-                                        <Monitor size={12} className="text-slate-400" />
-                                        <span>{t('landscape') || '横版 (16:9)'}</span>
-                                    </div>
-                                </SelectItem>
-                                <SelectItem value="9:16" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
-                                    <div className="flex items-center gap-2">
-                                        <Smartphone size={12} className="text-slate-400" />
-                                        <span>{t('portrait') || '竖版 (9:16)'}</span>
-                                    </div>
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
 
-                    {/* Model Settings Button */}
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-700 hover:bg-slate-800 text-slate-300 text-xs h-8 gap-2"
-                        onClick={() => setShowModelSettings(true)}
-                    >
-                        <Settings size={14} className="text-blue-400" />
-                        {t('modelSettings') || '模型设置'}
-                    </Button>
+                            <ScrollArea className="flex-1">
+                                <div className="p-4 space-y-2">
+                                    {activeTab === "characters" && (
+                                        <>
+                                            {/* Character Analysis Processing Indicator */}
+                                            {(() => {
+                                                if (!creation) return null;
+                                                const step = getStepStatus(creation, 'characterAnalysis');
+                                                const isCharacterAnalysisProcessing = step?.status === 'processing' || step?.status === 'pending';
+                                                const hasNoCharacters = !!creation?.characters && creation.characters.length === 0;
 
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-blue-600/50 hover:bg-blue-900/30 text-blue-400 text-xs h-8 gap-2"
-                        onClick={() => setShowUsageGuide(true)}
-                    >
-                        <HelpCircle size={14} />
-                        {t('usageGuide')}
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className={cn(
-                            "border-slate-700 hover:bg-slate-800 text-slate-300 text-xs h-8 gap-2",
-                            saveStatus === 'saving' && "text-blue-400 border-blue-700/50",
-                            saveStatus === 'unsaved' && "text-amber-400 border-amber-700/50"
-                        )}
-                        onClick={handleSave}
-                        disabled={saveStatus === 'saving'}
-                    >
-                        {saveStatus === 'saving' ? (
-                            <Loader2 size={14} className="animate-spin" />
-                        ) : (
-                            <Save size={14} />
-                        )}
-                        {saveStatus === 'saving' ? '保存中...' : '保存'}
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-purple-600/50 hover:bg-purple-900/30 text-purple-400 text-xs h-8 gap-2"
-                        onClick={() => setShowExportPreviewDialog(true)}
-                    >
-                        <History size={14} />
-                        导出历史
-                    </Button>
-                    <Button
-                        size="sm"
-                        className={cn(
-                            "text-white text-xs h-8 gap-2",
-                            exportProgress
-                                ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                                : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                        )}
-                        onClick={() => setShowExportTriggerDialog(true)}
-                    >
-                        {exportProgress ? (
-                            <>
-                                <Loader2 size={14} className="animate-spin" />
-                                <span>导出中 {exportProgress.percent}%</span>
-                            </>
-                        ) : (
-                            <>
-                                <Download size={14} />
-                                导出视频
-                            </>
-                        )}
-                    </Button>
-                </div>
-            </div>
-
-            {/* Main Workspace */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-                {/* Top Section: Preview & Properties */}
-                <div className="flex-1 flex min-h-0">
-                    {/* Preview Area (Left) */}
-                    <div className="flex-1 bg-black flex items-center justify-center relative border-r border-slate-800">
-                        <VideoPreview />
-                    </div>
-
-                    {/* Properties Panel (Right) */}
-                    <div className="w-[40%] bg-slate-900 flex flex-col border-l border-slate-800 shrink-0">
-                        <div className="p-2">
-                            <CustomTabs
-                                value={activeTab}
-                                onValueChange={setActiveTab}
-                                variant="segmented"
-                                items={[
-                                    {
-                                        value: "characters",
-                                        label: <div className="flex items-center gap-2"><User size={14} /><span>{t('characters')}</span></div>,
-                                        content: null
-                                    },
-                                    {
-                                        value: "scenes",
-                                        label: <div className="flex items-center gap-2"><LucideMap size={14} /><span>{t('scenes')}</span></div>,
-                                        content: null
-                                    },
-                                    {
-                                        value: "shots",
-                                        label: <div className="flex items-center gap-2"><ImageIcon size={14} /><span>{t('shots')}</span></div>,
-                                        content: null
-                                    },
-                                    {
-                                        value: "assets",
-                                        label: <div className="flex items-center gap-2"><FolderOpen size={14} /><span>素材</span></div>,
-                                        content: null
-                                    }
-                                ]}
-                                className="w-full"
-                            />
-                        </div>
-                        
-                        <ScrollArea className="flex-1">
-                            <div className="p-4 space-y-2">
-                                {activeTab === "characters" && (
-                                    <>
-                                        {/* Character Analysis Processing Indicator */}
-                                        {(() => {
-                                            if (!creation) return null;
-                                            const step = getStepStatus(creation, 'characterAnalysis');
-                                            const isCharacterAnalysisProcessing = step?.status === 'processing' || step?.status === 'pending';
-                                            const hasNoCharacters = !!creation?.characters && creation.characters.length === 0;
-                                            
-                                            if (isCharacterAnalysisProcessing) {
-                                                return (
-                                                    <div className={cn(
-                                                        "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
-                                                        hasNoCharacters ? "py-12" : "py-4"
-                                                    )}>
-                                                        <div className={cn("bg-slate-800/50 rounded-full", hasNoCharacters ? "p-4" : "p-2")}>
-                                                            <Loader2 size={hasNoCharacters ? 28 : 16} className="text-blue-500 animate-spin" />
-                                                        </div>
-                                                        <div className="text-center space-y-1">
-                                                            <p className={cn("text-slate-300 font-medium", hasNoCharacters ? "text-base" : "text-sm")}>
-                                                                {t('analyzingCharacters')}
-                                                                {step.status === 'failed' && step.error === 'timeout' && ` (${t('timeout') || '超时'})`}
-                                                            </p>
-                                                            {hasNoCharacters && (
-                                                                <p className="text-slate-600 text-xs max-w-[260px] mx-auto">{t('analyzeCharactersDescription')}</p>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        })()}
-                                        
-                                        {/* Character Image Generation Indicator */}
-                                        {(() => {
-                                            if (!creation) return null;
-                                            const step = getStepStatus(creation, 'characterImageGeneration');
-                                            const isProcessing = step?.status === 'processing' || step?.status === 'pending';
-                                            if (isProcessing) {
-                                                return (
-                                                    <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
-                                                        <div className="p-2 bg-slate-800/50 rounded-full">
-                                                            <Loader2 size={16} className="text-orange-500 animate-spin" />
-                                                        </div>
-                                                        <p className="text-slate-300 text-sm font-medium">{t('generatingCharacters') || '角色生成中...'}</p>
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        })()}
-
-                                        {/* Generate All Button */}
-                                        {creation?.characters && creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").length > 0 && (
-                                            <div className="mb-4 flex gap-2">
-                                                <Button
-                                                    onClick={() => gengerateCharacterImages(creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== ""))}
-                                                    disabled={isGenerating || (creation && getStepStatus(creation, 'characterImageGeneration').status === 'processing')}
-                                                    className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white text-xs h-8 shadow-lg shadow-orange-500/20"
-                                                    size="sm"
-                                                >
-                                                    <WandSparkles className="w-3 h-3 mr-2" />
-                                                    {isGenerating ? t('generating') : t('generateAllImages')}
-                                                </Button>
-                                                {/* Re-analyze Button: With text and smaller than Generate All */}
-                                                {creation.characters.length > 0 && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        disabled={isGenerating || (creation && getStepStatus(creation, 'characterAnalysis').status === 'processing')}
-                                                        className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
-                                                        onClick={() => {
-                                                            setConfirmDialog({
-                                                                open: true,
-                                                                title: t('reanalyzeConfirmTitle'),
-                                                                description: t('reanalyzeConfirmDesc'),
-                                                                onConfirm: () => creation && handleAnalyzeCharacters(creation),
-                                                                variant: 'destructive'
-                                                            });
-                                                        }}
-                                                    >
-                                                        {(() => {
-                                                            const step = creation && getStepStatus(creation, 'characterAnalysis');
-                                                            const isAnalyzing = step?.status === 'processing' || step?.status === 'pending';
-                                                            return isAnalyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />;
-                                                        })()}
-                                                        {t('reanalyzeCharacters')}
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Appearance Characters */}
-                                        {creation?.characters && creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").length > 0 && (
-                                            <div className="space-y-2 mb-6">
-                                                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 px-1">
-                                                    <User size={10} />
-                                                    {t('appearanceCharacters')}
-                                                </h3>
-                                                <div className="grid grid-cols-3 gap-2">
-                                                    {creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").map((char: ICharacter) => (
-                                                        <Card key={char.uuid || char.character_id} className="bg-slate-800/40 border-slate-800 hover:bg-slate-800/60 hover:border-slate-700 transition-all group overflow-hidden flex flex-col relative">
-                                                            {/* Avatar / Image (Optimized for 3-column grid, landscape, adaptive height) */}
-                                                            <div className="w-full h-auto shrink-0 bg-slate-800 relative group-hover:border-slate-600 transition-colors">
-                                                                {regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating' ? (
-                                                                    <div className={cn(
-                                                                        "w-full flex items-center justify-center bg-slate-900/50",
-                                                                        aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-[16/9]"
-                                                                    )}>
-                                                                        <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
-                                                                    </div>
-                                                                ) : char.image_url ? (
-                                                                    <div className="relative w-full h-auto group/image">
-                                                                        <img 
-                                                                            src={char.image_url} 
-                                                                            alt={char.name} 
-                                                                            className="w-full h-auto object-contain bg-slate-900/30 cursor-pointer hover:scale-105 transition-transform duration-500 block"
-                                                                            onClick={() => handleImagePreview(char.image_url!)}
-                                                                        />
-                                                                        {/* Hover Actions Overlay */}
-                                                                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center justify-center gap-2">
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
-                                                                                onClick={() => handleImagePreview(char.image_url!)}
-                                                                                title={t('preview')}
-                                                                            >
-                                                                                <Maximize2 size={14} />
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
-                                                                                onClick={() => handleEditCharacter(char)}
-                                                                                title={t('edit')}
-                                                                            >
-                                                                                <PenLine size={14} />
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-7 w-7 text-orange-400 hover:bg-orange-500/20 rounded-full"
-                                                                                onClick={() => handleRegenerateSingleCharacter(char)}
-                                                                                disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
-                                                                                title={t('regenerate')}
-                                                                            >
-                                                                                <RotateCcw size={14} className={(regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating') ? "animate-spin" : ""} />
-                                                                            </Button>
-                                                                        </div>
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-900/50">
-                                                                        <ImageIcon size={14} className="opacity-30" />
-                                                                    </div>
+                                                if (isCharacterAnalysisProcessing) {
+                                                    return (
+                                                        <div className={cn(
+                                                            "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
+                                                            hasNoCharacters ? "py-12" : "py-4"
+                                                        )}>
+                                                            <div className={cn("bg-slate-800/50 rounded-full", hasNoCharacters ? "p-4" : "p-2")}>
+                                                                <Loader2 size={hasNoCharacters ? 28 : 16} className="text-blue-500 animate-spin" />
+                                                            </div>
+                                                            <div className="text-center space-y-1">
+                                                                <p className={cn("text-slate-300 font-medium", hasNoCharacters ? "text-base" : "text-sm")}>
+                                                                    {t('analyzingCharacters')}
+                                                                    {step.status === 'failed' && step.error === 'timeout' && ` (${t('timeout') || '超时'})`}
+                                                                </p>
+                                                                {hasNoCharacters && (
+                                                                    <p className="text-slate-600 text-xs max-w-[260px] mx-auto">{t('analyzeCharactersDescription')}</p>
                                                                 )}
                                                             </div>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
 
-                                                            {/* Bottom Info (Minimal) */}
-                                                            <div className="p-1 bg-slate-900/80 backdrop-blur-sm absolute bottom-0 left-0 right-0 border-t border-slate-800/50">
-                                                                <p className="text-[9px] text-slate-300 truncate text-center font-medium">{char.name}</p>
+                                            {/* Character Image Generation Indicator */}
+                                            {(() => {
+                                                if (!creation) return null;
+                                                const step = getStepStatus(creation, 'characterImageGeneration');
+                                                const isProcessing = step?.status === 'processing' || step?.status === 'pending';
+                                                if (isProcessing) {
+                                                    return (
+                                                        <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
+                                                            <div className="p-2 bg-slate-800/50 rounded-full">
+                                                                <Loader2 size={16} className="text-orange-500 animate-spin" />
                                                             </div>
-                                                        </Card>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Voice Characters */}
-                                        {creation?.characters && creation.characters.filter((c: ICharacter) => c.body === null || c.body === "").length > 0 && (
-                                            <div className="space-y-2 pt-2 border-t border-slate-800/50">
-                                                <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 px-1">
-                                                    <Volume2 size={10} />
-                                                    {t('voiceCharacters')}
-                                                </h3>
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
-                                                    {creation.characters.filter((c: ICharacter) => c.body === null || c.body === "").map((char: ICharacter) => (
-                                                        <Card key={char.uuid || char.character_id} className="bg-slate-900/30 border-slate-800/50 hover:bg-slate-900/50 hover:border-blue-900/30 transition-all p-2">
-                                                            <div className="flex gap-2.5 items-center">
-                                                                {/* Icon */}
-                                                                <div className="w-8 h-8 shrink-0 rounded-full bg-blue-500/5 flex items-center justify-center text-blue-400/80 border border-blue-500/10">
-                                                                    <Volume2 size={12} />
-                                                                </div>
-
-                                                                {/* Info */}
-                                                                <div className="flex-1 min-w-0">
-                                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                                        <h4 className="font-medium text-slate-300 text-xs truncate leading-none">{char.name}</h4>
-                                                                        <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5 bg-blue-500/5 text-blue-400/70 hover:bg-blue-500/10 font-normal">
-                                                                            {t('voice')}
-                                                                        </Badge>
-                                                                    </div>
-                                                                    <p className="text-[10px] text-slate-500 line-clamp-1 truncate leading-tight">
-                                                                        {char.voice_description || t('noVoiceDescription')}
-                                                                    </p>
-                                                                </div>
-
-                                                                {/* Edit */}
-                                                                <Button 
-                                                                    variant="ghost" 
-                                                                    size="icon" 
-                                                                    className="h-6 w-6 text-slate-600 hover:text-slate-300 hover:bg-slate-800/50 rounded-full"
-                                                                    onClick={() => handleEditCharacter(char)}
-                                                                >
-                                                                    <PenLine size={12} />
-                                                                </Button>
-                                                            </div>
-                                                        </Card>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Fallback Empty State */}
-                                        {(() => {
-                                            const isCharacterAnalysisProcessing = creation && getStepStatus(creation, 'characterAnalysis').status === 'processing';
-                                            const hasNoCharacters = !!creation?.characters && creation.characters.length === 0;
-                                            if (!hasNoCharacters) return null;
-                                            if (isCharacterAnalysisProcessing) return null;
-                                            return (
-                                            <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                                <div className="p-4 bg-slate-800/50 rounded-full">
-                                                    <User size={32} className="text-slate-600" />
-                                                </div>
-                                                <div className="text-center space-y-1">
-                                                    <p className="text-slate-400 font-medium">{t('noCharacterData')}</p>
-                                                    <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeCharactersDescription')}</p>
-                                                </div>
-                                                <Button 
-                                                    size="sm" 
-                                                    onClick={() => creation && handleAnalyzeCharacters(creation)}
-                                                    className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
-                                                >
-                                                    <Sparkles size={14} />
-                                                    {t('analyzeCharacters')}
-                                                </Button>
-                                            </div>
-                                            );
-                                        })()}
-                                        
-                                        {/* Edit Modal */}
-                                        {editingCharacter && (
-                                            <CharacterEditModal 
-                                                isOpen={isEditModalOpen}
-                                                onClose={() => setIsEditModalOpen(false)}
-                                                character={editingCharacter}
-                                                onSuccess={handleCharacterUpdateSuccess}
-                                            />
-                                        )}
-                                        
-                                        {/* Image Preview Modal */}
-                                        <ImagePreview 
-                                            open={isPreviewOpen} 
-                                            onOpenChange={setIsPreviewOpen} 
-                                            src={previewImage || ""} 
-                                        />
-                                    </>
-                                )}
-
-                                {activeTab === "scenes" && (
-                                    <>
-                                        {/* Scene Analysis/Generation Processing Indicators */}
-                                        {(() => {
-                                            if (!creation) return null;
-                                            const analysisStep = getStepStatus(creation, 'sceneAnalysis');
-                                            const imageStep = getStepStatus(creation, 'sceneImageGeneration');
-                                            const isAnalyzing = analysisStep?.status === 'processing' || analysisStep?.status === 'pending';
-                                            const isGenerating = imageStep?.status === 'processing' || imageStep?.status === 'pending';
-                                            const hasNoScenes = !creation?.scenes || creation.scenes.length === 0;
-
-                                            if (isAnalyzing || (isGenerating && hasNoScenes)) {
-                                                return (
-                                                    <div className={cn(
-                                                        "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
-                                                        hasNoScenes ? "py-12" : "py-4"
-                                                    )}>
-                                                        <div className={cn("bg-slate-800/50 rounded-full", hasNoScenes ? "p-4" : "p-2")}>
-                                                            <Loader2 size={hasNoScenes ? 32 : 16} className={cn("animate-spin", isAnalyzing ? "text-blue-500" : "text-orange-500")} />
+                                                            <p className="text-slate-300 text-sm font-medium">{t('generatingCharacters') || '角色生成中...'}</p>
                                                         </div>
-                                                        <div className="text-center space-y-1">
-                                                            <p className={cn("text-slate-300 font-medium", hasNoScenes ? "text-base" : "text-sm")}>
-                                                                {isAnalyzing ? t('analyzingScenes') : t('generatingSceneImages') || '场景图生成中...'}
-                                                                {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout') || '超时'})`}
-                                                            </p>
-                                                            {hasNoScenes && (
-                                                                <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }
-                                            
-                                            if (isGenerating && !hasNoScenes) {
-                                                return (
-                                                    <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
-                                                        <div className="p-2 bg-slate-800/50 rounded-full">
-                                                            <Loader2 size={16} className="text-orange-500 animate-spin" />
-                                                        </div>
-                                                        <p className="text-slate-300 text-sm font-medium">{t('generatingSceneImages') || '场景图生成中...'}</p>
-                                                    </div>
-                                                );
-                                            }
-                                            return null;
-                                        })()}
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
 
-                                        {/* Empty State / Parse Button */}
-                                        {(!creation?.scenes || creation.scenes.length === 0) && !isAnalyzingScenes && (creation && getStepStatus(creation, 'sceneAnalysis').status !== 'processing') && (
-                                            <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                                <div className="p-4 bg-slate-800/50 rounded-full">
-                                                    <LucideMap size={32} className="text-slate-600" />
-                                                </div>
-                                                <div className="text-center space-y-1">
-                                                    <p className="text-slate-400 font-medium">{t('noSceneData')}</p>
-                                                    <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
-                                                </div>
-                                                <Button 
-                                                    size="sm" 
-                                                    onClick={handleAnalyzeScenes}
-                                                    disabled={isAnalyzingScenes}
-                                                    className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
-                                                >
-                                                    {isAnalyzingScenes ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
-                                                    {isAnalyzingScenes ? t('analyzingScenes') : t('analyzeScenes')}
-                                                </Button>
-                                            </div>
-                                        )}
-
-                                        {/* Scene List */}
-                                        {creation?.scenes && creation.scenes.length > 0 && (
-                                            <div className="space-y-2">
-                                                {/* Generate All Scenes Button */}
-                                                 <div className="mb-4 flex gap-2">
+                                            {/* Generate All Button */}
+                                            {creation?.characters && creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").length > 0 && (
+                                                <div className="mb-4 flex gap-2">
                                                     <Button
-                                                        onClick={handleGenerateSceneImages}
-                                                        disabled={isGeneratingSceneImages || (creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing')}
-                                                        className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white text-xs h-8 shadow-lg shadow-blue-500/20"
+                                                        onClick={() => gengerateCharacterImages(creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== ""))}
+                                                        disabled={isGenerating || (creation && getStepStatus(creation, 'characterImageGeneration').status === 'processing')}
+                                                        className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white text-xs h-8 shadow-lg shadow-orange-500/20"
                                                         size="sm"
                                                     >
                                                         <WandSparkles className="w-3 h-3 mr-2" />
-                                                        {isGeneratingSceneImages ? t('generating') : t('generateAllSceneImages')}
+                                                        {isGenerating ? t('generating') : t('generateAllImages')}
                                                     </Button>
                                                     {/* Re-analyze Button: With text and smaller than Generate All */}
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        disabled={isGeneratingSceneImages || isAnalyzingScenes || (creation && getStepStatus(creation, 'sceneAnalysis').status === 'processing')}
-                                                        className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
-                                                        onClick={() => {
-                                                            setConfirmDialog({
-                                                                open: true,
-                                                                title: t('reanalyzeScenesConfirmTitle'),
-                                                                description: t('reanalyzeScenesConfirmDesc'),
-                                                                onConfirm: handleAnalyzeScenes,
-                                                                variant: 'destructive'
-                                                            });
-                                                        }}
-                                                    >
-                                                        {isAnalyzingScenes ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
-                                                        {t('reanalyzeScenes')}
-                                                    </Button>
+                                                    {creation.characters.length > 0 && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            disabled={isGenerating || (creation && getStepStatus(creation, 'characterAnalysis').status === 'processing')}
+                                                            className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
+                                                            onClick={() => {
+                                                                setConfirmDialog({
+                                                                    open: true,
+                                                                    title: t('reanalyzeConfirmTitle'),
+                                                                    description: t('reanalyzeConfirmDesc'),
+                                                                    onConfirm: () => creation && handleAnalyzeCharacters(creation),
+                                                                    variant: 'destructive'
+                                                                });
+                                                            }}
+                                                        >
+                                                            {(() => {
+                                                                const step = creation && getStepStatus(creation, 'characterAnalysis');
+                                                                const isAnalyzing = step?.status === 'processing' || step?.status === 'pending';
+                                                                return isAnalyzing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />;
+                                                            })()}
+                                                            {t('reanalyzeCharacters')}
+                                                        </Button>
+                                                    )}
                                                 </div>
+                                            )}
 
-                                                {creation.scenes.map((scene: any, idx: number) => (
-                                                    <div 
-                                                        key={scene.uuid || scene.scene_id}
-                                                        onClick={() => setEditingScene(scene)}
-                                                    >
-                                                        <div className="group flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative">
-                                                            <div className={cn(
-                                                                "rounded bg-slate-700 overflow-hidden shrink-0 relative",
-                                                                aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-9"
-                                                            )}>
-                                                                {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating' ? (
-                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
-                                                                        <Loader2 className="w-3.5 h-3.5 text-orange-500 animate-spin mb-0.5" />
-                                                                        <span className="text-[8px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
-                                                                    </div>
-                                                                ) : scene.image_url ? (
-                                                                    <img src={scene.image_url} alt={scene.title} className="w-full h-full object-cover" />
-                                                                ) : (
-                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 text-slate-600">
-                                                                        <LucideMap size={16} className="opacity-50 mb-0.5" />
-                                                                        <span className="text-[8px] opacity-50 scale-90">
-                                                                            {(creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="text-sm font-medium text-slate-200 truncate">{t('sceneIndex', { index: idx + 1 })}: {scene.location}</div>
-                                                                    {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) && (
-                                                                        <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
-                                                                            {tC('generating')}
-                                                                        </Badge>
+                                            {/* Appearance Characters */}
+                                            {creation?.characters && creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").length > 0 && (
+                                                <div className="space-y-2 mb-6">
+                                                    <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 px-1">
+                                                        <User size={10} />
+                                                        {t('appearanceCharacters')}
+                                                    </h3>
+                                                    <div className="grid grid-cols-3 gap-2">
+                                                        {creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").map((char: ICharacter) => (
+                                                            <Card key={char.uuid || char.character_id} className="bg-slate-800/40 border-slate-800 hover:bg-slate-800/60 hover:border-slate-700 transition-all group overflow-hidden flex flex-col relative">
+                                                                {/* Avatar / Image (Optimized for 3-column grid, landscape, adaptive height) */}
+                                                                <div className="w-full h-auto shrink-0 bg-slate-800 relative group-hover:border-slate-600 transition-colors">
+                                                                    {regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating' ? (
+                                                                        <div className={cn(
+                                                                            "w-full flex items-center justify-center bg-slate-900/50",
+                                                                            aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-[16/9]"
+                                                                        )}>
+                                                                            <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                                                                        </div>
+                                                                    ) : char.image_url ? (
+                                                                        <div className="relative w-full h-auto group/image">
+                                                                            <img
+                                                                                src={char.image_url}
+                                                                                alt={char.name}
+                                                                                className="w-full h-auto object-contain bg-slate-900/30 cursor-pointer hover:scale-105 transition-transform duration-500 block"
+                                                                                onClick={() => handleImagePreview(char.image_url!)}
+                                                                            />
+                                                                            {/* Hover Actions Overlay */}
+                                                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center justify-center gap-2">
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
+                                                                                    onClick={() => handleImagePreview(char.image_url!)}
+                                                                                    title={t('preview')}
+                                                                                >
+                                                                                    <Maximize2 size={14} />
+                                                                                </Button>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
+                                                                                    onClick={() => handleEditCharacter(char)}
+                                                                                    title={t('edit')}
+                                                                                >
+                                                                                    <PenLine size={14} />
+                                                                                </Button>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className="h-7 w-7 text-orange-400 hover:bg-orange-500/20 rounded-full"
+                                                                                    onClick={() => handleRegenerateSingleCharacter(char)}
+                                                                                    disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
+                                                                                    title={t('regenerate')}
+                                                                                >
+                                                                                    <RotateCcw size={14} className={(regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating') ? "animate-spin" : ""} />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-900/50">
+                                                                            <ImageIcon size={14} className="opacity-30" />
+                                                                        </div>
                                                                     )}
                                                                 </div>
-                                                                <div className="text-xs text-slate-500 truncate">{scene.atmosphere} | {scene.time_setting}</div>
-                                                            </div>
-                                                            
-                                                            {/* Hover Actions */}
-                                                            <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/80 p-1 rounded-md backdrop-blur-sm">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleRegenerateSceneImage(scene.uuid || String(scene.scene_id));
-                                                                    }}
-                                                                    disabled={regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating'}
-                                                                    title={t('regenerate')}
-                                                                >
-                                                                    <RotateCcw size={12} className={(regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating') ? "animate-spin" : ""} />
-                                                                </Button>
-                                                            </div>
-                                                        </div>
+
+                                                                {/* Bottom Info (Minimal) */}
+                                                                <div className="p-1 bg-slate-900/80 backdrop-blur-sm absolute bottom-0 left-0 right-0 border-t border-slate-800/50">
+                                                                    <p className="text-[9px] text-slate-300 truncate text-center font-medium">{char.name}</p>
+                                                                </div>
+                                                            </Card>
+                                                        ))}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        )}
+                                                </div>
+                                            )}
 
-                                        {editingScene && (
-                                            <SceneEditModal
-                                                isOpen={!!editingScene}
-                                                onClose={() => setEditingScene(null)}
-                                                scene={editingScene}
-                                                onSuccess={handleSceneUpdateSuccess}
-                                                onRegenerateImage={handleRegenerateSceneImage}
-                                                isRegenerating={regeneratingScenes.has(editingScene.uuid || String(editingScene.scene_id))}
-                                                aspectRatio={aspectRatio}
-                                            />
-                                        )}
-                                    </>
-                                )}
+                                            {/* Voice Characters */}
+                                            {creation?.characters && creation.characters.filter((c: ICharacter) => c.body === null || c.body === "").length > 0 && (
+                                                <div className="space-y-2 pt-2 border-t border-slate-800/50">
+                                                    <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 px-1">
+                                                        <Volume2 size={10} />
+                                                        {t('voiceCharacters')}
+                                                    </h3>
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
+                                                        {creation.characters.filter((c: ICharacter) => c.body === null || c.body === "").map((char: ICharacter) => (
+                                                            <Card key={char.uuid || char.character_id} className="bg-slate-900/30 border-slate-800/50 hover:bg-slate-900/50 hover:border-blue-900/30 transition-all p-2">
+                                                                <div className="flex gap-2.5 items-center">
+                                                                    {/* Icon */}
+                                                                    <div className="w-8 h-8 shrink-0 rounded-full bg-blue-500/5 flex items-center justify-center text-blue-400/80 border border-blue-500/10">
+                                                                        <Volume2 size={12} />
+                                                                    </div>
 
-                                {activeTab === "shots" && (
-                                    <>
-                                        {/* Shot Analysis/Generation Processing Indicators */}
-                                        {(() => {
-                                            if (!creation) return null;
-                                            const analysisStep = getStepStatus(creation, 'shotAnalysis');
-                                            const imageStep = getStepStatus(creation, 'shotImageGeneration');
-                                            const isAnalyzing = analysisStep?.status === 'processing' || analysisStep?.status === 'pending';
-                                            const isGenerating = imageStep?.status === 'processing' || imageStep?.status === 'pending';
-                                            const hasNoShots = !creation?.scenes || creation.scenes.every((s: any) => !s.shots || s.shots.length === 0);
+                                                                    {/* Info */}
+                                                                    <div className="flex-1 min-w-0">
+                                                                        <div className="flex items-center gap-2 mb-0.5">
+                                                                            <h4 className="font-medium text-slate-300 text-xs truncate leading-none">{char.name}</h4>
+                                                                            <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5 bg-blue-500/5 text-blue-400/70 hover:bg-blue-500/10 font-normal">
+                                                                                {t('voice')}
+                                                                            </Badge>
+                                                                        </div>
+                                                                        <p className="text-[10px] text-slate-500 line-clamp-1 truncate leading-tight">
+                                                                            {char.voice_description || t('noVoiceDescription')}
+                                                                        </p>
+                                                                    </div>
 
-                                            if (isAnalyzing || (isGenerating && hasNoShots)) {
+                                                                    {/* Edit */}
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-6 w-6 text-slate-600 hover:text-slate-300 hover:bg-slate-800/50 rounded-full"
+                                                                        onClick={() => handleEditCharacter(char)}
+                                                                    >
+                                                                        <PenLine size={12} />
+                                                                    </Button>
+                                                                </div>
+                                                            </Card>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Fallback Empty State */}
+                                            {(() => {
+                                                const isCharacterAnalysisProcessing = creation && getStepStatus(creation, 'characterAnalysis').status === 'processing';
+                                                const hasNoCharacters = !!creation?.characters && creation.characters.length === 0;
+                                                if (!hasNoCharacters) return null;
+                                                if (isCharacterAnalysisProcessing) return null;
                                                 return (
-                                                    <div className={cn(
-                                                        "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
-                                                        hasNoShots ? "py-12" : "py-4"
-                                                    )}>
-                                                        <div className={cn("bg-slate-800/50 rounded-full", hasNoShots ? "p-4" : "p-2")}>
-                                                            <Loader2 size={hasNoShots ? 32 : 16} className={cn("animate-spin", isAnalyzing ? "text-blue-500" : "text-orange-500")} />
+                                                    <div className="flex flex-col items-center justify-center py-12 gap-4">
+                                                        <div className="p-4 bg-slate-800/50 rounded-full">
+                                                            <User size={32} className="text-slate-600" />
                                                         </div>
                                                         <div className="text-center space-y-1">
-                                                            <p className={cn("text-slate-300 font-medium", hasNoShots ? "text-base" : "text-sm")}>
-                                                                {isAnalyzing ? t('analyzingShots') : t('generatingShotImages') || '分镜图生成中...'}
-                                                                {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout') || '超时'})`}
-                                                            </p>
-                                                            {hasNoShots && (
-                                                                <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeShotsDescription')}</p>
-                                                            )}
+                                                            <p className="text-slate-400 font-medium">{t('noCharacterData')}</p>
+                                                            <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeCharactersDescription')}</p>
                                                         </div>
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={() => creation && handleAnalyzeCharacters(creation)}
+                                                            className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
+                                                        >
+                                                            <Sparkles size={14} />
+                                                            {t('analyzeCharacters')}
+                                                        </Button>
                                                     </div>
                                                 );
-                                            }
-                                            
-                                            if (isGenerating && !hasNoShots) {
-                                                return (
-                                                    <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
-                                                        <div className="p-2 bg-slate-800/50 rounded-full">
-                                                            <Loader2 size={16} className="text-orange-500 animate-spin" />
+                                            })()}
+
+                                            {/* Edit Modal */}
+                                            {editingCharacter && (
+                                                <CharacterEditModal
+                                                    isOpen={isEditModalOpen}
+                                                    onClose={() => setIsEditModalOpen(false)}
+                                                    character={editingCharacter}
+                                                    onSuccess={handleCharacterUpdateSuccess}
+                                                />
+                                            )}
+
+                                            {/* Image Preview Modal */}
+                                            <ImagePreview
+                                                open={isPreviewOpen}
+                                                onOpenChange={setIsPreviewOpen}
+                                                src={previewImage || ""}
+                                            />
+                                        </>
+                                    )}
+
+                                    {activeTab === "scenes" && (
+                                        <>
+                                            {/* Scene Analysis/Generation Processing Indicators */}
+                                            {(() => {
+                                                if (!creation) return null;
+                                                const analysisStep = getStepStatus(creation, 'sceneAnalysis');
+                                                const imageStep = getStepStatus(creation, 'sceneImageGeneration');
+                                                const isAnalyzing = analysisStep?.status === 'processing' || analysisStep?.status === 'pending';
+                                                const isGenerating = imageStep?.status === 'processing' || imageStep?.status === 'pending';
+                                                const hasNoScenes = !creation?.scenes || creation.scenes.length === 0;
+
+                                                if (isAnalyzing || (isGenerating && hasNoScenes)) {
+                                                    return (
+                                                        <div className={cn(
+                                                            "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
+                                                            hasNoScenes ? "py-12" : "py-4"
+                                                        )}>
+                                                            <div className={cn("bg-slate-800/50 rounded-full", hasNoScenes ? "p-4" : "p-2")}>
+                                                                <Loader2 size={hasNoScenes ? 32 : 16} className={cn("animate-spin", isAnalyzing ? "text-blue-500" : "text-orange-500")} />
+                                                            </div>
+                                                            <div className="text-center space-y-1">
+                                                                <p className={cn("text-slate-300 font-medium", hasNoScenes ? "text-base" : "text-sm")}>
+                                                                    {isAnalyzing ? t('analyzingScenes') : t('generatingSceneImages') || '场景图生成中...'}
+                                                                    {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout') || '超时'})`}
+                                                                </p>
+                                                                {hasNoScenes && (
+                                                                    <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <p className="text-slate-300 text-sm font-medium">{t('generatingShotImages') || '分镜图生成中...'}</p>
+                                                    );
+                                                }
+
+                                                if (isGenerating && !hasNoScenes) {
+                                                    return (
+                                                        <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
+                                                            <div className="p-2 bg-slate-800/50 rounded-full">
+                                                                <Loader2 size={16} className="text-orange-500 animate-spin" />
+                                                            </div>
+                                                            <p className="text-slate-300 text-sm font-medium">{t('generatingSceneImages') || '场景图生成中...'}</p>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
+
+                                            {/* Empty State / Parse Button */}
+                                            {(!creation?.scenes || creation.scenes.length === 0) && !isAnalyzingScenes && (creation && getStepStatus(creation, 'sceneAnalysis').status !== 'processing') && (
+                                                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                                                    <div className="p-4 bg-slate-800/50 rounded-full">
+                                                        <LucideMap size={32} className="text-slate-600" />
                                                     </div>
-                                                );
-                                            }
-                                            return null;
-                                        })()}
-
-                                        {/* Empty State / Parse Button */}
-                                        {(!creation?.scenes || creation.scenes.every((s: any) => !s.shots || s.shots.length === 0)) && !isAnalyzingShots && creation?.extra_data?.steps?.shotAnalysis?.status !== 'processing' && (
-                                            <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                                <div className="p-4 bg-slate-800/50 rounded-full">
-                                                    <Film size={32} className="text-slate-600" />
-                                                </div>
-                                                <div className="text-center space-y-1">
-                                                    <p className="text-slate-400 font-medium">{t('noShotData')}</p>
-                                                    <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeShotsDesc')}</p>
-                                                </div>
-                                                <Button 
-                                                    size="sm" 
-                                                    onClick={handleAnalyzeShots}
-                                                    disabled={isAnalyzingShots || !creation?.scenes || creation.scenes.length === 0}
-                                                    className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
-                                                >
-                                                    {isAnalyzingShots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
-                                                    {isAnalyzingShots ? t('analyzingShots') : t('analyzeShotsBtn')}
-                                                </Button>
-                                            </div>
-                                        )}
-
-                                        {/* Shot List */}
-                                        {creation?.scenes && creation.scenes.some((s: any) => s.shots && s.shots.length > 0) && (
-                                            <div className="space-y-4">
-                                                {/* Actions Toolbar */}
-                                                <div className="flex gap-2 mb-4">
+                                                    <div className="text-center space-y-1">
+                                                        <p className="text-slate-400 font-medium">{t('noSceneData')}</p>
+                                                        <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
+                                                    </div>
                                                     <Button
-                                                        onClick={handleGenerateShotImages}
-                                                        disabled={isGeneratingShotImages || creation?.extra_data?.steps?.shotImageGeneration?.status === 'processing'}
-                                                        className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs h-8 shadow-lg shadow-purple-500/20"
                                                         size="sm"
+                                                        onClick={handleAnalyzeScenes}
+                                                        disabled={isAnalyzingScenes}
+                                                        className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
                                                     >
-                                                        <WandSparkles className="w-3 h-3 mr-2" />
-                                                        {isGeneratingShotImages ? t('generating') : t('generateAllShotImages')}
+                                                        {isAnalyzingScenes ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
+                                                        {isAnalyzingScenes ? t('analyzingScenes') : t('analyzeScenes')}
                                                     </Button>
-                                                    {/* <Button
+                                                </div>
+                                            )}
+
+                                            {/* Scene List */}
+                                            {creation?.scenes && creation.scenes.length > 0 && (
+                                                <div className="space-y-2">
+                                                    {/* Generate All Scenes Button */}
+                                                    <div className="mb-4 flex gap-2">
+                                                        <Button
+                                                            onClick={handleGenerateSceneImages}
+                                                            disabled={isGeneratingSceneImages || (creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing')}
+                                                            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white text-xs h-8 shadow-lg shadow-blue-500/20"
+                                                            size="sm"
+                                                        >
+                                                            <WandSparkles className="w-3 h-3 mr-2" />
+                                                            {isGeneratingSceneImages ? t('generating') : t('generateAllSceneImages')}
+                                                        </Button>
+                                                        {/* Re-analyze Button: With text and smaller than Generate All */}
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            disabled={isGeneratingSceneImages || isAnalyzingScenes || (creation && getStepStatus(creation, 'sceneAnalysis').status === 'processing')}
+                                                            className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
+                                                            onClick={() => {
+                                                                setConfirmDialog({
+                                                                    open: true,
+                                                                    title: t('reanalyzeScenesConfirmTitle'),
+                                                                    description: t('reanalyzeScenesConfirmDesc'),
+                                                                    onConfirm: handleAnalyzeScenes,
+                                                                    variant: 'destructive'
+                                                                });
+                                                            }}
+                                                        >
+                                                            {isAnalyzingScenes ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
+                                                            {t('reanalyzeScenes')}
+                                                        </Button>
+                                                    </div>
+
+                                                    {creation.scenes.map((scene: any, idx: number) => (
+                                                        <div
+                                                            key={scene.uuid || scene.scene_id}
+                                                            onClick={() => setEditingScene(scene)}
+                                                        >
+                                                            <div className="group flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative">
+                                                                <div className={cn(
+                                                                    "rounded bg-slate-700 overflow-hidden shrink-0 relative",
+                                                                    aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-9"
+                                                                )}>
+                                                                    {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating' ? (
+                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
+                                                                            <Loader2 className="w-3.5 h-3.5 text-orange-500 animate-spin mb-0.5" />
+                                                                            <span className="text-[8px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
+                                                                        </div>
+                                                                    ) : scene.image_url ? (
+                                                                        <img src={scene.image_url} alt={scene.title} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 text-slate-600">
+                                                                            <LucideMap size={16} className="opacity-50 mb-0.5" />
+                                                                            <span className="text-[8px] opacity-50 scale-90">
+                                                                                {(creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="text-sm font-medium text-slate-200 truncate">{t('sceneIndex', { index: idx + 1 })}: {scene.location}</div>
+                                                                        {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) && (
+                                                                            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
+                                                                                {tC('generating')}
+                                                                            </Badge>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="text-xs text-slate-500 truncate">{scene.atmosphere} | {scene.time_setting}</div>
+                                                                </div>
+
+                                                                {/* Hover Actions */}
+                                                                <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/80 p-1 rounded-md backdrop-blur-sm">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleRegenerateSceneImage(scene.uuid || String(scene.scene_id));
+                                                                        }}
+                                                                        disabled={regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating'}
+                                                                        title={t('regenerate')}
+                                                                    >
+                                                                        <RotateCcw size={12} className={(regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating') ? "animate-spin" : ""} />
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {editingScene && (
+                                                <SceneEditModal
+                                                    isOpen={!!editingScene}
+                                                    onClose={() => setEditingScene(null)}
+                                                    scene={editingScene}
+                                                    onSuccess={handleSceneUpdateSuccess}
+                                                    onRegenerateImage={handleRegenerateSceneImage}
+                                                    isRegenerating={regeneratingScenes.has(editingScene.uuid || String(editingScene.scene_id))}
+                                                    aspectRatio={aspectRatio}
+                                                />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {activeTab === "shots" && (
+                                        <>
+                                            {/* Shot Analysis/Generation Processing Indicators */}
+                                            {(() => {
+                                                if (!creation) return null;
+                                                const analysisStep = getStepStatus(creation, 'shotAnalysis');
+                                                const imageStep = getStepStatus(creation, 'shotImageGeneration');
+                                                const isAnalyzing = analysisStep?.status === 'processing' || analysisStep?.status === 'pending';
+                                                const isGenerating = imageStep?.status === 'processing' || imageStep?.status === 'pending';
+                                                const hasNoShots = !creation?.scenes || creation.scenes.every((s: any) => !s.shots || s.shots.length === 0);
+
+                                                if (isAnalyzing || (isGenerating && hasNoShots)) {
+                                                    return (
+                                                        <div className={cn(
+                                                            "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
+                                                            hasNoShots ? "py-12" : "py-4"
+                                                        )}>
+                                                            <div className={cn("bg-slate-800/50 rounded-full", hasNoShots ? "p-4" : "p-2")}>
+                                                                <Loader2 size={hasNoShots ? 32 : 16} className={cn("animate-spin", isAnalyzing ? "text-blue-500" : "text-orange-500")} />
+                                                            </div>
+                                                            <div className="text-center space-y-1">
+                                                                <p className={cn("text-slate-300 font-medium", hasNoShots ? "text-base" : "text-sm")}>
+                                                                    {isAnalyzing ? t('analyzingShots') : t('generatingShotImages') || '分镜图生成中...'}
+                                                                    {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout') || '超时'})`}
+                                                                </p>
+                                                                {hasNoShots && (
+                                                                    <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeShotsDescription')}</p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                if (isGenerating && !hasNoShots) {
+                                                    return (
+                                                        <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
+                                                            <div className="p-2 bg-slate-800/50 rounded-full">
+                                                                <Loader2 size={16} className="text-orange-500 animate-spin" />
+                                                            </div>
+                                                            <p className="text-slate-300 text-sm font-medium">{t('generatingShotImages') || '分镜图生成中...'}</p>
+                                                        </div>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
+
+                                            {/* Empty State / Parse Button */}
+                                            {(!creation?.scenes || creation.scenes.every((s: any) => !s.shots || s.shots.length === 0)) && !isAnalyzingShots && creation?.extra_data?.steps?.shotAnalysis?.status !== 'processing' && (
+                                                <div className="flex flex-col items-center justify-center py-12 gap-4">
+                                                    <div className="p-4 bg-slate-800/50 rounded-full">
+                                                        <Film size={32} className="text-slate-600" />
+                                                    </div>
+                                                    <div className="text-center space-y-1">
+                                                        <p className="text-slate-400 font-medium">{t('noShotData')}</p>
+                                                        <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeShotsDesc')}</p>
+                                                    </div>
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={handleAnalyzeShots}
+                                                        disabled={isAnalyzingShots || !creation?.scenes || creation.scenes.length === 0}
+                                                        className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
+                                                    >
+                                                        {isAnalyzingShots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
+                                                        {isAnalyzingShots ? t('analyzingShots') : t('analyzeShotsBtn')}
+                                                    </Button>
+                                                </div>
+                                            )}
+
+                                            {/* Shot List */}
+                                            {creation?.scenes && creation.scenes.some((s: any) => s.shots && s.shots.length > 0) && (
+                                                <div className="space-y-4">
+                                                    {/* Actions Toolbar */}
+                                                    <div className="flex gap-2 mb-4">
+                                                        <Button
+                                                            onClick={handleGenerateShotImages}
+                                                            disabled={isGeneratingShotImages || creation?.extra_data?.steps?.shotImageGeneration?.status === 'processing'}
+                                                            className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs h-8 shadow-lg shadow-purple-500/20"
+                                                            size="sm"
+                                                        >
+                                                            <WandSparkles className="w-3 h-3 mr-2" />
+                                                            {isGeneratingShotImages ? t('generating') : t('generateAllShotImages')}
+                                                        </Button>
+                                                        {/* <Button
                                                         onClick={handleGenerateAllVideos}
                                                         disabled={isGeneratingAllVideos}
                                                         className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-xs h-8 shadow-lg shadow-blue-500/20"
@@ -2919,592 +2919,608 @@ export default function DynamicComicEditor() {
                                                         )}
                                                         {t('generateAllVideos')}
                                                     </Button> */}
-                                                    {(() => {
-                                                        // 统计有视频的shots数量
-                                                        let shotsWithVideo = 0;
-                                                        let totalShots = 0;
-                                                        creation?.scenes.forEach((scene: any) => {
-                                                            scene.shots?.forEach((shot: any) => {
-                                                                totalShots++;
-                                                                if (shot.video_url) shotsWithVideo++;
-                                                            });
-                                                        });
-                                                        const allVideosReady = totalShots > 0 && shotsWithVideo === totalShots;
-
-                                                        return allVideosReady && (
-                                                            <Button
-                                                                onClick={handleImportAllToTimeline}
-                                                                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-xs h-8 shadow-lg shadow-green-500/20"
-                                                                size="sm"
-                                                            >
-                                                                <FolderOpen className="w-3 h-3 mr-2" />
-                                                                {t('importAllToTimeline')}
-                                                            </Button>
-                                                        );
-                                                    })()}
-                                                    {/* Re-analyze Button: With text and smaller than Generate All */}
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        disabled={isAnalyzingShots}
-                                                        className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
-                                                        onClick={() => {
-                                                            // 检查状态（包含超时逻辑）
-                                                            const stepStatus = getStepStatus(creation, 'shotAnalysis');
-
-                                                            // 如果正在处理中且未超时，显示提示
-                                                            if (stepStatus.status === 'processing') {
-                                                                toast.warning(t('shotAnalysisInProgress') || '分镜解析正在进行中，请稍候...');
-                                                                return;
-                                                            }
-
-                                                            // 否则显示确认对话框
-                                                            setConfirmDialog({
-                                                                open: true,
-                                                                title: t('reanalyzeConfirmTitle'),
-                                                                description: t('reanalyzeConfirmDesc'),
-                                                                onConfirm: handleAnalyzeShots,
-                                                                variant: 'destructive'
-                                                            });
-                                                        }}
-                                                    >
-                                                        {isAnalyzingShots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
-                                                        {t('reanalyzeShots')}
-                                                    </Button>
-                                                </div>
-
-                                                {/* Video Generation Progress Bar */}
-                                                {isGeneratingAllVideos && (
-                                                    <Card className="bg-slate-900/50 border-purple-500/30 mb-4">
-                                                        <CardContent className="pt-4">
-                                                            <div className="flex items-center justify-between mb-2">
-                                                                <div className="flex items-center gap-2">
-                                                                    <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
-                                                                    <span className="text-sm font-medium text-slate-200">
-                                                                        {t('generatingVideos')} {videoGenerationProgress.completed}/{videoGenerationProgress.total}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex gap-2">
-                                                                    <Badge variant="default" className="bg-green-600 text-white">
-                                                                        {videoGenerationProgress.success} {t('success')}
-                                                                    </Badge>
-                                                                    <Badge variant="destructive">
-                                                                        {videoGenerationProgress.failed} {t('failed')}
-                                                                    </Badge>
-                                                                </div>
-                                                            </div>
-                                                            <Progress
-                                                                value={(videoGenerationProgress.completed / videoGenerationProgress.total) * 100}
-                                                                className="h-2"
-                                                            />
-                                                        </CardContent>
-                                                    </Card>
-                                                )}
-
-                                                {/* All Shots List - Flattened and sorted by shot_number */}
-                                                <div className="grid grid-cols-1 gap-2 mb-6">
-                                                    {(() => {
-                                                        const allShots: any[] = [];
-                                                        creation.scenes.forEach((scene: any, sceneIdx: number) => {
-                                                            if (scene.shots) {
-                                                                scene.shots.forEach((shot: any) => {
-                                                                    allShots.push({
-                                                                        ...shot,
-                                                                        _sceneTitle: scene.title || scene.location || t('sceneIndex', { index: sceneIdx + 1 }),
-                                                                        _sceneIdx: sceneIdx
-                                                                    });
+                                                        {(() => {
+                                                            // 统计有视频的shots数量
+                                                            let shotsWithVideo = 0;
+                                                            let totalShots = 0;
+                                                            creation?.scenes.forEach((scene: any) => {
+                                                                scene.shots?.forEach((shot: any) => {
+                                                                    totalShots++;
+                                                                    if (shot.video_url) shotsWithVideo++;
                                                                 });
-                                                            }
-                                                        });
-                                                        
-                                                        return allShots
-                                                            .sort((a, b) => a.shot_number - b.shot_number)
-                                                            .map((shot: any, shotIdx: number) => (
-                                                                <div
-                                                                    key={shot.uuid || shotIdx}
-                                                                    className="group flex gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative bg-slate-900/20"
-                                                                    draggable={!!(shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0))}
-                                                                    onDragStart={(e) => {
-                                                                        const hasContent = shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0);
-                                                                        if (!hasContent) {
-                                                                            e.preventDefault();
-                                                                            return;
-                                                                        }
-                                                                        e.dataTransfer.setData('application/json', JSON.stringify({
-                                                                            type: 'shot',
-                                                                            shot: shot,
-                                                                            shotNumber: shot.shot_number
-                                                                        }));
-                                                                        e.dataTransfer.effectAllowed = 'copy';
-                                                                    }}
-                                                                    onClick={() => setEditingShot(shot)}
-                                                                >
-                                                                    {/* Image Thumbnail */}
-                                                                    <div className={cn(
-                                                                        "rounded bg-slate-800 overflow-hidden shrink-0 relative border border-slate-800",
-                                                                        aspectRatio === "9:16" ? "w-12 h-20" : "w-20 h-12"
-                                                                    )}>
-                                                                        {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
-                                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
-                                                                                <Loader2 className="w-4 h-4 text-orange-500 animate-spin mb-0.5" />
-                                                                                <span className="text-[9px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
-                                                                            </div>
-                                                                        ) : shot.image_url ? (
-                                                                            <>
-                                                                                <img src={shot.image_url} alt={`Shot ${shot.shot_number}`} className="w-full h-full object-cover" />
-                                                                                {/* Video Generating Overlay Badge */}
-                                                                                {isVideoGenerating(shot) && (
-                                                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                                                                                        <div className="flex flex-col items-center">
-                                                                                            <Loader2 className="w-4 h-4 text-purple-400 animate-spin mb-0.5" />
-                                                                                            <span className="text-[8px] text-purple-400 font-medium">视频生成中</span>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-                                                                            </>
-                                                                        ) : (
-                                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
-                                                                                <ImageIcon size={16} className="opacity-50 mb-0.5" />
-                                                                                <span className="text-[8px] opacity-50 scale-90">
-                                                                                    {(creation && getStepStatus(creation, 'shotImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
-                                                                                </span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                    
-                                                                    {/* Content */}
-                                                                    <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                                                        <div className="flex items-center gap-2">
-                                                                             <span className="text-[10px] font-bold text-slate-500">#{shot.shot_number}</span>
-                                                                             <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 bg-slate-800 text-slate-400 shrink-0 font-normal">
-                                                                                 {shot._sceneTitle}
-                                                                             </Badge>
-                                                                             {shot.video_duration && (
-                                                                                 <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-slate-600 text-slate-500 shrink-0 font-normal">
-                                                                                     {shot.video_duration}s
-                                                                                 </Badge>
-                                                                             )}
-                                                                             {(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') && (
-                                                                                <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
-                                                                                    {tC('generating')}
-                                                                                </Badge>
-                                                                            )}
-                                                                             {/* Video Status Badge */}
-                                                                             {shot.video_url && (
-                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-blue-600 text-white shrink-0 font-normal">
-                                                                                     <Film className="w-2 h-2 mr-0.5" />
-                                                                                     视频
-                                                                                 </Badge>
-                                                                             )}
-                                                                             {/* Audio Status Badge */}
-                                                                             {shot.audio_url && (
-                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-emerald-600 text-white shrink-0 font-normal">
-                                                                                     <Music className="w-2 h-2 mr-0.5" />
-                                                                                     音频
-                                                                                 </Badge>
-                                                                             )}
-                                                                             {/* Subtitle Status Badge */}
-                                                                             {shot.narration && shot.narration.length > 0 && (
-                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-amber-600 text-white shrink-0 font-normal">
-                                                                                     <Type className="w-2 h-2 mr-0.5" />
-                                                                                     字幕
-                                                                                 </Badge>
-                                                                             )}
-                                                                             {/* Video Generating Badge */}
-                                                                             {getVideoGenerationStatus(shot) === 'generating' && (
-                                                                                 <Badge className="text-[9px] px-1 py-0 h-3.5 bg-purple-500 text-white animate-pulse shrink-0 font-normal">
-                                                                                     <Loader2 className="w-2 h-2 mr-0.5 animate-spin" />
-                                                                                     生成中
-                                                                                 </Badge>
-                                                                             )}
-                                                                        </div>
-                                                                        <div className="text-xs text-slate-300 leading-relaxed max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
-                                                                            {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"]) || t('noDescription')}
-                                                                        </div>
-                                                                    </div>
+                                                            });
+                                                            const allVideosReady = totalShots > 0 && shotsWithVideo === totalShots;
 
-                                                                    {/* Hover Actions */}
-                                                                    <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/90 p-1 rounded-md backdrop-blur-sm shadow-xl border border-slate-700/50">
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                handleRegenerateShotImage(shot.uuid || String(shot.shot_id));
-                                                                            }}
-                                                                            disabled={regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating'}
-                                                                            title={t('regenerate')}
-                                                                        >
-                                                                            <RotateCcw size={12} className={(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') ? "animate-spin" : ""} />
-                                                                        </Button>
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="h-6 w-6 text-blue-400/80 hover:text-blue-400 hover:bg-slate-700/50 rounded-full"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                setEditingShot(shot);
-                                                                            }}
-                                                                            title={t('edit')}
-                                                                        >
-                                                                            <Edit2 size={12} />
-                                                                        </Button>
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="h-6 w-6 text-purple-400/80 hover:text-purple-400 hover:bg-slate-700/50 rounded-full"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                handleGenerateShotVideo(shot);
-                                                                            }}
-                                                                            disabled={!shot.image_url || isVideoGenerating(shot)}
-                                                                            title={shot.video_url ? t('regenerateVideo') : t('generateVideo')}
-                                                                        >
-                                                                            {isVideoGenerating(shot) ? (
-                                                                                <Loader2 size={12} className="animate-spin" />
-                                                                            ) : (
-                                                                                <Film size={12} />
-                                                                            )}
-                                                                        </Button>
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="h-6 w-6 text-green-400/80 hover:text-green-400 hover:bg-slate-700/50 rounded-full"
-                                                                            onClick={(e) => {
-                                                                                e.stopPropagation();
-                                                                                handleAddShotToTracks(shot);
-                                                                            }}
-                                                                            disabled={!shot.video_url && !shot.audio_url && (!shot.narration || shot.narration.length === 0)}
-                                                                            title={t('addToTracks')}
-                                                                        >
-                                                                            <Plus size={12} />
-                                                                        </Button>
-                                                                        <Button
-                                                                            variant="ghost"
-                                                                            size="icon"
-                                                                            className="h-6 w-6 text-green-500/80 hover:text-green-500 hover:bg-slate-700/50 rounded-full"
-                                                                            onClick={async (e) => {
-                                                                                e.stopPropagation();
-                                                                                if (!shot.video_url && !shot.audio_url) {
-                                                                                    toast.error(t('noDownloadableResources'));
-                                                                                    return;
-                                                                                }
-                                                                                toast.info(shot.audio_url ? t('preparingDownloadVideoAudio') : t('preparingDownloadVideo'));
-                                                                                const formattedNumber = String(shot.shot_number || 0).padStart(4, '0');
-                                                                                if (shot.video_url) await downloadFile(shot.video_url, `${formattedNumber}_video.mp4`);
-                                                                                if (shot.audio_url) await downloadFile(shot.audio_url, `${formattedNumber}_audio.mp3`);
-                                                                            }}
-                                                                            title={t('oneClickDownload')}
-                                                                        >
-                                                                            <FolderDown size={12} />
-                                                                        </Button>
+                                                            return allVideosReady && (
+                                                                <Button
+                                                                    onClick={handleImportAllToTimeline}
+                                                                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-xs h-8 shadow-lg shadow-green-500/20"
+                                                                    size="sm"
+                                                                >
+                                                                    <FolderOpen className="w-3 h-3 mr-2" />
+                                                                    {t('importAllToTimeline')}
+                                                                </Button>
+                                                            );
+                                                        })()}
+                                                        {/* Re-analyze Button: With text and smaller than Generate All */}
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            disabled={isAnalyzingShots}
+                                                            className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
+                                                            onClick={() => {
+                                                                // 检查状态（包含超时逻辑）
+                                                                const stepStatus = getStepStatus(creation, 'shotAnalysis');
+
+                                                                // 如果正在处理中且未超时，显示提示
+                                                                if (stepStatus.status === 'processing') {
+                                                                    toast.warning(t('shotAnalysisInProgress') || '分镜解析正在进行中，请稍候...');
+                                                                    return;
+                                                                }
+
+                                                                // 否则显示确认对话框
+                                                                setConfirmDialog({
+                                                                    open: true,
+                                                                    title: t('reanalyzeConfirmTitle'),
+                                                                    description: t('reanalyzeConfirmDesc'),
+                                                                    onConfirm: handleAnalyzeShots,
+                                                                    variant: 'destructive'
+                                                                });
+                                                            }}
+                                                        >
+                                                            {isAnalyzingShots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
+                                                            {t('reanalyzeShots')}
+                                                        </Button>
+                                                    </div>
+
+                                                    {/* Video Generation Progress Bar */}
+                                                    {isGeneratingAllVideos && (
+                                                        <Card className="bg-slate-900/50 border-purple-500/30 mb-4">
+                                                            <CardContent className="pt-4">
+                                                                <div className="flex items-center justify-between mb-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
+                                                                        <span className="text-sm font-medium text-slate-200">
+                                                                            {t('generatingVideos')} {videoGenerationProgress.completed}/{videoGenerationProgress.total}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex gap-2">
+                                                                        <Badge variant="default" className="bg-green-600 text-white">
+                                                                            {videoGenerationProgress.success} {t('success')}
+                                                                        </Badge>
+                                                                        <Badge variant="destructive">
+                                                                            {videoGenerationProgress.failed} {t('failed')}
+                                                                        </Badge>
                                                                     </div>
                                                                 </div>
-                                                            ));
-                                                    })()}
-                                                </div>
-                                            </div>
-                                        )}
+                                                                <Progress
+                                                                    value={(videoGenerationProgress.completed / videoGenerationProgress.total) * 100}
+                                                                    className="h-2"
+                                                                />
+                                                            </CardContent>
+                                                        </Card>
+                                                    )}
 
-                                        {editingShot && (
-                                            <ShotEditModal
-                                                isOpen={!!editingShot}
-                                                onClose={() => setEditingShot(null)}
-                                                shot={editingShot}
-                                                nextShot={(() => {
-                                                    if (!creation?.scenes) return undefined;
-                                                    let foundCurrent = false;
-                                                    for (const scene of creation.scenes) {
-                                                        if (scene.shots) {
-                                                            for (const s of scene.shots) {
-                                                                if (foundCurrent) return s;
-                                                                if (s.shot_id === editingShot.shot_id || s.uuid === editingShot.uuid) {
-                                                                    foundCurrent = true;
+                                                    {/* All Shots List - Flattened and sorted by shot_number */}
+                                                    <div className="grid grid-cols-1 gap-2 mb-6">
+                                                        {(() => {
+                                                            const allShots: any[] = [];
+                                                            creation.scenes.forEach((scene: any, sceneIdx: number) => {
+                                                                if (scene.shots) {
+                                                                    scene.shots.forEach((shot: any) => {
+                                                                        allShots.push({
+                                                                            ...shot,
+                                                                            _sceneTitle: scene.title || scene.location || t('sceneIndex', { index: sceneIdx + 1 }),
+                                                                            _sceneIdx: sceneIdx
+                                                                        });
+                                                                    });
+                                                                }
+                                                            });
+
+                                                            return allShots
+                                                                .sort((a, b) => a.shot_number - b.shot_number)
+                                                                .map((shot: any, shotIdx: number) => (
+                                                                    <div
+                                                                        key={shot.uuid || shotIdx}
+                                                                        className="group flex gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative bg-slate-900/20"
+                                                                        draggable={!!(shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0))}
+                                                                        onDragStart={(e) => {
+                                                                            const hasContent = shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0);
+                                                                            if (!hasContent) {
+                                                                                e.preventDefault();
+                                                                                return;
+                                                                            }
+                                                                            e.dataTransfer.setData('application/json', JSON.stringify({
+                                                                                type: 'shot',
+                                                                                shot: shot,
+                                                                                shotNumber: shot.shot_number
+                                                                            }));
+                                                                            e.dataTransfer.effectAllowed = 'copy';
+                                                                        }}
+                                                                        onClick={() => setEditingShot(shot)}
+                                                                    >
+                                                                        {/* Image Thumbnail */}
+                                                                        <div className={cn(
+                                                                            "rounded bg-slate-800 overflow-hidden shrink-0 relative border border-slate-800",
+                                                                            aspectRatio === "9:16" ? "w-12 h-20" : "w-20 h-12"
+                                                                        )}>
+                                                                            {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
+                                                                                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
+                                                                                    <Loader2 className="w-4 h-4 text-orange-500 animate-spin mb-0.5" />
+                                                                                    <span className="text-[9px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
+                                                                                </div>
+                                                                            ) : shot.image_url ? (
+                                                                                <>
+                                                                                    <img src={shot.image_url} alt={`Shot ${shot.shot_number}`} className="w-full h-full object-cover" />
+                                                                                    {/* Video Generating Overlay Badge */}
+                                                                                    {isVideoGenerating(shot) && (
+                                                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                                                                            <div className="flex flex-col items-center">
+                                                                                                <Loader2 className="w-4 h-4 text-purple-400 animate-spin mb-0.5" />
+                                                                                                <span className="text-[8px] text-purple-400 font-medium">视频生成中</span>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </>
+                                                                            ) : (
+                                                                                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
+                                                                                    <ImageIcon size={16} className="opacity-50 mb-0.5" />
+                                                                                    <span className="text-[8px] opacity-50 scale-90">
+                                                                                        {(creation && getStepStatus(creation, 'shotImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {/* Content */}
+                                                                        <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-[10px] font-bold text-slate-500">#{shot.shot_number}</span>
+                                                                                <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 bg-slate-800 text-slate-400 shrink-0 font-normal">
+                                                                                    {shot._sceneTitle}
+                                                                                </Badge>
+                                                                                {shot.video_duration && (
+                                                                                    <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-slate-600 text-slate-500 shrink-0 font-normal">
+                                                                                        {shot.video_duration}s
+                                                                                    </Badge>
+                                                                                )}
+                                                                                {(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') && (
+                                                                                    <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
+                                                                                        {tC('generating')}
+                                                                                    </Badge>
+                                                                                )}
+                                                                                {/* Video Status Badge */}
+                                                                                {shot.video_url && (
+                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-blue-600 text-white shrink-0 font-normal">
+                                                                                        <Film className="w-2 h-2 mr-0.5" />
+                                                                                        视频
+                                                                                    </Badge>
+                                                                                )}
+                                                                                {/* Audio Status Badge */}
+                                                                                {shot.audio_url && (
+                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-emerald-600 text-white shrink-0 font-normal">
+                                                                                        <Music className="w-2 h-2 mr-0.5" />
+                                                                                        音频
+                                                                                    </Badge>
+                                                                                )}
+                                                                                {/* Subtitle Status Badge */}
+                                                                                {shot.narration && shot.narration.length > 0 && (
+                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-amber-600 text-white shrink-0 font-normal">
+                                                                                        <Type className="w-2 h-2 mr-0.5" />
+                                                                                        字幕
+                                                                                    </Badge>
+                                                                                )}
+                                                                                {/* Video Generating Badge */}
+                                                                                {getVideoGenerationStatus(shot) === 'generating' && (
+                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-purple-500 text-white animate-pulse shrink-0 font-normal">
+                                                                                        <Loader2 className="w-2 h-2 mr-0.5 animate-spin" />
+                                                                                        生成中
+                                                                                    </Badge>
+                                                                                )}
+                                                                            </div>
+                                                                            <div className="text-xs text-slate-300 leading-relaxed max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+                                                                                {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"]) || t('noDescription')}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        {/* Hover Actions */}
+                                                                        <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/90 p-1 rounded-md backdrop-blur-sm shadow-xl border border-slate-700/50">
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleRegenerateShotImage(shot.uuid || String(shot.shot_id));
+                                                                                }}
+                                                                                disabled={regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating'}
+                                                                                title={t('regenerate')}
+                                                                            >
+                                                                                <RotateCcw size={12} className={(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') ? "animate-spin" : ""} />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-6 w-6 text-blue-400/80 hover:text-blue-400 hover:bg-slate-700/50 rounded-full"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setEditingShot(shot);
+                                                                                }}
+                                                                                title={t('edit')}
+                                                                            >
+                                                                                <Edit2 size={12} />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-6 w-6 text-purple-400/80 hover:text-purple-400 hover:bg-slate-700/50 rounded-full"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleGenerateShotVideo(shot);
+                                                                                }}
+                                                                                disabled={!shot.image_url || isVideoGenerating(shot)}
+                                                                                title={shot.video_url ? t('regenerateVideo') : t('generateVideo')}
+                                                                            >
+                                                                                {isVideoGenerating(shot) ? (
+                                                                                    <Loader2 size={12} className="animate-spin" />
+                                                                                ) : (
+                                                                                    <Film size={12} />
+                                                                                )}
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-6 w-6 text-green-400/80 hover:text-green-400 hover:bg-slate-700/50 rounded-full"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleAddShotToTracks(shot);
+                                                                                }}
+                                                                                disabled={!shot.video_url && !shot.audio_url && (!shot.narration || shot.narration.length === 0)}
+                                                                                title={t('addToTracks')}
+                                                                            >
+                                                                                <Plus size={12} />
+                                                                            </Button>
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                className="h-6 w-6 text-green-500/80 hover:text-green-500 hover:bg-slate-700/50 rounded-full"
+                                                                                onClick={async (e) => {
+                                                                                    e.stopPropagation();
+                                                                                    if (!shot.video_url && !shot.audio_url) {
+                                                                                        toast.error(t('noDownloadableResources'));
+                                                                                        return;
+                                                                                    }
+                                                                                    toast.info(shot.audio_url ? t('preparingDownloadVideoAudio') : t('preparingDownloadVideo'));
+                                                                                    const formattedNumber = String(shot.shot_number || 0).padStart(4, '0');
+                                                                                    if (shot.video_url) await downloadFile(shot.video_url, `${formattedNumber}_video.mp4`);
+                                                                                    if (shot.audio_url) await downloadFile(shot.audio_url, `${formattedNumber}_audio.mp3`);
+                                                                                }}
+                                                                                title={t('oneClickDownload')}
+                                                                            >
+                                                                                <FolderDown size={12} />
+                                                                            </Button>
+                                                                        </div>
+                                                                    </div>
+                                                                ));
+                                                        })()}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {editingShot && (
+                                                <ShotEditModal
+                                                    isOpen={!!editingShot}
+                                                    onClose={() => setEditingShot(null)}
+                                                    shot={editingShot}
+                                                    previousShot={(() => {
+                                                        if (!creation?.scenes) return undefined;
+                                                        let previousShot: any = null;
+                                                        for (const scene of creation.scenes) {
+                                                            if (scene.shots) {
+                                                                for (const s of scene.shots) {
+                                                                    if (s.shot_id === editingShot.shot_id || s.uuid === editingShot.uuid) {
+                                                                        return previousShot;
+                                                                    }
+                                                                    previousShot = s;
                                                                 }
                                                             }
                                                         }
-                                                    }
-                                                    return undefined;
-                                                })()}
-                                                availableCharacters={creation?.characters || []}
-                                                availableScenes={creation?.scenes || []}
-                                                onSuccess={handleShotUpdateSuccess}
-                                                onRegenerateImage={handleRegenerateShotImage}
-                                                isRegenerating={regeneratingShots.has(editingShot.uuid || String(editingShot.shot_id)) || editingShot.status === 'generating'}
-                                                aspectRatio={aspectRatio}
+                                                        return undefined;
+                                                    })()}
+                                                    nextShot={(() => {
+                                                        if (!creation?.scenes) return undefined;
+                                                        let foundCurrent = false;
+                                                        for (const scene of creation.scenes) {
+                                                            if (scene.shots) {
+                                                                for (const s of scene.shots) {
+                                                                    if (foundCurrent) return s;
+                                                                    if (s.shot_id === editingShot.shot_id || s.uuid === editingShot.uuid) {
+                                                                        foundCurrent = true;
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                        return undefined;
+                                                    })()}
+                                                    availableCharacters={creation?.characters || []}
+                                                    availableScenes={creation?.scenes || []}
+                                                    onSuccess={handleShotUpdateSuccess}
+                                                    onRegenerateImage={handleRegenerateShotImage}
+                                                    isRegenerating={regeneratingShots.has(editingShot.uuid || String(editingShot.shot_id)) || editingShot.status === 'generating'}
+                                                    aspectRatio={aspectRatio}
+                                                    onNavigate={(shot) => setEditingShot(shot)}
+                                                />
+                                            )}
+                                        </>
+                                    )}
+
+                                    {/* Assets Tab */}
+                                    {activeTab === "assets" && creation?.novel_id && (
+                                        <div className="h-full -m-4">
+                                            <AssetManager
+                                                novelId={Number(creation.novel_id)}
+                                                assets={assets}
+                                                onAssetsChange={handleAssetsChange}
                                             />
-                                        )}
-                                    </>
-                                )}
+                                        </div>
+                                    )}
+                                </div>
+                            </ScrollArea>
+                        </div>
+                    </div>
 
-                                {/* Assets Tab */}
-                                {activeTab === "assets" && creation?.novel_id && (
-                                    <div className="h-full -m-4">
-                                        <AssetManager
-                                            novelId={Number(creation.novel_id)}
-                                            assets={assets}
-                                            onAssetsChange={handleAssetsChange}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        </ScrollArea>
+                    {/* Bottom Section: Timeline */}
+                    <div className="h-[40%] min-h-[300px] border-t border-slate-800 bg-slate-900 shrink-0">
+                        <Timeline />
                     </div>
                 </div>
 
-                {/* Bottom Section: Timeline */}
-                <div className="h-[40%] min-h-[300px] border-t border-slate-800 bg-slate-900 shrink-0">
-                    <Timeline />
-                </div>
+                {/* Global Confirm Dialog - works across all tabs */}
+                <ConfirmDialog
+                    open={confirmDialog.open}
+                    onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}
+                    title={confirmDialog.title}
+                    description={confirmDialog.description}
+                    onConfirm={confirmDialog.onConfirm}
+                    confirmText={tC('confirm')}
+                    cancelText={tC('cancel')}
+                    variant={confirmDialog.variant}
+                />
+
+                {/* Export Trigger Dialog */}
+                {taskId && (
+                    <ExportTriggerDialog
+                        creationId={taskId}
+                        isOpen={showExportTriggerDialog}
+                        onClose={() => setShowExportTriggerDialog(false)}
+                    />
+                )}
+
+                {/* Export Preview Dialog */}
+                {taskId && (
+                    <ExportPreviewDialog
+                        creationId={taskId}
+                        isOpen={showExportPreviewDialog}
+                        onClose={() => setShowExportPreviewDialog(false)}
+                    />
+                )}
+
+                {/* Usage Guide Dialog */}
+                <Dialog open={showUsageGuide} onOpenChange={setShowUsageGuide}>
+                    <DialogContent className="sm:max-w-[600px]">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2 text-lg">
+                                <HelpCircle className="h-5 w-5 text-blue-500" />
+                                {t('usageGuideTitle')}
+                            </DialogTitle>
+                            <DialogDescription className="sr-only">
+                                {t('usageGuideDesc') || '如何使用动态漫编辑器进行创作的指南'}
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                            {/* Step 1 */}
+                            <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 font-bold flex-shrink-0">
+                                    1
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-white mb-1">{t('usageStep1')}</h3>
+                                    <p className="text-sm text-slate-400">{t('usageStep1Desc')}</p>
+                                </div>
+                            </div>
+
+                            {/* Step 2 */}
+                            <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-600/20 text-purple-400 font-bold flex-shrink-0">
+                                    2
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-white mb-1">{t('usageStep2')}</h3>
+                                    <p className="text-sm text-slate-400">{t('usageStep2Desc')}</p>
+                                </div>
+                            </div>
+
+                            {/* Step 3 */}
+                            <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-600/20 text-green-400 font-bold flex-shrink-0">
+                                    3
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-white mb-1">{t('usageStep3')}</h3>
+                                    <p className="text-sm text-slate-400">{t('usageStep3Desc')}</p>
+                                </div>
+                            </div>
+
+                            {/* Step 4 */}
+                            <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-600/20 text-amber-400 font-bold flex-shrink-0">
+                                    4
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-white mb-1">{t('usageStep4')}</h3>
+                                    <p className="text-sm text-slate-400">{t('usageStep4Desc')}</p>
+                                </div>
+                            </div>
+
+                            {/* Step 5 */}
+                            <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
+                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-600/20 text-pink-400 font-bold flex-shrink-0">
+                                    5
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-semibold text-white mb-1">{t('usageStep5')}</h3>
+                                    <p className="text-sm text-slate-400">{t('usageStep5Desc')}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-end">
+                            <Button onClick={() => setShowUsageGuide(false)}>
+                                {tC('ok')}
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Model Settings Dialog */}
+                <Dialog open={showModelSettings} onOpenChange={setShowModelSettings}>
+                    <DialogContent className="sm:max-w-[500px] bg-slate-900 border-slate-800 text-white">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+                                <Settings className="h-5 w-5 text-blue-400" />
+                                {t('modelSettings') || '模型设置'}
+                            </DialogTitle>
+                            <DialogDescription className="text-slate-400">
+                                {t('modelSettingsDesc') || '配置用于视频、文生图和图生图的 AI 模型'}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-6 py-6">
+                            {/* Aspect Ratio */}
+                            <div className="space-y-3">
+                                <Label className="text-slate-400 flex items-center gap-2">
+                                    <Maximize2 className="h-4 w-4" />
+                                    {t('aspectRatio') || '生成比例'}
+                                </Label>
+                                <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
+                                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                                        <SelectItem value="16:9">{t('landscape') || '横版 (16:9)'}</SelectItem>
+                                        <SelectItem value="9:16">{t('portrait') || '竖版 (9:16)'}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Video Model */}
+                            <div className="space-y-3">
+                                <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                    <Film className="w-4 h-4 text-purple-400" />
+                                    {t('videoModel') || '视频生成模型'}
+                                </Label>
+                                <Select value={videoModel} onValueChange={(val) => handleModelChange('video', val)}>
+                                    <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                        <SelectValue placeholder="选择视频模型" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                        {videoModels.map((model: any) => (
+                                            <SelectItem
+                                                key={model.model_name}
+                                                value={model.model_name}
+                                                className="focus:bg-slate-700 focus:text-white"
+                                            >
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="font-medium">{model.display_name}</span>
+                                                    {model.description && (
+                                                        <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                    )}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Text to Image Model */}
+                            <div className="space-y-3">
+                                <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                    <Type className="w-4 h-4 text-blue-400" />
+                                    {t('textToImageModel') || '文生图模型'}
+                                </Label>
+                                <Select value={textToImageModel} onValueChange={(val) => handleModelChange('text_to_image', val)}>
+                                    <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                        <SelectValue placeholder="选择文生图模型" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                        {textToImageModels.map((model: any) => (
+                                            <SelectItem
+                                                key={model.model_name}
+                                                value={model.model_name}
+                                                className="focus:bg-slate-700 focus:text-white"
+                                            >
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="font-medium">{model.display_name}</span>
+                                                    {model.description && (
+                                                        <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                    )}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Image to Image Model */}
+                            <div className="space-y-3">
+                                <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                    <ImageIcon className="w-4 h-4 text-green-400" />
+                                    {t('imageToImageModel') || '图生图模型'}
+                                </Label>
+                                <Select value={imageToImageModel} onValueChange={(val) => handleModelChange('image_to_image', val)}>
+                                    <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                        <SelectValue placeholder="选择图生图模型" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                        {imageToImageModels.map((model: any) => (
+                                            <SelectItem
+                                                key={model.model_name}
+                                                value={model.model_name}
+                                                className="focus:bg-slate-700 focus:text-white"
+                                            >
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="font-medium">{model.display_name}</span>
+                                                    {model.description && (
+                                                        <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                    )}
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end">
+                            <Button onClick={() => setShowModelSettings(false)} className="bg-blue-600 hover:bg-blue-500 text-white">
+                                {tC('ok')}
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Video Generation Config Dialog */}
+                {videoConfigDialog.shot && (
+                    <VideoGenerationDialog
+                        isOpen={videoConfigDialog.isOpen}
+                        onClose={() => setVideoConfigDialog({ ...videoConfigDialog, isOpen: false })}
+                        onConfirm={handleConfirmVideoGeneration}
+                        shot={videoConfigDialog.shot}
+                        nextShot={videoConfigDialog.nextShot}
+                        isGenerating={isGeneratingSingleVideo}
+                        aspectRatio={aspectRatio}
+                    />
+                )}
             </div>
-
-            {/* Global Confirm Dialog - works across all tabs */}
-            <ConfirmDialog
-                open={confirmDialog.open}
-                onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, open }))}
-                title={confirmDialog.title}
-                description={confirmDialog.description}
-                onConfirm={confirmDialog.onConfirm}
-                confirmText={tC('confirm')}
-                cancelText={tC('cancel')}
-                variant={confirmDialog.variant}
-            />
-
-            {/* Export Trigger Dialog */}
-            {taskId && (
-                <ExportTriggerDialog
-                    creationId={taskId}
-                    isOpen={showExportTriggerDialog}
-                    onClose={() => setShowExportTriggerDialog(false)}
-                />
-            )}
-
-            {/* Export Preview Dialog */}
-            {taskId && (
-                <ExportPreviewDialog
-                    creationId={taskId}
-                    isOpen={showExportPreviewDialog}
-                    onClose={() => setShowExportPreviewDialog(false)}
-                />
-            )}
-
-            {/* Usage Guide Dialog */}
-            <Dialog open={showUsageGuide} onOpenChange={setShowUsageGuide}>
-                <DialogContent className="sm:max-w-[600px]">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-lg">
-                            <HelpCircle className="h-5 w-5 text-blue-500" />
-                            {t('usageGuideTitle')}
-                        </DialogTitle>
-                        <DialogDescription className="sr-only">
-                            {t('usageGuideDesc') || '如何使用动态漫编辑器进行创作的指南'}
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                        {/* Step 1 */}
-                        <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-600/20 text-blue-400 font-bold flex-shrink-0">
-                                1
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-white mb-1">{t('usageStep1')}</h3>
-                                <p className="text-sm text-slate-400">{t('usageStep1Desc')}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 2 */}
-                        <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-600/20 text-purple-400 font-bold flex-shrink-0">
-                                2
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-white mb-1">{t('usageStep2')}</h3>
-                                <p className="text-sm text-slate-400">{t('usageStep2Desc')}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 3 */}
-                        <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-600/20 text-green-400 font-bold flex-shrink-0">
-                                3
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-white mb-1">{t('usageStep3')}</h3>
-                                <p className="text-sm text-slate-400">{t('usageStep3Desc')}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 4 */}
-                        <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-amber-600/20 text-amber-400 font-bold flex-shrink-0">
-                                4
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-white mb-1">{t('usageStep4')}</h3>
-                                <p className="text-sm text-slate-400">{t('usageStep4Desc')}</p>
-                            </div>
-                        </div>
-
-                        {/* Step 5 */}
-                        <div className="flex gap-4 p-4 rounded-lg bg-slate-900/50 border border-slate-800">
-                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-pink-600/20 text-pink-400 font-bold flex-shrink-0">
-                                5
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-white mb-1">{t('usageStep5')}</h3>
-                                <p className="text-sm text-slate-400">{t('usageStep5Desc')}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex justify-end">
-                        <Button onClick={() => setShowUsageGuide(false)}>
-                            {tC('ok')}
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Model Settings Dialog */}
-            <Dialog open={showModelSettings} onOpenChange={setShowModelSettings}>
-                <DialogContent className="sm:max-w-[500px] bg-slate-900 border-slate-800 text-white">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-                            <Settings className="h-5 w-5 text-blue-400" />
-                            {t('modelSettings') || '模型设置'}
-                        </DialogTitle>
-                        <DialogDescription className="text-slate-400">
-                            {t('modelSettingsDesc') || '配置用于视频、文生图和图生图的 AI 模型'}
-                        </DialogDescription>
-                    </DialogHeader>
-                    
-                    <div className="space-y-6 py-6">
-                    {/* Aspect Ratio */}
-                    <div className="space-y-3">
-                        <Label className="text-slate-400 flex items-center gap-2">
-                            <Maximize2 className="h-4 w-4" />
-                            {t('aspectRatio') || '生成比例'}
-                        </Label>
-                        <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
-                            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="bg-slate-900 border-slate-800 text-white">
-                                <SelectItem value="16:9">{t('landscape') || '横版 (16:9)'}</SelectItem>
-                                <SelectItem value="9:16">{t('portrait') || '竖版 (9:16)'}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    {/* Video Model */}
-                        <div className="space-y-3">
-                            <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <Film className="w-4 h-4 text-purple-400" />
-                                {t('videoModel') || '视频生成模型'}
-                            </Label>
-                            <Select value={videoModel} onValueChange={(val) => handleModelChange('video', val)}>
-                                <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
-                                    <SelectValue placeholder="选择视频模型" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                                    {videoModels.map((model: any) => (
-                                        <SelectItem 
-                                            key={model.model_name} 
-                                            value={model.model_name}
-                                            className="focus:bg-slate-700 focus:text-white"
-                                        >
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="font-medium">{model.display_name}</span>
-                                                {model.description && (
-                                                    <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
-                                                )}
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Text to Image Model */}
-                        <div className="space-y-3">
-                            <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <Type className="w-4 h-4 text-blue-400" />
-                                {t('textToImageModel') || '文生图模型'}
-                            </Label>
-                            <Select value={textToImageModel} onValueChange={(val) => handleModelChange('text_to_image', val)}>
-                                <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
-                                    <SelectValue placeholder="选择文生图模型" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                                    {textToImageModels.map((model: any) => (
-                                        <SelectItem 
-                                            key={model.model_name} 
-                                            value={model.model_name}
-                                            className="focus:bg-slate-700 focus:text-white"
-                                        >
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="font-medium">{model.display_name}</span>
-                                                {model.description && (
-                                                    <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
-                                                )}
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        {/* Image to Image Model */}
-                        <div className="space-y-3">
-                            <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
-                                <ImageIcon className="w-4 h-4 text-green-400" />
-                                {t('imageToImageModel') || '图生图模型'}
-                            </Label>
-                            <Select value={imageToImageModel} onValueChange={(val) => handleModelChange('image_to_image', val)}>
-                                <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
-                                    <SelectValue placeholder="选择图生图模型" />
-                                </SelectTrigger>
-                                <SelectContent className="bg-slate-800 border-slate-700 text-white">
-                                    {imageToImageModels.map((model: any) => (
-                                        <SelectItem 
-                                            key={model.model_name} 
-                                            value={model.model_name}
-                                            className="focus:bg-slate-700 focus:text-white"
-                                        >
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="font-medium">{model.display_name}</span>
-                                                {model.description && (
-                                                    <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
-                                                )}
-                                            </div>
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-end">
-                        <Button onClick={() => setShowModelSettings(false)} className="bg-blue-600 hover:bg-blue-500 text-white">
-                            {tC('ok')}
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
-
-            {/* Video Generation Config Dialog */}
-            {videoConfigDialog.shot && (
-                <VideoGenerationDialog
-                    isOpen={videoConfigDialog.isOpen}
-                    onClose={() => setVideoConfigDialog({ ...videoConfigDialog, isOpen: false })}
-                    onConfirm={handleConfirmVideoGeneration}
-                    shot={videoConfigDialog.shot}
-                    nextShot={videoConfigDialog.nextShot}
-                    isGenerating={isGeneratingSingleVideo}
-                    aspectRatio={aspectRatio}
-                />
-            )}
-        </div>
         </TooltipProvider>
     );
 }

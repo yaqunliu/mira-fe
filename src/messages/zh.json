@@ -798,6 +798,8 @@
     "regenerateVideo": "重新生成视频",
     "generateVideo": "生成视频",
     "downloadVideo": "下载视频",
+    "previousShot": "上一分镜",
+    "nextShot": "下一分镜",
     "noVideoYet": "暂无视频",
     "needImageFirst": "需要先生成图片",
     "regeneratePrompt": "重新生成提示词",

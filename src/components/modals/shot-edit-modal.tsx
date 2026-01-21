@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RotateCcw, Image as ImageIcon, Edit2, Maximize2, Plus, X, Trash2, ListPlus, Film, Download, Sparkles } from 'lucide-react';
+import { Loader2, RotateCcw, Image as ImageIcon, Edit2, Maximize2, Plus, X, Trash2, ListPlus, Film, Download, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { IShot, INarrationItem } from '@/types/scene';
 import { ICharacter } from '@/types/character';
@@ -20,6 +20,7 @@ interface ShotEditModalProps {
     isOpen: boolean;
     onClose: () => void;
     shot: IShot;
+    previousShot?: IShot;
     nextShot?: IShot;
     availableCharacters: ICharacter[];
     availableScenes: IScene[];
@@ -27,29 +28,32 @@ interface ShotEditModalProps {
     onRegenerateImage: (shotId: string, imagePrompt?: string) => void;
     isRegenerating: boolean;
     aspectRatio?: "16:9" | "9:16";
+    onNavigate?: (shot: IShot) => void;
 }
 
 import { useTimelineStore } from '@/stores/timeline';
 import { cn } from '@/lib/utils';
 
-export function ShotEditModal({ 
-    isOpen, 
-    onClose, 
-    shot, 
+export function ShotEditModal({
+    isOpen,
+    onClose,
+    shot,
+    previousShot,
     nextShot,
     availableCharacters,
     availableScenes,
     onSuccess,
     onRegenerateImage,
     isRegenerating,
-    aspectRatio = "16:9"
+    aspectRatio = "16:9",
+    onNavigate
 }: ShotEditModalProps) {
     const t = useTranslations('Editor');
     const tCommon = useTranslations('common');
     const addClip = useTimelineStore(state => state.addClip);
     const tracks = useTimelineStore(state => state.project.tracks);
     const currentTime = useTimelineStore(state => state.currentTime);
-    
+
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -85,7 +89,7 @@ export function ShotEditModal({
             setVideoDuration(shot.video_duration || 5);
             setIsEditing(false); // Reset editing mode
             setIsEditingVideoPrompt(false);
-            
+
             const history = (shot.extra_data as any)?.version_history || [];
             if (history.length > 0) {
                 setSelectedVersionId(history[history.length - 1].version_id);
@@ -99,7 +103,7 @@ export function ShotEditModal({
         setIsSaving(true);
         try {
             const shotUuid = shot.uuid || String(shot.shot_id);
-            
+
             // Merge video_prompt into extra_data
             const updatedExtraData = {
                 ...(shot.extra_data || {}),
@@ -197,7 +201,7 @@ export function ShotEditModal({
             }
             toast.success(t('videoGenerationStarted'));
             setIsVideoConfigOpen(false);
-            
+
             // Refresh to update UI
             setTimeout(() => {
                 onSuccess();
@@ -252,8 +256,8 @@ export function ShotEditModal({
 
     const toggleCharacter = (id: number) => {
         if (!isEditing) return;
-        setCharacterIds(prev => 
-            prev.includes(id) 
+        setCharacterIds(prev =>
+            prev.includes(id)
                 ? prev.filter(cid => cid !== id)
                 : [...prev, id]
         );
@@ -274,23 +278,49 @@ export function ShotEditModal({
                     <DialogHeader className="flex-shrink-0">
                         <DialogTitle className="flex items-center justify-between">
                             <span>{shot.title || `Shot ${shot.shot_number}`}</span>
-                            {!isEditing && (
-                                <Button 
-                                    variant="ghost" 
-                                    size="sm" 
-                                    onClick={() => setIsEditing(true)}
-                                    className="h-8 text-slate-400 hover:text-white"
-                                >
-                                    <Edit2 size={14} className="mr-2" />
-                                    {t('editShot')}
-                                </Button>
-                            )}
+                            <div className="flex items-center gap-2">
+                                {/* Navigation Buttons */}
+                                <div className="flex items-center gap-1 border border-slate-700 rounded-lg px-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => previousShot && onNavigate?.(previousShot)}
+                                        disabled={!previousShot}
+                                        className="h-7 px-3 text-slate-400 hover:text-white disabled:opacity-30"
+                                    >
+                                        <ChevronLeft size={14} className="mr-1" />
+                                        {t('previousShot')}
+                                    </Button>
+                                    <div className="h-4 w-px bg-slate-700" />
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => nextShot && onNavigate?.(nextShot)}
+                                        disabled={!nextShot}
+                                        className="h-7 px-3 text-slate-400 hover:text-white disabled:opacity-30"
+                                    >
+                                        {t('nextShot')}
+                                        <ChevronRight size={14} className="ml-1" />
+                                    </Button>
+                                </div>
+                                {!isEditing && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setIsEditing(true)}
+                                        className="h-8 text-slate-400 hover:text-white"
+                                    >
+                                        <Edit2 size={14} className="mr-2" />
+                                        {t('editShot')}
+                                    </Button>
+                                )}
+                            </div>
                         </DialogTitle>
                         <DialogDescription className="sr-only">
                             {t('shotDetail')}
                         </DialogDescription>
                     </DialogHeader>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800">
                         {/* Left Column: Media Area */}
                         <div className="space-y-6">
@@ -306,10 +336,10 @@ export function ShotEditModal({
                                     </div>
                                 ) : shot.image_url ? (
                                     <>
-                                        <img 
-                                            src={shot.image_url} 
-                                            alt="Shot" 
-                                            className="w-full h-full object-contain cursor-pointer" 
+                                        <img
+                                            src={shot.image_url}
+                                            alt="Shot"
+                                            className="w-full h-full object-contain cursor-pointer"
                                             onClick={() => setIsPreviewOpen(true)}
                                         />
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
@@ -328,7 +358,7 @@ export function ShotEditModal({
                                         <span className="text-xs">{t('noShotImage')}</span>
                                     </div>
                                 )}
-                                
+
                                 {/* Regenerate Button */}
                                 <Button
                                     variant="secondary"
@@ -347,8 +377,8 @@ export function ShotEditModal({
                                 <div className="flex items-center justify-between">
                                     <Label className="text-sm font-medium">{t('videoPreview')}</Label>
                                     {(shot.extra_data as any)?.version_history?.length > 1 && (
-                                        <Select 
-                                            value={selectedVersionId || undefined} 
+                                        <Select
+                                            value={selectedVersionId || undefined}
                                             onValueChange={setSelectedVersionId}
                                         >
                                             <SelectTrigger className="h-7 w-[180px] text-xs bg-slate-800 border-slate-700">
@@ -367,9 +397,9 @@ export function ShotEditModal({
 
                                 {(() => {
                                     const history = (shot.extra_data as any)?.version_history || [];
-                                    const selectedVersion = history.find((v: any) => v.version_id === selectedVersionId) || 
-                                                           (history.length > 0 ? history[history.length - 1] : null);
-                                    
+                                    const selectedVersion = history.find((v: any) => v.version_id === selectedVersionId) ||
+                                        (history.length > 0 ? history[history.length - 1] : null);
+
                                     // Fallback to current shot properties if no history exists
                                     const displayVideoUrl = selectedVersion?.video_url || shot.video_url;
                                     const displayAudioUrl = selectedVersion?.audio_url || shot.audio_url;
@@ -461,8 +491,8 @@ export function ShotEditModal({
                                         {t('imagePrompt') || "生图提示词"}
                                     </Label>
                                     {isEditing ? (
-                                        <AutosizeTextarea 
-                                            value={imagePrompt} 
+                                        <AutosizeTextarea
+                                            value={imagePrompt}
                                             onChange={(e) => setImagePrompt(e.target.value)}
                                             placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
                                             className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
@@ -483,9 +513,9 @@ export function ShotEditModal({
                                             {t('videoPrompt') || "视频提示词"}
                                         </Label>
                                         {!isEditing && (
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm" 
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={handleRegenerateVideoPrompt}
                                                 disabled={isGeneratingPrompt}
                                                 className="h-6 text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 hover:bg-purple-500/10"
@@ -500,8 +530,8 @@ export function ShotEditModal({
                                         )}
                                     </div>
                                     {isEditing ? (
-                                        <AutosizeTextarea 
-                                            value={videoPrompt} 
+                                        <AutosizeTextarea
+                                            value={videoPrompt}
                                             onChange={(e) => setVideoPrompt(e.target.value)}
                                             placeholder={t('videoPromptPlaceholder') || "输入视频提示词..."}
                                             className="text-sm resize-none bg-white dark:bg-slate-950 border-purple-200 dark:border-purple-800/50 focus:border-purple-500"
@@ -573,17 +603,16 @@ export function ShotEditModal({
                                                     <div
                                                         key={char.character_id}
                                                         onClick={() => toggleCharacter(char.character_id!)}
-                                                        className={`flex items-center gap-2 p-1.5 rounded-md cursor-pointer transition-all border ${
-                                                            isSelected 
-                                                                ? "bg-blue-600/20 border-blue-500 text-blue-100" 
-                                                                : "bg-slate-900/50 border-slate-700 text-slate-400 hover:border-slate-600 hover:bg-slate-800"
-                                                        }`}
+                                                        className={`flex items-center gap-2 p-1.5 rounded-md cursor-pointer transition-all border ${isSelected
+                                                            ? "bg-blue-600/20 border-blue-500 text-blue-100"
+                                                            : "bg-slate-900/50 border-slate-700 text-slate-400 hover:border-slate-600 hover:bg-slate-800"
+                                                            }`}
                                                     >
                                                         <div className="w-8 h-8 rounded overflow-hidden bg-slate-800 shrink-0 border border-slate-700">
                                                             {char.image_url ? (
-                                                                <img 
-                                                                    src={char.image_url} 
-                                                                    alt={char.name} 
+                                                                <img
+                                                                    src={char.image_url}
+                                                                    alt={char.name}
                                                                     className="w-full h-full object-cover"
                                                                 />
                                                             ) : (
@@ -632,8 +661,8 @@ export function ShotEditModal({
                                 <div className="space-y-2">
                                     <Label className="text-xs text-slate-500">{t('description')}</Label>
                                     {isEditing ? (
-                                        <Textarea 
-                                            value={description} 
+                                        <Textarea
+                                            value={description}
                                             onChange={(e) => setDescription(e.target.value)}
                                             className="bg-slate-800 border-slate-700 text-sm min-h-[80px]"
                                             placeholder={t('describeShot')}
@@ -650,9 +679,9 @@ export function ShotEditModal({
                                     <div className="flex items-center justify-between">
                                         <Label className="text-xs text-slate-500">{t('narration')} / {t('dialogue')}</Label>
                                         {isEditing && (
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm" 
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
                                                 onClick={handleAddNarration}
                                                 className="h-6 text-[10px] text-blue-400 hover:text-blue-300"
                                             >
@@ -667,8 +696,8 @@ export function ShotEditModal({
                                                 <div className="flex items-center gap-2">
                                                     {isEditing ? (
                                                         <div className="flex-1 flex gap-2">
-                                                            <Select 
-                                                                value={item.角色} 
+                                                            <Select
+                                                                value={item.角色}
                                                                 onValueChange={(val) => handleUpdateNarration(index, '角色', val)}
                                                             >
                                                                 <SelectTrigger className="w-[120px] h-8 bg-slate-800 border-slate-700 text-xs">
@@ -690,8 +719,8 @@ export function ShotEditModal({
                                                                     ))}
                                                                 </SelectContent>
                                                             </Select>
-                                                            <Textarea 
-                                                                value={item.内容} 
+                                                            <Textarea
+                                                                value={item.内容}
                                                                 onChange={(e) => handleUpdateNarration(index, '内容', e.target.value)}
                                                                 className="bg-slate-800 border-slate-700 text-sm min-h-[40px] flex-1"
                                                                 placeholder={t('dialoguePlaceholder')}
@@ -759,16 +788,16 @@ export function ShotEditModal({
                     <DialogTitle className="sr-only">图片预览</DialogTitle>
                     <DialogDescription className="sr-only">分镜图片预览</DialogDescription>
                     {shot.image_url && (
-                        <img 
-                            src={shot.image_url} 
-                            alt="Preview" 
+                        <img
+                            src={shot.image_url}
+                            alt="Preview"
                             className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
                         />
                     )}
                 </DialogContent>
             </Dialog>
 
-            <VideoGenerationDialog 
+            <VideoGenerationDialog
                 isOpen={isVideoConfigOpen}
                 onClose={() => setIsVideoConfigOpen(false)}
                 onConfirm={handleConfirmVideoGeneration}
