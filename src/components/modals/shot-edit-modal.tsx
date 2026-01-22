@@ -26,8 +26,10 @@ interface ShotEditModalProps {
     availableCharacters: ICharacter[];
     availableScenes: IScene[];
     onSuccess: () => void;
-    onRegenerateImage: (shotId: string, imagePrompt?: string) => void;
-    isRegenerating: boolean;
+    onRegenerateImage: (shotId: string, imagePrompt?: string, frameType?: 'start' | 'end' | 'both') => void;
+    regeneratingFrameType?: 'start' | 'end' | 'both' | null;
+    isVideoGenerating?: boolean;
+    onVideoGenerationStart?: () => void;
     aspectRatio?: "16:9" | "9:16";
     onNavigate?: (shot: IShot) => void;
 }
@@ -45,7 +47,9 @@ export function ShotEditModal({
     availableScenes,
     onSuccess,
     onRegenerateImage,
-    isRegenerating,
+    regeneratingFrameType,
+    isVideoGenerating: isVideoGeneratingProp,
+    onVideoGenerationStart,
     aspectRatio = "16:9",
     onNavigate
 }: ShotEditModalProps) {
@@ -62,6 +66,7 @@ export function ShotEditModal({
     const [description, setDescription] = useState(shot.description || '');
     const [narration, setNarration] = useState<INarrationItem[]>(shot.narration || []);
     const [imagePrompt, setImagePrompt] = useState(shot.image_prompt || '');
+    const [endFrameImagePrompt, setEndFrameImagePrompt] = useState((shot.extra_data as any)?.end_frame_image_prompt || '');
     const [sceneId, setSceneId] = useState<string>(String(shot.scene_id));
     const [characterIds, setCharacterIds] = useState<number[]>(
         shot.characters?.map(c => c.character_id) || []
@@ -76,6 +81,7 @@ export function ShotEditModal({
     const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
     const [isVideoConfigOpen, setIsVideoConfigOpen] = useState(false);
     const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
+    const [isEndFramePreviewOpen, setIsEndFramePreviewOpen] = useState(false);
 
     // Reset form when shot changes
     useEffect(() => {
@@ -88,6 +94,7 @@ export function ShotEditModal({
             const ids = shot.characters?.map(c => c.character_id).filter(id => id !== undefined && id !== null) || (shot as any).associated_characters || [];
             setCharacterIds(ids);
             setVideoPrompt((shot.extra_data as any)?.video_prompt || '');
+            setEndFrameImagePrompt((shot.extra_data as any)?.end_frame_image_prompt || '');
 
             // Try to get appearance_elements from root extra_data, fallback to ai_output
             const extra = shot.extra_data as any;
@@ -116,7 +123,8 @@ export function ShotEditModal({
             const updatedExtraData = {
                 ...(shot.extra_data || {}),
                 video_prompt: videoPrompt,
-                appearance_elements: appearanceElements
+                appearance_elements: appearanceElements,
+                end_frame_image_prompt: endFrameImagePrompt
             };
 
             await shotApi.updateShot(shotUuid, {
@@ -188,7 +196,7 @@ export function ShotEditModal({
     const handleRegenerate = () => {
         const shotUuid = shot.uuid || String(shot.shot_id);
         // 直接使用当前编辑框里的 prompt，如果有就用，没有后端会自动生成
-        onRegenerateImage(shotUuid, imagePrompt || undefined);
+        onRegenerateImage(shotUuid, imagePrompt || undefined, 'start');
     };
 
     // Video generation handlers
@@ -208,6 +216,8 @@ export function ShotEditModal({
             } else {
                 await shotApi.generateShotVideo(shotUuid, undefined, data.lastFrameImageUrl);
             }
+            // Notify parent to update video generating status immediately
+            onVideoGenerationStart?.();
             toast.success(t('videoGenerationStarted'));
             setIsVideoConfigOpen(false);
 
@@ -354,12 +364,7 @@ export function ShotEditModal({
                                 "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
                                 "aspect-video"
                             )}>
-                                {isRegenerating ? (
-                                    <div className="w-full h-full flex items-center justify-center text-orange-500 gap-2">
-                                        <Loader2 className="w-6 h-6 animate-spin" />
-                                        <span className="text-sm">{tCommon('generating')}</span>
-                                    </div>
-                                ) : shot.image_url ? (
+                                {shot.image_url ? (
                                     <>
                                         <img
                                             src={shot.image_url}
@@ -384,17 +389,82 @@ export function ShotEditModal({
                                     </div>
                                 )}
 
+                                {/* Generating Overlay */}
+                                {(regeneratingFrameType === 'start' || regeneratingFrameType === 'both') && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-2" />
+                                        <span className="text-sm text-orange-400 font-medium">{tCommon('generating')}</span>
+                                    </div>
+                                )}
+
                                 {/* Regenerate Button */}
                                 <Button
                                     variant="secondary"
                                     size="sm"
                                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border border-white/10 backdrop-blur-md"
                                     onClick={handleRegenerate}
-                                    disabled={isRegenerating}
+                                    disabled={regeneratingFrameType === 'start' || regeneratingFrameType === 'both'}
                                 >
-                                    <RotateCcw size={14} className={`mr-2 ${isRegenerating ? "animate-spin" : ""}`} />
+                                    <RotateCcw size={14} className="mr-2" />
                                     {t('regenerate')}
                                 </Button>
+                            </div>
+
+                            {/* End Frame Image Area */}
+                            <div className="space-y-2">
+                                <Label className="text-xs text-slate-500">尾帧图片</Label>
+                                <div className={cn(
+                                    "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
+                                    "aspect-video"
+                                )}>
+                                    {(shot.extra_data as any)?.end_frame_image_url ? (
+                                        <>
+                                            <img
+                                                src={(shot.extra_data as any).end_frame_image_url}
+                                                alt="End Frame"
+                                                className="w-full h-full object-contain cursor-pointer"
+                                                onClick={() => setIsEndFramePreviewOpen(true)}
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white rounded-full"
+                                                onClick={() => setIsEndFramePreviewOpen(true)}
+                                            >
+                                                <Maximize2 size={16} />
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
+                                            <ImageIcon size={32} className="opacity-50 mb-2" />
+                                            <span className="text-xs">暂无尾帧图片</span>
+                                        </div>
+                                    )}
+
+                                    {/* Generating Overlay */}
+                                    {(regeneratingFrameType === 'end' || regeneratingFrameType === 'both') && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                            <Loader2 className="w-8 h-8 text-cyan-500 animate-spin mb-2" />
+                                            <span className="text-sm text-cyan-400 font-medium">{tCommon('generating')}</span>
+                                        </div>
+                                    )}
+
+                                    {/* Regenerate End Frame Button */}
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border border-white/10 backdrop-blur-md"
+                                        onClick={() => {
+                                            const shotUuid = shot.uuid || String(shot.shot_id);
+                                            onRegenerateImage(shotUuid, endFrameImagePrompt || undefined, 'end');
+                                        }}
+                                        disabled={regeneratingFrameType === 'end' || regeneratingFrameType === 'both'}
+                                    >
+                                        <RotateCcw size={14} className="mr-2" />
+                                        {t('regenerate')}
+                                    </Button>
+                                </div>
                             </div>
 
                             {/* Video Preview Area */}
@@ -481,6 +551,19 @@ export function ShotEditModal({
                                         );
                                     }
 
+                                    // Show loading if video is generating
+                                    const isVideoInProgress = isGeneratingVideo || isVideoGeneratingProp;
+
+                                    if (isVideoInProgress) {
+                                        return (
+                                            <div className="border-2 border-dashed border-purple-700/50 rounded-lg p-8 text-center bg-purple-900/10">
+                                                <Loader2 className="w-12 h-12 mx-auto mb-2 text-purple-500 animate-spin" />
+                                                <p className="text-sm text-purple-400 mb-2">视频生成中...</p>
+                                                <p className="text-xs text-slate-500">生成完成后将自动刷新</p>
+                                            </div>
+                                        );
+                                    }
+
                                     return (
                                         <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center">
                                             <Film className="w-12 h-12 mx-auto mb-2 text-slate-600" />
@@ -527,6 +610,28 @@ export function ShotEditModal({
                                     ) : (
                                         <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-orange-200/20 hover:scrollbar-thumb-orange-200/40">
                                             {imagePrompt || tCommon('none')}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* End Frame Image Prompt */}
+                                <div className="p-3 rounded-lg bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-900/30 space-y-2">
+                                    <Label className="text-xs font-semibold text-cyan-700 dark:text-cyan-400 flex items-center gap-1.5">
+                                        <Sparkles className="w-3 h-3" />
+                                        尾帧图片提示词
+                                    </Label>
+                                    {isEditing ? (
+                                        <AutosizeTextarea
+                                            value={endFrameImagePrompt}
+                                            onChange={(e) => setEndFrameImagePrompt(e.target.value)}
+                                            placeholder="输入尾帧图片提示词..."
+                                            className="text-sm resize-none bg-white dark:bg-slate-950 border-cyan-200 dark:border-cyan-800/50 focus:border-cyan-500"
+                                            minRows={2}
+                                            maxRows={10}
+                                        />
+                                    ) : (
+                                        <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-cyan-200/20 hover:scrollbar-thumb-cyan-200/40">
+                                            {endFrameImagePrompt || tCommon('none')}
                                         </div>
                                     )}
                                 </div>
@@ -875,6 +980,21 @@ export function ShotEditModal({
                 </DialogContent>
             </Dialog>
 
+            {/* End Frame Fullscreen Preview */}
+            <Dialog open={isEndFramePreviewOpen} onOpenChange={setIsEndFramePreviewOpen}>
+                <DialogContent showCloseButton={true} className="bg-transparent border-0 shadow-none max-w-[95vw] max-h-[95vh] p-0 flex items-center justify-center">
+                    <DialogTitle className="sr-only">尾帧图片预览</DialogTitle>
+                    <DialogDescription className="sr-only">分镜尾帧图片预览</DialogDescription>
+                    {(shot.extra_data as any)?.end_frame_image_url && (
+                        <img
+                            src={(shot.extra_data as any).end_frame_image_url}
+                            alt="End Frame Preview"
+                            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
+                        />
+                    )}
+                </DialogContent>
+            </Dialog>
+
             <VideoGenerationDialog
                 isOpen={isVideoConfigOpen}
                 onClose={() => setIsVideoConfigOpen(false)}
@@ -882,6 +1002,7 @@ export function ShotEditModal({
                 shot={shot}
                 nextShot={nextShot}
                 isGenerating={isGeneratingVideo}
+                aspectRatio={aspectRatio}
             />
         </>
     );

@@ -33,18 +33,27 @@ export function VideoGenerationDialog({
     const tCommon = useTranslations('common');
 
     const [useLastFrame, setUseLastFrame] = useState(false);
-    const [lastFrameType, setLastFrameType] = useState<'upload' | 'next_shot'>('next_shot');
+    const [lastFrameType, setLastFrameType] = useState<'upload' | 'next_shot' | 'current_shot_end'>('next_shot');
     const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+
+    // Check if current shot has end frame
+    const currentShotEndFrameUrl = (shot.extra_data as any)?.end_frame_image_url;
 
     // Reset state when opened
     useEffect(() => {
         if (isOpen) {
-            setUseLastFrame(false);
-            setLastFrameType(nextShot ? 'next_shot' : 'upload');
+            // Default to current shot end frame if available
+            if (currentShotEndFrameUrl) {
+                setUseLastFrame(true);
+                setLastFrameType('current_shot_end');
+            } else {
+                setUseLastFrame(false);
+                setLastFrameType(nextShot ? 'next_shot' : 'upload');
+            }
             setUploadedImageUrl(null);
         }
-    }, [isOpen, nextShot]);
+    }, [isOpen, nextShot, currentShotEndFrameUrl]);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -70,7 +79,9 @@ export function VideoGenerationDialog({
         let lastFrameImageUrl: string | undefined = undefined;
 
         if (useLastFrame) {
-            if (lastFrameType === 'next_shot' && nextShot?.image_url) {
+            if (lastFrameType === 'current_shot_end' && currentShotEndFrameUrl) {
+                lastFrameImageUrl = currentShotEndFrameUrl;
+            } else if (lastFrameType === 'next_shot' && nextShot?.image_url) {
                 lastFrameImageUrl = nextShot.image_url;
             } else if (lastFrameType === 'upload' && uploadedImageUrl) {
                 lastFrameImageUrl = uploadedImageUrl;
@@ -128,6 +139,8 @@ export function VideoGenerationDialog({
                                     <>
                                         {lastFrameType === 'next_shot' && nextShot?.image_url ? (
                                             <img src={nextShot.image_url} alt="Next Shot Frame" className="w-full h-full object-cover" />
+                                        ) : lastFrameType === 'current_shot_end' && currentShotEndFrameUrl ? (
+                                            <img src={currentShotEndFrameUrl} alt="Current Shot End Frame" className="w-full h-full object-cover" />
                                         ) : uploadedImageUrl ? (
                                             <img src={uploadedImageUrl} alt="Uploaded Frame" className="w-full h-full object-cover" />
                                         ) : (
@@ -135,7 +148,7 @@ export function VideoGenerationDialog({
                                                 <Upload className="w-6 h-6 text-slate-700" />
                                             </div>
                                         )}
-                                        <button 
+                                        <button
                                             onClick={() => setUseLastFrame(false)}
                                             className="absolute top-1 right-1 bg-black/50 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
@@ -143,7 +156,7 @@ export function VideoGenerationDialog({
                                         </button>
                                     </>
                                 ) : (
-                                    <div 
+                                    <div
                                         className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800/50 transition-colors"
                                         onClick={() => setUseLastFrame(true)}
                                     >
@@ -158,7 +171,17 @@ export function VideoGenerationDialog({
                     {/* Last Frame Options */}
                     {useLastFrame && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-wrap">
+                                {currentShotEndFrameUrl && (
+                                    <Button
+                                        variant={lastFrameType === 'current_shot_end' ? 'default' : 'outline'}
+                                        size="sm"
+                                        className="flex-1 text-xs h-8"
+                                        onClick={() => setLastFrameType('current_shot_end')}
+                                    >
+                                        当前分镜尾帧
+                                    </Button>
+                                )}
                                 {nextShot && (
                                     <Button
                                         variant={lastFrameType === 'next_shot' ? 'default' : 'outline'}
@@ -203,10 +226,16 @@ export function VideoGenerationDialog({
                                     </label>
                                 </div>
                             )}
-                            
+
                             {lastFrameType === 'next_shot' && nextShot && (
                                 <p className="text-[11px] text-slate-500 text-center">
                                     {t('usingNextShotDesc', { number: nextShot.shot_number }) || `将使用分镜 ${nextShot.shot_number} 的图片作为当前分镜视频的结尾。`}
+                                </p>
+                            )}
+
+                            {lastFrameType === 'current_shot_end' && currentShotEndFrameUrl && (
+                                <p className="text-[11px] text-slate-500 text-center">
+                                    将使用当前分镜的尾帧图片作为视频的结尾。
                                 </p>
                             )}
                         </div>
@@ -214,16 +243,16 @@ export function VideoGenerationDialog({
                 </div>
 
                 <DialogFooter className="gap-2 sm:gap-0">
-                    <Button 
-                        variant="ghost" 
-                        onClick={onClose} 
+                    <Button
+                        variant="ghost"
+                        onClick={onClose}
                         disabled={isGenerating}
                         className="text-slate-400 hover:text-white"
                     >
                         {tCommon('cancel')}
                     </Button>
-                    <Button 
-                        onClick={handleConfirm} 
+                    <Button
+                        onClick={handleConfirm}
                         disabled={isGenerating || isUploading || (useLastFrame && lastFrameType === 'upload' && !uploadedImageUrl)}
                         className="bg-purple-600 hover:bg-purple-700 text-white min-w-[100px]"
                     >
@@ -243,22 +272,22 @@ export function VideoGenerationDialog({
 }
 
 function Plus({ className, ...props }: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M5 12h14" />
-      <path d="M12 5v14" />
-    </svg>
-  )
+    return (
+        <svg
+            {...props}
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={className}
+        >
+            <path d="M5 12h14" />
+            <path d="M12 5v14" />
+        </svg>
+    )
 }

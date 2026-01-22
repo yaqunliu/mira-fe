@@ -111,7 +111,7 @@ export default function DynamicComicEditor() {
     // Shot Management State
     const [isAnalyzingShots, setIsAnalyzingShots] = useState(false);
     const [isGeneratingShotImages, setIsGeneratingShotImages] = useState(false);
-    const [regeneratingShots, setRegeneratingShots] = useState<Map<string, string>>(new Map());
+    const [regeneratingShots, setRegeneratingShots] = useState<Map<string, { taskId: string; frameType: 'start' | 'end' | 'both' }>>(new Map());
     const [editingShot, setEditingShot] = useState<any | null>(null);
 
     // Video Generation State
@@ -898,15 +898,15 @@ export default function DynamicComicEditor() {
         checkStatus();
     };
 
-    const handleRegenerateShotImage = async (shotUuid: string, imagePrompt?: string) => {
+    const handleRegenerateShotImage = async (shotUuid: string, imagePrompt?: string, frameType?: 'start' | 'end' | 'both') => {
         if (!shotUuid) return;
 
         try {
-            const res = await shotApi.regenerateShotImage(shotUuid, imagePrompt);
+            const res = await shotApi.regenerateShotImage(shotUuid, imagePrompt, undefined, frameType);
             if (res.data && res.data.task_id) {
                 setRegeneratingShots(prev => {
                     const newMap = new Map(prev);
-                    newMap.set(shotUuid, res.data.task_id);
+                    newMap.set(shotUuid, { taskId: res.data.task_id, frameType: frameType || 'both' });
                     return newMap;
                 });
                 toast.success(t('regenerating'));
@@ -2057,7 +2057,7 @@ export default function DynamicComicEditor() {
 
         const intervals: NodeJS.Timeout[] = [];
 
-        regeneratingShots.forEach((taskId, shotId) => {
+        regeneratingShots.forEach(({ taskId }, shotId) => {
             const interval = setInterval(async () => {
                 try {
                     const response = await taskApi.queryTaskStatus(taskId);
@@ -2076,6 +2076,16 @@ export default function DynamicComicEditor() {
                                 const res = await creationApi.queryCreationById(creation.uuid);
                                 if (res && res.data) {
                                     setCreation(res.data);
+                                    // Also update editingShot if it's the same shot being edited
+                                    if (editingShot && (editingShot.uuid === shotId || String(editingShot.shot_id) === shotId)) {
+                                        // Find the updated shot from the refreshed creation
+                                        const updatedShot = res.data.scenes?.flatMap((scene: any) =>
+                                            scene.shots?.map((s: any) => ({ ...s, _sceneTitle: scene.title })) || []
+                                        ).find((s: any) => s.uuid === shotId || String(s.shot_id) === shotId);
+                                        if (updatedShot) {
+                                            setEditingShot(updatedShot);
+                                        }
+                                    }
                                 }
                             }
                             toast.success(t('regenerateShotImageSuccess'));
@@ -3039,37 +3049,78 @@ export default function DynamicComicEditor() {
                                                                         }}
                                                                         onClick={() => setEditingShot(shot)}
                                                                     >
-                                                                        {/* Image Thumbnail */}
-                                                                        <div className={cn(
-                                                                            "rounded bg-slate-800 overflow-hidden shrink-0 relative border border-slate-800",
-                                                                            aspectRatio === "9:16" ? "w-12 h-20" : "w-20 h-12"
-                                                                        )}>
-                                                                            {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
-                                                                                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
-                                                                                    <Loader2 className="w-4 h-4 text-orange-500 animate-spin mb-0.5" />
-                                                                                    <span className="text-[9px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
-                                                                                </div>
-                                                                            ) : shot.image_url ? (
-                                                                                <>
-                                                                                    <img src={shot.image_url} alt={`Shot ${shot.shot_number}`} className="w-full h-full object-cover" />
-                                                                                    {/* Video Generating Overlay Badge */}
-                                                                                    {isVideoGenerating(shot) && (
-                                                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                                                                                            <div className="flex flex-col items-center">
-                                                                                                <Loader2 className="w-4 h-4 text-purple-400 animate-spin mb-0.5" />
-                                                                                                <span className="text-[8px] text-purple-400 font-medium">视频生成中</span>
+                                                                        {/* Image Thumbnails: Start Frame + End Frame */}
+                                                                        <div className="flex items-center gap-1 shrink-0">
+                                                                            {/* Start Frame Thumbnail */}
+                                                                            <div className={cn(
+                                                                                "rounded bg-slate-800 overflow-hidden relative border border-slate-800",
+                                                                                aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-10"
+                                                                            )}>
+                                                                                {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
+                                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
+                                                                                        <Loader2 className="w-3 h-3 text-orange-500 animate-spin mb-0.5" />
+                                                                                        <span className="text-[7px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
+                                                                                    </div>
+                                                                                ) : shot.image_url ? (
+                                                                                    <>
+                                                                                        <img src={shot.image_url} alt={`Shot ${shot.shot_number}`} className="w-full h-full object-cover" />
+                                                                                        {/* Video Generating Overlay Badge */}
+                                                                                        {isVideoGenerating(shot) && (
+                                                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                                                                                <div className="flex flex-col items-center">
+                                                                                                    <Loader2 className="w-3 h-3 text-purple-400 animate-spin mb-0.5" />
+                                                                                                    <span className="text-[6px] text-purple-400 font-medium">生成中</span>
+                                                                                                </div>
                                                                                             </div>
+                                                                                        )}
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
+                                                                                        <ImageIcon size={12} className="opacity-50 mb-0.5" />
+                                                                                        <span className="text-[6px] opacity-50 scale-90">首帧</span>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+
+                                                                            {/* Arrow Indicator */}
+                                                                            <div className="text-slate-600 text-[8px]">→</div>
+
+                                                                            {/* End Frame Thumbnail */}
+                                                                            <div className={cn(
+                                                                                "rounded bg-slate-800 overflow-hidden relative border border-slate-800",
+                                                                                aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-10"
+                                                                            )}>
+                                                                                {(() => {
+                                                                                    const regenInfo = regeneratingShots.get(shot.uuid || String(shot.shot_id));
+                                                                                    const isEndFrameGenerating = regenInfo && (regenInfo.frameType === 'end' || regenInfo.frameType === 'both');
+
+                                                                                    if (isEndFrameGenerating) {
+                                                                                        return (
+                                                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
+                                                                                                <Loader2 className="w-3 h-3 text-cyan-500 animate-spin mb-0.5" />
+                                                                                                <span className="text-[7px] text-cyan-500 font-medium scale-90">{tC('generating')}</span>
+                                                                                            </div>
+                                                                                        );
+                                                                                    }
+
+                                                                                    if ((shot.extra_data as any)?.end_frame_image_url) {
+                                                                                        return (
+                                                                                            <img
+                                                                                                src={(shot.extra_data as any).end_frame_image_url}
+                                                                                                alt={`Shot ${shot.shot_number} End Frame`}
+                                                                                                className="w-full h-full object-cover"
+                                                                                            />
+                                                                                        );
+                                                                                    }
+
+                                                                                    return (
+                                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
+                                                                                            <ImageIcon size={12} className="opacity-50 mb-0.5" />
+                                                                                            <span className="text-[6px] opacity-50 scale-90">尾帧</span>
                                                                                         </div>
-                                                                                    )}
-                                                                                </>
-                                                                            ) : (
-                                                                                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
-                                                                                    <ImageIcon size={16} className="opacity-50 mb-0.5" />
-                                                                                    <span className="text-[8px] opacity-50 scale-90">
-                                                                                        {(creation && getStepStatus(creation, 'shotImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
-                                                                                    </span>
-                                                                                </div>
-                                                                            )}
+                                                                                    );
+                                                                                })()}
+                                                                            </div>
                                                                         </div>
 
                                                                         {/* Content */}
@@ -3131,7 +3182,7 @@ export default function DynamicComicEditor() {
                                                                                 className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
-                                                                                    handleRegenerateShotImage(shot.uuid || String(shot.shot_id));
+                                                                                    handleRegenerateShotImage(shot.uuid || String(shot.shot_id), undefined, 'both');
                                                                                 }}
                                                                                 disabled={regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating'}
                                                                                 title={t('regenerate')}
@@ -3246,7 +3297,18 @@ export default function DynamicComicEditor() {
                                                     availableScenes={creation?.scenes || []}
                                                     onSuccess={handleShotUpdateSuccess}
                                                     onRegenerateImage={handleRegenerateShotImage}
-                                                    isRegenerating={regeneratingShots.has(editingShot.uuid || String(editingShot.shot_id)) || editingShot.status === 'generating'}
+                                                    regeneratingFrameType={regeneratingShots.get(editingShot.uuid || String(editingShot.shot_id))?.frameType || (editingShot.status === 'generating' ? 'both' : null)}
+                                                    isVideoGenerating={editingShot.status_detail?.video_status === 'generating'}
+                                                    onVideoGenerationStart={() => {
+                                                        // Update editingShot's video_status to 'generating' immediately
+                                                        setEditingShot((prev: any) => prev ? {
+                                                            ...prev,
+                                                            status_detail: {
+                                                                ...prev.status_detail,
+                                                                video_status: 'generating'
+                                                            }
+                                                        } : null);
+                                                    }}
                                                     aspectRatio={aspectRatio}
                                                     onNavigate={(shot) => setEditingShot(shot)}
                                                 />

@@ -18,13 +18,15 @@ const shotApi = {
   regenerateShotImage: async (
     shotUuid: string,
     imagePrompt?: string,
-    modelName?: string
+    modelName?: string,
+    frameType?: 'start' | 'end' | 'both'
   ): Promise<{ data: { task_id: string; shot_uuid: string; image_prompt?: string }; message: string }> => {
     return apiClient.post<{ task_id: string; shot_uuid: string; image_prompt?: string; message: string }>(
       `/api/v1/shots/${shotUuid}/regenerate`,
       {
         image_prompt: imagePrompt,
-        model_name: modelName
+        model_name: modelName,
+        frame_type: frameType
       }
     ) as unknown as Promise<{ data: { task_id: string; shot_uuid: string; image_prompt?: string }; message: string }>;
   },
@@ -73,7 +75,7 @@ const shotApi = {
   ): Promise<{ data: { task_id: string; shot_uuid: string; video_duration: number; required_points: number }; message: string }> => {
     return apiClient.post(
       `/api/v1/shots/${shotUuid}/generate-video`,
-      { 
+      {
         model_name: modelName,
         last_frame_image_url: lastFrameImageUrl
       }
@@ -88,7 +90,7 @@ const shotApi = {
   ): Promise<{ data: { task_id: string; shot_uuid: string }; message: string }> => {
     return apiClient.post(
       `/api/v1/shots/${shotUuid}/regenerate-video`,
-      { 
+      {
         model_name: modelName,
         last_frame_image_url: lastFrameImageUrl
       }
