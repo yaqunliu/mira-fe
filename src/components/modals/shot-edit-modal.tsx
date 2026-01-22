@@ -966,34 +966,20 @@ export function ShotEditModal({
             </Dialog>
 
             {/* Fullscreen Preview */}
-            <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-                <DialogContent showCloseButton={true} className="bg-transparent border-0 shadow-none max-w-[95vw] max-h-[95vh] p-0 flex items-center justify-center">
-                    <DialogTitle className="sr-only">图片预览</DialogTitle>
-                    <DialogDescription className="sr-only">分镜图片预览</DialogDescription>
-                    {shot.image_url && (
-                        <img
-                            src={shot.image_url}
-                            alt="Preview"
-                            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
+            <ImagePreview
+                open={isPreviewOpen}
+                onOpenChange={setIsPreviewOpen}
+                src={shot.image_url}
+                alt="Preview"
+            />
 
             {/* End Frame Fullscreen Preview */}
-            <Dialog open={isEndFramePreviewOpen} onOpenChange={setIsEndFramePreviewOpen}>
-                <DialogContent showCloseButton={true} className="bg-transparent border-0 shadow-none max-w-[95vw] max-h-[95vh] p-0 flex items-center justify-center">
-                    <DialogTitle className="sr-only">尾帧图片预览</DialogTitle>
-                    <DialogDescription className="sr-only">分镜尾帧图片预览</DialogDescription>
-                    {(shot.extra_data as any)?.end_frame_image_url && (
-                        <img
-                            src={(shot.extra_data as any).end_frame_image_url}
-                            alt="End Frame Preview"
-                            className="max-w-full max-h-[90vh] rounded-lg shadow-2xl"
-                        />
-                    )}
-                </DialogContent>
-            </Dialog>
+            <ImagePreview
+                open={isEndFramePreviewOpen}
+                onOpenChange={setIsEndFramePreviewOpen}
+                src={(shot.extra_data as any)?.end_frame_image_url}
+                alt="End Frame Preview"
+            />
 
             <VideoGenerationDialog
                 isOpen={isVideoConfigOpen}

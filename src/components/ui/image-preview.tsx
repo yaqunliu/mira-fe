@@ -45,6 +45,26 @@ export function ImagePreview({
     setPosition({ x: 0, y: 0 });
   }, []);
 
+  // 监听键盘事件
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onOpenChange(false);
+      } else if (e.key === "+" || e.key === "=") {
+        setScale(prev => Math.min(prev + 0.2, 5));
+      } else if (e.key === "-" || e.key === "_") {
+        setScale(prev => Math.max(prev - 0.2, 0.5));
+      } else if (e.key === "0") {
+        resetZoom();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onOpenChange, resetZoom]);
+
   // 监听打开状态变化，关闭时重置
   useEffect(() => {
     if (!open) {
@@ -53,11 +73,15 @@ export function ImagePreview({
   }, [open, resetZoom]);
 
   const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey || true) { // 允许直接滚轮缩放，或者可以限制按住 ctrl
-      e.preventDefault();
-      const delta = -e.deltaY;
-      const factor = 0.1;
-      const newScale = Math.min(Math.max(scale + (delta > 0 ? factor : -factor), 0.5), 5);
+    // 阻止默认滚轮行为（如页面滚动）
+    e.preventDefault();
+    
+    const delta = -e.deltaY;
+    const factor = 0.1;
+    const newScale = Math.min(Math.max(scale + (delta > 0 ? factor : -factor), 0.5), 5);
+    
+    // 如果缩放比例发生变化，计算新的位置以保持鼠标中心点不变
+    if (newScale !== scale) {
       setScale(newScale);
     }
   };
@@ -80,6 +104,14 @@ export function ImagePreview({
 
   const handleMouseUp = () => {
     setIsDragging(false);
+  };
+
+  const handleDoubleClick = () => {
+    if (scale > 1) {
+      resetZoom();
+    } else {
+      setScale(2);
+    }
   };
 
   const getCloseButtonPosition = () => {
@@ -111,44 +143,73 @@ export function ImagePreview({
         <DialogTitle className="sr-only">{alt}</DialogTitle>
         <DialogDescription className="sr-only">图片预览窗口</DialogDescription>
         <div 
-          className="relative w-full h-full flex items-center justify-center overflow-hidden cursor-move"
+          className="relative w-full h-full flex items-center justify-center overflow-hidden"
           onWheel={handleWheel}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
+          onDoubleClick={handleDoubleClick}
         >
           {src && (
             <div
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-                transition: isDragging ? 'none' : 'transform 0.2s ease-out',
-                cursor: scale > 1 ? 'grabbing' : 'zoom-in'
+                transition: isDragging ? 'none' : 'transform 0.2s cubic-bezier(0.2, 0, 0.2, 1)',
+                cursor: scale > 1 ? (isDragging ? 'grabbing' : 'grab') : 'zoom-in'
               }}
-              className="relative transition-transform duration-200 ease-out"
+              className="relative"
             >
               <img
                 src={src || ""}
                 alt={alt}
-                className="max-w-[200vw] max-h-[200vh] object-contain rounded-lg shadow-2xl pointer-events-none"
+                className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl pointer-events-none"
                 draggable={false}
               />
             </div>
           )}
           
           {/* 工具栏 */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 px-4 py-2 bg-black/50 rounded-full text-white backdrop-blur-sm z-50">
-            <button onClick={() => setScale(Math.max(scale - 0.2, 0.5))} className="hover:text-primary transition-colors">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-3 bg-black/60 rounded-full text-white backdrop-blur-md z-50 border border-white/10">
+            <button 
+              onClick={() => setScale(Math.max(scale - 0.2, 0.5))} 
+              className="p-1 hover:text-primary hover:bg-white/10 rounded-full transition-all"
+              title="缩小"
+            >
               <ZoomOut className="w-5 h-5" />
             </button>
-            <span className="text-sm font-medium min-w-[3em] text-center">
+            
+            <div className="flex items-center gap-2 min-w-[120px]">
+              <input
+                type="range"
+                min="0.5"
+                max="5"
+                step="0.1"
+                value={scale}
+                onChange={(e) => setScale(parseFloat(e.target.value))}
+                className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
+              />
+            </div>
+
+            <span className="text-sm font-medium min-w-[3.5em] text-center font-mono">
               {Math.round(scale * 100)}%
             </span>
-            <button onClick={() => setScale(Math.min(scale + 0.2, 5))} className="hover:text-primary transition-colors">
+
+            <button 
+              onClick={() => setScale(Math.min(scale + 0.2, 5))} 
+              className="p-1 hover:text-primary hover:bg-white/10 rounded-full transition-all"
+              title="放大"
+            >
               <ZoomIn className="w-5 h-5" />
             </button>
+            
             <div className="w-px h-4 bg-white/20 mx-1" />
-            <button onClick={resetZoom} className="hover:text-primary transition-colors" title="重置">
+            
+            <button 
+              onClick={resetZoom} 
+              className="p-1 hover:text-primary hover:bg-white/10 rounded-full transition-all" 
+              title="重置 (100%)"
+            >
               <RotateCcw className="w-5 h-5" />
             </button>
           </div>
