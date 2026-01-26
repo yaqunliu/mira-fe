@@ -49,12 +49,12 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
   const [previewImage, setPreviewImage] = useState<{src: string | null, alt: string} | null>(null);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-5">
       {/* 图片预览区域 */}
       {character.body !== null && character.body !== "" && (
-        <div className="flex items-center gap-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100">
           <div 
-            className="w-20 h-20 shrink-0 rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center relative group cursor-pointer"
+            className="w-24 h-24 shrink-0 rounded-xl overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_8px_rgba(0,0,0,0.05),-2px_-2px_8px_rgba(255,255,255,0.8)] border border-blue-100 flex items-center justify-center relative group cursor-pointer"
             onClick={() => character.image_url && setPreviewImage({src: character.image_url, alt: character.name})}
           >
             {character.image_url ? (
@@ -64,17 +64,17 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
                   alt={character.name}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="text-[10px] text-white font-medium">点击预览</span>
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                  <span className="text-xs text-white font-medium">点击预览</span>
                 </div>
               </>
             ) : (
-              <span className="text-[10px] text-slate-400">暂未生成</span>
+              <span className="text-xs text-gray-500">暂未生成</span>
             )}
           </div>
           <div className="flex-1">
-             <h4 className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">当前形象</h4>
-             <p className="text-xs text-slate-500">
+             <h4 className="text-sm font-semibold text-gray-900 mb-1">当前形象</h4>
+             <p className="text-xs text-gray-600">
                 {character.image_url ? "这是当前生成的角色参考图" : "角色形象暂未生成，请完善设定后点击生成"}
              </p>
           </div>
@@ -91,25 +91,25 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
       )}
 
       {/* 基础信息区域 - 更紧凑 */}
-      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+      <div className="p-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
-              <FormItem className="space-y-0.5">
-                <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <FormItem className="space-y-1">
+                <FormLabel className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
                   {t("name")}
                 </FormLabel>
                 <FormControl>
-                  <Input
+                  <input
                     placeholder={t("namePlaceholder")}
-                    className="h-8 text-sm bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:border-orange-500"
+                    className="w-full h-10 px-3 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm"
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -119,18 +119,18 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
               control={form.control}
               name="tags"
               render={({ field }) => (
-                <FormItem className="space-y-0.5">
-                  <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs font-semibold text-gray-700">
                     {t("featureTags")}
                   </FormLabel>
                   <FormControl>
-                    <Input
+                    <input
                       placeholder={t("tagsPlaceholder")}
-                      className="h-8 text-sm bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:border-orange-500"
+                      className="w-full h-10 px-3 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -142,21 +142,20 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
             control={form.control}
             name="basicInfo"
             render={({ field }) => (
-              <FormItem className="space-y-0.5">
-                <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <FormItem className="space-y-1">
+                <FormLabel className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                   {t("basicInfo")}
                 </FormLabel>
                 <FormControl>
-                  <AutosizeTextarea
+                  <textarea
                     placeholder={t("basicInfoPlaceholder")}
-                    className="text-sm resize-none bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus:border-blue-500"
-                    minRows={3}
-                    maxRows={8}
+                    className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm resize-none"
+                    rows={3}
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -164,28 +163,27 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
       </div>
 
       {/* 动态字段区域 */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* 音色描述 */}
         {(character.body === null || character.body === "") && (
           <FormField
             control={form.control}
             name="voiceDescription"
             render={({ field }) => (
-              <FormItem className="space-y-0.5">
-                <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <FormItem className="space-y-1">
+                <FormLabel className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
                   音色描述
                 </FormLabel>
                 <FormControl>
-                  <AutosizeTextarea
+                  <textarea
                     placeholder="描述角色的音色..."
-                    className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:border-purple-500"
-                    minRows={4}
-                    maxRows={10}
+                    className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm resize-none"
+                    rows={4}
                     {...field}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -193,26 +191,25 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
 
         {/* 视觉特征字段组 - 紧凑网格 */}
         {character.body !== null && character.body !== "" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="md:col-span-2 space-y-2 p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2 space-y-2 p-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100">
               <FormField
                 control={form.control}
                 name="appearance"
                 render={({ field }) => (
-                  <FormItem className="space-y-0.5">
-                    <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs font-semibold text-gray-700">
                       {t("appearanceFeatures")}
                     </FormLabel>
                     <FormControl>
-                      <AutosizeTextarea
+                      <textarea
                         placeholder={t("appearancePlaceholder")}
-                        className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:border-orange-500"
-                        minRows={3}
-                        maxRows={8}
+                        className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm resize-none"
+                        rows={3}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -222,20 +219,19 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
               control={form.control}
               name="body"
               render={({ field }) => (
-                <FormItem className="space-y-0.5">
-                  <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs font-semibold text-gray-700">
                     {t("bodyFeatures")}
                   </FormLabel>
                   <FormControl>
-                    <AutosizeTextarea
+                    <textarea
                       placeholder={t("bodyPlaceholder")}
-                      className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:border-orange-500"
-                      minRows={2}
-                      maxRows={6}
+                      className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm resize-none"
+                      rows={2}
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -244,20 +240,19 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
               control={form.control}
               name="clothing"
               render={({ field }) => (
-                <FormItem className="space-y-0.5">
-                  <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs font-semibold text-gray-700">
                     {t("clothing")}
                   </FormLabel>
                   <FormControl>
-                    <AutosizeTextarea
+                    <textarea
                       placeholder={t("clothingPlaceholder")}
-                      className="text-sm resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:border-orange-500"
-                      minRows={2}
-                      maxRows={6}
+                      className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm resize-none"
+                      rows={2}
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
@@ -266,42 +261,41 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
               control={form.control}
               name="hair"
               render={({ field }) => (
-                <FormItem className="space-y-0.5">
-                  <FormLabel className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <FormItem className="space-y-1">
+                  <FormLabel className="text-xs font-semibold text-gray-700">
                     {t("hair")}
                   </FormLabel>
                   <FormControl>
-                    <Input
+                    <input
                       placeholder={t("hairPlaceholder")}
-                      className="h-8 text-sm bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 focus:border-orange-500"
+                      className="w-full h-10 px-3 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm"
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs" />
                 </FormItem>
               )}
             />
 
-            <div className="md:col-span-2 space-y-2 p-3 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30">
+            <div className="md:col-span-2 space-y-2 p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-orange-100">
               <FormField
                 control={form.control}
                 name="imagePrompt"
                 render={({ field }) => (
-                  <FormItem className="space-y-0.5">
-                    <FormLabel className="text-xs font-semibold text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
                       <Sparkles className="w-3 h-3" />
                       {t("imagePrompt") || "生图提示词"}
                     </FormLabel>
                     <FormControl>
-                      <AutosizeTextarea
+                      <textarea
                         placeholder={t("imagePromptPlaceholder") || "输入自定义生图提示词..."}
-                        className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
-                        minRows={3}
-                        maxRows={10}
+                        className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-orange-50 border border-orange-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all duration-200 text-sm resize-none"
+                        rows={3}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
@@ -432,7 +426,7 @@ export function CharacterEditModal({
   if (isDesktop) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl bg-gradient-to-br from-white to-blue-50 shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-blue-100 rounded-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{headerContent}</DialogTitle>
             <DialogDescription asChild>
@@ -440,7 +434,7 @@ export function CharacterEditModal({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="py-2">
+          <div className="py-4 px-2">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSave)}>
                 <CharacterFormFields form={form} character={character} t={t} />
@@ -448,25 +442,24 @@ export function CharacterEditModal({
             </Form>
           </div>
 
-          <DialogFooter className="gap-2 sm:justify-end">
-            <Button 
-              variant="outline" 
+          <DialogFooter className="gap-3 sm:justify-end p-4 border-t border-blue-100 bg-gradient-to-br from-white to-blue-50 rounded-b-2xl">
+            <button 
               onClick={handleCancel} 
-              disabled={isLoading} 
-              className="border-slate-700 hover:bg-slate-800 text-slate-300"
+              disabled={isLoading}
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 text-gray-700 font-medium"
             >
-              <X className="h-4 w-4 mr-2" />
+              <X className="h-4 w-4" />
               {tCommon("cancel")}
-            </Button>
-            <Button 
+            </button>
+            <button 
               onClick={form.handleSubmit(handleSave)} 
-              disabled={isLoading} 
-              className="bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white border-0"
+              disabled={isLoading}
+              className={`px-6 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {!isLoading && <Save className="h-4 w-4 mr-2" />}
+              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+              {!isLoading && <Save className="h-4 w-4" />}
               {tCommon("save")}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -484,21 +477,20 @@ export function CharacterEditModal({
         {
           label: tCommon("cancel"),
           onClick: handleCancel,
-          variant: "outline",
-          className: "border-slate-700 hover:bg-slate-800 text-slate-300",
+          className: "px-6 py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-700 font-medium",
           icon: <X className="h-4 w-4" />,
           disabled: isLoading,
         },
         {
           label: tCommon("save"),
           onClick: form.handleSubmit(handleSave),
-          className: "bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white border-0",
+          className: "px-6 py-3 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200",
           icon: <Save className="h-4 w-4" />,
           loading: isLoading,
         },
       ]}
     >
-      <div className="px-1 pb-2">
+      <div className="px-4 pb-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSave)}>
             <CharacterFormFields form={form} character={character} t={t} />

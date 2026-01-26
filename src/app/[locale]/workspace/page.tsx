@@ -96,20 +96,20 @@ export default function WorkspacePage() {
   }, [pathname, locale, isAuthenticated, handleRefresh]);
 
   return (
-    <div className="container h-screen mx-auto flex flex-col landscape-wide relative overflow-hidden bg-gradient-to-br from-orange-50/80 via-purple-50/60 to-blue-50/70 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="container h-screen mx-auto flex flex-col landscape-wide relative overflow-hidden bg-gradient-to-br from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white">
       {/* 装饰性背景元素 */}
-      <div className="absolute -top-20 -left-20 w-60 h-60 bg-orange-400/10 dark:bg-orange-400/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute top-40 -right-20 w-80 h-80 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-      <div className="absolute -bottom-20 left-1/3 w-60 h-60 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#FDBCB4]/30 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute top-40 -right-20 w-80 h-80 bg-[#ADD8E6]/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute -bottom-20 left-1/3 w-60 h-60 bg-[#22C55E]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
 
       {/* 固定顶部 - 现代化设计 */}
       <div className="flex-shrink-0 relative z-10">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-orange-500 to-purple-600 rounded-xl shadow-lg">
+            <div className="p-2 bg-gradient-to-br from-[#22C55E] to-[#ADD8E6] rounded-xl shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-300">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-orange-600 via-purple-600 to-blue-600 dark:from-orange-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">
               {t("home.title")}
             </h1>
           </div>
@@ -118,7 +118,7 @@ export default function WorkspacePage() {
             <ActionBar />
           </div>
         </div>
-        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-purple-200 dark:via-purple-800/30 to-transparent mb-6" />
+        <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#ADD8E6]/50 to-transparent mb-6" />
       </div>
 
       {/* 可滚动内容区域 - 支持下拉刷新 */}
@@ -127,32 +127,32 @@ export default function WorkspacePage() {
           {/* 开始创作 - 大横幅按钮 */}
           <div className="mb-8">
             <div
-              className="group relative overflow-hidden cursor-pointer rounded-3xl"
+              className="group relative overflow-hidden cursor-pointer rounded-3xl shadow-[8px_8px_16px_rgba(173,221,230,0.3),-6px_-6px_12px_rgba(255,255,255,0.7)] hover:shadow-[10px_10px_20px_rgba(173,221,230,0.4),-8px_-8px_16px_rgba(255,255,255,0.8)] transition-all duration-300"
               onClick={() => router.push(`/${locale}/create-dynamic-comic`)}
             >
               {/* 背景渐变和模糊效果 - 使用柔和的颜色 */}
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800 dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 opacity-95 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-500/20 via-slate-400/20 to-slate-600/20 dark:from-slate-600/15 dark:via-slate-500/15 dark:to-slate-700/15 blur-2xl group-hover:blur-3xl transition-all duration-500" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#22C55E]/95 via-[#ADD8E6]/90 to-[#FDBCB4]/80 opacity-95 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#22C55E]/30 via-[#ADD8E6]/20 to-[#FDBCB4]/10 blur-2xl group-hover:blur-3xl transition-all duration-500" />
 
               {/* 内容 */}
               <div className="relative p-5 md:p-8 min-h-[140px] md:min-h-[160px] flex flex-col md:flex-row items-center justify-between gap-4 md:gap-5">
                 <div className="flex items-center gap-4 md:gap-5 flex-1">
-                  <div className="p-3.5 md:p-4 bg-white/15 dark:bg-white/10 rounded-xl md:rounded-2xl backdrop-blur-sm shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 border border-white/20 dark:border-white/10">
-                    <FileVideoCamera className="w-8 h-8 md:w-11 md:h-11 text-white/90 dark:text-white" />
+                  <div className="p-3.5 md:p-4 bg-white/20 rounded-xl md:rounded-2xl backdrop-blur-sm shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                    <FileVideoCamera className="w-8 h-8 md:w-11 md:h-11 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white/95 dark:text-white mb-2 group-hover:scale-105 transition-transform duration-300">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2 group-hover:scale-105 transition-transform duration-300">
                       {t("home.createAnimation")}
                     </h2>
-                    <p className="text-sm md:text-base text-white/80 dark:text-white/70 leading-relaxed max-w-2xl">
+                    <p className="text-sm md:text-base text-white/90 leading-relaxed max-w-2xl">
                       {t("home.startYourCreativeJourney")}
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 md:gap-4">
-                  <div className="px-5 md:px-6 py-2.5 md:py-3 bg-white/15 dark:bg-white/10 rounded-lg md:rounded-xl backdrop-blur-sm border-2 border-white/25 dark:border-white/15 group-hover:bg-white/25 dark:group-hover:bg-white/15 transition-all duration-300 group-hover:scale-105 shadow-xl">
-                    <span className="text-base md:text-lg font-bold text-white/95 dark:text-white flex items-center gap-2 md:gap-3">
+                  <div className="px-5 md:px-6 py-2.5 md:py-3 bg-white/20 rounded-lg md:rounded-xl backdrop-blur-sm shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] group-hover:bg-white/30 transition-all duration-300 group-hover:scale-105">
+                    <span className="text-base md:text-lg font-bold text-white flex items-center gap-2 md:gap-3">
                       {t("home.getStarted")}
                       <svg className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />

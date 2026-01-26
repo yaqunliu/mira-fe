@@ -268,42 +268,42 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
       )}
 
       {/* 工具栏 */}
-      <div className="p-4 space-y-3 border-b border-slate-800">
+      <div className="p-4 space-y-3 shadow-[0_2px_4px_rgba(173,221,230,0.2)]">
         {/* 上传提示 */}
         <div className="relative">
           {uploading ? (
-            <div className="text-center p-4 border-2 border-blue-500 rounded-lg bg-blue-500/10">
-              <Loader2 size={24} className="mx-auto mb-2 text-blue-400 animate-spin" />
-              <p className="text-sm font-medium text-blue-400 mb-1">上传中... {uploadProgress}%</p>
-              <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+            <div className="text-center p-4 rounded-lg bg-[#ADD8E6]/30 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-300">
+              <Loader2 size={24} className="mx-auto mb-2 text-[#22C55E] animate-spin" />
+              <p className="text-sm font-medium text-[#22C55E] mb-1">上传中... {uploadProgress}%</p>
+              <div className="w-full h-1 bg-white rounded-full overflow-hidden shadow-[inset_1px_1px_2px_rgba(173,221,230,0.3),inset_-1px_-1px_2px_rgba(255,255,255,0.7)]">
                 <div
-                  className="h-full bg-blue-500 transition-all duration-300"
+                  className="h-full bg-[#22C55E] transition-all duration-300 shadow-[2px_2px_4px_rgba(173,221,230,0.3),-1px_-1px_3px_rgba(255,255,255,0.7)]"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
             </div>
           ) : (
-            <div className="text-center p-4 border-2 border-dashed border-slate-700 rounded-lg bg-slate-800/30 hover:border-blue-500/50 transition-colors">
-              <Upload size={24} className="mx-auto mb-2 text-slate-500" />
-              <p className="text-sm font-medium text-slate-300 mb-1">拖放文件到此处上传</p>
-              <p className="text-xs text-slate-500">支持视频和音频文件，最大100MB</p>
+            <div className="text-center p-4 rounded-lg bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-300">
+              <Upload size={24} className="mx-auto mb-2 text-[#22C55E]" />
+              <p className="text-sm font-medium text-gray-800 mb-1">拖放文件到此处上传</p>
+              <p className="text-xs text-gray-600">支持视频和音频文件，最大100MB</p>
             </div>
           )}
         </div>
 
         {/* 搜索框 */}
         <div className="relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
           <Input
             placeholder="搜索素材..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-8 text-sm bg-slate-800/50 border-slate-700"
+            className="pl-9 h-8 text-sm bg-white"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800 transition-colors"
             >
               <X size={14} />
             </button>
@@ -369,16 +369,15 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
                 onDragStart={(e) => handleDragStart(e, asset)}
                 onDragEnd={handleDragEnd}
                 className={cn(
-                  'p-2 bg-slate-800/50 border-slate-700 hover:bg-slate-800 cursor-move',
-                  'transition-all hover:border-blue-500/50 group'
+                  'p-3 cursor-move transition-all hover:shadow-xl hover:shadow-[#ADD8E6]/40 group'
                 )}
               >
                 <div className="flex items-start gap-2">
                   {/* 图标 */}
                   <div
                     className={cn(
-                      'p-1.5 rounded border shrink-0',
-                      getAssetTypeColor(asset.type)
+                      'p-2 rounded-lg shrink-0 shadow-[2px_2px_4px_rgba(173,221,230,0.3),-1px_-1px_3px_rgba(255,255,255,0.7)]',
+                      asset.type === AssetType.AUDIO ? 'bg-[#FDBCB4]' : asset.type === AssetType.IMAGE ? 'bg-[#ADD8E6]' : 'bg-[#22C55E] text-white'
                     )}
                   >
                     {getAssetIcon(asset.type)}
@@ -387,18 +386,18 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
                   {/* 信息 */}
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div className="flex items-start justify-between gap-1">
-                      <p className="text-xs font-medium text-slate-200 truncate leading-tight">
+                      <p className="text-xs font-medium text-gray-800 truncate leading-tight">
                         {asset.name}
                       </p>
                       <button
                         onClick={() => setDeleteConfirm({ open: true, asset })}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-red-400 shrink-0"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-600 hover:text-red-500 shrink-0 p-1 rounded hover:bg-gray-100"
                       >
                         <Trash2 size={12} />
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                    <div className="flex items-center gap-1.5 text-[10px] text-gray-600">
                       <span>{formatSize(asset.size)}</span>
                       {asset.duration && (
                         <>
@@ -432,8 +431,8 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
               取消
             </Button>
             <Button
+              variant="destructive"
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
             >
               删除
             </Button>

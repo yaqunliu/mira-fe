@@ -677,28 +677,38 @@ export default function CreateCreation() {
   };
 
   return (
-    <div className="w-full h-full flex flex-col overflow-hidden">
-      <div className="flex-shrink-0 flex items-center gap-1 px-4 py-3 lg:px-6 lg:py-4">
-        <h1 className="text-lg lg:text-xl font-semibold text-gradient-primary">
-          {t("createVideo.createAnimation")}
-        </h1>
+    <div className="w-full h-full flex flex-col overflow-hidden bg-gradient-to-b from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white">
+      {/* 装饰性渐变球 */}
+      <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-[#FDBCB4]/20 blur-3xl animate-blob-slow" />
+      <div className="pointer-events-none absolute right-10 top-24 h-72 w-72 rounded-full bg-[#ADD8E6]/20 blur-3xl animate-blob-slower" />
+      <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-[#22C55E]/20 blur-3xl animate-blob-slow" />
+      
+      <div className="relative z-10 flex-shrink-0 claymorphism-sm mx-4 my-4 rounded-xl">
+        <div className="flex items-center gap-3 px-6 py-4">
+          <h1 className="text-xl lg:text-2xl font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">
+            {t("createVideo.createAnimation")}
+          </h1>
+        </div>
       </div>
-      <div className="h-[1px] w-full divider-primary flex-shrink-0" />
+      
       <div className="flex-1 overflow-y-auto overflow-x-hidden" id="creation-flow-container">
-        <div className="container mx-auto max-w-7xl px-4 py-4 lg:px-6 lg:py-6">
-          <ProgressWrapper
-            steps={steps}
-            currentStep={currentStep}
-            maxAccessibleStep={isAnyLoading ? currentStep : maxAccessibleStep}
-            orientation="horizontal"
-            variant="default"
-            size="sm"
-            showNavigation={false}
-            onStepChange={handleStepChange}
-            onComplete={handleComplete}
-            className="mb-6"
-          />
-          <div className="min-h-0">{renderStepContent()}</div>
+        <div className="container mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-8">
+          <div className="claymorphism-sm p-6 mb-8 rounded-2xl">
+            <ProgressWrapper
+              steps={steps}
+              currentStep={currentStep}
+              maxAccessibleStep={isAnyLoading ? currentStep : maxAccessibleStep}
+              orientation="horizontal"
+              variant="default"
+              size="sm"
+              showNavigation={false}
+              onStepChange={handleStepChange}
+              onComplete={handleComplete}
+            />
+          </div>
+          <div className="claymorphism p-8 rounded-2xl min-h-0">
+            {renderStepContent()}
+          </div>
         </div>
       </div>
     </div>

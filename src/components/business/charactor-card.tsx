@@ -46,10 +46,10 @@ function CharactorCard({
 
   return (
     <div className="flex flex-col flex-shrink-0" key={characterId}>
-      <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-b from-orange-400/50 to-gray-600/30 rounded-t tracking-wider font-bold flex items-center gap-1">
+      <div className="w-fit text-sm text-nowrap py-2 px-4 bg-gradient-to-b from-[#22C55E]/50 to-[#ADD8E6]/30 rounded-t tracking-wider font-bold flex items-center gap-1 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)]">
         <span>{character.name}</span>
       </div>
-      <div className="w-full rounded-tl-none border-[1px] border-slate-200 dark:border-zinc-700 p-y-3 rounded-b-lg rounded-tr-lg p-3 space-y-1">
+      <div className="w-full rounded-tl-none rounded-b-lg rounded-tr-lg p-3 space-y-1 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:-translate-y-0.5 transition-all duration-300">
         <div className="flex gap-2">
           <div className="w-[66px] flex justify-end">
             <Badge variant="outline" className="mb-2 w-[66px]">
@@ -58,7 +58,7 @@ function CharactorCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-[#22C55E] transition-colors">
                 {basicInfo}
               </p>
             </DropdownMenuTrigger>
@@ -78,7 +78,7 @@ function CharactorCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-[#22C55E] transition-colors">
                 {appearance}
               </p>
             </DropdownMenuTrigger>
@@ -98,7 +98,7 @@ function CharactorCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-[#22C55E] transition-colors">
                 {body}
               </p>
             </DropdownMenuTrigger>
@@ -118,7 +118,7 @@ function CharactorCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-[#22C55E] transition-colors">
                 {hair}
               </p>
             </DropdownMenuTrigger>
@@ -138,7 +138,7 @@ function CharactorCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-[#22C55E] transition-colors">
                 {clothing}
               </p>
             </DropdownMenuTrigger>
@@ -158,7 +158,7 @@ function CharactorCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-primary transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-2 cursor-pointer hover:text-[#22C55E] transition-colors">
                 {Array.isArray(tags) ? tags.join(", ") : tags}
               </p>
             </DropdownMenuTrigger>

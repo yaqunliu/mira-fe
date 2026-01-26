@@ -26,24 +26,24 @@ export interface CustomTabsProps {
 
 const variants = {
   default: {
-    list: "bg-muted text-muted-foreground inline-flex h-8 w-fit items-center justify-center rounded-lg",
-    trigger: "data-[state=active]:bg-background data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm",
+    list: "claymorphism-sm bg-white inline-flex h-10 w-fit items-center justify-center rounded-lg",
+    trigger: "data-[state=active]:bg-background data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring inline-flex h-[calc(100%-2px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-3 py-2 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm data-[state=active]:bg-[#ADD8E6]/10",
   },
   grid: {
-    list: "grid w-full bg-gray-100 dark:bg-gray-700/30 rounded-lg",
-    trigger: "!py-3 !rounded-t-lg data-[state=active]:!shadow-sm dark:data-[state=active]:!bg-zinc-800 !text-center !transition-all !duration-200 data-[state=active]:!text-orange-600 dark:data-[state=active]:!text-orange-400",
+    list: "grid w-full claymorphism-sm bg-white rounded-lg",
+    trigger: "!py-3 !rounded-t-lg data-[state=active]:!shadow-sm !text-center !transition-all !duration-200 data-[state=active]:!text-[#22C55E] data-[state=active]:!bg-[#ADD8E6]/10",
   },
   underline: {
-    list: "w-full border-b-[1.5px] border-gray-400 dark:border-gray-700 bg-transparent",
-    trigger: "data-[state=active]:border-b-2 data-[state=active]:border-orange-500 rounded-none px-4 py-2 text-sm font-medium transition-colors",
+    list: "w-full border-b-2 border-[#ADD8E6] bg-transparent",
+    trigger: "data-[state=active]:border-b-2 data-[state=active]:border-[#22C55E] rounded-none px-4 py-2 text-sm font-medium transition-colors",
   },
   pills: {
-    list: "bg-white dark:bg-gray-800 border-[1.5px] border-gray-400 dark:border-gray-700 rounded-lg p-1",
-    trigger: "data-[state=active]:bg-orange-500 data-[state=active]:text-white rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200",
+    list: "claymorphism-sm bg-white rounded-lg p-1",
+    trigger: "data-[state=active]:bg-[#22C55E] data-[state=active]:text-white rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-200 hover:bg-[#ADD8E6]/10",
   },
   segmented: {
-    list: "grid w-full bg-zinc-100 dark:bg-zinc-900 p-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800",
-    trigger: "rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-zinc-900 dark:data-[state=active]:text-white data-[state=active]:shadow-sm py-3 text-sm font-medium transition-all duration-200 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 data-[state=active]:scale-[1.02]",
+    list: "grid w-full claymorphism-sm bg-white p-1.5 rounded-xl",
+    trigger: "rounded-lg data-[state=active]:bg-[#ADD8E6]/10 data-[state=active]:text-[#22C55E] data-[state=active]:shadow-sm py-3 text-sm font-medium transition-all duration-200 text-gray-600 hover:text-[#22C55E] data-[state=active]:scale-[1.02]",
   },
 };
 

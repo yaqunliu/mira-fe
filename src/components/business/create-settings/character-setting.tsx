@@ -429,8 +429,8 @@ export function CharacterSetting({
   return (
     <div className="h-[calc(100vh-136px)] relative">
       {/* 装饰性背景 */}
-      <div className="absolute -top-20 -left-20 w-60 h-60 bg-orange-400/10 dark:bg-orange-400/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#FDBCB4]/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#ADD8E6]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <ModuleLoading
         loading={shouldShowLoading}
@@ -438,18 +438,18 @@ export function CharacterSetting({
         text={getLoadingText()}
       >
         <div className="space-y-6 px-6 h-full overflow-y-auto pb-20 relative z-10 scrollbar-hide">
-          <div className="flex justify-between items-center sticky top-0 bg-slate-950/80 backdrop-blur-md z-20 py-4 -mx-6 px-6 border-b border-slate-800/50">
-            <h3 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-purple-600 dark:from-orange-400 dark:to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
-              <Users className="w-5 h-5 text-orange-500" />
+          <div className="flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-md z-20 py-4 -mx-6 px-6 border-b border-[#ADD8E6]/30">
+            <h3 className="text-lg font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
+              <Users className="w-5 h-5 text-[#22C55E]" />
               {t("characterSettings")} ({characters.length})
             </h3>
             
             <div className="flex items-center gap-4">
                  {/* 风格选择 - 移到顶部 */}
                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-500">{t("visualStyle")}:</span>
+                    <span className="text-xs text-gray-500">{t("visualStyle")}:</span>
                     <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                        <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg border-slate-700 bg-slate-900">
+                        <SelectTrigger className="w-[140px] h-8 text-xs rounded-lg claymorphism-sm bg-white">
                         <SelectValue placeholder={t("styleSelection")} />
                         </SelectTrigger>
                         <SelectContent>
@@ -466,7 +466,7 @@ export function CharacterSetting({
                 <Button
                 onClick={() => gengerateCharacterImages(appearanceCharacters)}
                 disabled={isGenerating || isSubmittingCharacters || appearanceCharacters.length === 0}
-                className="h-8 px-4 text-xs bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white shadow-lg shadow-orange-500/20 rounded-lg transition-all"
+                className="h-8 px-4 text-xs bg-[#22C55E] hover:bg-[#22C55E]/90 text-white shadow-lg shadow-[#22C55E]/20 rounded-lg transition-all border border-black/10 hover:translate-y-0.5"
                 size="sm"
                 >
                 <WandSparkles className="w-3 h-3 mr-2" />
@@ -504,21 +504,21 @@ export function CharacterSetting({
                      return (
                     <Card
                       key={originalIndex}
-                      className="group bg-slate-900/50 border-slate-800 hover:border-slate-700 hover:bg-slate-900 transition-all duration-300 overflow-hidden flex flex-col"
+                      className="group claymorphism bg-white hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col"
                     >
                         <div className="flex flex-col">
                             {/* 顶部：图片 (16:9 横版，高度自适应) */}
-                            <div className="w-full h-auto shrink-0 rounded-t-lg overflow-hidden bg-slate-800 border-b border-slate-700 relative group-hover:border-slate-600 transition-colors">
+                            <div className="w-full h-auto shrink-0 rounded-t-lg overflow-hidden bg-[#ADD8E6]/10 border-b border-[#ADD8E6]/30 relative group-hover:border-[#ADD8E6]/50 transition-colors">
                                 {regeneratingCharacters.has(character.uuid || String(character.character_id)) ? (
                                     <div className="w-full aspect-[16/9] flex items-center justify-center">
-                                        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+                                        <div className="w-8 h-8 border-2 border-[#22C55E] border-t-transparent rounded-full animate-spin"></div>
                                     </div>
                                 ) : character.image_url ? (
                                     <div className="relative w-full h-auto">
                                         <img 
                                             src={character.image_url} 
                                             alt={character.name} 
-                                            className="w-full h-auto object-contain bg-slate-900/30 cursor-pointer hover:scale-110 transition-transform duration-500 block"
+                                            className="w-full h-auto object-contain bg-white/50 cursor-pointer hover:scale-110 transition-transform duration-500 block"
                                             onClick={() => handleImageClick(character.image_url!)}
                                         />
                                         {/* 悬浮操作层 */}
@@ -539,7 +539,7 @@ export function CharacterSetting({
                                             </button>
                                             <button 
                                                 onClick={() => handleRegenerateSingleCharacter(character)}
-                                                className="p-2 bg-orange-500/30 hover:bg-orange-500/50 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                className="p-2 bg-[#22C55E]/30 hover:bg-[#22C55E]/50 rounded-full text-white backdrop-blur-sm transition-colors"
                                                 title="重新生成"
                                             >
                                                 <RotateCcw size={18} />
@@ -547,9 +547,9 @@ export function CharacterSetting({
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900 text-slate-500">
-                                        <div className="w-10 h-10 mb-2 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700/50">
-                                            <ImageIcon size={20} className="opacity-50" />
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#ADD8E6]/10 to-[#FDBCB4]/10 text-gray-500">
+                                        <div className="w-10 h-10 mb-2 rounded-full bg-white/50 flex items-center justify-center border border-[#ADD8E6]/30">
+                                            <ImageIcon size={20} className="opacity-50 text-[#ADD8E6]" />
                                         </div>
                                         <span className="text-xs font-medium opacity-70">等待生成</span>
                                     </div>
@@ -560,20 +560,20 @@ export function CharacterSetting({
                             <div className="p-4 flex-1 flex flex-col justify-between">
                                 <div>
                                     <div className="flex items-center justify-between mb-3">
-                                        <h4 className="text-base font-semibold text-slate-200 truncate pr-4">{character.name}</h4>
-                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-slate-700 text-slate-500 shrink-0">
+                                        <h4 className="text-base font-semibold text-gray-900 truncate pr-4">{character.name}</h4>
+                                        <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-[#ADD8E6]/30 text-[#22C55E] shrink-0">
                                             出镜角色
                                         </Badge>
                                     </div>
                                     <div className="space-y-2">
                                         {character.appearance && (
-                                            <div className="text-xs text-slate-400 leading-relaxed max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
-                                                <span className="text-slate-500 mr-1">外貌:</span>
+                                            <div className="text-xs text-gray-600 leading-relaxed max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300">
+                                                <span className="text-[#ADD8E6] mr-1">外貌:</span>
                                                 {character.appearance}
                                             </div>
                                         )}
                                         {!character.appearance && (
-                                            <p className="text-xs text-slate-500 italic">暂无特征描述</p>
+                                            <p className="text-xs text-gray-500 italic">暂无特征描述</p>
                                         )}
                                     </div>
                                 </div>
@@ -582,7 +582,7 @@ export function CharacterSetting({
                                     <Button 
                                         variant="outline" 
                                         size="sm" 
-                                        className="h-8 px-3 text-xs border-slate-700 text-slate-400 hover:text-white hover:bg-slate-800"
+                                        className="h-8 px-3 text-xs border-[#ADD8E6]/30 text-[#22C55E] hover:text-[#22C55E] hover:bg-[#ADD8E6]/10"
                                         onClick={() => handleEditCharacter(originalIndex)}
                                     >
                                         <PenLine size={12} className="mr-1" />
@@ -591,7 +591,7 @@ export function CharacterSetting({
                                     <Button 
                                         variant="secondary" 
                                         size="sm" 
-                                        className="h-8 px-3 text-xs bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 border border-orange-500/20 ml-auto"
+                                        className="h-8 px-3 text-xs bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E]/20 border border-[#22C55E]/20 ml-auto"
                                         onClick={() => handleRegenerateSingleCharacter(character)}
                                     >
                                         <RotateCcw size={12} className="mr-1" />
@@ -609,9 +609,9 @@ export function CharacterSetting({
 
           {/* 声音角色展示 */}
           {voiceCharacters.length > 0 && (
-            <div className="space-y-3 pt-4 border-t border-slate-800/50">
-              <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2 uppercase tracking-wider">
-                <Mic className="w-4 h-4" />
+            <div className="space-y-3 pt-4 border-t border-[#ADD8E6]/30">
+              <h3 className="text-sm font-semibold text-[#22C55E] flex items-center gap-2 uppercase tracking-wider">
+                <Mic className="w-4 h-4 text-[#ADD8E6]" />
                 声音角色
               </h3>
               <div className="flex flex-col gap-4">
@@ -620,23 +620,23 @@ export function CharacterSetting({
                      return (
                     <Card
                       key={originalIndex}
-                      className="w-full bg-slate-900/30 border-slate-800/50 hover:border-blue-900/50 hover:bg-slate-900/50 transition-all duration-300"
+                      className="w-full claymorphism bg-white hover:shadow-lg transition-all duration-300"
                     >
                          <div className="flex p-3 gap-3 items-center">
                             {/* 左侧：图标 */}
-                            <div className="w-12 h-12 shrink-0 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 border border-blue-500/20">
+                            <div className="w-12 h-12 shrink-0 rounded-full bg-[#FDBCB4]/10 flex items-center justify-center text-[#FDBCB4] border border-[#FDBCB4]/20">
                                 <Volume2 size={20} />
                             </div>
 
                             {/* 中间：信息 */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <h4 className="font-medium text-slate-300 truncate">{character.name}</h4>
-                                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20">
+                                    <h4 className="font-medium text-gray-900 truncate">{character.name}</h4>
+                                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-[#FDBCB4]/10 text-[#FDBCB4] hover:bg-[#FDBCB4]/20">
                                         声音
                                     </Badge>
                                 </div>
-                                <div className="text-xs text-slate-500 max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+                                <div className="text-xs text-gray-600 max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300">
                                     {character.voice_description || "暂无音色描述"}
                                 </div>
                             </div>
@@ -645,7 +645,7 @@ export function CharacterSetting({
                             <Button 
                                 variant="ghost" 
                                 size="icon" 
-                                className="h-8 w-8 text-slate-500 hover:text-white hover:bg-slate-800 rounded-full"
+                                className="h-8 w-8 text-gray-500 hover:text-[#22C55E] hover:bg-[#ADD8E6]/10 rounded-full"
                                 onClick={() => handleEditCharacter(originalIndex)}
                             >
                                 <PenLine size={14} />
@@ -678,7 +678,7 @@ export function CharacterSetting({
       />
 
       {/* 底部操作浮层 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-orange-200/50 dark:border-orange-700/50 shadow-2xl backdrop-blur-sm">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-[#ADD8E6]/10 to-white border-t-2 border-[#ADD8E6]/30 shadow-2xl backdrop-blur-sm">
         <div className="px-6 py-4">
           <div className="flex items-center justify-center">
             {/* 右侧操作按钮 */}
@@ -756,10 +756,10 @@ export function CharacterSetting({
               }}
               disabled={isGeneratingPlaybook || (characters.length > 0 && characters.some((character) => !character.image_url))}
               className={cn(
-                "bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white px-6 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 transition-all duration-200 hover:scale-105 rounded-xl",
+                "bg-[#22C55E] hover:bg-[#22C55E]/90 text-white px-6 shadow-lg shadow-[#22C55E]/20 hover:shadow-[#22C55E]/30 transition-all duration-200 hover:translate-y-0.5 rounded-xl border border-black/10",
                 isGeneratingPlaybook ? "w-auto min-w-[120px]" : "w-[120px]",
                 (characters.length > 0 && characters.some((character) => !character.image_url)) &&
-                "opacity-50 cursor-not-allowed hover:scale-100"
+                "opacity-50 cursor-not-allowed hover:translate-y-0"
               )}
             >
               {isGeneratingPlaybook

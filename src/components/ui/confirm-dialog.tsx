@@ -51,11 +51,11 @@ export function ConfirmDialog({
         <DialogHeader>
           <div className="flex items-center gap-3">
             {variant === "destructive" && (
-              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center border border-red-200 dark:border-red-800/50">
-                <AlertTriangle className="h-5 w-5 text-red-700 dark:text-red-400" />
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FDBCB4]/20 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-[#FDBCB4]" />
               </div>
             )}
-            <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <DialogTitle className="text-lg font-semibold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">
             {title}
           </DialogTitle>
         </div>
@@ -71,23 +71,24 @@ export function ConfirmDialog({
       </DialogHeader>
         <DialogFooter className="gap-3 sm:gap-3">
           <Button
-            variant="ghost"
+            variant="secondary"
             onClick={handleCancel}
-            className="flex-1 border-[1.5px] border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-700 dark:text-gray-300 font-medium"
+            className="flex-1"
           >
             {cancelText}
           </Button>
           {variant === "destructive" ? (
             <Button
+              variant="destructive"
               onClick={handleConfirm}
-              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium shadow-md hover:shadow-lg transition-all dark:bg-red-600 dark:hover:bg-red-700"
+              className="flex-1"
             >
               {confirmText}
             </Button>
           ) : (
             <Button
               onClick={handleConfirm}
-              className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-medium shadow-md hover:shadow-lg transition-all dark:from-orange-600 dark:to-amber-600 dark:hover:from-orange-700 dark:hover:to-amber-700"
+              className="flex-1"
             >
               {confirmText}
             </Button>

@@ -14,7 +14,7 @@ function VideoCard({ creation }: { creation: ICreation }) {
     // 处理 undefined 或 null 状态
     if (!status) {
       return (
-        <Badge variant="default" className={cn("text-xs", "bg-gray-500")}>
+        <Badge variant="outline" className={cn("text-xs")}>
           {t("common.unknown")}
         </Badge>
       );
@@ -23,20 +23,20 @@ function VideoCard({ creation }: { creation: ICreation }) {
     // 根据状态返回对应的徽章
     if (status === CreationStatus.COMPLETED) {
       return (
-        <Badge variant="default" className={cn("text-xs", "bg-green-700/80")}>
+        <Badge variant="green" className={cn("text-xs")}>
           {t("common.completed")}
         </Badge>
       );
     } else if (status === CreationStatus.FAILED) {
       return (
-        <Badge variant="destructive" className={cn("text-xs", "bg-red-500")}>
+        <Badge variant="destructive" className={cn("text-xs")}>
           {t("common.error")}
         </Badge>
       );
     } else {
       // 所有其他状态都显示为"进行中"
       return (
-        <Badge variant="default" className={cn("text-xs", "bg-blue-600/80")}>
+        <Badge variant="secondary" className={cn("text-xs")}>
           {t("common.inProgress")}
         </Badge>
       );
@@ -54,12 +54,12 @@ function VideoCard({ creation }: { creation: ICreation }) {
   return (
     <div
       key={creationId}
-      className="overflow-hidden p-0 border-none rounded-t-lg"
+      className="overflow-hidden p-0 border-none rounded-xl shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)] hover:shadow-[8px_8px_16px_rgba(173,221,230,0.4),-6px_-6px_12px_rgba(255,255,255,0.8)] hover:-translate-y-1 transition-all duration-300 cursor-pointer"
       onClick={() => handleCreationClick(creation)}
     >
       {/* 视频缩略图/播放器 */}
       {videoUrl && (
-        <div className="relative w-full bg-black overflow-hidden aspect-video">
+        <div className="relative w-full bg-black overflow-hidden aspect-video rounded-t-xl">
           <video
             src={videoUrl}
             controls
@@ -68,25 +68,25 @@ function VideoCard({ creation }: { creation: ICreation }) {
         </div>
       )}
       {!videoUrl && (
-        <div className="relative w-full aspect-video bg-zinc-100 dark:bg-zinc-800/50 flex flex-col items-center justify-center overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+        <div className="relative w-full aspect-video bg-white flex flex-col items-center justify-center overflow-hidden rounded-t-xl shadow-[inset_2px_2px_4px_rgba(173,221,230,0.3),inset_-1px_-1px_2px_rgba(255,255,255,0.7)]">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-[#FDBCB4]/30 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#ADD8E6]/30 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
           
           <div className="relative z-10 flex flex-col items-center gap-2">
-            <div className="p-3 rounded-full bg-white/50 dark:bg-white/5 border border-zinc-200/50 dark:border-white/10 shadow-sm backdrop-blur-sm">
-              <ImageOff className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
+            <div className="p-3 rounded-full bg-white shadow-[2px_2px_4px_rgba(173,221,230,0.3),-1px_-1px_3px_rgba(255,255,255,0.7)]">
+              <ImageOff className="w-5 h-5 text-gray-600" />
             </div>
-            <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 tracking-widest">
+            <span className="text-xs font-medium text-gray-600 tracking-widest">
               暂无预览
             </span>
           </div>
         </div>
       )}
 
-      <div className="bg-stone-700/60 rounded-b-lg p-4">
+      <div className="bg-white rounded-b-xl p-4 shadow-[inset_0_1px_3px_rgba(173,221,230,0.2)]">
         <div className="flex items-start justify-between">
           <div className="space-y-1 flex-1">
-            <div className="text-base line-clamp-2 font-bold">
+            <div className="text-base line-clamp-2 font-bold text-gray-800">
               {creation.title}
             </div>
           </div>

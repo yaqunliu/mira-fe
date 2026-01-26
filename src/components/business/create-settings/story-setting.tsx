@@ -304,17 +304,17 @@ export function StorySetting() {
     const selectedChapter = selectedChapters[0];
 
     return (
-      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800 flex-1 min-w-0">
-        <div className="w-4 h-4 rounded bg-orange-500 flex items-center justify-center flex-shrink-0">
-          <Check className="w-2.5 h-2.5 text-white" />
+      <div className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] flex-1 min-w-0">
+        <div className="w-5 h-5 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] flex items-center justify-center flex-shrink-0 shadow-[2px_2px_8px_rgba(0,0,0,0.1),-1px_-1px_4px_rgba(255,255,255,0.8)]">
+          <Check className="w-3 h-3 text-white" />
         </div>
         <Badge
           variant="secondary"
-          className="text-[10px] px-1 py-0 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 h-4 flex-shrink-0"
+          className="text-[10px] px-2 py-1 rounded-full bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 text-gray-700 h-5 flex-shrink-0 shadow-[2px_2px_8px_rgba(0,0,0,0.1),-1px_-1px_4px_rgba(255,255,255,0.8)]"
         >
           {t("novelDetail.chapterNumber", { number: selectedChapter.chapter_number || "" })}
         </Badge>
-        <span className="text-xs font-medium text-orange-800 dark:text-orange-300 truncate min-w-0 flex-1">
+        <span className="text-xs font-medium text-gray-800 truncate min-w-0 flex-1">
           {selectedChapter.title}
         </span>
       </div>
@@ -327,11 +327,11 @@ export function StorySetting() {
       <div className="absolute -top-20 -left-20 w-60 h-60 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl animate-pulse" />
       <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
-      <Card className="relative z-10 w-full border-2 border-gray-200/50 dark:border-gray-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 p-0 gap-3 flex flex-col flex-1 min-h-0">
+      <Card className="relative z-10 w-full border-0 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300 rounded-2xl bg-gradient-to-br from-white to-blue-50 p-0 gap-3 flex flex-col flex-1 min-h-0">
         <CardContent className="space-y-4 flex flex-col flex-1 min-h-0 overflow-hidden p-6">
           {/** 添加Tabs切换，有两个选项"从小说列表中选择"和"上传小说" */}
-          <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent flex-shrink-0 flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-500" />
+          <div className="text-lg font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent flex-shrink-0 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#ADD8E6]" />
             {t("createVideo.selectScript")}
           </div>
 
@@ -350,8 +350,8 @@ export function StorySetting() {
               defaultValue="novel"
               className="gap-0 flex flex-col flex-1 min-h-0"
               tabsListClassName="p-0 rounded-b-none flex-shrink-0"
-              tabsTriggerClassName="rounded-b-none"
-              tabsContentClassName="bg-white dark:data-[state=active]:bg-zinc-800 dark:bg-gray-700/30 mt-0 px-3 py-4 mt-[-1px] rounded-b-lg flex-1 min-h-0 overflow-hidden flex flex-col"
+              tabsTriggerClassName="rounded-b-none hover:scale-105 transition-all duration-200"
+              tabsContentClassName="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] mt-0 px-3 py-4 mt-[-1px] rounded-b-xl flex-1 min-h-0 overflow-hidden flex flex-col"
               onValueChange={(value) => { }}
               items={[
                 {
@@ -372,9 +372,9 @@ export function StorySetting() {
                               variant="secondary"
                               size="sm"
                               onClick={handleResetNovel}
-                              className="text-secondary text-xs"
+                              className="text-gray-700 text-xs bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-lg transition-all duration-200 hover:scale-105 rounded-xl"
                             >
-                              <X className="w-3 h-3" />
+                              <X className="w-3 h-3 text-[#FDBCB4]" />
                               {t("createVideo.reset")}
                             </Button>
                           }
@@ -393,9 +393,9 @@ export function StorySetting() {
                                 <Button
                                   variant="outline"
                                   size="lg"
-                                  className="flex-1 sm:flex-initial rounded-xl border-2 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
+                                  className="flex-1 sm:flex-initial rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 hover:border-[#ADD8E6]/50 transition-all duration-200 hover:scale-105 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
                                 >
-                                  <Settings className="w-4 h-4 mr-2" />
+                                  <Settings className="w-4 h-4 mr-2 text-[#ADD8E6]" />
                                   {t("creation.config") || "配置"}
                                 </Button>
                               </DialogTrigger>
@@ -669,7 +669,7 @@ export function StorySetting() {
                               size="lg"
                               onClick={() => analyseContent()}
                               disabled={createCreationMutation.isPending || isLoading || isSubmittingAnalysis}
-                              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl flex-shrink-0"
+                              className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl flex-shrink-0"
                             >
                               {createCreationMutation.isPending || isLoading || isSubmittingAnalysis ? t("createVideo.analyzingContent") : t("createVideo.analyzeCharacters")}
                               <ArrowRight className="w-4 h-4 ml-1" />

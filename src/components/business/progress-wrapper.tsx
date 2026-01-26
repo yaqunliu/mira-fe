@@ -147,7 +147,7 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
         />
 
         {showStepContent && currentStepData?.content && (
-          <div className="step-content">
+          <div className="step-content rounded-2xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 p-5">
             {currentStepData.content}
           </div>
         )}
@@ -158,7 +158,7 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
               variant="outline"
               onClick={prevStep}
               disabled={isFirstStep}
-              className="flex items-center gap-2 rounded-xl border-2 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105 disabled:hover:scale-100"
+              className="flex items-center gap-2 rounded-xl border-2 border-blue-200 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:border-#22C55E/50 hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 disabled:hover:scale-100 disabled:opacity-50"
             >
               <ChevronLeft className="w-4 h-4" />
               上一步
@@ -167,7 +167,7 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
             <Button
               onClick={nextStep}
               disabled={isLastStep}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:hover:scale-100"
+              className="flex items-center gap-2 bg-gradient-to-br from-#22C55E to-#16A34A text-white shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:hover:scale-100"
             >
               {isLastStep ? "完成" : "下一步"}
               {!isLastStep && <ChevronRight className="w-4 h-4" />}

@@ -90,90 +90,90 @@ export default function PointsPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-white to-gray-50/80">
       {/* 固定头部区域 */}
       <div className="flex-shrink-0">
         <div className="container mx-auto px-4 pt-4 pb-2 max-w-4xl landscape-wide">
           {/* 页面标题 */}
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold flex items-center gap-2">
+            <h1 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
               <Coins className="h-6 w-6 text-amber-600" />
               {t('title')}
             </h1>
             <CheckinButton />
           </div>
         </div>
-        <div className="h-[1px] w-full divider-primary" />
+        <div className="h-[1px] w-full bg-gray-200" />
       </div>
 
       {/* 可滚动内容区域 - 支持下拉刷新 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1">
         <div className="container mx-auto px-4 py-2 max-w-4xl landscape-wide">
-          {/* 积分余额卡片 - 现代化设计 */}
-          <div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 dark:from-amber-600 dark:via-amber-700 dark:to-orange-700 p-[1px] shadow-2xl shadow-amber-500/20 transition-all duration-300 hover:shadow-amber-500/30 hover:scale-[1.02]">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-gray-900 dark:to-gray-800 p-6">
+          {/* 积分余额卡片 - Claymorphism 设计 */}
+          <div className="relative mb-6 overflow-hidden rounded-2xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] border-0 transition-all duration-300 hover:shadow-lg">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50 p-6">
               {/* 装饰性背景元素 */}
-              <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-400/10 dark:bg-amber-400/5 rounded-full blur-3xl" />
-              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-orange-400/10 dark:bg-orange-400/5 rounded-full blur-3xl" />
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#FDBCB4]/10 rounded-full blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#ADD8E6]/10 rounded-full blur-3xl" />
 
               <div className="relative z-10">
                 {balanceLoading ? (
                   <div className="space-y-4">
-                    <Skeleton className="h-10 w-40 bg-amber-200/50 dark:bg-amber-800/30" />
-                    <Skeleton className="h-4 w-60 bg-amber-200/50 dark:bg-amber-800/30" />
+                    <div className="h-10 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-xl w-40 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] animate-pulse" />
+                    <div className="h-4 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-xl w-60 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] animate-pulse" />
                   </div>
                 ) : balance ? (
                   <div className="space-y-6">
                     {/* 主要余额显示 */}
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
-                        <Sparkles className="h-5 w-5" />
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Sparkles className="h-5 w-5 text-amber-600" />
                         <span className="text-sm font-medium">{t('availablePoints')}</span>
                       </div>
                       <div className="flex items-baseline gap-3">
-                        <span className="text-5xl font-bold bg-gradient-to-br from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent animate-in fade-in duration-500">
+                        <span className="text-5xl font-bold text-gray-800">
                           {balance.available_points}
                         </span>
-                        <Coins className="h-8 w-8 text-amber-500 dark:text-amber-400 animate-pulse" />
+                        <Coins className="h-8 w-8 text-amber-500 animate-pulse" />
                       </div>
                     </div>
 
                     {/* 详细信息网格 */}
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-3 border border-amber-200/50 dark:border-amber-700/30 transition-all duration-200 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:scale-105">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-gray-200 shadow-sm transition-all duration-200 hover:bg-white hover:scale-105">
                         <div className="flex items-center gap-2 mb-1">
-                          <Award className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                          <span className="text-xs text-amber-700 dark:text-amber-300 font-medium">{t('totalPoints')}</span>
+                          <Award className="h-4 w-4 text-amber-600" />
+                          <span className="text-xs text-gray-700 font-medium">{t('totalPoints')}</span>
                         </div>
-                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{balance.total_points}</span>
+                        <span className="text-lg font-bold text-gray-800">{balance.total_points}</span>
                       </div>
 
-                      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-3 border border-blue-200/50 dark:border-blue-700/30 transition-all duration-200 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:scale-105">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-gray-200 shadow-sm transition-all duration-200 hover:bg-white hover:scale-105">
                         <div className="flex items-center gap-2 mb-1">
-                          <Zap className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">{t('todayConsumed')}</span>
+                          <Zap className="h-4 w-4 text-blue-600" />
+                          <span className="text-xs text-gray-700 font-medium">{t('todayConsumed')}</span>
                         </div>
-                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{balance.today_consumed}</span>
+                        <span className="text-lg font-bold text-gray-800">{balance.today_consumed}</span>
                       </div>
 
-                      <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl p-3 border border-purple-200/50 dark:border-purple-700/30 transition-all duration-200 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:scale-105">
+                      <div className="bg-white/80 backdrop-blur-sm rounded-xl p-3 border border-gray-200 shadow-sm transition-all duration-200 hover:bg-white hover:scale-105">
                         <div className="flex items-center gap-2 mb-1">
-                          <Calendar className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                          <span className="text-xs text-purple-700 dark:text-purple-300 font-medium">{t('monthConsumed')}</span>
+                          <Calendar className="h-4 w-4 text-purple-600" />
+                          <span className="text-xs text-gray-700 font-medium">{t('monthConsumed')}</span>
                         </div>
-                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{balance.month_consumed}</span>
+                        <span className="text-lg font-bold text-gray-800">{balance.month_consumed}</span>
                       </div>
 
                       {/* 显示临时积分（expires_at 不为 null 的积分） */}
                       {balance.points_by_type.some(
                         (t) => t.expires_at !== null && t.expires_at !== undefined && t.points > 0
                       ) && (
-                        <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/40 dark:to-red-900/40 backdrop-blur-sm rounded-xl p-3 border border-orange-300/50 dark:border-orange-600/30 transition-all duration-200 hover:scale-105 animate-pulse">
+                        <div className="bg-gradient-to-br from-[#FDBCB4]/20 to-[#F9A899]/20 backdrop-blur-sm rounded-xl p-3 border border-[#FDBCB4]/30 shadow-sm transition-all duration-200 hover:scale-105 animate-pulse">
                           <div className="flex items-center gap-2 mb-1">
-                            <TrendingDown className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                            <span className="text-xs text-orange-700 dark:text-orange-300 font-medium">{t('expiringSoon')}</span>
+                            <TrendingDown className="h-4 w-4 text-orange-600" />
+                            <span className="text-xs text-orange-700 font-medium">{t('expiringSoon')}</span>
                           </div>
-                          <span className="text-lg font-bold text-orange-700 dark:text-orange-300">
+                          <span className="text-lg font-bold text-orange-700">
                             {balance.points_by_type
                               .filter((t) => t.expires_at !== null && t.expires_at !== undefined)
                               .reduce((sum, t) => sum + t.points, 0)}
@@ -188,10 +188,10 @@ export default function PointsPage() {
           </div>
 
 
-          {/* 筛选和记录列表 - 现代化设计 */}
+          {/* 筛选和记录列表 - Claymorphism 设计 */}
           <div className="space-y-4">
             <div className="flex flex-col gap-3">
-              <h2 className="text-lg font-bold flex items-center gap-2">
+              <h2 className="text-lg font-bold flex items-center gap-2 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
                 <Calendar className="h-5 w-5 text-purple-500" />
                 {t('records')}
               </h2>
@@ -204,7 +204,7 @@ export default function PointsPage() {
                     setPage(1)
                   }}
                 >
-                  <SelectTrigger className="h-10 flex-1 min-w-[140px] rounded-xl border-2 transition-all duration-200 hover:border-amber-400 focus:border-amber-500" size="sm">
+                  <SelectTrigger className="h-10 flex-1 min-w-[140px] rounded-xl border-2 border-gray-200 transition-all duration-200 hover:border-gray-300 focus:border-gray-300" size="sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -224,7 +224,7 @@ export default function PointsPage() {
                     setPage(1)
                   }}
                 >
-                  <SelectTrigger className="h-10 flex-1 min-w-[140px] rounded-xl border-2 transition-all duration-200 hover:border-amber-400 focus:border-amber-500" size="sm">
+                  <SelectTrigger className="h-10 flex-1 min-w-[140px] rounded-xl border-2 border-gray-200 transition-all duration-200 hover:border-gray-300 focus:border-gray-300" size="sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -246,7 +246,9 @@ export default function PointsPage() {
             {recordsLoading ? (
               <div className="space-y-3 mt-4">
                 {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-xl" />
+                  <div key={i} className="h-24 w-full rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                    <div className="h-full w-full animate-pulse rounded-xl bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20" />
+                  </div>
                 ))}
               </div>
             ) : recordsData && recordsData.items.length > 0 ? (
@@ -255,25 +257,25 @@ export default function PointsPage() {
                   {recordsData.items.map((record, index) => (
                     <div
                       key={record.record_id}
-                      className="group relative overflow-hidden rounded-xl border-2 border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-800 dark:to-gray-900/50 p-4 transition-all duration-300 hover:border-amber-400/50 hover:shadow-lg hover:shadow-amber-500/10 hover:scale-[1.02] animate-in fade-in slide-in-from-bottom-4 flex flex-col"
+                      className="group relative overflow-hidden rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] border-0 p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] animate-in fade-in slide-in-from-bottom-4 flex flex-col"
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
                       {/* 装饰性渐变边框效果 */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#FDBCB4]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                       <div className="relative z-10 flex flex-col gap-3 flex-1">
                         <div className="flex-1 space-y-2 min-w-0">
                           {/* 操作名称和记录类型 */}
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+                            <span className="font-semibold text-sm text-gray-800">
                               {getOperationName(record.operation_type)}
                             </span>
                             <Badge
                               variant="outline"
                               className={`text-xs shrink-0 border-2 font-medium ${
                                 record.points > 0
-                                  ? 'border-green-500/50 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 dark:border-green-500/30'
-                                  : 'border-red-500/50 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400 dark:border-red-500/30'
+                                  ? 'border-[#22C55E]/50 bg-[#22C55E]/10 text-[#22C55E]'
+                                  : 'border-red-500/50 bg-red-50 text-red-700'
                               }`}
                             >
                               {getRecordTypeName(record.record_type)}
@@ -281,25 +283,25 @@ export default function PointsPage() {
                             {record.expires_at && (
                               <Badge
                                 variant="outline"
-                                className="text-xs border-2 border-orange-500/50 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-500/30 shrink-0 animate-pulse"
+                                className="text-xs border-2 border-orange-500/50 bg-orange-50 text-orange-700 shrink-0 animate-pulse"
                               >
                                 {t('expiresAt')}: {formatDate(record.expires_at)}
                               </Badge>
                             )}
                           </div>
                           {record.description && (
-                            <div className="text-xs text-gray-600 dark:text-gray-400 break-words leading-relaxed line-clamp-2">
+                            <div className="text-xs text-gray-600 break-words leading-relaxed line-clamp-2">
                               {record.description}
                             </div>
                           )}
-                          <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-                            <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                            <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg">
                               <Calendar className="h-3 w-3 shrink-0" />
                               <span className="truncate">{formatDate(record.created_at)}</span>
                             </div>
                             {/* 显示临时积分标识 */}
                             {(record.points_type === 'daily_checkin' || record.points_type === 'checkin' || record.expires_at) && (
-                              <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-lg">
+                              <div className="flex items-center gap-1 bg-[#FDBCB4]/20 text-orange-700 px-2 py-1 rounded-lg">
                                 <Sparkles className="h-3 w-3" />
                                 <span>{t('dailyCheckinPoints')}</span>
                               </div>
@@ -307,12 +309,12 @@ export default function PointsPage() {
                           </div>
                         </div>
                         {/* 积分显示 */}
-                        <div className="flex flex-col items-start gap-2 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
+                        <div className="flex flex-col items-start gap-2 shrink-0 pt-2 border-t border-gray-200">
                           <div
                             className={`text-xl font-bold flex items-center gap-1 ${
                               record.points > 0
-                                ? 'text-green-600 dark:text-green-400'
-                                : 'text-red-600 dark:text-red-400'
+                                ? 'text-[#22C55E]'
+                                : 'text-red-600'
                             }`}
                           >
                             {record.points > 0 ? (
@@ -325,7 +327,7 @@ export default function PointsPage() {
                               {record.points}
                             </span>
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-lg">
+                          <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">
                             {t('balanceAfter')}: {record.balance_after}
                           </div>
                         </div>
@@ -348,7 +350,7 @@ export default function PointsPage() {
                             className={`rounded-xl transition-all duration-200 ${
                               page === 1
                                 ? 'pointer-events-none opacity-50'
-                                : 'hover:bg-amber-100 dark:hover:bg-amber-900/30 hover:border-amber-400'
+                                : 'hover:bg-gray-100 hover:border-gray-300'
                             }`}
                           />
                         </PaginationItem>
@@ -382,8 +384,8 @@ export default function PointsPage() {
                                     isActive={p === page}
                                     className={`rounded-xl transition-all duration-200 ${
                                       p === page
-                                        ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white border-0 shadow-lg shadow-amber-500/30'
-                                        : 'hover:bg-amber-100 dark:hover:bg-amber-900/30 hover:border-amber-400'
+                                        ? 'bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] text-white border-0 shadow-md'
+                                        : 'hover:bg-gray-100 hover:border-gray-300'
                                     }`}
                                   >
                                     {p}
@@ -403,7 +405,7 @@ export default function PointsPage() {
                             className={`rounded-xl transition-all duration-200 ${
                               page >= Math.ceil(recordsData.total / pageSize)
                                 ? 'pointer-events-none opacity-50'
-                                : 'hover:bg-amber-100 dark:hover:bg-amber-900/30 hover:border-amber-400'
+                                : 'hover:bg-gray-100 hover:border-gray-300'
                             }`}
                           />
                         </PaginationItem>
@@ -415,10 +417,10 @@ export default function PointsPage() {
             ) : (
               <div className="text-center py-12 mt-4">
                 <div className="flex flex-col items-center gap-3">
-                  <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full">
+                  <div className="p-4 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] rounded-full">
                     <Calendar className="h-8 w-8 text-gray-400" />
                   </div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                  <p className="text-gray-600 text-sm font-medium">
                     {t('noRecords')}
                   </p>
                 </div>

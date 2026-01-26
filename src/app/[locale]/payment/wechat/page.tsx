@@ -183,14 +183,14 @@ export default function WechatPaymentPage() {
   }, [codeUrl])
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80">
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="text-2xl font-bold text-black">Mira-猩猩科技</div>
-              <div className="text-lg text-black">收银台</div>
+              <div className="text-2xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">Mira-猩猩科技</div>
+              <div className="text-lg bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">收银台</div>
             </div>
             <div className="text-right">
               <div className="text-sm text-gray-600 mb-1">
@@ -201,7 +201,7 @@ export default function WechatPaymentPage() {
                   <div>订单类型: {order.order_type === 'onetime' ? '一次性支付' : '订阅支付'}</div>
                 )}
               </div>
-              <div className="text-xl font-semibold text-black mt-2">
+              <div className="text-xl font-semibold text-gray-800 mt-2">
                 应付金额: {order ? formatAmount(order.amount, order.currency) : '¥0.00'}
               </div>
             </div>
@@ -211,13 +211,13 @@ export default function WechatPaymentPage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white rounded-lg shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] border-0 overflow-hidden">
           {/* Payment Method Tab */}
-          <div className="bg-gray-100 px-6 py-3 border-b border-gray-200">
+          <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
             <div className="flex items-center gap-2">
               <div className="relative">
-                <div className="px-4 py-2 bg-white rounded-t-lg border-b-2 border-green-500">
-                  <span className="text-base font-medium text-black">微信支付</span>
+                <div className="px-4 py-2 bg-white rounded-t-lg border-b-2 border-[#22C55E]">
+                  <span className="text-base font-medium text-gray-800">微信支付</span>
                 </div>
                 <div className="absolute -top-2 -right-2">
                   <Image
@@ -244,11 +244,11 @@ export default function WechatPaymentPage() {
                   height={40}
                   className="object-contain"
                 />
-                <span className="text-xl font-medium text-black">微信支付</span>
+                <span className="text-xl font-medium text-gray-800">微信支付</span>
               </div>
 
               {/* QR Code */}
-              <div className="bg-white p-6 rounded-lg border-2 border-gray-200">
+              <div className="bg-white p-6 rounded-lg shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] border-0">
                 {qrCodeDataUrl ? (
                   <img 
                     src={qrCodeDataUrl} 
@@ -268,7 +268,7 @@ export default function WechatPaymentPage() {
               </div>
 
               {/* Instruction */}
-              <div className="flex items-center gap-2 bg-blue-50 px-4 py-3 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 bg-blue-50 px-4 py-3 rounded-lg border border-blue-200 shadow-sm">
                 <Image
                   src="/wechat-pay-instruction.png"
                   alt="Instruction"
@@ -290,13 +290,13 @@ export default function WechatPaymentPage() {
               )}
 
               {orderStatus === 'paid' && (
-                <div className="text-center text-green-600 font-medium">
+                <div className="text-center text-[#22C55E] font-medium">
                   支付成功！正在跳转...
                 </div>
               )}
 
               {orderStatus === 'failed' && (
-                <div className="text-center text-red-600 font-medium">
+                <div className="text-center text-red-500 font-medium">
                   支付失败或已取消
                 </div>
               )}
@@ -305,7 +305,7 @@ export default function WechatPaymentPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push(`/${locale}/pricing`)}
-                className="mt-4 border-gray-300 text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:border-gray-400 bg-white"
+                className="mt-4 border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300 bg-white shadow-sm hover:shadow-md transition-all duration-300"
               >
                 返回产品页面
               </Button>

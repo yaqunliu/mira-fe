@@ -44,7 +44,10 @@ export function PointsBalance() {
   if (isLoading && !currentBalance) {
     return (
       <div className="flex items-center gap-2">
-        <Skeleton className="h-6 w-16" />
+        <div className="h-8 w-24 bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] animate-pulse flex items-center justify-center">
+          <div className="h-4 w-4 rounded-full bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 animate-pulse" />
+          <div className="h-4 w-10 ml-2 bg-gradient-to-br from-#22C55E/20 to-#16A34A/20 rounded-lg animate-pulse" />
+        </div>
       </div>
     )
   }
@@ -62,16 +65,16 @@ export function PointsBalance() {
     <Button
       variant="ghost"
       size="sm"
-      className="h-8 gap-1.5 px-2"
+      className="h-8 gap-1.5 px-3 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 hover:scale-105 transition-all duration-200"
       onClick={handleClick}
       title={t('viewDetails')}
     >
-      <Coins className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-      <span className="text-sm font-medium text-amber-700 dark:text-amber-300">
+      <Coins className="h-4 w-4 text-#22C55E" />
+      <span className="text-sm font-medium text-gray-800">
         {currentBalance?.available_points ?? 0}
       </span>
       {hasTemporaryPoints && (
-        <span className="text-xs text-orange-600 dark:text-orange-400" title={t('expiringSoon')}>
+        <span className="text-xs text-orange-600" title={t('expiringSoon')}>
           ⚠️
         </span>
       )}

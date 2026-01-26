@@ -134,10 +134,10 @@ export function VisualGeneration() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">视觉生成</h2>
-          <p className="text-muted-foreground">检查并优化生成的场景与分镜图片</p>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">视觉生成</h2>
+          <p className="text-gray-600">检查并优化生成的场景与分镜图片</p>
         </div>
-        <Button onClick={nextStep}>
+        <Button onClick={nextStep} className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl">
           下一步：视频生成 <ChevronRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
@@ -145,45 +145,46 @@ export function VisualGeneration() {
       <div className="grid gap-6">
         <Accordion type="multiple" defaultValue={creation.scenes?.map((s: any) => `scene-${s.scene_id}`) || []} className="w-full">
           {creation.scenes?.map((scene: any, index: number) => (
-            <AccordionItem key={scene.scene_id} value={`scene-${scene.scene_id}`}>
+            <AccordionItem key={scene.scene_id} value={`scene-${scene.scene_id}`} className="border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300 rounded-2xl mb-4">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-4 w-full pr-4">
-                  <Badge variant="outline">场景 {index + 1}</Badge>
-                  <span className="font-medium flex-1 text-left">{scene.title}</span>
+                  <Badge variant="outline" className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 text-gray-700 rounded-full shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">场景 {index + 1}</Badge>
+                  <span className="font-medium flex-1 text-left text-gray-800">{scene.title}</span>
                   <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                      {/* Scene Image Preview in Header */}
                      {scene.image_url ? (
-                        <img src={scene.image_url} alt={scene.title} className="w-10 h-10 object-cover rounded" />
+                        <img src={scene.image_url} alt={scene.title} className="w-10 h-10 object-cover rounded-xl shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.7)]" />
                      ) : (
-                        <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
-                           <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                        <div className="w-10 h-10 bg-gradient-to-br from-white to-blue-50 rounded-xl flex items-center justify-center shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                           <ImageIcon className="w-4 h-4 text-[#ADD8E6]" />
                         </div>
                      )}
                      <Button 
                         size="sm" 
-                        variant="ghost" 
+                        variant="secondary" 
                         disabled={regeneratingScenes.has(scene.scene_id)}
                         onClick={(e) => handleRegenerateScene(e, scene)}
+                        className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
                       >
                         {regeneratingScenes.has(scene.scene_id) ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin text-[#ADD8E6]" />
                         ) : (
-                          <RefreshCw className="w-4 h-4" />
+                          <RefreshCw className="w-4 h-4 text-[#FDBCB4]" />
                         )}
                       </Button>
                   </div>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="p-4 bg-muted/30">
+              <AccordionContent className="p-4 bg-gradient-to-br from-white to-blue-50/80">
                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {scene.shots?.map((shot: IShot) => (
-                      <Card key={shot.shot_id} className="overflow-hidden">
+                      <Card key={shot.shot_id} className="overflow-hidden border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300 rounded-2xl">
                         <div className="aspect-video relative group">
                           {shot.image_url ? (
                             <img src={shot.image_url} alt={shot.title} className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                              <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                            <div className="w-full h-full bg-gradient-to-br from-white to-blue-50 flex items-center justify-center">
+                              <ImageIcon className="w-8 h-8 text-[#ADD8E6]" />
                             </div>
                           )}
                           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
@@ -191,12 +192,13 @@ export function VisualGeneration() {
                                 size="sm" 
                                 disabled={regeneratingShots.has(shot.shot_id)}
                                 onClick={() => handleRegenerateShot(shot)}
+                                className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
                              >
                                 {regeneratingShots.has(shot.shot_id) ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <Loader2 className="w-4 h-4 animate-spin text-[#ADD8E6]" />
                                 ) : (
                                   <>
-                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    <RefreshCw className="w-4 h-4 mr-2 text-[#FDBCB4]" />
                                     重新生成
                                   </>
                                 )}
@@ -205,9 +207,9 @@ export function VisualGeneration() {
                         </div>
                         <CardContent className="p-3">
                            <div className="flex justify-between items-start mb-2">
-                              <Badge variant="outline">分镜 {shot.shot_number}</Badge>
+                              <Badge variant="outline" className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 text-gray-700 rounded-full shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">分镜 {shot.shot_number}</Badge>
                            </div>
-                           <div className="text-xs text-muted-foreground max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                           <div className="text-xs text-gray-700 max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                               {shot.description}
                            </div>
                         </CardContent>

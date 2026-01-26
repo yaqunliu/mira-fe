@@ -612,8 +612,8 @@ export function VideoGenerator({
       {(stage === "idle" || stage === "selecting") && (
         <div className="space-y-6 px-6 relative z-10">
           <div className="space-y-2">
-            <h3 className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent flex items-center gap-2">
-              <Volume2 className="w-5 h-5 text-purple-500" />
+            <h3 className="text-lg font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
+              <Volume2 className="w-5 h-5 text-[#ADD8E6]" />
               {t("video.selectVoice")}
             </h3>
             <p className="text-sm text-muted-foreground">
@@ -628,31 +628,32 @@ export function VideoGenerator({
 
           {/* 已选择的语音信息 */}
           {selectedVoice && (
-            <Card className="border-2 border-purple-200/50 dark:border-purple-700/50 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 shadow-lg rounded-xl">
+            <Card className="border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-2xl">
               <CardContent className="p-4 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                     <Check className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-sm">
+                    <p className="font-semibold text-sm text-gray-800">
                       已选择: {selectedVoice.title}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {selectedVoice.author?.nickname || "未知作者"} ·{" "}
-                      {selectedVoice.task_count.toLocaleString()} 次使用
+                    <p className="text-xs text-gray-600">
+                      {selectedVoice.author?.nickname || "未知作者"} ·{
+                        " "
+                      }{selectedVoice.task_count.toLocaleString()} 次使用
                     </p>
                   </div>
                 </div>
                 
                 {/* 语速设置 */}
-                <div className="pt-3 border-t border-purple-200 dark:border-purple-800">
+                <div className="pt-3 border-t border-gray-100">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-foreground">
+                      <label className="text-sm font-medium text-gray-700">
                         {t("video.voiceSpeed")}
                       </label>
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-gray-600">
                         {voiceSpeed.toFixed(1)}x
                       </span>
                     </div>
@@ -665,9 +666,9 @@ export function VideoGenerator({
                           step="0.1"
                           value={voiceSpeed}
                           onChange={(e) => setVoiceSpeed(parseFloat(e.target.value))}
-                          className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-orange-500 bg-zinc-200 dark:bg-zinc-700"
+                          className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-[#FDBCB4] bg-gray-100"
                           style={{
-                            background: `linear-gradient(to right, rgb(251 146 60) 0%, rgb(251 146 60) ${(voiceSpeed / 2) * 100}%, transparent ${(voiceSpeed / 2) * 100}%, transparent 100%)`
+                            background: `linear-gradient(to right, rgb(253,188,180) 0%, rgb(253,188,180) ${(voiceSpeed / 2) * 100}%, rgb(229,231,235) ${(voiceSpeed / 2) * 100}%, rgb(229,231,235) 100%)`
                           }}
                         />
                       </div>
@@ -689,10 +690,10 @@ export function VideoGenerator({
                           }
                         }}
                         onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                        className="w-16 h-8 text-xs bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-center"
+                        className="w-16 h-8 text-xs bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-center shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-xl"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-gray-600">
                       调整语音播放速度，范围 0-2，默认 1.0
                     </p>
                   </div>
@@ -706,25 +707,25 @@ export function VideoGenerator({
       {/* 阶段 2: 生成中 - 进度展示 */}
       {stage === "generating" && (
         <div className="space-y-6 px-6 relative z-10">
-          <Card className="border-2 border-purple-200/50 dark:border-purple-700/50 bg-gradient-to-br from-white to-purple-50/30 dark:from-gray-800/50 dark:to-purple-900/20 shadow-lg rounded-xl">
+          <Card className="border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-2xl">
             <CardContent className="p-6">
               <div className="space-y-6">
                 {/* 标题和状态 */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="w-12 h-12 border-3 border-purple-200 border-t-purple-500 rounded-full animate-spin"></div>
-                      <Music className="absolute inset-0 m-auto w-5 h-5 text-purple-500" />
+                      <div className="w-12 h-12 border-3 border-[#ADD8E6]/30 border-t-[#FDBCB4] rounded-full animate-spin"></div>
+                      <Music className="absolute inset-0 m-auto w-5 h-5 text-[#ADD8E6]" />
                     </div>
                     <div>
-                      <h4 className="font-semibold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">{t("video.generatingAudio")}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="font-semibold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">{t("video.generatingAudio")}</h4>
+                      <p className="text-sm text-gray-600">
                         {progress?.status || t("common.loading")}
                       </p>
                     </div>
                   </div>
                   {selectedVoice && (
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                    <Badge variant="secondary" className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 text-gray-700 rounded-full shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                       {selectedVoice.title}
                     </Badge>
                   )}
@@ -732,16 +733,16 @@ export function VideoGenerator({
 
                 {/* 进度条 */}
                 <div className="space-y-2">
-                  <Progress value={progressPercent} className="h-2" />
+                  <Progress value={progressPercent} className="h-2 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-full" />
                   {progress && (
-                    <div className="flex justify-end gap-3 text-xs text-muted-foreground">
+                    <div className="flex justify-end gap-3 text-xs text-gray-600">
                       {(progress.success_count ?? 0) > 0 && (
-                        <span className="text-green-600">
+                        <span className="text-[#22C55E]">
                           {progress.success_count} 成功
                         </span>
                       )}
                       {(progress.failed_count ?? 0) > 0 && (
-                        <span className="text-red-600">
+                        <span className="text-[#FDBCB4]">
                           {progress.failed_count} 失败
                         </span>
                       )}
@@ -750,7 +751,7 @@ export function VideoGenerator({
                 </div>
 
                 {/* 提示 */}
-                <p className="text-xs text-center text-muted-foreground">
+                <p className="text-xs text-center text-gray-600">
                   {t("video.generatingPleaseWait")}
                 </p>
               </div>
@@ -762,22 +763,22 @@ export function VideoGenerator({
       {/* 阶段 3: 生成失败 */}
       {stage === "failed" && (
         <div className="space-y-6 px-6">
-          <Card className="border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/20">
+          <Card className="border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-2xl">
             <CardContent className="p-6">
               <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                  <AlertCircle className="w-8 h-8 text-red-500" />
+                <div className="w-16 h-16 rounded-full bg-[#FDBCB4]/20 flex items-center justify-center shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+                  <AlertCircle className="w-8 h-8 text-[#FDBCB4]" />
                 </div>
                 <div>
-                  <h4 className="font-semibold text-red-700 dark:text-red-400">
+                  <h4 className="font-semibold text-[#F9A899]">
                     {t("video.generationFailed")}
                   </h4>
-                  <p className="text-sm text-muted-foreground mt-1">
+                  <p className="text-sm text-gray-600 mt-1">
                     {errorMessage || t("errors.generationFailed")}
                   </p>
                 </div>
-                <Button onClick={handleRetry} variant="outline" className="gap-2">
-                  <RefreshCw className="w-4 h-4" />
+                <Button onClick={handleRetry} variant="outline" className="gap-2 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100">
+                  <RefreshCw className="w-4 h-4 text-[#FDBCB4]" />
                   {t("video.retryGeneration")}
                 </Button>
               </div>
@@ -791,24 +792,24 @@ export function VideoGenerator({
         <div className="space-y-6 px-6">
           {/* 完成提示 */}
           <div className="flex items-center justify-center gap-2 py-4">
-            <Wand className="w-6 h-6 text-orange-500/80" />
-            <div className="text-2xl font-bold text-gradient-primary">
+            <Wand className="w-6 h-6 text-[#FDBCB4]/80" />
+            <div className="text-2xl font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">
               {t("video.creationCompleted")}
             </div>
           </div>
 
           {/* 音频预览 */}
           {audioUrl && (
-            <Card>
+            <Card className="border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-2xl">
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
                   <button
                     onClick={toggleAudioPreview}
                     className={cn(
-                      "w-12 h-12 rounded-full flex items-center justify-center transition-all",
+                      "w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]",
                       isPlayingAudio
-                        ? "bg-orange-500 text-white"
-                        : "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-200 dark:hover:bg-orange-900/50"
+                        ? "bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] text-gray-800"
+                        : "bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-[#ADD8E6]"
                     )}
                   >
                     {isPlayingAudio ? (
@@ -819,10 +820,10 @@ export function VideoGenerator({
                   </button>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Music className="w-4 h-4 text-muted-foreground" />
-                      <span className="font-medium text-sm">{t("video.audioPreview")}</span>
+                      <Music className="w-4 h-4 text-[#ADD8E6]" />
+                      <span className="font-medium text-sm text-gray-800">{t("video.audioPreview")}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-gray-600 mt-1">
                       {t("video.previewAudio")}
                     </p>
                   </div>
@@ -835,10 +836,10 @@ export function VideoGenerator({
           {videoUrl && (
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Video className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium text-sm">{t("video.videoPreview")}</span>
+                <Video className="w-4 h-4 text-[#ADD8E6]" />
+                <span className="font-medium text-sm text-gray-800">{t("video.videoPreview")}</span>
               </div>
-              <div className="relative w-full bg-black rounded-lg overflow-hidden aspect-video">
+              <div className="relative w-full bg-black rounded-2xl overflow-hidden aspect-video shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                 <video
                   src={videoUrl}
                   controls
@@ -852,18 +853,18 @@ export function VideoGenerator({
 
           {/* 没有视频和音频时的提示 */}
           {!videoUrl && !audioUrl && (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-gray-600">
               <p>{t("video.loadingData")}</p>
             </div>
           )}
 
           {/* 操作按钮 */}
           <div className="flex justify-center gap-4 pt-4">
-            <Button onClick={handleRetry} variant="outline" className="gap-2">
-              <RefreshCw className="w-4 h-4" />
+            <Button onClick={handleRetry} variant="outline" className="gap-2 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100">
+              <RefreshCw className="w-4 h-4 text-[#ADD8E6]" />
               {t("common.regenerate")}
             </Button>
-            <Button className="bg-primary-gradient gap-2">
+            <Button className="gap-2 bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 rounded-xl">
               {t("common.publish")}
             </Button>
           </div>
@@ -872,13 +873,13 @@ export function VideoGenerator({
 
       {/* 底部操作浮层 - 仅在选择阶段显示 */}
       {(stage === "idle" || stage === "selecting") && selectedVoiceId && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-purple-200/50 dark:border-purple-700/50 shadow-2xl backdrop-blur-sm">
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-white to-blue-50/80 shadow-[0px_-4px_12px_rgba(0,0,0,0.08),0px_2px_4px_rgba(255,255,255,0.8)] border-t-0 backdrop-blur-sm">
           <div className="px-6 py-4">
             <div className="flex items-center justify-center">
               <Button
                 onClick={() => handleStartGeneration()}
                 disabled={isSubmittingGeneration || !selectedVoiceId}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 min-w-[140px]"
+                className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 px-8 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 min-w-[160px]"
               >
                 {t("video.startGenerationButton")}
               </Button>
@@ -890,10 +891,10 @@ export function VideoGenerator({
       {/* 重新生成对话框 */}
       {showRegenerateDialog && (
         <Dialog open={showRegenerateDialog} onOpenChange={setShowRegenerateDialog}>
-          <DialogContent>
+          <DialogContent className="rounded-2xl border-0 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-4px_-4px_8px_rgba(255,255,255,0.9)]">
             <DialogHeader>
-              <DialogTitle>{t("video.regenerateVideoTitle")}</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">{t("video.regenerateVideoTitle")}</DialogTitle>
+              <DialogDescription className="text-gray-600">
                 {t("video.regenerateAudioDescription")}
               </DialogDescription>
             </DialogHeader>
@@ -901,13 +902,13 @@ export function VideoGenerator({
               <Button
                 variant="outline"
                 onClick={handleConfirmRegenerate}
-                className="rounded-xl border-2 hover:border-purple-400 transition-colors"
+                className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 transition-colors shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
               >
                 {t("video.regenerateVideoOnly")}
               </Button>
               <Button
                 onClick={handleConfirmRegenerateAudio}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 rounded-xl"
+                className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 rounded-xl"
               >
                 {t("video.regenerateAudioAndVideo")}
               </Button>

@@ -175,12 +175,11 @@ export function NovelUpload({
         <div
           onDrop={isUploading ? undefined : handleDrop}
           onDragOver={isUploading ? undefined : handleDragOver}
-          className={`border-1 border-dashed border-orange-400/40 rounded-lg p-6 text-center transition-colors ${
-            isUploading
-              ? "cursor-not-allowed opacity-60 border-muted-foreground/25"
-              : selectedFile
-              ? "border-green-500 bg-green-50 dark:bg-green-950/30 dark:border-green-400/30 cursor-pointer"
-              : "border-muted-foreground/25 hover:border-primary/50 cursor-pointer"
+          className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${isUploading
+            ? "cursor-not-allowed opacity-60 border-blue-200 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
+            : selectedFile
+            ? "border-#22C55E bg-gradient-to-br from-green-50 to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] cursor-pointer"
+            : "border-blue-200 bg-gradient-to-br from-white to-blue-50 hover:border-#22C55E/50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] cursor-pointer"
           }`}
           onClick={
             isUploading ? undefined : () => fileInputRef.current?.click()
@@ -199,18 +198,18 @@ export function NovelUpload({
             <div className="space-y-4">
               {isUploading ? (
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-#22C55E"></div>
                 </div>
               ) : (
-                <CheckCircle className="h-8 w-8 mx-auto text-green-600" />
+                <CheckCircle className="h-10 w-10 mx-auto text-#22C55E" />
               )}
-              <div className="space-y-1">
-                <p className="text-md font-medium">{selectedFile.name}</p>
-                <p className="text-sm text-muted-foreground">
+              <div className="space-y-2">
+                <p className="text-md font-medium text-gray-800">{selectedFile.name}</p>
+                <p className="text-sm text-gray-600">
                   {formatFileSize(selectedFile.size)}
                 </p>
                 {isUploading && (
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                  <p className="text-sm text-#22C55E font-medium">
                     正在上传中，请稍候...
                   </p>
                 )}
@@ -218,25 +217,25 @@ export function NovelUpload({
               {!isUploading && (
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     removeFile();
                   }}
-                  className="text-gray-400 underline"
+                  className="rounded-xl bg-gradient-to-br from-white to-red-50 border border-red-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
                 >
-                  <X className="h-4 w-4 text-red-700" />
+                  <X className="h-4 w-4 text-red-500 mr-1" />
                   移除文件
                 </Button>
               )}
             </div>
           ) : (
             <div className="space-y-4">
-              <Upload className="h-8 w-8 mx-auto text-orange-500" />
+              <Upload className="h-10 w-10 mx-auto text-#22C55E" />
               <div>
-                <div className="text-base font-medium">拖拽或点击上传小说</div>
-                <div className="text-xs text-muted-foreground mt-2 text-gray-500">
+                <div className="text-base font-medium text-gray-800">拖拽或点击上传小说</div>
+                <div className="text-xs text-gray-600 mt-2">
                   支持最大 {formatFileSize(MAX_FILE_SIZE)} 的.txt文件
                 </div>
               </div>
@@ -247,28 +246,28 @@ export function NovelUpload({
 
       {/* 后台处理提示 */}
       {taskId && task && task.status !== TaskStatus.SUCCESS && task.status !== TaskStatus.FAILURE && (
-        <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+        <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-white shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+            <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="font-medium text-blue-900 dark:text-blue-100 mb-1">
+              <p className="font-medium text-blue-900 mb-2">
                 小说正在后台处理中
               </p>
-              <p className="text-sm text-blue-700 dark:text-blue-300 mb-2">
+              <p className="text-sm text-blue-700 mb-3">
                 您可以离开此页面，处理完成后会显示在小说列表中。
               </p>
               {task.progress && (
                 <div className="mt-2">
-                  <div className="flex items-center justify-between text-xs text-blue-600 dark:text-blue-400 mb-1">
+                  <div className="flex items-center justify-between text-xs text-blue-600 mb-1">
                     <span>处理进度</span>
                     <span>{task.progress.percent || 0}%</span>
                   </div>
                   <Progress 
                     value={task.progress.percent || 0} 
-                    className="h-2 bg-blue-100 dark:bg-blue-900/50"
+                    className="h-2 bg-blue-100 rounded-full"
                   />
                   {task.progress.status && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                    <p className="text-xs text-blue-600 mt-1">
                       {task.progress.status}
                     </p>
                   )}
@@ -282,33 +281,32 @@ export function NovelUpload({
       {/* 任务完成或失败提示 */}
       {task && !isLoading && (
         <div
-          className={`p-4 border rounded-lg ${
-            task.status === TaskStatus.SUCCESS
-              ? "bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800"
-              : task.status === TaskStatus.FAILURE
-              ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800"
-              : ""
+          className={`p-5 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] ${task.status === TaskStatus.SUCCESS
+            ? "bg-gradient-to-br from-green-50 to-white border border-green-100"
+            : task.status === TaskStatus.FAILURE
+            ? "bg-gradient-to-br from-red-50 to-white border border-red-100"
+            : ""
           }`}
         >
           <div className="flex items-center gap-2">
             {task.status === TaskStatus.SUCCESS ? (
               <>
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <span className="font-medium text-green-900 dark:text-green-100">
+                <CheckCircle className="h-5 w-5 text-#22C55E" />
+                <span className="font-medium text-green-900">
                   上传小说解析完成！
                 </span>
               </>
             ) : task.status === TaskStatus.FAILURE ? (
               <>
-                <X className="h-5 w-5 text-red-600" />
-                <span className="font-medium text-red-900 dark:text-red-100">
+                <X className="h-5 w-5 text-red-500" />
+                <span className="font-medium text-red-900">
                   解析失败
                 </span>
               </>
             ) : null}
           </div>
           {task.message && (
-            <p className="text-sm mt-2 text-muted-foreground">{task.message}</p>
+            <p className="text-sm mt-2 text-gray-600">{task.message}</p>
           )}
         </div>
       )}
@@ -316,10 +314,10 @@ export function NovelUpload({
       {!uploadCompleted && !taskId ? (
         <div className="flex justify-center w-full mt-8">
           <Button
-            variant="secondary"
+            variant="default"
             onClick={handleUpload}
             disabled={isUploading || !selectedFile}
-            className="text-primary tracking-wide w-[120px]"
+            className="rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 tracking-wide w-[140px]"
           >
             {isUploading ? "上传中..." : "上传解析"}
           </Button>
@@ -327,9 +325,9 @@ export function NovelUpload({
       ) : uploadCompleted ? (
         <div className="flex justify-center w-full mt-8">
           <Button
-            variant="secondary"
+            variant="outline"
             onClick={() => novelId && onComplete(novelId as string)}
-            className="text-primary tracking-wide w-[120px]"
+            className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 tracking-wide w-[140px]"
           >
             返回
           </Button>

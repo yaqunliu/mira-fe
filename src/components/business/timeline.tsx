@@ -522,16 +522,16 @@ export const Timeline: React.FC = () => {
           setDraggingTrackIndex(null);
           setDragOverTrackIndex(null);
         }}
-        className={`h-16 border-b border-zinc-800/50 relative transition-all duration-200 ${
-          selectedTrackId === track.id ? 'bg-zinc-900/80' : 'bg-zinc-950/30'
+        className={`h-16 border-b border-gray-300 relative transition-all duration-200 ${
+          selectedTrackId === track.id ? 'bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg shadow-blue-500/10' : 'bg-gradient-to-r from-white to-gray-50'
         } ${
           isDragging ? 'opacity-50' : ''
         } ${
-          isDragOver ? 'border-t-2 border-t-blue-500' : ''
-        } select-none group flex ${!track.isLocked ? 'cursor-move' : ''}`}
+          isDragOver ? 'border-t-2 border-t-blue-500 shadow-lg shadow-blue-500/20' : ''
+        } select-none group flex ${!track.isLocked ? 'cursor-move' : ''} shadow-sm shadow-gray-200`}
       >
         {/* 轨道头部 - 使用 sticky 保持可见 */}
-        <div className={`sticky left-0 w-40 h-full border-r border-zinc-800/50 flex flex-col justify-center px-4 bg-zinc-900/90 backdrop-blur-md select-none z-20 transition-colors ${selectedTrackId === track.id ? 'border-r-blue-500/20' : ''}`}>
+        <div className={`sticky left-0 w-40 h-full border-r border-gray-300 flex flex-col justify-center px-4 bg-gradient-to-r from-white to-gray-50 backdrop-blur-lg select-none z-20 transition-all ${selectedTrackId === track.id ? 'border-r-blue-500/30 shadow-lg shadow-blue-500/10' : ''} shadow-sm shadow-gray-200`}>
           
           {/* 轨道类型指示条 */}
           <div className={`absolute left-0 top-0 bottom-0 w-1 ${
@@ -842,10 +842,10 @@ export const Timeline: React.FC = () => {
 
     // 根据类型定义不同的渐变和边框颜色
     const styleClasses = trackType === 'video'
-        ? `bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border-blue-500/30 ${isSelected ? 'ring-2 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.3)]' : 'hover:border-blue-500/50'}`
+        ? `bg-gradient-to-r from-blue-900/50 to-indigo-900/50 border-blue-500/40 ${isSelected ? 'ring-2 ring-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.4)] backdrop-blur-sm' : 'hover:border-blue-500/60 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)]'}`
         : trackType === 'audio'
-        ? `bg-gradient-to-r from-emerald-900/40 to-teal-900/40 border-emerald-500/30 ${isSelected ? 'ring-2 ring-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'hover:border-emerald-500/50'}`
-        : `bg-gradient-to-r from-orange-900/40 to-amber-900/40 border-orange-500/30 ${isSelected ? 'ring-2 ring-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.3)]' : 'hover:border-orange-500/50'}`;
+        ? `bg-gradient-to-r from-emerald-900/50 to-teal-900/50 border-emerald-500/40 ${isSelected ? 'ring-2 ring-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)] backdrop-blur-sm' : 'hover:border-emerald-500/60 hover:shadow-[0_0_15px_rgba(16,185,129,0.3)]'}`
+        : `bg-gradient-to-r from-orange-900/50 to-amber-900/50 border-orange-500/40 ${isSelected ? 'ring-2 ring-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)] backdrop-blur-sm' : 'hover:border-orange-500/60 hover:shadow-[0_0_15px_rgba(249,115,22,0.3)]'}`;
 
     return (
       <div
@@ -1404,39 +1404,39 @@ export const Timeline: React.FC = () => {
 
   return (
     <div 
-      className="w-full h-full flex flex-col bg-[#09090b] select-none"
+      className="w-full h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100 select-none"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
       {/* 控制栏 */}
-      <div className="h-14 flex items-center justify-between px-4 bg-zinc-900/50 backdrop-blur-sm border-b border-zinc-800/50 shrink-0 relative">
+      <div className="h-14 flex items-center justify-between px-4 bg-gradient-to-r from-gray-200 to-gray-100 backdrop-blur-lg border-b border-gray-300 shrink-0 relative shadow-lg shadow-indigo-950/5">
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
             <button
                 onClick={() => addTrack('video', `${t('videoTrack')} ${project.tracks.filter(t => t.type === 'video').length + 1}`)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-md hover:bg-blue-500/20 hover:border-blue-500/30 transition-all text-xs font-medium group"
+                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 hover:border-blue-500/40 transition-all text-xs font-medium group shadow-md shadow-blue-500/10 hover:shadow-lg hover:shadow-blue-500/20"
             >
                 <Plus size={14} className="group-hover:scale-110 transition-transform" />
                 <span>{t('video')}</span>
             </button>
             <button
                 onClick={() => addTrack('audio', `${t('audioTrack')} ${project.tracks.filter(t => t.type === 'audio').length + 1}`)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-md hover:bg-emerald-500/20 hover:border-emerald-500/30 transition-all text-xs font-medium group"
+                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg hover:bg-emerald-500/30 hover:border-emerald-500/40 transition-all text-xs font-medium group shadow-md shadow-emerald-500/10 hover:shadow-lg hover:shadow-emerald-500/20"
             >
                 <Plus size={14} className="group-hover:scale-110 transition-transform" />
                 <span>{t('audio')}</span>
             </button>
             <button
                 onClick={() => addTrack('text', `${t('subtitleTrack')} ${project.tracks.filter(t => t.type === 'text').length + 1}`)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-md hover:bg-orange-500/20 hover:border-orange-500/30 transition-all text-xs font-medium group"
+                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-orange-500/20 to-amber-500/20 text-orange-400 border border-orange-500/30 rounded-lg hover:bg-orange-500/30 hover:border-orange-500/40 transition-all text-xs font-medium group shadow-md shadow-orange-500/10 hover:shadow-lg hover:shadow-orange-500/20"
             >
                 <Plus size={14} className="group-hover:scale-110 transition-transform" />
                 <span>{t('subtitle')}</span>
             </button>
-            <div className="w-px h-4 bg-zinc-800 mx-1 self-center" />
+            <div className="w-px h-4 bg-gray-800 mx-1 self-center" />
             <button
                 onClick={() => setIsAddSubtitleModalOpen(true)}
-                className="flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-md hover:bg-purple-500/20 hover:border-purple-500/30 transition-all text-xs font-medium group"
+                className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-violet-500/20 text-purple-400 border border-purple-500/30 rounded-lg hover:bg-purple-500/30 hover:border-purple-500/40 transition-all text-xs font-medium group shadow-md shadow-purple-500/10 hover:shadow-lg hover:shadow-purple-500/20"
             >
                 <Edit2 size={14} className="group-hover:scale-110 transition-transform" />
                 <span>新增文案</span>
@@ -1445,13 +1445,13 @@ export const Timeline: React.FC = () => {
         </div>
 
         {/* 居中的播放控制按钮 */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 bg-zinc-950/50 border border-zinc-800 p-1.5 rounded-xl shadow-lg backdrop-blur-md">
-          <div className="flex items-center gap-1 pr-1 border-r border-zinc-800 mr-1">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 bg-gradient-to-r from-white to-gray-100 border border-gray-300 p-1.5 rounded-xl shadow-xl shadow-gray-900/10 backdrop-blur-lg">
+          <div className="flex items-center gap-1 pr-1 border-r border-gray-800/50 mr-1">
             <button 
               onClick={undo} 
               disabled={!canUndo}
               title={t('undo') || '撤销 (Ctrl+Z)'}
-              className={`p-2 rounded-lg transition-all ${canUndo ? 'hover:bg-zinc-800 text-zinc-400 hover:text-white' : 'text-zinc-700 cursor-not-allowed'}`}
+              className={`p-2 rounded-lg transition-all ${canUndo ? 'hover:bg-gray-800/80 text-gray-400 hover:text-white shadow-md shadow-gray-800/50' : 'text-gray-700 cursor-not-allowed'}`}
             >
               <Undo size={18} />
             </button>
@@ -1459,7 +1459,7 @@ export const Timeline: React.FC = () => {
               onClick={redo} 
               disabled={!canRedo}
               title={t('redo') || '重做 (Ctrl+Shift+Z)'}
-              className={`p-2 rounded-lg transition-all ${canRedo ? 'hover:bg-zinc-800 text-zinc-400 hover:text-white' : 'text-zinc-700 cursor-not-allowed'}`}
+              className={`p-2 rounded-lg transition-all ${canRedo ? 'hover:bg-gray-800/80 text-gray-400 hover:text-white shadow-md shadow-gray-800/50' : 'text-gray-700 cursor-not-allowed'}`}
             >
               <Redo size={18} />
             </button>
@@ -1472,7 +1472,7 @@ export const Timeline: React.FC = () => {
               state.seek(0); // 重置播放头到开头
             }}
             title={t('reset')}
-            className="p-2 rounded-lg hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all hover:scale-105 active:scale-95"
+            className="p-2 rounded-lg hover:bg-gray-800/80 text-gray-400 hover:text-white transition-all hover:scale-105 active:scale-95 shadow-md shadow-gray-800/50"
           >
             <RotateCcw size={18} />
           </button>
@@ -1486,7 +1486,7 @@ export const Timeline: React.FC = () => {
               }
             }} 
             title={isPlaying ? t('pause') : t('play')}
-            className="p-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 transition-all hover:scale-105 active:scale-95 w-12 flex justify-center"
+            className="p-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xl shadow-blue-500/30 transition-all hover:scale-105 active:scale-95 w-12 flex justify-center hover:from-blue-500 hover:to-indigo-500"
           >
             {isPlaying ? (
               <Pause size={20} fill="currentColor" />
@@ -1496,29 +1496,29 @@ export const Timeline: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-6 text-zinc-400">
-            <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg p-0.5">
-                <button onClick={() => scrollTimeline(-5)} className="p-1.5 rounded hover:bg-zinc-800 hover:text-white transition-colors">
+        <div className="flex items-center gap-6 text-gray-400">
+            <div className="flex items-center bg-gradient-to-r from-gray-900/80 to-slate-900/80 border border-gray-800/50 rounded-lg p-0.5 shadow-md shadow-gray-800/30">
+                <button onClick={() => scrollTimeline(-5)} className="p-1.5 rounded-lg hover:bg-gray-800/80 hover:text-white transition-colors">
                     <ChevronLeft size={14} />
                 </button>
-                <button onClick={() => scrollTimeline(5)} className="p-1.5 rounded hover:bg-zinc-800 hover:text-white transition-colors">
+                <button onClick={() => scrollTimeline(5)} className="p-1.5 rounded-lg hover:bg-gray-800/80 hover:text-white transition-colors">
                     <ChevronRight size={14} />
                 </button>
             </div>
 
             <div className="flex items-center gap-3">
-                <button onClick={zoomOut} className="p-1.5 rounded hover:bg-zinc-800 hover:text-white transition-colors">
+                <button onClick={zoomOut} className="p-1.5 rounded-lg hover:bg-gray-800/80 hover:text-white transition-colors shadow-md shadow-gray-800/20">
                     <ZoomOut size={16} />
                 </button>
-                <div className="w-24 h-1 bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500/50" style={{ width: `${Math.min(100, Math.max(0, ((zoom - 13) / (150 - 13)) * 100))}%` }}></div>
+                <div className="w-24 h-1.5 bg-gray-800/50 rounded-full overflow-hidden shadow-inner shadow-gray-900">
+                    <div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 shadow-lg shadow-blue-500/50" style={{ width: `${Math.min(100, Math.max(0, ((zoom - 13) / (150 - 13)) * 100))}%` }}></div>
                 </div>
-                <button onClick={zoomIn} className="p-1.5 rounded hover:bg-zinc-800 hover:text-white transition-colors">
+                <button onClick={zoomIn} className="p-1.5 rounded-lg hover:bg-gray-800/80 hover:text-white transition-colors shadow-md shadow-gray-800/20">
                     <ZoomIn size={16} />
                 </button>
             </div>
 
-            <div className="font-mono text-sm font-medium tracking-wider text-zinc-300 bg-black/40 px-3 py-1 rounded border border-zinc-800/50">
+            <div className="font-mono text-sm font-medium tracking-wider text-gray-300 bg-gradient-to-r from-gray-900/80 to-slate-900/80 px-3 py-1 rounded-lg border border-gray-800/50 shadow-md shadow-gray-800/30">
                 {formatTime(currentTime)}
             </div>
         </div>
@@ -1526,20 +1526,20 @@ export const Timeline: React.FC = () => {
 
       {/* 选中片段状态栏 */}
       {selectedClipId && (
-        <div className="h-10 flex items-center px-4 bg-zinc-900/80 backdrop-blur-md border-b border-zinc-800/80 shrink-0 gap-3 animate-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center gap-2 px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded text-[11px] text-blue-400 font-medium">
+        <div className="h-10 flex items-center px-4 bg-gradient-to-r from-gray-900/90 to-slate-900/90 backdrop-blur-lg border-b border-gray-800/80 shrink-0 gap-3 animate-in slide-in-from-top-2 duration-200 shadow-md shadow-indigo-950/10">
+          <div className="flex items-center gap-2 px-2 py-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 rounded-lg text-[11px] text-blue-400 font-medium shadow-md shadow-blue-500/10">
             <span className="opacity-70">{t('selectedClip') || '已选中片段'}:</span>
             <span>{selectedClipId.split('-').pop()}</span>
           </div>
           
-          <div className="h-4 w-[1px] bg-zinc-800 mx-1"></div>
+          <div className="h-4 w-[1px] bg-gray-800 mx-1"></div>
 
           <button 
             onClick={() => {
                 // TODO: 实现编辑功能
                 toast.info(t('editFeatureComingSoon') || '编辑功能即将上线');
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-md transition-all text-xs font-medium group"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-gray-800/50 to-slate-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white rounded-lg transition-all text-xs font-medium group shadow-md shadow-gray-800/20 hover:shadow-lg hover:shadow-gray-800/30"
           >
             <Edit2 size={14} className="group-hover:scale-110 transition-transform" />
             <span>{t('edit') || '编辑'}</span>
@@ -1550,7 +1550,7 @@ export const Timeline: React.FC = () => {
               copySelectedClips();
               toast.success(t('copied'));
             }}
-            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-md transition-all text-xs font-medium group"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-gray-800/50 to-slate-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white rounded-lg transition-all text-xs font-medium group shadow-md shadow-gray-800/20 hover:shadow-lg hover:shadow-gray-800/30"
           >
             <Plus size={14} className="group-hover:scale-110 transition-transform" />
             <span>{t('copy')}</span>
@@ -1558,7 +1558,7 @@ export const Timeline: React.FC = () => {
 
           <button 
             onClick={() => removeClip(selectedClipId)}
-            className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-red-500/10 text-zinc-400 hover:text-red-400 rounded-md transition-all text-xs font-medium group"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-500/20 to-rose-500/20 hover:bg-red-500/30 text-gray-400 hover:text-red-400 rounded-lg transition-all text-xs font-medium group border border-red-500/30 shadow-md shadow-red-500/10 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
             <span>{t('delete') || '删除'}</span>
@@ -1568,7 +1568,7 @@ export const Timeline: React.FC = () => {
           
           <button 
             onClick={() => selectClip(undefined)}
-            className="p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded-md transition-all"
+            className="p-1.5 text-gray-500 hover:text-gray-300 hover:bg-gray-800/80 rounded-lg transition-all shadow-md shadow-gray-800/20 hover:shadow-lg hover:shadow-gray-800/30"
             title={t('deselect') || '取消选择'}
           >
             <Plus size={14} className="rotate-45" />
@@ -1579,24 +1579,24 @@ export const Timeline: React.FC = () => {
       {/* 时间轴 */}
       <div
         ref={timelineRef}
-        className="flex-1 overflow-auto relative select-none custom-scrollbar bg-[#09090b]"
+        className="flex-1 overflow-auto relative select-none custom-scrollbar bg-gradient-to-br from-gray-50 to-gray-100"
         onScroll={handleScroll}
       >
         <div style={{ width: `${160 + totalWidth}px`, minWidth: '100%' }}>
           {/* 时间标尺与点击交互区 */}
           <div 
-            className="h-8 border-b border-zinc-800/50 relative sticky top-0 z-30 timeline-click-area cursor-pointer group flex"
+            className="h-8 border-b border-gray-300 relative sticky top-0 z-30 timeline-click-area cursor-pointer group flex bg-gradient-to-r from-white to-gray-100 backdrop-blur-lg shadow-md shadow-gray-900/10"
           >
             {/* 标尺左侧角落 - 覆盖滚动刻度 */}
-            <div className="sticky left-0 w-40 h-full bg-zinc-900/95 backdrop-blur-md z-40 border-r border-zinc-800/50" />
+            <div className="sticky left-0 w-40 h-full bg-gradient-to-r from-white to-gray-100 backdrop-blur-lg z-40 border-r border-gray-300" />
             
-            <div className="flex-1 h-full bg-zinc-950/90 backdrop-blur">
+            <div className="flex-1 h-full bg-gradient-to-r from-white to-gray-50 backdrop-blur">
               {renderTimeRuler()}
             </div>
             
             {/* 播放头指示器（三角形） */}
             <div
-                className="absolute top-0 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-blue-500 z-50 cursor-ew-resize filter drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+                className="absolute top-0 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-blue-500 z-50 cursor-ew-resize filter drop-shadow-[0_0_12px_rgba(59,130,246,0.8)]"
                 style={{ left: `${160 + getPixelPosition(currentTime) - 6}px` }}
                 onMouseDown={(e) => {
                   e.stopPropagation();
@@ -1615,7 +1615,7 @@ export const Timeline: React.FC = () => {
 
             {/* 播放头线 - 贯穿整个时间轴 */}
             <div
-                className="absolute top-8 bottom-0 w-[1px] bg-blue-500 z-40 cursor-ew-resize shadow-[0_0_4px_rgba(59,130,246,0.5)] h-[calc(100vh)]"
+                className="absolute top-8 bottom-0 w-[2px] bg-gradient-to-b from-blue-500 via-cyan-500 to-blue-500 z-40 cursor-ew-resize shadow-[0_0_8px_rgba(59,130,246,0.8)] h-[calc(100vh)]"
                 style={{ left: `${160 + getPixelPosition(currentTime)}px` }}
                 onMouseDown={(e) => {
                   e.stopPropagation();
@@ -1636,13 +1636,13 @@ export const Timeline: React.FC = () => {
             </div>
 
             {/* Hover时显示的幽灵指针 */}
-            <div className="absolute top-0 bottom-0 w-[1px] bg-white/20 z-20 pointer-events-none h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            <div className="absolute top-0 bottom-0 w-[1px] bg-white/30 z-20 pointer-events-none h-8 opacity-0 group-hover:opacity-100 transition-opacity"
                  style={{ left: 'var(--mouse-x, 0px)' }} />
           </div>
 
           {/* 专门的点击交互轨道 - 位于标尺下方，轨道上方 */}
-          <div className="h-4 w-full bg-zinc-900/30 border-b border-zinc-800/30 relative z-20 timeline-click-area cursor-pointer hover:bg-zinc-800/50 transition-colors">
-             <div className="absolute left-40 right-0 text-[10px] text-zinc-600 px-2 h-full flex items-center select-none pointer-events-none">
+          <div className="h-4 w-full bg-gradient-to-r from-white to-gray-50 border-b border-gray-300 relative z-20 timeline-click-area cursor-pointer hover:bg-gray-200 transition-colors backdrop-blur-md">
+             <div className="absolute left-40 right-0 text-[10px] text-gray-500 px-2 h-full flex items-center select-none pointer-events-none">
                 {t('jumpPlayhead')}
              </div>
           </div>
@@ -1654,10 +1654,10 @@ export const Timeline: React.FC = () => {
             {/* 吸附指示线 */}
             {snapIndicator !== null && (
               <div
-                className="absolute top-0 bottom-0 w-[2px] bg-yellow-400 z-50 pointer-events-none shadow-[0_0_8px_rgba(250,204,21,0.8)] animate-pulse"
+                className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-yellow-400 via-amber-400 to-yellow-400 z-50 pointer-events-none shadow-[0_0_12px_rgba(250,204,21,0.8)] animate-pulse"
                 style={{ left: `${160 + getPixelPosition(snapIndicator)}px` }}
               >
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-yellow-400 rounded-full shadow-[0_0_8px_rgba(250,204,21,0.8)]" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-yellow-400 rounded-full shadow-[0_0_12px_rgba(250,204,21,0.8)]" />
               </div>
             )}
           </div>
@@ -1666,12 +1666,12 @@ export const Timeline: React.FC = () => {
 
       {/* 编辑模态框 */}
       <Dialog open={isEditModalOpen} onOpenChange={handleCloseEditModal}>
-        <DialogContent className="bg-slate-900 border-slate-700">
+        <DialogContent className="bg-gradient-to-br from-gray-900 to-slate-900 border border-gray-800/50 shadow-xl shadow-indigo-950/30 backdrop-blur-lg rounded-2xl">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-gray-200">
               {editingTrackType === 'audio' ? t('editVolume') : t('editSubtitle')}
             </DialogTitle>
-            <DialogDescription className="sr-only">
+            <DialogDescription className="sr-only text-gray-400">
               {editingTrackType === 'audio' ? '调整音频轨道音量大小' : '修改字幕文本内容'}
             </DialogDescription>
           </DialogHeader>
@@ -1679,7 +1679,7 @@ export const Timeline: React.FC = () => {
           <div className="space-y-4 py-4">
             {editingTrackType === 'audio' && (
               <div className="space-y-3">
-                <Label className="text-sm text-slate-300">
+                <Label className="text-sm text-gray-300">
                   {t('volume')}: {editVolume}%
                 </Label>
                 <input
@@ -1689,9 +1689,9 @@ export const Timeline: React.FC = () => {
                   step={1}
                   value={editVolume}
                   onChange={(e) => setEditVolume(parseInt(e.target.value))}
-                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-emerald-400 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-emerald-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-emerald-400"
+                  className="w-full h-2 bg-gradient-to-r from-gray-800 to-slate-800 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-gradient-to-r from-emerald-500 to-teal-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-emerald-400 [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-emerald-500/30 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-gradient-to-r from-emerald-500 to-teal-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-emerald-400 [&::-moz-range-thumb]:shadow-lg [&::-moz-range-thumb]:shadow-emerald-500/30"
                 />
-                <div className="flex justify-between text-xs text-slate-500">
+                <div className="flex justify-between text-xs text-gray-500">
                   <span>0%</span>
                   <span>50%</span>
                   <span>100%</span>
@@ -1701,23 +1701,23 @@ export const Timeline: React.FC = () => {
 
             {editingTrackType === 'text' && (
               <div className="space-y-2">
-                <Label className="text-sm text-slate-300">{t('subtitleText')}</Label>
+                <Label className="text-sm text-gray-300">{t('subtitleText')}</Label>
                 <Textarea
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
                   rows={6}
-                  className="bg-slate-800 border-slate-700 text-slate-200"
+                  className="bg-gradient-to-r from-gray-800/80 to-slate-800/80 border border-gray-700/50 text-gray-200 rounded-lg shadow-inner shadow-gray-900/50"
                   placeholder={t('enterSubtitleText')}
                 />
               </div>
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={handleCloseEditModal}>
+          <DialogFooter className="border-t border-gray-800/50 pt-4">
+            <Button variant="outline" onClick={handleCloseEditModal} className="bg-gradient-to-r from-gray-800/80 to-slate-800/80 border border-gray-700/50 text-gray-300 hover:bg-gray-700/80 hover:text-white shadow-md shadow-gray-800/20">
               {t('cancel')}
             </Button>
-            <Button onClick={handleSaveEdit} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={handleSaveEdit} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-xl shadow-blue-500/30">
               {t('save')}
             </Button>
           </DialogFooter>
@@ -1726,27 +1726,27 @@ export const Timeline: React.FC = () => {
 
       {/* 新增文案模态框 */}
       <Dialog open={isAddSubtitleModalOpen} onOpenChange={setIsAddSubtitleModalOpen}>
-        <DialogContent className="bg-slate-900 border-slate-700">
+        <DialogContent className="bg-gradient-to-br from-gray-900 to-slate-900 border border-gray-800/50 shadow-xl shadow-indigo-950/30 backdrop-blur-lg rounded-2xl">
           <DialogHeader>
-            <DialogTitle>新增文案</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-gray-200">新增文案</DialogTitle>
+            <DialogDescription className="text-gray-400">
               在播放头位置添加一段自定义文案。
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="text-sm text-slate-300">文案内容</Label>
+              <Label className="text-sm text-gray-300">文案内容</Label>
               <Textarea
                 value={newSubtitleText}
                 onChange={(e) => setNewSubtitleText(e.target.value)}
                 rows={4}
-                className="bg-slate-800 border-slate-700 text-slate-200"
+                className="bg-gradient-to-r from-gray-800/80 to-slate-800/80 border border-gray-700/50 text-gray-200 rounded-lg shadow-inner shadow-gray-900/50"
                 placeholder="请输入文案内容..."
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-slate-300">持续时长 (秒)</Label>
+              <Label className="text-sm text-gray-300">持续时长 (秒)</Label>
               <Input
                 type="number"
                 step="0.1"
@@ -1754,16 +1754,16 @@ export const Timeline: React.FC = () => {
                 value={newSubtitleDuration}
                 onChange={(e) => setNewSubtitleDuration(e.target.value)}
                 onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                className="bg-slate-800 border-slate-700 text-slate-200"
+                className="bg-gradient-to-r from-gray-800/80 to-slate-800/80 border border-gray-700/50 text-gray-200 rounded-lg shadow-inner shadow-gray-900/50"
               />
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddSubtitleModalOpen(false)}>
+          <DialogFooter className="border-t border-gray-800/50 pt-4">
+            <Button variant="outline" onClick={() => setIsAddSubtitleModalOpen(false)} className="bg-gradient-to-r from-gray-800/80 to-slate-800/80 border border-gray-700/50 text-gray-300 hover:bg-gray-700/80 hover:text-white shadow-md shadow-gray-800/20">
               {t('cancel')}
             </Button>
-            <Button onClick={handleAddSubtitle} className="bg-purple-600 hover:bg-purple-700">
+            <Button onClick={handleAddSubtitle} className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-xl shadow-purple-500/30">
               添加
             </Button>
           </DialogFooter>

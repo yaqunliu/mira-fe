@@ -307,13 +307,13 @@ export default function NovelDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-purple-50/30 to-slate-50/30 dark:bg-black">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="animate-pulse space-y-6">
-              <div className="h-8 bg-muted rounded w-1/3"></div>
-              <div className="h-64 bg-muted rounded"></div>
-              <div className="h-96 bg-muted rounded"></div>
+              <div className="h-8 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 rounded w-1/3 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+              <div className="h-64 bg-gradient-to-br from-white to-gray-50/80 rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+              <div className="h-96 bg-gradient-to-br from-white to-gray-50/80 rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
             </div>
           </div>
         </div>
@@ -640,17 +640,19 @@ export default function NovelDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-purple-50/30 to-slate-50/30 dark:bg-black">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center">
-            <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-bold mb-2">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#FDBCB4]/20 flex items-center justify-center mb-4 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+              <BookOpen className="h-12 w-12 text-[#ADD8E6]" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
               {t("novelDetail.bookNotFound")}
             </h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
               {error instanceof Error ? error.message : '加载失败'}
             </p>
-            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4">
+            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               {t("novelDetail.back")}
             </Button>
           </div>
@@ -661,17 +663,19 @@ export default function NovelDetailPage() {
 
   if (!isLoading && !novel) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-purple-50/30 to-slate-50/30 dark:bg-black">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto text-center">
-            <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-            <h2 className="text-2xl font-bold mb-2">
+            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#FDBCB4]/20 flex items-center justify-center mb-4 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+              <BookOpen className="h-12 w-12 text-[#ADD8E6]" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
               {t("novelDetail.bookNotFound")}
             </h2>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
               小说ID: {novelId}
             </p>
-            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4">
+            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               {t("novelDetail.back")}
             </Button>
           </div>
@@ -681,30 +685,30 @@ export default function NovelDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50/60 via-purple-50/30 to-slate-50/30 dark:bg-black">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto space-y-6">
           <div className="flex items-center justify-between gap-3">
-            <Button variant="ghost" size="sm" onClick={() => router.back()}>
+            <Button variant="ghost" size="sm" onClick={() => router.back()} className="hover:bg-[#ADD8E6]/10 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-white rounded-xl">
               <ChevronLeft className="h-4 w-4 mr-1" />
               {t("novelDetail.back")}
             </Button>
-            <Button size="sm" onClick={() => handleCreateVideo()}>
+            <Button size="sm" onClick={() => handleCreateVideo()} className="bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               {t("novelDetail.goToCreate")}
             </Button>
           </div>
 
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-muted/20">
+          <div className="overflow-hidden rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-gradient-to-br from-white to-gray-50/80">
+            <div className="p-6 md:p-8">
               <div className="flex gap-6 items-start">
-                <div className="w-28 md:w-32 aspect-[3/4] bg-[url('/novel-cover.png')] bg-cover bg-center rounded-xl border border-border/40" />
+                <div className="w-28 md:w-32 aspect-[3/4] bg-[url('/novel-cover.png')] bg-cover bg-center rounded-xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]" />
                 <div className="flex-1 space-y-3">
                   {editingNovelTitle ? (
                     <div className="flex items-center gap-2">
                       <Input
                         value={novelTitleValue}
                         onChange={(e) => setNovelTitleValue(e.target.value)}
-                        className="text-2xl font-bold h-10 flex-1"
+                        className="text-2xl font-bold h-10 flex-1 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
@@ -714,46 +718,46 @@ export default function NovelDetailPage() {
                           }
                         }}
                       />
-                      <Button className="h-10" onClick={handleSaveNovelTitle} disabled={updateNovelMutation.isPending}>
+                      <Button className="h-10 bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white shadow-[4px_4px_8px_rgba(34,197,94,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]" onClick={handleSaveNovelTitle} disabled={updateNovelMutation.isPending}>
                         <Check className="h-4 w-4" />
                       </Button>
-                      <Button className="h-10" variant="ghost" onClick={handleCancelEditNovelTitle} disabled={updateNovelMutation.isPending}>
+                      <Button className="h-10" variant="ghost" onClick={handleCancelEditNovelTitle} disabled={updateNovelMutation.isPending} className="hover:bg-gray-100 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 group">
                       <h1
-                        className="text-2xl md:text-3xl font-bold tracking-tight cursor-pointer"
+                        className="text-2xl md:text-3xl font-bold tracking-tight cursor-pointer bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent"
                         onClick={handleStartEditNovelTitle}
                       >
                         {novel.title}
                       </h1>
                       <Pencil
-                        className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        className="h-5 w-5 text-[#ADD8E6] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                         onClick={handleStartEditNovelTitle}
                       />
                     </div>
                   )}
 
-                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
-                      <User className="h-4 w-4" />
-                      {novel.author || "未知作者"}
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-full shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                      <User className="h-4 w-4 text-[#ADD8E6]" />
+                      <span className="bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{novel.author || "未知作者"}</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <BookOpen className="h-4 w-4" />
-                      {(novel as any)?.chapter_count || chaptersTotal || finalChapters?.length || 0} {t("novelDetail.chapterCount")}
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-full shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                      <BookOpen className="h-4 w-4 text-[#ADD8E6]" />
+                      <span className="bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{(novel as any)?.chapter_count || chaptersTotal || finalChapters?.length || 0} {t("novelDetail.chapterCount")}</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-4 w-4" />
-                      {t("novelDetail.uploadedOn")}: {formatDate((novel as any)?.created_at || (novel as any)?.uploadTime || novel?.update_time)}
+                    <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-full shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                      <Calendar className="h-4 w-4 text-[#ADD8E6]" />
+                      <span className="bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{t("novelDetail.uploadedOn")}: {formatDate((novel as any)?.created_at || (novel as any)?.uploadTime || novel?.update_time)}</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="p-4">
+            </div>
+            <div className="p-4">
               <CustomTabs
                 variant="grid"
                 size="md"
@@ -776,8 +780,8 @@ export default function NovelDetailPage() {
                   },
                 ]}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
       <ConfirmDialogComponent />

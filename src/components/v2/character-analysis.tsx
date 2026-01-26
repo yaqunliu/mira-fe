@@ -121,10 +121,10 @@ export function CharacterAnalysis() {
   return (
     <div className="space-y-6 pb-20">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">{t("createVideo.character")}</h2>
+        <h2 className="text-xl font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">{t("createVideo.character")}</h2>
         <div className="flex items-center gap-4">
              <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[180px] bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300">
                   <SelectValue placeholder={t("character.styleSelection")} />
                 </SelectTrigger>
                 <SelectContent>
@@ -140,7 +140,7 @@ export function CharacterAnalysis() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {characters.map((character: ICharacter) => (
-          <Card key={character.uuid || character.character_id} className="overflow-hidden">
+          <Card key={character.uuid || character.character_id} className="overflow-hidden border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300 rounded-2xl">
              <div className="aspect-[3/4] relative bg-muted group">
                  {character.image_url ? (
                      <img 
@@ -157,22 +157,23 @@ export function CharacterAnalysis() {
                  
                  {/* Overlay Actions */}
                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                     <Button size="icon" variant="secondary" onClick={() => handleEditCharacter(character)}>
-                         <PenLine className="w-4 h-4" />
+                     <Button size="icon" variant="secondary" onClick={() => handleEditCharacter(character)} className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-110 rounded-xl">
+                         <PenLine className="w-4 h-4 text-[#ADD8E6]" />
                      </Button>
                      <Button 
                         size="icon" 
                         variant="secondary" 
                         onClick={() => handleRegenerateImage(character)}
                         disabled={regeneratingMap.has(character.uuid || String(character.character_id!))}
+                        className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-110 rounded-xl"
                      >
-                         <RotateCcw className={`w-4 h-4 ${regeneratingMap.has(character.uuid || String(character.character_id!)) ? 'animate-spin' : ''}`} />
+                         <RotateCcw className={`w-4 h-4 text-[#FDBCB4] ${regeneratingMap.has(character.uuid || String(character.character_id!)) ? 'animate-spin' : ''}`} />
                      </Button>
                  </div>
              </div>
              <CardContent className="p-4">
-                 <h3 className="font-bold text-lg">{character.name}</h3>
-                 <div className="text-sm text-muted-foreground leading-relaxed max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 mt-1">
+                 <h3 className="font-bold text-lg bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">{character.name}</h3>
+                 <div className="text-sm text-gray-700 leading-relaxed max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800 mt-1">
                     {character.basic_info}
                  </div>
              </CardContent>
@@ -180,8 +181,8 @@ export function CharacterAnalysis() {
         ))}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t flex justify-end container mx-auto">
-          <Button onClick={nextStep} size="lg" className="gap-2">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white to-blue-50/80 border-t-0 shadow-[0px_-4px_12px_rgba(0,0,0,0.08),0px_2px_4px_rgba(255,255,255,0.8)] backdrop-blur-sm flex justify-end container mx-auto">
+          <Button onClick={nextStep} size="lg" className="gap-2 bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl">
               {t("common.next")} <ArrowRight className="w-4 h-4" />
           </Button>
       </div>

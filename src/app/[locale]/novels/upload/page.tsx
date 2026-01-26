@@ -17,25 +17,25 @@ export default function NovelUploadPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{t('uploadNovel')}</h1>
-        <p className="text-muted-foreground">
-          上传您的小说，我们将自动拆分成章节
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30 py-8">
+      <div className="container mx-auto px-4 max-w-2xl">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{t('uploadNovel')}</h1>
+          <p className="bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent">
+            上传您的小说，我们将自动拆分成章节
+          </p>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('uploadNovel')}</CardTitle>
-          <CardDescription>
-            选择包含小说内容的 .txt 文件
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <div className="rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-gradient-to-br from-white to-gray-50/80 p-6">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent mb-2">{t('uploadNovel')}</h2>
+            <p className="bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent">
+              选择包含小说内容的 .txt 文件
+            </p>
+          </div>
           <NovelUpload onComplete={handleComplete} />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

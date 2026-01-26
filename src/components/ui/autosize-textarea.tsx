@@ -72,7 +72,8 @@ export const AutosizeTextarea = React.forwardRef<
       value={value}
       onChange={handleChange}
       className={cn(
-        "flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+        "flex w-full rounded-md bg-white px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-soft-pink disabled:cursor-not-allowed disabled:opacity-50",
+        "claymorphism-sm",
         className
       )}
       rows={minRows}

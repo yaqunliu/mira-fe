@@ -98,18 +98,18 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
       {!emailValidated ? (
         // 第一步：输入邮箱
         <Form {...emailForm}>
-          <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-4">
+          <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
             <FormField
               control={emailForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">邮箱</FormLabel>
+                  <FormLabel className="text-gray-700 font-medium mb-2">邮箱</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
                       placeholder="your@email.com"
-                      className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 transition-all duration-200"
+                      className="h-12 clay-inset w-full placeholder:text-gray-400 focus:ring-2 focus:ring-green-200 transition-all"
                       {...field}
                       onBlur={(e) => {
                         field.onBlur(e)
@@ -119,13 +119,13 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
                       }}
                     />
                   </FormControl>
-                  <FormMessage className="text-xs" />
+                  <FormMessage className="text-xs mt-1" />
                 </FormItem>
               )}
             />
             <Button
               type="submit"
-              className="w-full h-11 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium shadow-lg shadow-green-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/40"
+              className="w-full h-12 bg-vibrant-green hover:bg-green-600 text-white font-medium shadow-lg shadow-green-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/60"
               disabled={emailForm.formState.isSubmitting || !emailForm.watch('email')}
             >
               继续
@@ -135,23 +135,25 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
       ) : (
         // 第二步：输入密码
         <Form {...passwordForm}>
-          <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-              <span className="text-sm text-green-700 dark:text-green-300 font-medium">{validatedEmail}</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setEmailValidated(false)
-                  setValidatedEmail('')
-                  emailForm.reset()
-                  passwordForm.reset()
-                }}
-                className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/40"
-              >
-                更改
-              </Button>
+          <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
+            <div className="clay-sm p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-vibrant-green font-medium">{validatedEmail}</span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEmailValidated(false)
+                    setValidatedEmail('')
+                    emailForm.reset()
+                    passwordForm.reset()
+                  }}
+                  className="text-xs text-vibrant-green hover:text-green-600 border-green-200 hover:bg-green-50"
+                >
+                  更改
+                </Button>
+              </div>
             </div>
 
             <FormField
@@ -159,13 +161,13 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">密码</FormLabel>
+                  <FormLabel className="text-gray-700 font-medium mb-2">密码</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="至少6个字符"
-                        className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 transition-all duration-200 pr-10"
+                        className="h-12 clay-inset w-full placeholder:text-gray-400 focus:ring-2 focus:ring-green-200 transition-all pr-12"
                         {...field}
                         autoFocus
                       />
@@ -173,18 +175,18 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-gray-400 hover:text-vibrant-green"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-5 w-5" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-5 w-5" />
                         )}
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage className="text-xs" />
+                  <FormMessage className="text-xs mt-1" />
                 </FormItem>
               )}
             />
@@ -194,38 +196,38 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 dark:text-gray-300 font-medium">确认密码</FormLabel>
+                  <FormLabel className="text-gray-700 font-medium mb-2">确认密码</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showConfirmPassword ? 'text' : 'password'}
                         placeholder="再次输入密码"
-                        className="h-11 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 transition-all duration-200 pr-10"
+                        className="h-12 clay-inset w-full placeholder:text-gray-400 focus:ring-2 focus:ring-green-200 transition-all pr-12"
                         {...field}
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        className="absolute right-0 top-0 h-full px-4 hover:bg-transparent text-gray-400 hover:text-vibrant-green"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       >
                         {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-5 w-5" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-5 w-5" />
                         )}
                       </Button>
                     </div>
                   </FormControl>
-                  <FormMessage className="text-xs" />
+                  <FormMessage className="text-xs mt-1" />
                 </FormItem>
               )}
             />
 
             <Button
               type="submit"
-              className="w-full h-11 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium shadow-lg shadow-green-500/30 transition-all duration-200 hover:shadow-xl hover:shadow-green-500/40"
+              className="w-full h-12 bg-vibrant-green hover:bg-green-600 text-white font-medium shadow-lg shadow-green-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/60"
               disabled={passwordForm.formState.isSubmitting}
             >
               {passwordForm.formState.isSubmitting ? '注册中...' : '注册'}

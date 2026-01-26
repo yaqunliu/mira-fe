@@ -360,21 +360,21 @@ export default function CreateDynamicComicPage() {
 
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-950 via-blue-950 to-pink-950 flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white flex flex-col">
             <div className="max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     {/* Back button removed as requested */}
                     <div className="text-center w-full">
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400">
+                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#22C55E] to-[#ADD8E6]">
                             创建高品质动态漫
                         </h1>
-                        <p className="text-gray-400 mt-1">选择小说或项目开始创作</p>
+                        <p className="text-gray-600 mt-1">选择小说或项目开始创作</p>
                     </div>
                 </div>
 
                 {/* Main Content */}
-                <Card className="bg-zinc-900/50 border-zinc-800 p-6">
+                <Card className="claymorphism bg-white p-6">
                     <CustomTabs
                         variant="segmented"
                         value={activeTab}
@@ -385,7 +385,7 @@ export default function CreateDynamicComicPage() {
                                 value: "novel",
                                 label: (
                                     <div className="flex items-center gap-2">
-                                        <Book className="h-4 w-4" />
+                                        <Book className="h-4 w-4 text-[#22C55E]" />
                                         <span>选择小说章节</span>
                                     </div>
                                 ),
@@ -451,7 +451,7 @@ export default function CreateDynamicComicPage() {
                                 value: "script",
                                 label: (
                                     <div className="flex items-center gap-2">
-                                        <FileText className="h-4 w-4" />
+                                        <FileText className="h-4 w-4 text-[#22C55E]" />
                                         <span>选择项目文案</span>
                                     </div>
                                 ),
@@ -578,11 +578,11 @@ export default function CreateDynamicComicPage() {
                         ]}
                     />
 
-                    <div className="px-6 py-4 bg-zinc-800 border-t border-zinc-700 flex justify-end">
+                    <div className="px-6 py-4 border-t border-[#ADD8E6]/30 flex justify-end">
                         <Button
                             onClick={onSubmit}
                             disabled={isGenerating}
-                            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-6 rounded-lg hover:scale-105 transition-transform"
+                            className="bg-[#22C55E] hover:bg-[#22C55E]/90 text-white px-8 py-6 rounded-lg hover:translate-y-0.5 transition-transform border border-black/10 shadow-lg shadow-[#22C55E]/20"
                         >
                             {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />处理中...</> : <><span className="mr-2">开始创作</span><ChevronRight className="h-4 w-4" /></>}
                         </Button>

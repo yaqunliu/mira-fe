@@ -198,235 +198,234 @@ export function StoryboardEditModal({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader className="border-b-[1px] border-zinc-200 dark:border-zinc-700 pb-3">
-          <DialogTitle className="flex items-center gap-2 text-base">
-            编辑分镜
-          </DialogTitle>
-          <DialogDescription className="sr-only">
-            修改分镜标题、旁白和关联角色。
-          </DialogDescription>
-        </DialogHeader>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100">
+          <DialogHeader className="border-b-[1px] border-blue-100 pb-3">
+            <DialogTitle className="flex items-center gap-2 text-base text-gray-800">
+              编辑分镜
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              修改分镜标题、旁白和关联角色。
+            </DialogDescription>
+          </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6">
-            {/* 分镜编号 */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="text-xs">
-                  {`分镜 ${shot.shot_number}`}
-                </Badge>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6">
+              {/* 分镜编号 */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="text-xs bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 text-white px-2 py-0.5">
+                    {`分镜 ${shot.shot_number}`}
+                  </Badge>
+                </div>
               </div>
-            </div>
 
-            {/* 标题 */}
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-8">
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-800 dark:text-gray-300">标题</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="输入分镜标题..."
-                          style={{ borderColor: '#514f4f' }}
-                          {...field}
-                          onFocus={(e) => {
-                            setTimeout(() => {
-                              e.target.setSelectionRange(
-                                e.target.value.length,
-                                e.target.value.length
-                              );
-                            }, 0);
+              {/* 标题 */}
+              <div className="grid grid-cols-12 gap-4">
+                <div className="col-span-8">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-800 mb-1">标题</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="输入分镜标题..."
+                            className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
+                            {...field}
+                            onFocus={(e) => {
+                              setTimeout(() => {
+                                e.target.setSelectionRange(
+                                  e.target.value.length,
+                                  e.target.value.length
+                                );
+                              }, 0);
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="col-span-4">
+                  <FormField
+                    control={form.control}
+                    name="video_duration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-800 mb-1">时长 (秒)</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={1}
+                            max={60}
+                            step={0.1}
+                            className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.value)}
+                            onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* 出镜元素 */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <FormLabel className="text-gray-800">出镜元素 (手机、包包等道具)</FormLabel>
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleAddAppearanceElement}
+                    className="h-8 text-xs rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
+                  >
+                    <Plus size={12} className="mr-1" />
+                    添加
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-3 p-4 rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+                  {appearanceElements.map((element, index) => (
+                    <div key={index} className="flex items-center gap-1 bg-white border border-blue-100 rounded-xl px-3 py-1.5 shadow-sm">
+                      <Input 
+                        value={element}
+                        onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
+                        className="h-8 w-32 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs p-0"
+                        placeholder="元素名称"
+                      />
+                      <Button 
+                        type="button"
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => handleRemoveAppearanceElement(index)}
+                        className="h-6 w-6 text-gray-400 hover:text-red-500 rounded-full"
+                      >
+                        <X size={12} />
+                      </Button>
+                    </div>
+                  ))}
+                  {appearanceElements.length === 0 && (
+                    <span className="text-xs text-gray-600 italic">暂无元素</span>
+                  )}
+                </div>
+              </div>
+
+              {/* 关联角色 */}
+              <div className="space-y-3">
+                <FormLabel className="text-gray-800">关联角色</FormLabel>
+                {availableCharacters.length === 0 ? (
+                  <p className="text-sm text-gray-600">暂无可选角色</p>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {availableCharacters.map((character) => {
+                      const idNum = Number(character.character_id);
+                      const checked = selectedCharacters.includes(idNum);
+                      return (
+                        <label
+                          key={character.character_id}
+                          className={`flex items-center gap-3 px-3 py-2 rounded-xl border-2 cursor-pointer text-sm transition-all duration-200 hover:scale-105 ${
+                            checked
+                              ? "border-#22C55E bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
+                              : "border-blue-100 bg-gradient-to-br from-white to-blue-50 hover:border-#22C55E/50"
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            toggleCharacter(idNum);
                           }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="col-span-4">
-                <FormField
-                  control={form.control}
-                  name="video_duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-800 dark:text-gray-300">时长 (秒)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={1}
-                          max={60}
-                          step={0.1}
-                          style={{ borderColor: '#514f4f' }}
-                          {...field}
-                          onChange={(e) => field.onChange(e.target.value)}
-                          onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* 出镜元素 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <FormLabel className="text-gray-800 dark:text-gray-300">出镜元素 (手机、包包等道具)</FormLabel>
-                <Button 
-                  type="button"
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={handleAddAppearanceElement}
-                  className="h-6 text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  <Plus size={10} className="mr-1" />
-                  添加
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2 p-3 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
-                {appearanceElements.map((element, index) => (
-                  <div key={index} className="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded px-2 py-1">
-                    <Input 
-                      value={element}
-                      onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
-                      className="h-6 w-24 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs p-0"
-                      placeholder="元素名称"
-                    />
-                    <Button 
-                      type="button"
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleRemoveAppearanceElement(index)}
-                      className="h-4 w-4 text-gray-400 hover:text-red-500"
-                    >
-                      <X size={10} />
-                    </Button>
+                        >
+                          {character.image_url ? (
+                            <div className="relative group/char">
+                              <img
+                                src={character.image_url}
+                                alt={character.name}
+                                className="w-12 h-12 rounded-xl object-cover border-2 border-blue-100 shadow-[4px_4px_8px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.8)] hover:opacity-80 transition-opacity"
+                              />
+                              <div 
+                                  className="absolute inset-0 bg-black/40 opacity-0 group-hover/char:opacity-100 transition-opacity flex items-center justify-center rounded-xl cursor-pointer"
+                                  onClick={(e) => {
+                                      e.stopPropagation();
+                                      setPreviewImage({src: character.image_url || null, alt: character.name});
+                                  }}
+                              >
+                                  <div className="flex flex-col items-center gap-1">
+                                      <Maximize2 className="w-4 h-4 text-white" />
+                                      <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-white/20 text-white border-none backdrop-blur-sm">
+                                          预览
+                                      </Badge>
+                                  </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 flex items-center justify-center text-xs text-white border-2 border-blue-100 shadow-[4px_4px_8px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.8)]">
+                              无图
+                            </div>
+                          )}
+                          <input
+                            type="checkbox"
+                            className="hidden"
+                            checked={checked}
+                            onChange={() => toggleCharacter(idNum)}
+                          />
+                          <span className="truncate text-gray-800">{character.name}</span>
+                        </label>
+                      );
+                    })}
                   </div>
-                ))}
-                {appearanceElements.length === 0 && (
-                  <span className="text-xs text-gray-400 italic">暂无元素</span>
                 )}
               </div>
-            </div>
 
-            {/* 关联角色 */}
-            <div className="space-y-2">
-              <FormLabel className="text-gray-800 dark:text-gray-300">关联角色</FormLabel>
-              {availableCharacters.length === 0 ? (
-                <p className="text-sm text-gray-500">暂无可选角色</p>
-              ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  {availableCharacters.map((character) => {
-                    const idNum = Number(character.character_id);
-                    const checked = selectedCharacters.includes(idNum);
-                    return (
-                      <label
-                        key={character.character_id}
-                        className={`flex items-center gap-2 px-2 py-1 rounded border cursor-pointer text-sm ${
-                          checked
-                            ? "border-orange-400 bg-orange-50 dark:border-orange-500/60 dark:bg-orange-500/10"
-                            : "border-gray-200 dark:border-gray-700"
-                        }`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          toggleCharacter(idNum);
-                        }}
-                      >
-                        {character.image_url ? (
-                          <div className="relative group/char">
-                            <img
-                              src={character.image_url}
-                              alt={character.name}
-                              className="w-12 h-12 rounded object-cover border border-gray-200 dark:border-gray-700 hover:opacity-80 transition-opacity"
-                            />
-                            <div 
-                                className="absolute inset-0 bg-black/40 opacity-0 group-hover/char:opacity-100 transition-opacity flex items-center justify-center rounded cursor-pointer"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPreviewImage({src: character.image_url || null, alt: character.name});
-                                }}
-                            >
-                                <div className="flex flex-col items-center gap-1">
-                                    <Maximize2 className="w-4 h-4 text-white" />
-                                    <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-white/20 text-white border-none backdrop-blur-sm">
-                                        预览
-                                    </Badge>
-                                </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-500">
-                            无图
-                          </div>
-                        )}
-                        <input
-                          type="checkbox"
-                          className="hidden"
-                          checked={checked}
-                          onChange={() => toggleCharacter(idNum)}
-                        />
-                        <span className="truncate">{character.name}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+              {/* 旁白 */}
+              <FormField
+                control={form.control}
+                name="narration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-800 mb-1">旁白</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="输入这个分镜的旁白内容..."
+                        className="min-h-[80px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* 旁白 */}
-            <FormField
-              control={form.control}
-              name="narration"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-gray-800 dark:text-gray-300">旁白</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="输入这个分镜的旁白内容..."
-                      className="min-h-[80px] resize-none"
-                      style={{ borderColor: '#514f4f' }}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter className="flex-row gap-6 justify-center">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleCancel}
-                disabled={isLoading}
-                className="w-[35%]"
-              >
-                <X className="h-4 w-4" />
-                取消
-              </Button>
-              <Button type="submit" disabled={isLoading} className="flex-1">
-                <Save className="h-4 w-4" />
-                {isLoading ? "保存中..." : "保存"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-      {previewImage && (
-        <ImagePreview
-          open={!!previewImage}
-          onOpenChange={(open) => !open && setPreviewImage(null)}
-          src={previewImage.src}
-          alt={previewImage.alt}
-        />
-      )}
-    </Dialog>
-  );
+              <DialogFooter className="flex-row gap-4 justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                  className="w-[35%] rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
+                >
+                  <X className="h-4 w-4" />
+                  取消
+                </Button>
+                <Button type="submit" disabled={isLoading} className="flex-1 rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200">
+                  <Save className="h-4 w-4" />
+                  {isLoading ? "保存中..." : "保存"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+        {previewImage && (
+          <ImagePreview
+            open={!!previewImage}
+            onOpenChange={(open) => !open && setPreviewImage(null)}
+            src={previewImage.src}
+            alt={previewImage.alt}
+          />
+        )}
+      </Dialog>
+    );
 }

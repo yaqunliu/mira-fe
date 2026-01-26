@@ -100,6 +100,7 @@ export function CharacterEditBottomSheet({
           variant: "secondary",
           icon: <X className="h-4 w-4" />,
           disabled: isLoading,
+          className: "rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
         },
         {
           label: "保存",
@@ -107,24 +108,26 @@ export function CharacterEditBottomSheet({
           variant: "default",
           icon: <Save className="h-4 w-4" />,
           loading: isLoading,
+          className: "rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
         },
       ]}
+      className="bg-gradient-to-br from-white to-blue-50"
     >
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSave)} className="space-y-5">
           {/* 姓名 */}
           <FormField
             control={form.control}
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-gray-800 mb-1">
                   姓名
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="输入角色姓名..."
-                    style={{ borderColor: "#514f4f" }}
+                    className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
                 </FormControl>
@@ -139,14 +142,13 @@ export function CharacterEditBottomSheet({
                 name="basicInfo"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-gray-800 mb-1">
                   基础信息
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="输入角色的基础信息..."
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
                 </FormControl>
@@ -161,14 +163,13 @@ export function CharacterEditBottomSheet({
             name="appearance"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-gray-800 mb-1">
                   容貌特征
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="描述角色的容貌特征..."
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
                 </FormControl>
@@ -183,14 +184,13 @@ export function CharacterEditBottomSheet({
             name="body"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-gray-800 mb-1">
                   身材特征
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="描述角色的身材特征..."
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
                 </FormControl>
@@ -205,13 +205,13 @@ export function CharacterEditBottomSheet({
             name="hair"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-gray-800 mb-1">
                   头发
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="描述角色的头发..."
-                    style={{ borderColor: "#514f4f" }}
+                    className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
                 </FormControl>
@@ -226,14 +226,13 @@ export function CharacterEditBottomSheet({
             name="clothing"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-gray-800 mb-1">
                   服装
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="描述角色的服装..."
-                    className="min-h-[60px] resize-none"
-                    style={{ borderColor: "#514f4f" }}
+                    className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
                 </FormControl>
@@ -248,13 +247,13 @@ export function CharacterEditBottomSheet({
             name="tags"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-800 dark:text-gray-300">
+                <FormLabel className="text-gray-800 mb-1">
                   特征标签
                 </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="输入角色的特征标签..."
-                    style={{ borderColor: "#514f4f" }}
+                    className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
                 </FormControl>

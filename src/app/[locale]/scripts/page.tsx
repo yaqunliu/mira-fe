@@ -83,11 +83,11 @@ function ScriptCard({
             <div
                 className={cn(
                     "cursor-pointer transition-all relative rounded-2xl overflow-hidden min-h-[160px]",
-                    "bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-900/80",
-                    "border-2 border-gray-200/50 dark:border-gray-700/50",
+                    "bg-gradient-to-br from-white to-gray-50/80",
+                    "shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]",
                     isNovel
-                        ? "hover:border-green-400/50 hover:shadow-2xl hover:shadow-green-500/20"
-                        : "hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/20",
+                        ? "hover:shadow-[6px_6px_12px_rgba(34,197,94,0.2),-3px_-3px_6px_rgba(255,255,255,0.8)]"
+                        : "hover:shadow-[6px_6px_12px_rgba(253,188,180,0.2),-3px_-3px_6px_rgba(255,255,255,0.8)]",
                     "hover:scale-[1.02] transition-transform duration-200"
                 )}
                 onClick={onClick}
@@ -114,23 +114,23 @@ function ScriptCard({
                             <div className={cn(
                                 "p-3 rounded-xl shadow-md group-hover:scale-110 transition-transform",
                                 isNovel
-                                    ? "bg-gradient-to-br from-green-500 to-teal-600"
-                                    : "bg-gradient-to-br from-purple-500 to-pink-600"
+                                    ? "bg-gradient-to-br from-[#22C55E] to-[#16A34A] shadow-[2px_2px_4px_rgba(34,197,94,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]"
+                                    : "bg-gradient-to-br from-[#FDBCB4] to-[#F9A899] shadow-[2px_2px_4px_rgba(253,188,180,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]"
                             )}>
                                 <Icon className="w-6 h-6 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h3 className={cn(
-                                    "text-base font-bold line-clamp-2 text-gray-900 dark:text-gray-100 transition-colors mb-2",
+                                    "text-base font-bold line-clamp-2 text-gray-900 transition-colors mb-2",
                                     isNovel
-                                        ? "group-hover:text-green-600 dark:group-hover:text-green-400"
-                                        : "group-hover:text-purple-600 dark:group-hover:text-purple-400"
+                                        ? "group-hover:text-[#22C55E]"
+                                        : "group-hover:text-[#FDBCB4]"
                                 )}>
                                     {script.title}
                                 </h3>
                                 {script.author && (
-                                    <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 bg-white/50 dark:bg-black/20 px-2 py-0.5 rounded-full w-fit backdrop-blur-sm">
-                                        <User className="h-3 w-3" />
+                                    <div className="flex items-center gap-2 text-sm text-gray-700 bg-white/50 px-2 py-0.5 rounded-full w-fit backdrop-blur-sm shadow-[2px_2px_4px_rgba(173,221,230,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
+                                        <User className="h-3 w-3 text-gray-500" />
                                         <span className="truncate">{script.author}</span>
                                     </div>
                                 )}
@@ -139,20 +139,20 @@ function ScriptCard({
                     </div>
 
                     {/* 元信息 */}
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
-                        <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 bg-gray-100/80 dark:bg-gray-800/80 px-3 py-1.5 rounded-lg backdrop-blur-sm">
-                            <Calendar className="h-3.5 w-3.5 text-gray-500" />
-                            <span>{formatDateTime(script.created_at)}</span>
-                        </div>
-                        <Badge className={cn(
-                            "border-2 font-semibold",
-                            isNovel
-                                ? "bg-gradient-to-r from-green-100 to-teal-100 dark:from-green-900/30 dark:to-teal-900/30 text-green-700 dark:text-green-300 border-green-300 dark:border-green-700"
-                                : "bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700"
-                        )}>
-                            {t("novel.totalChapters", { count: script.chapter_count || 0 })}
-                        </Badge>
+                    <div className="flex items-center justify-between pt-3 border-t border-gray-200/50">
+                    <div className="flex items-center gap-2 text-xs text-gray-600 bg-[#ADD8E6]/20 px-3 py-1.5 rounded-lg backdrop-blur-sm shadow-[2px_2px_4px_rgba(173,221,230,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
+                        <Calendar className="h-3.5 w-3.5 text-[#ADD8E6]" />
+                        <span>{formatDateTime(script.created_at)}</span>
                     </div>
+                    <Badge className={cn(
+                        "border-0 font-semibold shadow-[2px_2px_4px_rgba(173,221,230,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]",
+                        isNovel
+                            ? "bg-gradient-to-r from-[#22C55E]/20 to-[#16A34A]/20 text-[#22C55E]"
+                            : "bg-gradient-to-r from-[#FDBCB4]/20 to-[#F9A899]/20 text-[#FDBCB4]"
+                    )}>
+                        {t("novel.totalChapters", { count: script.chapter_count || 0 })}
+                    </Badge>
+                </div>
                 </div>
             </div>
 
@@ -160,7 +160,7 @@ function ScriptCard({
             <button
                 onClick={handleDeleteClick}
                 disabled={isDeleting}
-                className="absolute top-3 right-3 z-20 p-2 rounded-lg bg-red-500/90 hover:bg-red-600 text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute top-3 right-3 z-20 p-2 rounded-lg bg-[#FDBCB4] hover:bg-[#F9A899] text-white shadow-[2px_2px_4px_rgba(253,188,180,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)] backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="删除"
             >
                 <Trash2 className="w-4 h-4" />
@@ -250,16 +250,16 @@ export default function ScriptsPage() {
     };
 
     return (
-        <div className="h-screen flex flex-col bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+        <div className="h-screen flex flex-col bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30">
             {/* 页头 */}
             <div className="relative overflow-hidden">
-                <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl" />
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-pink-400/10 dark:bg-pink-400/5 rounded-full blur-3xl" />
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#ADD8E6]/10 rounded-full blur-3xl" />
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#FDBCB4]/10 rounded-full blur-3xl" />
 
                 <div className="relative z-10 container mx-auto px-4 pt-4 pb-3">
                     <div className="flex items-center justify-between mb-4">
-                        <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-300 dark:to-gray-100 bg-clip-text text-transparent flex items-center gap-2">
-                            <Scroll className="w-6 h-6 text-purple-500" />
+                        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                            <Scroll className="w-6 h-6 text-[#ADD8E6]" />
                             {t("sidebar.scripts")}
                         </h1>
                     </div>
@@ -274,26 +274,26 @@ export default function ScriptsPage() {
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
                             <div className="relative flex-1 max-w-md">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-gray-500" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <Input
                                     placeholder={t("novel.searchPlaceholder")}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-11 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
+                                    className="pl-11 h-12 rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-0.5 transition-all duration-200"
                                 />
                             </div>
                             <div className="flex gap-3">
                                 <Button
                                     onClick={() => router.push(`/${locale}/novels/upload`)}
                                     variant="outline"
-                                    className="h-12 px-6 rounded-xl border-2 border-green-500/50 hover:border-green-500 hover:bg-green-500/10 text-green-600 dark:text-green-400 shadow-lg shadow-green-500/20 hover:shadow-green-500/30 transition-all duration-200 hover:scale-105"
+                                    className="h-12 px-6 rounded-xl border-2 border-[#22C55E]/50 hover:border-[#22C55E] hover:bg-[#22C55E]/10 text-[#22C55E] shadow-[3px_3px_6px_rgba(34,197,94,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)] hover:shadow-[4px_4px_8px_rgba(34,197,94,0.3),-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"
                                 >
                                     <BookOpen className="h-5 w-5 mr-2" />
                                     {t("novel.uploadNovel")}
                                 </Button>
                                 <Button
                                     onClick={() => router.push(`/${locale}/scripts/create`)}
-                                    className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105"
+                                    className="h-12 px-6 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[3px_3px_6px_rgba(253,188,180,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)] hover:shadow-[4px_4px_8px_rgba(253,188,180,0.3),-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"
                                 >
                                     <Plus className="h-5 w-5 mr-2" />
                                     {t("createVideo.createProject")}
@@ -321,50 +321,50 @@ export default function ScriptsPage() {
                             {[...Array(6)].map((_, i) => (
                                 <div
                                     key={i}
-                                    className="rounded-2xl h-40 w-full bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900 animate-pulse"
+                                    className="rounded-2xl h-40 w-full bg-gradient-to-br from-white to-gray-50 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] animate-pulse"
                                 />
                             ))}
                         </div>
                     ) : error ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="text-center space-y-4">
-                                <div className="p-6 bg-red-100 dark:bg-red-900/30 rounded-full w-24 h-24 mx-auto flex items-center justify-center">
-                                    <FileText className="h-12 w-12 text-red-500 dark:text-red-400" />
+                                <div className="p-6 bg-[#FDBCB4]/20 rounded-full w-24 h-24 mx-auto flex items-center justify-center shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                                    <FileText className="h-12 w-12 text-[#FDBCB4]" />
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t("novel.loadingFailed")}</h3>
-                                <p className="text-gray-600 dark:text-gray-400">请稍后重试</p>
+                                <h3 className="text-xl font-bold text-gray-900">{t("novel.loadingFailed")}</h3>
+                                <p className="text-gray-600">请稍后重试</p>
                             </div>
                         </div>
                     ) : scripts.length === 0 ? (
                         <div className="flex items-center justify-center py-20">
                             <div className="text-center space-y-6 max-w-md">
                                 <div className="relative">
-                                    <div className="absolute inset-0 bg-purple-400/10 dark:bg-purple-400/5 blur-3xl rounded-full" />
-                                    <div className="relative p-8 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-full w-32 h-32 mx-auto flex items-center justify-center">
-                                        <FileText className="h-16 w-16 text-purple-500 dark:text-purple-400 animate-pulse" />
+                                    <div className="absolute inset-0 bg-[#ADD8E6]/10 blur-3xl rounded-full" />
+                                    <div className="relative p-8 bg-gradient-to-br from-[#ADD8E6]/20 to-[#FDBCB4]/20 rounded-full w-32 h-32 mx-auto flex items-center justify-center shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                                        <FileText className="h-16 w-16 text-[#ADD8E6] animate-pulse" />
                                     </div>
                                 </div>
                                 {debouncedSearchTerm ? (
                                     <>
-                                        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t("novel.noSearchResults")}</h3>
-                                        <p className="text-gray-600 dark:text-gray-400">{t("novel.noSearchResultsDescription")}</p>
+                                        <h3 className="text-2xl font-bold text-gray-900">{t("novel.noSearchResults")}</h3>
+                                        <p className="text-gray-600">{t("novel.noSearchResultsDescription")}</p>
                                     </>
                                 ) : (
                                     <>
-                                        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">暂无内容</h3>
-                                        <p className="text-gray-600 dark:text-gray-400">开始您的创作之旅吧</p>
+                                        <h3 className="text-2xl font-bold text-gray-900">暂无内容</h3>
+                                        <p className="text-gray-600">开始您的创作之旅吧</p>
                                         <div className="flex gap-4 justify-center">
                                             <Button
                                                 onClick={() => router.push(`/${locale}/novels/upload`)}
                                                 variant="outline"
-                                                className="h-12 px-8 rounded-xl border-2 border-green-500/50 hover:border-green-500 hover:bg-green-500/10 text-green-600 dark:text-green-400 shadow-lg shadow-green-500/20"
+                                                className="h-12 px-8 rounded-xl border-2 border-[#22C55E]/50 hover:border-[#22C55E] hover:bg-[#22C55E]/10 text-[#22C55E] shadow-[3px_3px_6px_rgba(34,197,94,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)]"
                                             >
                                                 <BookOpen className="h-5 w-5 mr-2" />
                                                 {t("novel.uploadNovel")}
                                             </Button>
                                             <Button
                                                 onClick={() => router.push(`/${locale}/scripts/create`)}
-                                                className="h-12 px-8 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30"
+                                                className="h-12 px-8 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[3px_3px_6px_rgba(253,188,180,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)]"
                                             >
                                                 <Plus className="h-5 w-5 mr-2" />
                                                 {t("createVideo.createProject")}

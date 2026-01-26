@@ -86,9 +86,9 @@ export default function CreateV2Page() {
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="container mx-auto py-8 space-y-8 bg-gradient-to-br from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white min-h-screen">
       <div className="flex flex-col space-y-4">
-        <h1 className="text-2xl font-bold">{creation?.title || "新建视频创作"}</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">{creation?.title || "新建视频创作"}</h1>
         <Stepper 
           steps={uiSteps} 
           onStepClick={(_, index) => {
@@ -100,7 +100,7 @@ export default function CreateV2Page() {
         />
       </div>
 
-      <div className="min-h-[600px]">
+      <div className="min-h-[600px] claymorphism p-6 rounded-2xl">
         {renderStepContent()}
       </div>
     </div>

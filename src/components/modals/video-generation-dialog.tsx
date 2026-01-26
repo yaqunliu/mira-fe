@@ -96,10 +96,10 @@ export function VideoGenerationDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && !isGenerating && onClose()}>
-            <DialogContent className="bg-slate-900 border-slate-800 text-slate-200 sm:max-w-md">
+            <DialogContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-2xl sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>{t('videoGenerationConfig') || "视频生成配置"}</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-gray-800">{t('videoGenerationConfig') || "视频生成配置"}</DialogTitle>
+                    <DialogDescription className="text-gray-600">
                         {t('videoGenerationConfigDesc') || "配置视频生成的首尾帧，以获得更连贯的动态效果。"}
                     </DialogDescription>
                 </DialogHeader>
@@ -109,59 +109,62 @@ export function VideoGenerationDialog({
                     <div className="flex items-center justify-between gap-4">
                         {/* First Frame */}
                         <div className="flex-1 space-y-2">
-                            <Label className="text-xs text-slate-400">{t('firstFrame') || "首帧 (当前分镜)"}</Label>
+                            <Label className="text-xs text-gray-600">{t('firstFrame') || "首帧 (当前分镜)"}</Label>
                             <div className={cn(
-                                "rounded-md bg-black border border-slate-800 overflow-hidden",
+                                "rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 overflow-hidden shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]",
                                 aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-video"
                             )}>
                                 {shot.image_url ? (
-                                    <img src={shot.image_url} alt="First Frame" className="w-full h-full object-cover" />
+                                    <img src={shot.image_url} alt="First Frame" className="w-full h-full object-cover rounded-xl" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <ImageIcon className="w-6 h-6 text-slate-700" />
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-#FDBCB4 to-#ADD8E6">
+                                        <ImageIcon className="w-6 h-6 text-white" />
                                     </div>
                                 )}
                             </div>
                         </div>
 
                         <div className="flex items-center pt-6">
-                            <ArrowRight className={`w-5 h-5 ${useLastFrame ? 'text-purple-500' : 'text-slate-700'}`} />
+                            <ArrowRight className={`w-5 h-5 ${useLastFrame ? 'text-#22C55E' : 'text-gray-400'}`} />
                         </div>
 
                         {/* Last Frame */}
                         <div className="flex-1 space-y-2">
-                            <Label className="text-xs text-slate-400">{t('lastFrame') || "尾帧 (可选)"}</Label>
+                            <Label className="text-xs text-gray-600">{t('lastFrame') || "尾帧 (可选)"}</Label>
                             <div className={cn(
-                                `rounded-md bg-black border ${useLastFrame ? 'border-purple-500/50' : 'border-slate-800'} overflow-hidden relative group`,
+                                `rounded-xl overflow-hidden relative group shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]`,
+                                useLastFrame 
+                                  ? "border-2 border-#22C55E bg-gradient-to-br from-white to-blue-50"
+                                  : "border border-blue-100 bg-gradient-to-br from-white to-blue-50",
                                 aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-video"
                             )}>
                                 {useLastFrame ? (
                                     <>
                                         {lastFrameType === 'next_shot' && nextShot?.image_url ? (
-                                            <img src={nextShot.image_url} alt="Next Shot Frame" className="w-full h-full object-cover" />
+                                            <img src={nextShot.image_url} alt="Next Shot Frame" className="w-full h-full object-cover rounded-xl" />
                                         ) : lastFrameType === 'current_shot_end' && currentShotEndFrameUrl ? (
-                                            <img src={currentShotEndFrameUrl} alt="Current Shot End Frame" className="w-full h-full object-cover" />
+                                            <img src={currentShotEndFrameUrl} alt="Current Shot End Frame" className="w-full h-full object-cover rounded-xl" />
                                         ) : uploadedImageUrl ? (
-                                            <img src={uploadedImageUrl} alt="Uploaded Frame" className="w-full h-full object-cover" />
+                                            <img src={uploadedImageUrl} alt="Uploaded Frame" className="w-full h-full object-cover rounded-xl" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                                <Upload className="w-6 h-6 text-slate-700" />
+                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-#FDBCB4 to-#ADD8E6">
+                                                <Upload className="w-6 h-6 text-white" />
                                             </div>
                                         )}
                                         <button
                                             onClick={() => setUseLastFrame(false)}
-                                            className="absolute top-1 right-1 bg-black/50 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            className="absolute top-2 right-2 bg-white/80 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                                         >
-                                            <X className="w-3 h-3 text-white" />
+                                            <X className="w-3 h-3 text-gray-800" />
                                         </button>
                                     </>
                                 ) : (
                                     <div
-                                        className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800/50 transition-colors"
+                                        className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-gradient-to-br from-blue-50 to-white transition-colors"
                                         onClick={() => setUseLastFrame(true)}
                                     >
-                                        <Plus className="w-6 h-6 text-slate-700 mb-1" />
-                                        <span className="text-[10px] text-slate-500">{t('addLastFrame') || "添加尾帧"}</span>
+                                        <Plus className="w-6 h-6 text-#22C55E mb-1" />
+                                        <span className="text-[10px] text-gray-600">{t('addLastFrame') || "添加尾帧"}</span>
                                     </div>
                                 )}
                             </div>
@@ -176,7 +179,7 @@ export function VideoGenerationDialog({
                                     <Button
                                         variant={lastFrameType === 'current_shot_end' ? 'default' : 'outline'}
                                         size="sm"
-                                        className="flex-1 text-xs h-8"
+                                        className={`flex-1 text-xs h-8 ${lastFrameType === 'current_shot_end' ? 'rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
                                         onClick={() => setLastFrameType('current_shot_end')}
                                     >
                                         当前分镜尾帧
@@ -186,7 +189,7 @@ export function VideoGenerationDialog({
                                     <Button
                                         variant={lastFrameType === 'next_shot' ? 'default' : 'outline'}
                                         size="sm"
-                                        className="flex-1 text-xs h-8"
+                                        className={`flex-1 text-xs h-8 ${lastFrameType === 'next_shot' ? 'rounded-xl bg-gradient-to-br from-green-400 to-green-500 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
                                         onClick={() => setLastFrameType('next_shot')}
                                     >
                                         {t('useNextShot') || "使用下一分镜"}
@@ -195,7 +198,7 @@ export function VideoGenerationDialog({
                                 <Button
                                     variant={lastFrameType === 'upload' ? 'default' : 'outline'}
                                     size="sm"
-                                    className="flex-1 text-xs h-8"
+                                    className={`flex-1 text-xs h-8 ${lastFrameType === 'upload' ? 'rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
                                     onClick={() => setLastFrameType('upload')}
                                 >
                                     {t('uploadImage') || "上传图片"}
@@ -213,14 +216,14 @@ export function VideoGenerationDialog({
                                     />
                                     <label
                                         htmlFor="tail-frame-upload"
-                                        className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-800/50 transition-colors"
+                                        className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-blue-200 rounded-xl cursor-pointer hover:bg-blue-50 transition-colors bg-gradient-to-br from-white to-blue-50"
                                     >
                                         {isUploading ? (
-                                            <Loader2 className="w-5 h-5 animate-spin text-slate-500" />
+                                            <Loader2 className="w-5 h-5 animate-spin text-#22C55E" />
                                         ) : (
                                             <>
-                                                <Upload className="w-5 h-5 text-slate-500 mb-1" />
-                                                <span className="text-xs text-slate-500">{t('clickToUpload') || "点击上传图片"}</span>
+                                                <Upload className="w-5 h-5 text-#22C55E mb-1" />
+                                                <span className="text-xs text-gray-600">{t('clickToUpload') || "点击上传图片"}</span>
                                             </>
                                         )}
                                     </label>
@@ -228,13 +231,13 @@ export function VideoGenerationDialog({
                             )}
 
                             {lastFrameType === 'next_shot' && nextShot && (
-                                <p className="text-[11px] text-slate-500 text-center">
+                                <p className="text-[11px] text-gray-600 text-center">
                                     {t('usingNextShotDesc', { number: nextShot.shot_number }) || `将使用分镜 ${nextShot.shot_number} 的图片作为当前分镜视频的结尾。`}
                                 </p>
                             )}
 
                             {lastFrameType === 'current_shot_end' && currentShotEndFrameUrl && (
-                                <p className="text-[11px] text-slate-500 text-center">
+                                <p className="text-[11px] text-gray-600 text-center">
                                     将使用当前分镜的尾帧图片作为视频的结尾。
                                 </p>
                             )}
@@ -242,19 +245,19 @@ export function VideoGenerationDialog({
                     )}
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-0">
+                <DialogFooter className="gap-3 sm:gap-0">
                     <Button
                         variant="ghost"
                         onClick={onClose}
                         disabled={isGenerating}
-                        className="text-slate-400 hover:text-white"
+                        className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
                     >
                         {tCommon('cancel')}
                     </Button>
                     <Button
                         onClick={handleConfirm}
                         disabled={isGenerating || isUploading || (useLastFrame && lastFrameType === 'upload' && !uploadedImageUrl)}
-                        className="bg-purple-600 hover:bg-purple-700 text-white min-w-[100px]"
+                        className="rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 min-w-[100px]"
                     >
                         {isGenerating ? (
                             <>

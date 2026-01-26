@@ -95,107 +95,110 @@ export function StoryboardEditBottomSheet({
   if (!image) return null;
 
   return (
-    <BottomSheet
-      open={isOpen}
-      onOpenChange={onClose}
-      title={t("storyboard.regenerateStoryboard")}
-      description={`${image.title} - ${t("storyboard.regenerateStoryboardDesc")}`}
-      actions={[
-        {
-          label: t("storyboard.cancel"),
-          onClick: handleCancel,
-          variant: "secondary",
-          icon: <X className="h-4 w-4" />,
-          disabled: isRegenerating,
-        },
-        {
-          label: t("storyboard.regenerateImage"),
-          onClick: handleRegenerate,
-          variant: "default",
-          icon: <RefreshCw className="h-4 w-4" />,
-          disabled: isRegenerating,
-          loading: isRegenerating,
-        },
-      ]}
-    >
-      <div className="space-y-6">
-        {/* 图片预览 */}
-        <div className="flex justify-center">
-          <div className="relative w-32 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 border-2 border-blue-200/50 dark:border-blue-700/50 shadow-lg">
-            {image.image_url ? (
-              <img
-                src={image.image_url}
-                alt={image.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-gray-500">
-                {t("storyboard.noImage")}
-              </div>
-            )}
+      <BottomSheet
+        open={isOpen}
+        onOpenChange={onClose}
+        title={t("storyboard.regenerateStoryboard")}
+        description={`${image.title} - ${t("storyboard.regenerateStoryboardDesc")}`}
+        actions={[
+          {
+            label: t("storyboard.cancel"),
+            onClick: handleCancel,
+            variant: "secondary",
+            icon: <X className="h-4 w-4" />,
+            disabled: isRegenerating,
+            className: "rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
+          },
+          {
+            label: t("storyboard.regenerateImage"),
+            onClick: handleRegenerate,
+            variant: "default",
+            icon: <RefreshCw className="h-4 w-4" />,
+            disabled: isRegenerating,
+            loading: isRegenerating,
+            className: "rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
+          },
+        ]}
+        className="bg-gradient-to-br from-white to-blue-50"
+      >
+        <div className="space-y-6">
+          {/* 图片预览 */}
+          <div className="flex justify-center">
+            <div className="relative w-36 h-28 rounded-2xl overflow-hidden bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+              {image.image_url ? (
+                <img
+                  src={image.image_url}
+                  alt={image.title}
+                  className="w-full h-full object-cover rounded-2xl"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 text-white">
+                  {t("storyboard.noImage")}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* 关联角色 */}
-        <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 border-2 border-blue-200/50 dark:border-blue-700/50">
-          <div className="text-base font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-            关联角色
-          </div>
-          {availableCharacters.length === 0 ? (
-            <p className="text-sm text-gray-500">暂无可选角色</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {availableCharacters.map((character) => {
-                const idNum = Number(character.character_id);
-                const checked = selectedCharacters.includes(idNum);
-                return (
-                  <label
-                    key={character.character_id}
-                    className={`flex items-center gap-2 px-2 py-2 rounded-xl border-2 cursor-pointer text-sm transition-all duration-200 hover:scale-105 ${
-                      checked
-                        ? "border-blue-400 bg-gradient-to-r from-blue-50 to-purple-50 dark:border-blue-500/60 dark:from-blue-900/30 dark:to-purple-900/30 shadow-md shadow-blue-500/20"
-                        : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600"
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setSelectedCharacters((prev) =>
-                        prev.includes(idNum)
-                          ? prev.filter((c) => c !== idNum)
-                          : [...prev, idNum]
-                      );
-                    }}
-                  >
-                    {character.image_url ? (
-                      <img
-                        src={character.image_url}
-                        alt={character.name}
-                        className="w-12 h-12 rounded-lg object-cover border-2 border-gray-200 dark:border-gray-700 shadow-sm"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-xs text-gray-500 border-2 border-gray-300 dark:border-gray-600">
-                        无图
-                      </div>
-                    )}
-                    <input
-                      type="checkbox"
-                      className="hidden"
-                      checked={checked}
-                      onChange={() => {
+          {/* 关联角色 */}
+          <div className="space-y-4 p-5 rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+            <div className="text-base font-semibold text-gray-800">
+              关联角色
+            </div>
+            {availableCharacters.length === 0 ? (
+              <p className="text-sm text-gray-600">暂无可选角色</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                {availableCharacters.map((character) => {
+                  const idNum = Number(character.character_id);
+                  const checked = selectedCharacters.includes(idNum);
+                  return (
+                    <label
+                      key={character.character_id}
+                      className={`flex items-center gap-3 px-3 py-3 rounded-xl border-2 cursor-pointer text-sm transition-all duration-200 hover:scale-105 ${
+                        checked
+                          ? "border-#22C55E bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
+                          : "border-blue-100 bg-gradient-to-br from-white to-blue-50 hover:border-#22C55E/50"
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
                         setSelectedCharacters((prev) =>
                           prev.includes(idNum)
                             ? prev.filter((c) => c !== idNum)
                             : [...prev, idNum]
                         );
                       }}
-                    />
-                    <span className="truncate">{character.name}</span>
-                  </label>
-                );
-              })}
-            </div>
-          )}
+                    >
+                      {character.image_url ? (
+                        <img
+                          src={character.image_url}
+                          alt={character.name}
+                          className="w-12 h-12 rounded-xl object-cover border-2 border-blue-100 shadow-[4px_4px_8px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.8)]"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 flex items-center justify-center text-xs text-white border-2 border-blue-100 shadow-[4px_4px_8px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.8)]">
+                          无图
+                        </div>
+                      )}
+                      <input
+                        type="checkbox"
+                        className="hidden"
+                        checked={checked}
+                        onChange={() => {
+                          setSelectedCharacters((prev) =>
+                            prev.includes(idNum)
+                              ? prev.filter((c) => c !== idNum)
+                              : [...prev, idNum]
+                          );
+                        }}
+                      />
+                      <span className="truncate text-gray-800">{character.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </BottomSheet>
-  );
+      </BottomSheet>
+    );
 }

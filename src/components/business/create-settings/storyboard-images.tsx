@@ -375,18 +375,18 @@ export function StoryboardImages({
       <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <div className="space-y-4 h-full overflow-y-auto pb-22 px-6 relative z-10">
-        <h3 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
-          <Film className="w-5 h-5 text-blue-500" />
+        <h3 className="text-lg font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
+          <Film className="w-5 h-5 text-[#ADD8E6]" />
           {t("storyboard.storyboardList")}
         </h3>
         {/* 整体进度条 */}
         {(isGenerating || generatingImages > 0) && (
-          <Card className="p-4 bg-gradient-to-br from-white to-blue-50/30 dark:from-gray-800/50 dark:to-blue-900/20 border-2 border-blue-200/50 dark:border-blue-700/50 shadow-lg rounded-xl">
+          <Card className="p-4 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-2xl border-0">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-orange-500" />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Loader2 className="h-4 w-4 animate-spin text-[#FDBCB4]" />
+                  <span className="text-sm font-medium text-gray-700">
                     {t("storyboard.generatingShots", { completed: completedImages, total: totalImages })}
                   </span>
                 </div>
@@ -394,7 +394,7 @@ export function StoryboardImages({
                   {successCount > 0 && (
                     <Badge
                       variant="secondary"
-                      className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                      className="bg-[#22C55E]/20 text-[#22C55E] rounded-full shadow-[2px_2px_4px_rgba(34,197,94,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]"
                     >
                       {successCount} {t("common.success")}
                     </Badge>
@@ -402,34 +402,34 @@ export function StoryboardImages({
                   {failedCount > 0 && (
                     <Badge
                       variant="secondary"
-                      className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                      className="bg-[#FDBCB4]/20 text-[#F9A899] rounded-full shadow-[2px_2px_4px_rgba(253,188,180,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]"
                     >
                       {failedCount} {t("common.failed")}
                     </Badge>
                   )}
                   <Badge
                     variant="secondary"
-                    className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+                    className="bg-[#ADD8E6]/20 text-[#ADD8E6] rounded-full shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]"
                   >
                     {t("storyboard.generatingCountShots", { count: generatingImages })}
                   </Badge>
                 </div>
               </div>
-              <Progress value={overallProgress} className="h-2" />
+              <Progress value={overallProgress} className="h-2 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-full" />
             </div>
           </Card>
         )}
 
         {/* 初始加载状态 */}
         {isGenerating && data.length === 0 && (
-          <Card className="p-8 bg-gradient-to-br from-white to-blue-50/50 dark:from-gray-800 dark:to-blue-900/30 border-2 border-blue-200/50 dark:border-blue-700/50 shadow-xl rounded-2xl">
+          <Card className="p-8 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-2xl border-0">
             <div className="flex flex-col items-center justify-center space-y-4">
               <div className="relative">
-                <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
-                <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-blue-500" />
+                <div className="w-16 h-16 border-4 border-[#ADD8E6]/30 border-t-[#FDBCB4] rounded-full animate-spin"></div>
+                <ImageIcon className="absolute inset-0 m-auto w-6 h-6 text-[#ADD8E6]" />
               </div>
               <div className="text-center space-y-2">
-                <p className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                <p className="text-lg font-semibold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">
                   {t("storyboard.generatingShotsTitle")}
                 </p>
                 <p className="text-sm text-gray-500">
@@ -443,10 +443,10 @@ export function StoryboardImages({
         {/* 所有分镜扁平化展示 */}
         <div className="space-y-4">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-blue-500/30">
+            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] flex items-center justify-center text-white text-sm font-bold shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               <Film className="w-4 h-4" />
             </div>
-            <h4 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+            <h4 className="text-lg font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">
               {t("storyboard.allShots")}
             </h4>
           </div>
@@ -465,7 +465,7 @@ export function StoryboardImages({
                     <div className="flex items-center justify-between">
                       <Badge
                         variant="secondary"
-                        className="bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
+                        className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 text-gray-700 rounded-full shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]"
                       >
                         {t("storyboard.shotNumber", { number: imageIndex + 1 })}
                       </Badge>
@@ -483,7 +483,7 @@ export function StoryboardImages({
                   </div>
                   {/* 图片容器 */}
                   <div className={cn(
-                    "relative bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl overflow-hidden group border-2 border-gray-200/50 dark:border-gray-700/50 shadow-md hover:shadow-xl transition-all duration-300",
+                    "relative bg-gradient-to-br from-white to-blue-50 rounded-2xl overflow-hidden group shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300 border-0",
                     aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-video"
                   )}>
                     {isPending ? (
@@ -494,14 +494,14 @@ export function StoryboardImages({
                         {/* 待生成也允许手动重新生成/提交 */}
                         <div className="absolute top-2 right-2">
                           <Button
-                            size="sm"
-                            variant="secondary"
-                            className="h-8 w-8 p-0 border border-orange-300/60"
-                            onClick={() => handleStartEdit(image)}
-                            title={t("storyboard.regenerateImage")}
-                          >
-                            <RefreshCw className="w-4 h-4 text-orange-500" />
-                          </Button>
+                              size="sm"
+                              variant="secondary"
+                              className="h-8 w-8 p-0 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[2px_2px_8px_rgba(0,0,0,0.1),-1px_-1px_4px_rgba(255,255,255,0.8)] rounded-xl"
+                              onClick={() => handleStartEdit(image)}
+                              title={t("storyboard.regenerateImage")}
+                            >
+                              <RefreshCw className="w-4 h-4 text-[#FDBCB4]" />
+                            </Button>
                         </div>
                       </div>
                     ) : isGenerating ? (
@@ -536,14 +536,14 @@ export function StoryboardImages({
                         {/* 重新生成按钮 */}
                         <div className="absolute top-2 right-2">
                           <Button
-                            size="sm"
-                            variant="secondary"
-                            className="h-8 w-8 p-0 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30"
-                            onClick={() => handleStartEdit(image)}
-                            title={t("storyboard.regenerateImage")}
-                          >
-                            <RefreshCw className="w-4 h-4 text-red-600 dark:text-red-400" />
-                          </Button>
+                              size="sm"
+                              variant="secondary"
+                              className="h-8 w-8 p-0 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[2px_2px_8px_rgba(0,0,0,0.1),-1px_-1px_4px_rgba(255,255,255,0.8)] rounded-xl"
+                              onClick={() => handleStartEdit(image)}
+                              title={t("storyboard.regenerateImage")}
+                            >
+                              <RefreshCw className="w-4 h-4 text-[#FDBCB4]" />
+                            </Button>
                         </div>
                       </div>
                     ) : (
@@ -576,10 +576,10 @@ export function StoryboardImages({
                             <Button
                               size="sm"
                               variant="secondary"
-                              className="h-8 w-8 p-0 bg-gradient-to-r from-blue-500/80 to-purple-500/80 hover:from-blue-600/90 hover:to-purple-600/90 border-0 backdrop-blur-sm shadow-lg transition-all duration-200 hover:scale-110 rounded-xl"
+                              className="h-8 w-8 p-0 bg-gradient-to-br from-white to-blue-50 border border-blue-100 hover:border-[#ADD8E6]/50 backdrop-blur-sm shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-110 rounded-xl"
                               onClick={() => handleStartEdit(image)}
                             >
-                              <PenLine className="w-4 h-4 text-white" />
+                              <PenLine className="w-4 h-4 text-[#ADD8E6]" />
                             </Button>
                           </div>
                         </div>
@@ -588,31 +588,31 @@ export function StoryboardImages({
                   </div>
 
                   {/* 旁白展示区域 */}
-                  <div className="bg-gray-50/50 dark:bg-gray-800/30 rounded-lg p-3 border border-gray-100 dark:border-gray-700/50">
+                  <div className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-xl p-3 border-0">
                     <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-1.5 text-gray-500">
+                      <div className="flex items-center gap-1.5 text-[#ADD8E6]">
                         <Mic className="w-3.5 h-3.5" />
                         <span className="text-xs font-medium uppercase tracking-wider">{t("storyboard.narration")}</span>
                       </div>
                       <button 
                         onClick={() => handleStartEditNarration(image)}
-                        className="flex-shrink-0 p-1 hover:bg-gray-200 dark:hover:bg-white/20 rounded transition-colors"
+                        className="flex-shrink-0 p-1 hover:bg-[#ADD8E6]/10 rounded-xl shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)] transition-colors"
                         title={t("storyboard.editNarration")}
                       >
-                        <PenLine className="w-3.5 h-3.5 text-blue-500" />
+                        <PenLine className="w-3.5 h-3.5 text-[#FDBCB4]" />
                       </button>
                     </div>
                     
                     <div className="space-y-1.5">
                       {(localNarrationUpdates[image.image_id] || image.narration || []).length > 0 ? (
                         (localNarrationUpdates[image.image_id] || image.narration || []).map((n, idx) => (
-                          <div key={idx} className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                            <span className="font-semibold text-blue-600 dark:text-blue-400 mr-1">{n.角色}:</span>
+                          <div key={idx} className="text-sm leading-relaxed text-gray-700">
+                            <span className="font-semibold text-[#FDBCB4] mr-1">{n.角色}:</span>
                             {n.内容}
                           </div>
                         ))
                       ) : (
-                        <p className="text-xs text-gray-400 italic italic">{t("storyboard.noNarration")}</p>
+                        <p className="text-xs text-gray-400 italic">{t("storyboard.noNarration")}</p>
                       )}
                     </div>
                   </div>
@@ -623,7 +623,7 @@ export function StoryboardImages({
         </div>
       </div>
       {/* 底部操作浮层 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-blue-200/50 dark:border-blue-700/50 shadow-2xl backdrop-blur-sm">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-t from-white to-blue-50/80 shadow-[0px_-4px_12px_rgba(0,0,0,0.08),0px_2px_4px_rgba(255,255,255,0.8)] border-t-0 backdrop-blur-sm">
         <div className="px-6 py-4">
           <div className="flex items-center justify-center">
             {/* 右侧操作按钮 */}
@@ -634,7 +634,7 @@ export function StoryboardImages({
                 onComplete();
               }}
               disabled={isGenerating || data.length === 0}
-              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-[120px]"
+              className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 px-6 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-[140px]"
             >
               {isGenerating ? (
                 <>

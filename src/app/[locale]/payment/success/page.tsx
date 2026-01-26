@@ -111,13 +111,13 @@ export default function PaymentSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white flex items-center justify-center p-4">
-      <Card className="w-full max-w-md border-white/10 bg-slate-800/50 backdrop-blur-xl">
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md border-0 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-white/90 backdrop-blur-sm">
         <CardHeader className="text-center">
           {orderStatus === 'loading' && (
             <>
               <Loader2 className="h-16 w-16 mx-auto mb-4 text-blue-500 animate-spin" />
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-2xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
                 {t('payment.processing', { default: '正在处理支付...' })}
               </CardTitle>
             </>
@@ -125,15 +125,15 @@ export default function PaymentSuccessPage() {
           {orderStatus === 'pending' && (
             <>
               <Loader2 className="h-16 w-16 mx-auto mb-4 text-amber-500 animate-spin" />
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-2xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
                 {t('payment.confirming', { default: '正在确认支付...' })}
               </CardTitle>
             </>
           )}
           {orderStatus === 'success' && (
             <>
-              <CheckCircle2 className="h-16 w-16 mx-auto mb-4 text-green-500" />
-              <CardTitle className="text-2xl text-green-400">
+              <CheckCircle2 className="h-16 w-16 mx-auto mb-4 text-[#22C55E]" />
+              <CardTitle className="text-2xl text-[#22C55E]">
                 {t('payment.successTitle', { default: '支付成功！' })}
               </CardTitle>
             </>
@@ -141,7 +141,7 @@ export default function PaymentSuccessPage() {
           {orderStatus === 'failed' && (
             <>
               <XCircle className="h-16 w-16 mx-auto mb-4 text-red-500" />
-              <CardTitle className="text-2xl text-red-400">
+              <CardTitle className="text-2xl text-red-500">
                 {t('payment.failedTitle', { default: '支付失败' })}
               </CardTitle>
             </>
@@ -151,19 +151,19 @@ export default function PaymentSuccessPage() {
           {order && (
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-400">{t('payment.orderNumber', { default: '订单号' })}:</span>
-                <span className="font-mono">{order.order_number}</span>
+                <span className="text-gray-600">{t('payment.orderNumber', { default: '订单号' })}:</span>
+                <span className="font-mono text-gray-800">{order.order_number}</span>
               </div>
               {order.points_amount && (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">{t('payment.pointsAmount', { default: '积分数量' })}:</span>
-                  <span className="font-semibold text-amber-400">{order.points_amount.toLocaleString()}</span>
+                  <span className="text-gray-600">{t('payment.pointsAmount', { default: '积分数量' })}:</span>
+                  <span className="font-semibold text-[#22C55E]">{order.points_amount.toLocaleString()}</span>
                 </div>
               )}
               {order.amount && (
                 <div className="flex justify-between">
-                  <span className="text-gray-400">{t('payment.amount', { default: '支付金额' })}:</span>
-                  <span>
+                  <span className="text-gray-600">{t('payment.amount', { default: '支付金额' })}:</span>
+                  <span className="text-gray-800">
                     {order.currency === 'USD' 
                       ? `$${(order.amount / 100).toFixed(2)}`
                       : order.currency === 'CNY'
@@ -180,13 +180,13 @@ export default function PaymentSuccessPage() {
               <>
                 <Button
                   asChild
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                  className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   <Link href={`/${locale}/points`}>
                     {t('payment.viewPoints', { default: '查看积分' })}
                   </Link>
                 </Button>
-                <Button variant="outline" asChild className="w-full">
+                <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
                   <Link href={`/${locale}/workspace`}>
                     {t('payment.backToWorkspace', { default: '返回工作台' })}
                   </Link>
@@ -197,13 +197,13 @@ export default function PaymentSuccessPage() {
               <>
                 <Button
                   asChild
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                  className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   <Link href={`/${locale}/pricing`}>
                     {t('payment.retryPayment', { default: '重新支付' })}
                   </Link>
                 </Button>
-                <Button variant="outline" asChild className="w-full">
+                <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
                   <Link href={`/${locale}/workspace`}>
                     {t('payment.backToWorkspace', { default: '返回工作台' })}
                   </Link>
@@ -211,7 +211,7 @@ export default function PaymentSuccessPage() {
               </>
             )}
             {(orderStatus === 'loading' || orderStatus === 'pending') && (
-              <Button variant="outline" asChild className="w-full">
+              <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
                 <Link href={`/${locale}/workspace`}>
                   {t('payment.backToWorkspace', { default: '返回工作台' })}
                 </Link>

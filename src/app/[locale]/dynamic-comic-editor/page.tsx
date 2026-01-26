@@ -2219,13 +2219,13 @@ export default function DynamicComicEditor() {
 
     return (
         <TooltipProvider>
-            <div className="h-screen w-full flex flex-col bg-slate-950 font-sans text-slate-200">
+            <div className="h-screen w-full flex flex-col bg-gradient-to-b from-[#FDBCB4]/10 to-white font-sans text-gray-900">
                 {/* Header */}
-                <div className="h-14 bg-slate-900 border-b border-slate-800 px-4 pl-16 flex items-center justify-between shrink-0 z-20">
+                <div className="h-14 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)] px-4 pl-16 flex items-center justify-between shrink-0 z-20">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => router.back()}
-                            className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400"
+                            className="p-2 hover:bg-[#ADD8E6]/30 rounded-full transition-colors text-gray-600"
                         >
                             <ChevronLeft size={20} />
                         </button>
@@ -2235,7 +2235,7 @@ export default function DynamicComicEditor() {
                                     <Input
                                         value={projectTitle}
                                         onChange={(e) => setProjectTitle(e.target.value)}
-                                        className="h-7 text-sm bg-slate-800 border-slate-700 text-white w-64"
+                                        className="h-7 text-sm bg-[#ADD8E6]/30 border-[#ADD8E6] text-gray-900 w-64"
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') handleTitleSave();
                                             if (e.key === 'Escape') {
@@ -2249,33 +2249,33 @@ export default function DynamicComicEditor() {
                                 </div>
                             ) : (
                                 <div className="group flex items-center gap-2 cursor-pointer" onClick={() => setIsEditingTitle(true)}>
-                                    <h1 className="text-sm font-bold text-white tracking-tight">{projectTitle}</h1>
-                                    <Pencil size={12} className="text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    <h1 className="text-sm font-bold text-gray-900 tracking-tight">{projectTitle}</h1>
+                                    <Pencil size={12} className="text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </div>
                             )}
-                            <p className="text-[10px] text-slate-500 uppercase tracking-widest">Dynamic Comic Editor</p>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-widest">Dynamic Comic Editor</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         {/* Aspect Ratio Selector */}
-                        <div className="flex items-center bg-slate-800/50 border border-slate-700 rounded-md px-1 h-8">
+                        <div className="flex items-center bg-[#ADD8E6]/30 border border-[#ADD8E6] rounded-md px-1 h-8">
                             <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
-                                <SelectTrigger className="border-0 bg-transparent hover:bg-slate-700/50 focus:ring-0 focus:ring-offset-0 text-slate-300 text-xs h-7 gap-2 px-2">
+                                <SelectTrigger className="border-0 bg-transparent hover:bg-[#ADD8E6]/50 focus:ring-0 focus:ring-offset-0 text-gray-700 text-xs h-7 gap-2 px-2">
                                     <div className="flex items-center gap-1.5">
-                                        {aspectRatio === "16:9" ? <Monitor size={12} className="text-blue-400" /> : <Smartphone size={12} className="text-blue-400" />}
+                                        {aspectRatio === "16:9" ? <Monitor size={12} className="text-[#22C55E]" /> : <Smartphone size={12} className="text-[#22C55E]" />}
                                         <SelectValue />
                                     </div>
                                 </SelectTrigger>
-                                <SelectContent className="bg-slate-900 border-slate-800 text-white min-w-[120px]">
-                                    <SelectItem value="16:9" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
+                                <SelectContent className="bg-white border-[#ADD8E6] text-gray-900 min-w-[120px]">
+                                    <SelectItem value="16:9" className="focus:bg-[#ADD8E6]/30 focus:text-gray-900 text-xs py-1.5 cursor-pointer">
                                         <div className="flex items-center gap-2">
-                                            <Monitor size={12} className="text-slate-400" />
+                                            <Monitor size={12} className="text-gray-600" />
                                             <span>{t('landscape') || '横版 (16:9)'}</span>
                                         </div>
                                     </SelectItem>
-                                    <SelectItem value="9:16" className="focus:bg-slate-800 focus:text-white text-xs py-1.5 cursor-pointer">
+                                    <SelectItem value="9:16" className="focus:bg-[#ADD8E6]/30 focus:text-gray-900 text-xs py-1.5 cursor-pointer">
                                         <div className="flex items-center gap-2">
-                                            <Smartphone size={12} className="text-slate-400" />
+                                            <Smartphone size={12} className="text-gray-600" />
                                             <span>{t('portrait') || '竖版 (9:16)'}</span>
                                         </div>
                                     </SelectItem>
@@ -2284,32 +2284,26 @@ export default function DynamicComicEditor() {
                         </div>
 
                         {/* Model Settings Button */}
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-slate-700 hover:bg-slate-800 text-slate-300 text-xs h-8 gap-2"
+                        <button
+                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                             onClick={() => setShowModelSettings(true)}
                         >
-                            <Settings size={14} className="text-blue-400" />
-                            {t('modelSettings') || '模型设置'}
-                        </Button>
+                            <Settings size={14} className="text-[#22C55E]" />
+                            <span>{t('modelSettings') || '模型设置'}</span>
+                        </button>
 
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-blue-600/50 hover:bg-blue-900/30 text-blue-400 text-xs h-8 gap-2"
+                        <button
+                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                             onClick={() => setShowUsageGuide(true)}
                         >
-                            <HelpCircle size={14} />
-                            {t('usageGuide')}
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="outline"
+                            <HelpCircle size={14} className="text-[#22C55E]" />
+                            <span>{t('usageGuide')}</span>
+                        </button>
+                        <button
                             className={cn(
-                                "border-slate-700 hover:bg-slate-800 text-slate-300 text-xs h-8 gap-2",
-                                saveStatus === 'saving' && "text-blue-400 border-blue-700/50",
-                                saveStatus === 'unsaved' && "text-amber-400 border-amber-700/50"
+                                "h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm",
+                                saveStatus === 'saving' && "text-[#22C55E] border-[#22C55E]/50",
+                                saveStatus === 'unsaved' && "text-amber-500 border-amber-500/50"
                             )}
                             onClick={handleSave}
                             disabled={saveStatus === 'saving'}
@@ -2319,24 +2313,22 @@ export default function DynamicComicEditor() {
                             ) : (
                                 <Save size={14} />
                             )}
-                            {saveStatus === 'saving' ? '保存中...' : '保存'}
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-purple-600/50 hover:bg-purple-900/30 text-purple-400 text-xs h-8 gap-2"
+                            <span>{saveStatus === 'saving' ? '保存中...' : '保存'}</span>
+                        </button>
+                        <button
+                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                             onClick={() => setShowExportPreviewDialog(true)}
                         >
                             <History size={14} />
-                            导出历史
-                        </Button>
+                            <span>导出历史</span>
+                        </button>
                         <Button
                             size="sm"
                             className={cn(
                                 "text-white text-xs h-8 gap-2",
                                 exportProgress
-                                    ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                                    : "bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                                    ? "bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70"
+                                    : "bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70"
                             )}
                             onClick={() => setShowExportTriggerDialog(true)}
                         >
@@ -2360,12 +2352,12 @@ export default function DynamicComicEditor() {
                     {/* Top Section: Preview & Properties */}
                     <div className="flex-1 flex min-h-0">
                         {/* Preview Area (Left) */}
-                        <div className="flex-1 bg-black flex items-center justify-center relative border-r border-slate-800">
+                        <div className="flex-1 bg-white flex items-center justify-center relative border-r border-[#ADD8E6]/30">
                             <VideoPreview />
                         </div>
 
                         {/* Properties Panel (Right) */}
-                        <div className="w-[40%] bg-slate-900 flex flex-col border-l border-slate-800 shrink-0">
+                        <div className="w-[40%] bg-white flex flex-col shadow-[8px_8px_16px_rgba(173,221,230,0.3),-8px_-8px_16px_rgba(255,255,255,0.7)] shrink-0">
                             <div className="p-2">
                                 <CustomTabs
                                     value={activeTab}
@@ -2374,22 +2366,22 @@ export default function DynamicComicEditor() {
                                     items={[
                                         {
                                             value: "characters",
-                                            label: <div className="flex items-center gap-2"><User size={14} /><span>{t('characters')}</span></div>,
+                                            label: <div className="flex items-center gap-2"><User size={14} className="text-[#22C55E]" /><span>{t('characters')}</span></div>,
                                             content: null
                                         },
                                         {
                                             value: "scenes",
-                                            label: <div className="flex items-center gap-2"><LucideMap size={14} /><span>{t('scenes')}</span></div>,
+                                            label: <div className="flex items-center gap-2"><LucideMap size={14} className="text-[#22C55E]" /><span>{t('scenes')}</span></div>,
                                             content: null
                                         },
                                         {
                                             value: "shots",
-                                            label: <div className="flex items-center gap-2"><ImageIcon size={14} /><span>{t('shots')}</span></div>,
+                                            label: <div className="flex items-center gap-2"><ImageIcon size={14} className="text-[#22C55E]" /><span>{t('shots')}</span></div>,
                                             content: null
                                         },
                                         {
                                             value: "assets",
-                                            label: <div className="flex items-center gap-2"><FolderOpen size={14} /><span>素材</span></div>,
+                                            label: <div className="flex items-center gap-2"><FolderOpen size={14} className="text-[#22C55E]" /><span>素材</span></div>,
                                             content: null
                                         }
                                     ]}
@@ -2411,19 +2403,19 @@ export default function DynamicComicEditor() {
                                                 if (isCharacterAnalysisProcessing) {
                                                     return (
                                                         <div className={cn(
-                                                            "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
+                                                            "flex flex-col items-center justify-center gap-3 bg-[#ADD8E6]/30 rounded-lg border border-[#ADD8E6]/50 mb-4",
                                                             hasNoCharacters ? "py-12" : "py-4"
                                                         )}>
-                                                            <div className={cn("bg-slate-800/50 rounded-full", hasNoCharacters ? "p-4" : "p-2")}>
-                                                                <Loader2 size={hasNoCharacters ? 28 : 16} className="text-blue-500 animate-spin" />
+                                                            <div className={cn("bg-[#ADD8E6]/50 rounded-full", hasNoCharacters ? "p-4" : "p-2")}>
+                                                                <Loader2 size={hasNoCharacters ? 28 : 16} className="text-[#22C55E] animate-spin" />
                                                             </div>
                                                             <div className="text-center space-y-1">
-                                                                <p className={cn("text-slate-300 font-medium", hasNoCharacters ? "text-base" : "text-sm")}>
+                                                                <p className={cn("text-gray-700 font-medium", hasNoCharacters ? "text-base" : "text-sm")}>
                                                                     {t('analyzingCharacters')}
                                                                     {step.status === 'failed' && step.error === 'timeout' && ` (${t('timeout') || '超时'})`}
                                                                 </p>
                                                                 {hasNoCharacters && (
-                                                                    <p className="text-slate-600 text-xs max-w-[260px] mx-auto">{t('analyzeCharactersDescription')}</p>
+                                                                    <p className="text-gray-600 text-xs max-w-[260px] mx-auto">{t('analyzeCharactersDescription')}</p>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -2439,11 +2431,11 @@ export default function DynamicComicEditor() {
                                                 const isProcessing = step?.status === 'processing' || step?.status === 'pending';
                                                 if (isProcessing) {
                                                     return (
-                                                        <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
-                                                            <div className="p-2 bg-slate-800/50 rounded-full">
-                                                                <Loader2 size={16} className="text-orange-500 animate-spin" />
+                                                        <div className="flex items-center justify-center gap-3 py-4 bg-[#ADD8E6]/30 rounded-lg border border-[#ADD8E6]/50 mb-4">
+                                                            <div className="p-2 bg-[#ADD8E6]/50 rounded-full">
+                                                                <Loader2 size={16} className="text-[#22C55E] animate-spin" />
                                                             </div>
-                                                            <p className="text-slate-300 text-sm font-medium">{t('generatingCharacters') || '角色生成中...'}</p>
+                                                            <p className="text-gray-700 text-sm font-medium">{t('generatingCharacters') || '角色生成中...'}</p>
                                                         </div>
                                                     );
                                                 }
@@ -2456,7 +2448,7 @@ export default function DynamicComicEditor() {
                                                     <Button
                                                         onClick={() => gengerateCharacterImages(creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== ""))}
                                                         disabled={isGenerating || (creation && getStepStatus(creation, 'characterImageGeneration').status === 'processing')}
-                                                        className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white text-xs h-8 shadow-lg shadow-orange-500/20"
+                                                        className="flex-1 bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70 text-white text-xs h-8 shadow-lg shadow-[#22C55E]/20"
                                                         size="sm"
                                                     >
                                                         <WandSparkles className="w-3 h-3 mr-2" />
@@ -2468,7 +2460,7 @@ export default function DynamicComicEditor() {
                                                             size="sm"
                                                             variant="outline"
                                                             disabled={isGenerating || (creation && getStepStatus(creation, 'characterAnalysis').status === 'processing')}
-                                                            className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
+                                                            className="border-[#ADD8E6] hover:bg-[#ADD8E6]/30 text-gray-700 h-8 px-3 text-xs gap-1.5"
                                                             onClick={() => {
                                                                 setConfirmDialog({
                                                                     open: true,
@@ -2499,26 +2491,26 @@ export default function DynamicComicEditor() {
                                                     </h3>
                                                     <div className="grid grid-cols-3 gap-2">
                                                         {creation.characters.filter((c: ICharacter) => c.body !== null && c.body !== "").map((char: ICharacter) => (
-                                                            <Card key={char.uuid || char.character_id} className="bg-slate-800/40 border-slate-800 hover:bg-slate-800/60 hover:border-slate-700 transition-all group overflow-hidden flex flex-col relative">
+                                                            <div key={char.uuid || char.character_id} className="bg-gradient-to-br from-white to-pink-50 border border-pink-100 hover:bg-gradient-to-br from-white to-pink-100 transition-all group overflow-hidden flex flex-col relative shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_18px_rgba(0,0,0,0.12),-6px_-6px_18px_rgba(255,255,255,0.9)] hover:-translate-y-0.5 rounded-xl p-4">
                                                                 {/* Avatar / Image (Optimized for 3-column grid, landscape, adaptive height) */}
-                                                                <div className="w-full h-auto shrink-0 bg-slate-800 relative group-hover:border-slate-600 transition-colors">
+                                                                <div className="w-full h-auto shrink-0 bg-white relative group-hover:border-[#FDBCB4]/60 transition-colors">
                                                                     {regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating' ? (
                                                                         <div className={cn(
-                                                                            "w-full flex items-center justify-center bg-slate-900/50",
+                                                                            "w-full flex items-center justify-center bg-[#FDBCB4]/50",
                                                                             aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-[16/9]"
                                                                         )}>
-                                                                            <Loader2 className="w-4 h-4 text-orange-500 animate-spin" />
+                                                                            <Loader2 className="w-4 h-4 text-[#22C55E] animate-spin" />
                                                                         </div>
                                                                     ) : char.image_url ? (
                                                                         <div className="relative w-full h-auto group/image">
                                                                             <img
                                                                                 src={char.image_url}
                                                                                 alt={char.name}
-                                                                                className="w-full h-auto object-contain bg-slate-900/30 cursor-pointer hover:scale-105 transition-transform duration-500 block"
+                                                                                className="w-full h-auto object-contain bg-white/30 cursor-pointer hover:scale-105 transition-transform duration-500 block"
                                                                                 onClick={() => handleImagePreview(char.image_url!)}
                                                                             />
                                                                             {/* Hover Actions Overlay */}
-                                                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center justify-center gap-2">
+                                                                            <div className="absolute inset-0 bg-[#22C55E]/30 opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center justify-center gap-2">
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="icon"
@@ -2540,7 +2532,7 @@ export default function DynamicComicEditor() {
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="icon"
-                                                                                    className="h-7 w-7 text-orange-400 hover:bg-orange-500/20 rounded-full"
+                                                                                    className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
                                                                                     onClick={() => handleRegenerateSingleCharacter(char)}
                                                                                     disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
                                                                                     title={t('regenerate')}
@@ -2550,17 +2542,17 @@ export default function DynamicComicEditor() {
                                                                             </div>
                                                                         </div>
                                                                     ) : (
-                                                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 bg-slate-900/50">
-                                                                            <ImageIcon size={14} className="opacity-30" />
+                                                                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-[#FDBCB4]/30">
+                                                                            <ImageIcon size={14} className="opacity-50" />
                                                                         </div>
                                                                     )}
                                                                 </div>
 
                                                                 {/* Bottom Info (Minimal) */}
-                                                                <div className="p-1 bg-slate-900/80 backdrop-blur-sm absolute bottom-0 left-0 right-0 border-t border-slate-800/50">
-                                                                    <p className="text-[9px] text-slate-300 truncate text-center font-medium">{char.name}</p>
+                                                                <div className="p-1 bg-[#22C55E]/80 backdrop-blur-sm absolute bottom-0 left-0 right-0 border-t border-[#22C55E]/50">
+                                                                    <p className="text-[9px] text-white truncate text-center font-medium">{char.name}</p>
                                                                 </div>
-                                                            </Card>
+                                                            </div>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -2575,22 +2567,22 @@ export default function DynamicComicEditor() {
                                                     </h3>
                                                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2">
                                                         {creation.characters.filter((c: ICharacter) => c.body === null || c.body === "").map((char: ICharacter) => (
-                                                            <Card key={char.uuid || char.character_id} className="bg-slate-900/30 border-slate-800/50 hover:bg-slate-900/50 hover:border-blue-900/30 transition-all p-2">
+                                                            <div key={char.uuid || char.character_id} className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 hover:bg-gradient-to-br from-white to-blue-100 transition-all p-4 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_18px_rgba(0,0,0,0.12),-6px_-6px_18px_rgba(255,255,255,0.9)] hover:-translate-y-0.5 rounded-xl">
                                                                 <div className="flex gap-2.5 items-center">
                                                                     {/* Icon */}
-                                                                    <div className="w-8 h-8 shrink-0 rounded-full bg-blue-500/5 flex items-center justify-center text-blue-400/80 border border-blue-500/10">
+                                                                    <div className="w-8 h-8 shrink-0 rounded-full bg-[#22C55E]/10 flex items-center justify-center text-[#22C55E] border border-[#22C55E]/30">
                                                                         <Volume2 size={12} />
                                                                     </div>
 
                                                                     {/* Info */}
                                                                     <div className="flex-1 min-w-0">
                                                                         <div className="flex items-center gap-2 mb-0.5">
-                                                                            <h4 className="font-medium text-slate-300 text-xs truncate leading-none">{char.name}</h4>
-                                                                            <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5 bg-blue-500/5 text-blue-400/70 hover:bg-blue-500/10 font-normal">
+                                                                            <h4 className="font-medium text-gray-700 text-xs truncate leading-none">{char.name}</h4>
+                                                                            <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5 bg-[#22C55E]/10 text-[#22C55E] hover:bg-[#22C55E]/20 font-normal">
                                                                                 {t('voice')}
                                                                             </Badge>
                                                                         </div>
-                                                                        <p className="text-[10px] text-slate-500 line-clamp-1 truncate leading-tight">
+                                                                        <p className="text-[10px] text-gray-600 line-clamp-1 truncate leading-tight">
                                                                             {char.voice_description || t('noVoiceDescription')}
                                                                         </p>
                                                                     </div>
@@ -2599,13 +2591,13 @@ export default function DynamicComicEditor() {
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="icon"
-                                                                        className="h-6 w-6 text-slate-600 hover:text-slate-300 hover:bg-slate-800/50 rounded-full"
+                                                                        className="h-6 w-6 text-gray-600 hover:text-gray-700 hover:bg-[#ADD8E6]/30 rounded-full"
                                                                         onClick={() => handleEditCharacter(char)}
                                                                     >
                                                                         <PenLine size={12} />
                                                                     </Button>
                                                                 </div>
-                                                            </Card>
+                                                            </div>
                                                         ))}
                                                     </div>
                                                 </div>
@@ -2619,17 +2611,17 @@ export default function DynamicComicEditor() {
                                                 if (isCharacterAnalysisProcessing) return null;
                                                 return (
                                                     <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                                        <div className="p-4 bg-slate-800/50 rounded-full">
-                                                            <User size={32} className="text-slate-600" />
+                                                        <div className="p-4 bg-[#ADD8E6]/50 rounded-full">
+                                                            <User size={32} className="text-[#22C55E]" />
                                                         </div>
                                                         <div className="text-center space-y-1">
-                                                            <p className="text-slate-400 font-medium">{t('noCharacterData')}</p>
-                                                            <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeCharactersDescription')}</p>
+                                                            <p className="text-gray-700 font-medium">{t('noCharacterData')}</p>
+                                                            <p className="text-gray-600 text-xs max-w-[200px] mx-auto">{t('analyzeCharactersDescription')}</p>
                                                         </div>
                                                         <Button
                                                             size="sm"
                                                             onClick={() => creation && handleAnalyzeCharacters(creation)}
-                                                            className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
+                                                            className="bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70 text-white gap-2 mt-2"
                                                         >
                                                             <Sparkles size={14} />
                                                             {t('analyzeCharacters')}
@@ -2671,19 +2663,19 @@ export default function DynamicComicEditor() {
                                                 if (isAnalyzing || (isGenerating && hasNoScenes)) {
                                                     return (
                                                         <div className={cn(
-                                                            "flex flex-col items-center justify-center gap-3 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4",
+                                                            "flex flex-col items-center justify-center gap-3 bg-[#ADD8E6]/30 rounded-lg border border-[#ADD8E6]/50 mb-4",
                                                             hasNoScenes ? "py-12" : "py-4"
                                                         )}>
-                                                            <div className={cn("bg-slate-800/50 rounded-full", hasNoScenes ? "p-4" : "p-2")}>
-                                                                <Loader2 size={hasNoScenes ? 32 : 16} className={cn("animate-spin", isAnalyzing ? "text-blue-500" : "text-orange-500")} />
+                                                            <div className={cn("bg-[#ADD8E6]/50 rounded-full", hasNoScenes ? "p-4" : "p-2")}>
+                                                                <Loader2 size={hasNoScenes ? 32 : 16} className={cn("animate-spin", isAnalyzing ? "text-[#22C55E]" : "text-[#22C55E]")} />
                                                             </div>
                                                             <div className="text-center space-y-1">
-                                                                <p className={cn("text-slate-300 font-medium", hasNoScenes ? "text-base" : "text-sm")}>
+                                                                <p className={cn("text-gray-700 font-medium", hasNoScenes ? "text-base" : "text-sm")}>
                                                                     {isAnalyzing ? t('analyzingScenes') : t('generatingSceneImages') || '场景图生成中...'}
                                                                     {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout') || '超时'})`}
                                                                 </p>
                                                                 {hasNoScenes && (
-                                                                    <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
+                                                                    <p className="text-gray-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -2692,11 +2684,11 @@ export default function DynamicComicEditor() {
 
                                                 if (isGenerating && !hasNoScenes) {
                                                     return (
-                                                        <div className="flex items-center justify-center gap-3 py-4 bg-slate-800/30 rounded-lg border border-slate-700/50 mb-4">
-                                                            <div className="p-2 bg-slate-800/50 rounded-full">
-                                                                <Loader2 size={16} className="text-orange-500 animate-spin" />
+                                                        <div className="flex items-center justify-center gap-3 py-4 bg-[#ADD8E6]/30 rounded-lg border border-[#ADD8E6]/50 mb-4">
+                                                            <div className="p-2 bg-[#ADD8E6]/50 rounded-full">
+                                                                <Loader2 size={16} className="text-[#22C55E] animate-spin" />
                                                             </div>
-                                                            <p className="text-slate-300 text-sm font-medium">{t('generatingSceneImages') || '场景图生成中...'}</p>
+                                                            <p className="text-gray-700 text-sm font-medium">{t('generatingSceneImages') || '场景图生成中...'}</p>
                                                         </div>
                                                     );
                                                 }
@@ -2706,18 +2698,18 @@ export default function DynamicComicEditor() {
                                             {/* Empty State / Parse Button */}
                                             {(!creation?.scenes || creation.scenes.length === 0) && !isAnalyzingScenes && (creation && getStepStatus(creation, 'sceneAnalysis').status !== 'processing') && (
                                                 <div className="flex flex-col items-center justify-center py-12 gap-4">
-                                                    <div className="p-4 bg-slate-800/50 rounded-full">
-                                                        <LucideMap size={32} className="text-slate-600" />
+                                                    <div className="p-4 bg-[#ADD8E6]/50 rounded-full">
+                                                        <LucideMap size={32} className="text-[#22C55E]" />
                                                     </div>
                                                     <div className="text-center space-y-1">
-                                                        <p className="text-slate-400 font-medium">{t('noSceneData')}</p>
-                                                        <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
+                                                        <p className="text-gray-700 font-medium">{t('noSceneData')}</p>
+                                                        <p className="text-gray-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
                                                     </div>
                                                     <Button
                                                         size="sm"
                                                         onClick={handleAnalyzeScenes}
                                                         disabled={isAnalyzingScenes}
-                                                        className="bg-blue-600 hover:bg-blue-500 text-white gap-2 mt-2"
+                                                        className="bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70 text-white gap-2 mt-2"
                                                     >
                                                         {isAnalyzingScenes ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
                                                         {isAnalyzingScenes ? t('analyzingScenes') : t('analyzeScenes')}
@@ -2731,20 +2723,20 @@ export default function DynamicComicEditor() {
                                                     {/* Generate All Scenes Button */}
                                                     <div className="mb-4 flex gap-2">
                                                         <Button
-                                                            onClick={handleGenerateSceneImages}
-                                                            disabled={isGeneratingSceneImages || (creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing')}
-                                                            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white text-xs h-8 shadow-lg shadow-blue-500/20"
-                                                            size="sm"
-                                                        >
-                                                            <WandSparkles className="w-3 h-3 mr-2" />
-                                                            {isGeneratingSceneImages ? t('generating') : t('generateAllSceneImages')}
-                                                        </Button>
+                                                        onClick={handleGenerateSceneImages}
+                                                        disabled={isGeneratingSceneImages || (creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing')}
+                                                        className="flex-1 bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70 text-white text-xs h-8 shadow-lg shadow-[#22C55E]/20"
+                                                        size="sm"
+                                                    >
+                                                        <WandSparkles className="w-3 h-3 mr-2" />
+                                                        {isGeneratingSceneImages ? t('generating') : t('generateAllSceneImages')}
+                                                    </Button>
                                                         {/* Re-analyze Button: With text and smaller than Generate All */}
                                                         <Button
                                                             size="sm"
                                                             variant="outline"
                                                             disabled={isGeneratingSceneImages || isAnalyzingScenes || (creation && getStepStatus(creation, 'sceneAnalysis').status === 'processing')}
-                                                            className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
+                                                            className="border-[#ADD8E6] hover:bg-[#ADD8E6]/30 text-gray-700 h-8 px-3 text-xs gap-1.5"
                                                             onClick={() => {
                                                                 setConfirmDialog({
                                                                     open: true,
@@ -2765,20 +2757,20 @@ export default function DynamicComicEditor() {
                                                             key={scene.uuid || scene.scene_id}
                                                             onClick={() => setEditingScene(scene)}
                                                         >
-                                                            <div className="group flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative">
+                                                            <div className="group flex items-center gap-3 p-2 rounded-lg hover:bg-[#ADD8E6]/30 cursor-pointer transition-colors border border-transparent hover:border-[#ADD8E6] relative claymorphism-sm">
                                                                 <div className={cn(
-                                                                    "rounded bg-slate-700 overflow-hidden shrink-0 relative",
+                                                                    "rounded bg-[#FDBCB4]/30 overflow-hidden shrink-0 relative",
                                                                     "w-16 h-9"
                                                                 )}>
                                                                     {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating' ? (
-                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
-                                                                            <Loader2 className="w-3.5 h-3.5 text-orange-500 animate-spin mb-0.5" />
-                                                                            <span className="text-[8px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
+                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-[#22C55E]/30 backdrop-blur-[1px]">
+                                                                            <Loader2 className="w-3.5 h-3.5 text-[#22C55E] animate-spin mb-0.5" />
+                                                                            <span className="text-[8px] text-[#22C55E] font-medium scale-90">{tC('generating')}</span>
                                                                         </div>
                                                                     ) : scene.image_url ? (
                                                                         <img src={scene.image_url} alt={scene.title} className="w-full h-full object-cover" />
                                                                     ) : (
-                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-800 text-slate-600">
+                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-[#FDBCB4]/30 text-gray-500">
                                                                             <LucideMap size={16} className="opacity-50 mb-0.5" />
                                                                             <span className="text-[8px] opacity-50 scale-90">
                                                                                 {(creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
@@ -2788,22 +2780,22 @@ export default function DynamicComicEditor() {
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
                                                                     <div className="flex items-center gap-2">
-                                                                        <div className="text-sm font-medium text-slate-200 truncate">{t('sceneIndex', { index: idx + 1 })}: {scene.location}</div>
+                                                                        <div className="text-sm font-medium text-gray-700 truncate">{t('sceneIndex', { index: idx + 1 })}: {scene.location}</div>
                                                                         {regeneratingScenes.has(scene.uuid || String(scene.scene_id)) && (
-                                                                            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
+                                                                            <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-[#22C55E]/30 text-[#22C55E] shrink-0 font-normal">
                                                                                 {tC('generating')}
                                                                             </Badge>
                                                                         )}
                                                                     </div>
-                                                                    <div className="text-xs text-slate-500 truncate">{scene.atmosphere} | {scene.time_setting}</div>
+                                                                    <div className="text-xs text-gray-600 truncate">{scene.atmosphere} | {scene.time_setting}</div>
                                                                 </div>
 
                                                                 {/* Hover Actions */}
-                                                                <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/80 p-1 rounded-md backdrop-blur-sm">
+                                                                <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-[#22C55E]/80 p-1 rounded-md backdrop-blur-sm">
                                                                     <Button
                                                                         variant="ghost"
                                                                         size="icon"
-                                                                        className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
+                                                                        className="h-6 w-6 text-white hover:text-white hover:bg-white/20 rounded-full"
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             handleRegenerateSceneImage(scene.uuid || String(scene.scene_id));
@@ -2907,15 +2899,14 @@ export default function DynamicComicEditor() {
                                                 <div className="space-y-4">
                                                     {/* Actions Toolbar */}
                                                     <div className="flex gap-2 mb-4">
-                                                        <Button
+                                                        <button
                                                             onClick={handleGenerateShotImages}
                                                             disabled={isGeneratingShotImages || creation?.extra_data?.steps?.shotImageGeneration?.status === 'processing'}
-                                                            className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-xs h-8 shadow-lg shadow-purple-500/20"
-                                                            size="sm"
+                                                            className="flex-1 h-10 px-4 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.15),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                                                         >
-                                                            <WandSparkles className="w-3 h-3 mr-2" />
-                                                            {isGeneratingShotImages ? t('generating') : t('generateAllShotImages')}
-                                                        </Button>
+                                                            <WandSparkles size={14} />
+                                                            <span>{isGeneratingShotImages ? t('generating') : t('generateAllShotImages')}</span>
+                                                        </button>
                                                         {/* <Button
                                                         onClick={handleGenerateAllVideos}
                                                         disabled={isGeneratingAllVideos}
@@ -2942,22 +2933,19 @@ export default function DynamicComicEditor() {
                                                             const allVideosReady = totalShots > 0 && shotsWithVideo === totalShots;
 
                                                             return allVideosReady && (
-                                                                <Button
+                                                                <button
                                                                     onClick={handleImportAllToTimeline}
-                                                                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-xs h-8 shadow-lg shadow-green-500/20"
-                                                                    size="sm"
+                                                                    className="flex-1 h-10 px-4 rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.15),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                                                                 >
-                                                                    <FolderOpen className="w-3 h-3 mr-2" />
-                                                                    {t('importAllToTimeline')}
-                                                                </Button>
+                                                                    <FolderOpen size={14} />
+                                                                    <span>{t('importAllToTimeline')}</span>
+                                                                </button>
                                                             );
                                                         })()}
                                                         {/* Re-analyze Button: With text and smaller than Generate All */}
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
+                                                        <button
                                                             disabled={isAnalyzingShots}
-                                                            className="border-slate-700 hover:bg-slate-800 text-slate-300 h-8 px-3 text-xs gap-1.5"
+                                                            className="h-10 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                                                             onClick={() => {
                                                                 // 检查状态（包含超时逻辑）
                                                                 const stepStatus = getStepStatus(creation, 'shotAnalysis');
@@ -2978,9 +2966,9 @@ export default function DynamicComicEditor() {
                                                                 });
                                                             }}
                                                         >
-                                                            {isAnalyzingShots ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles size={14} />}
-                                                            {t('reanalyzeShots')}
-                                                        </Button>
+                                                            {isAnalyzingShots ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                                                            <span>{t('reanalyzeShots')}</span>
+                                                        </button>
                                                     </div>
 
                                                     {/* Video Generation Progress Bar */}
@@ -3032,7 +3020,7 @@ export default function DynamicComicEditor() {
                                                                 .map((shot: any, shotIdx: number) => (
                                                                     <div
                                                                         key={shot.uuid || shotIdx}
-                                                                        className="group flex gap-3 p-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors border border-transparent hover:border-slate-700 relative bg-slate-900/20"
+                                                                        className="group flex gap-3 p-3 rounded-xl hover:bg-blue-50 cursor-pointer transition-all border border-blue-100 hover:border-blue-200 relative bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_18px_rgba(0,0,0,0.12),-6px_-6px_18px_rgba(255,255,255,0.9)] hover:-translate-y-0.5"
                                                                         draggable={!!(shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0))}
                                                                         onDragStart={(e) => {
                                                                             const hasContent = shot.video_url || shot.audio_url || (shot.narration && shot.narration.length > 0);
@@ -3053,29 +3041,29 @@ export default function DynamicComicEditor() {
                                                                         <div className="flex items-center gap-1 shrink-0">
                                                                             {/* Start Frame Thumbnail */}
                                                                             <div className={cn(
-                                                                                "rounded bg-slate-800 overflow-hidden relative border border-slate-800",
+                                                                                "rounded-lg bg-white overflow-hidden relative border border-blue-100 shadow-[2px_2px_8px_rgba(0,0,0,0.08),-2px_-2px_8px_rgba(255,255,255,0.9)]",
                                                                                 aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-10"
                                                                             )}>
                                                                                 {regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating' ? (
-                                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
-                                                                                        <Loader2 className="w-3 h-3 text-orange-500 animate-spin mb-0.5" />
-                                                                                        <span className="text-[7px] text-orange-500 font-medium scale-90">{tC('generating')}</span>
+                                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-[2px]">
+                                                                                        <Loader2 className="w-3 h-3 text-green-500 animate-spin mb-0.5" />
+                                                                                        <span className="text-[7px] text-green-600 font-medium scale-90">{tC('generating')}</span>
                                                                                     </div>
                                                                                 ) : shot.image_url ? (
                                                                                     <>
                                                                                         <img src={shot.image_url} alt={`Shot ${shot.shot_number}`} className="w-full h-full object-cover" />
                                                                                         {/* Video Generating Overlay Badge */}
                                                                                         {isVideoGenerating(shot) && (
-                                                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-[2px]">
+                                                                                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-[2px]">
                                                                                                 <div className="flex flex-col items-center">
-                                                                                                    <Loader2 className="w-3 h-3 text-purple-400 animate-spin mb-0.5" />
-                                                                                                    <span className="text-[6px] text-purple-400 font-medium">生成中</span>
+                                                                                                    <Loader2 className="w-3 h-3 text-green-500 animate-spin mb-0.5" />
+                                                                                                    <span className="text-[6px] text-green-600 font-medium">生成中</span>
                                                                                                 </div>
                                                                                             </div>
                                                                                         )}
                                                                                     </>
                                                                                 ) : (
-                                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
+                                                                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-white to-blue-50 text-gray-500">
                                                                                         <ImageIcon size={12} className="opacity-50 mb-0.5" />
                                                                                         <span className="text-[6px] opacity-50 scale-90">首帧</span>
                                                                                     </div>
@@ -3087,7 +3075,7 @@ export default function DynamicComicEditor() {
 
                                                                             {/* End Frame Thumbnail */}
                                                                             <div className={cn(
-                                                                                "rounded bg-slate-800 overflow-hidden relative border border-slate-800",
+                                                                                "rounded-lg bg-white overflow-hidden relative border border-blue-100 shadow-[2px_2px_8px_rgba(0,0,0,0.08),-2px_-2px_8px_rgba(255,255,255,0.9)]",
                                                                                 aspectRatio === "9:16" ? "w-10 h-16" : "w-16 h-10"
                                                                             )}>
                                                                                 {(() => {
@@ -3096,9 +3084,9 @@ export default function DynamicComicEditor() {
 
                                                                                     if (isEndFrameGenerating) {
                                                                                         return (
-                                                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-[1px]">
-                                                                                                <Loader2 className="w-3 h-3 text-cyan-500 animate-spin mb-0.5" />
-                                                                                                <span className="text-[7px] text-cyan-500 font-medium scale-90">{tC('generating')}</span>
+                                                                                            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-[2px]">
+                                                                                                <Loader2 className="w-3 h-3 text-green-500 animate-spin mb-0.5" />
+                                                                                                <span className="text-[7px] text-green-600 font-medium scale-90">{tC('generating')}</span>
                                                                                             </div>
                                                                                         );
                                                                                     }
@@ -3114,7 +3102,7 @@ export default function DynamicComicEditor() {
                                                                                     }
 
                                                                                     return (
-                                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-600">
+                                                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-white to-blue-50 text-gray-500">
                                                                                             <ImageIcon size={12} className="opacity-50 mb-0.5" />
                                                                                             <span className="text-[6px] opacity-50 scale-90">尾帧</span>
                                                                                         </div>
@@ -3125,61 +3113,60 @@ export default function DynamicComicEditor() {
 
                                                                         {/* Content */}
                                                                         <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <span className="text-[10px] font-bold text-slate-500">#{shot.shot_number}</span>
-                                                                                <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 bg-slate-800 text-slate-400 shrink-0 font-normal">
+                                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                                <span className="text-[10px] font-bold text-gray-700">#{shot.shot_number}</span>
+                                                                                <span className="text-[9px] px-1.5 py-0.5 h-4 bg-blue-100 text-blue-800 shrink-0 font-normal rounded-full">
                                                                                     {shot._sceneTitle}
-                                                                                </Badge>
+                                                                                </span>
                                                                                 {shot.video_duration && (
-                                                                                    <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-slate-600 text-slate-500 shrink-0 font-normal">
+                                                                                    <span className="text-[9px] px-1.5 py-0.5 h-4 bg-green-100 text-green-800 shrink-0 font-normal rounded-full">
                                                                                         {shot.video_duration}s
-                                                                                    </Badge>
+                                                                                    </span>
                                                                                 )}
                                                                                 {(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') && (
-                                                                                    <Badge variant="outline" className="text-[9px] px-1 py-0 h-3.5 border-orange-500/30 text-orange-400/70 shrink-0 font-normal">
+                                                                                    <span className="text-[9px] px-1.5 py-0.5 h-4 bg-orange-100 text-orange-800 shrink-0 font-normal rounded-full flex items-center gap-1">
+                                                                                        <Loader2 className="w-2 h-2 animate-spin" />
                                                                                         {tC('generating')}
-                                                                                    </Badge>
+                                                                                    </span>
                                                                                 )}
                                                                                 {/* Video Status Badge */}
                                                                                 {shot.video_url && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-blue-600 text-white shrink-0 font-normal">
-                                                                                        <Film className="w-2 h-2 mr-0.5" />
+                                                                                    <span className="text-[9px] px-1.5 py-0.5 h-4 bg-blue-100 text-blue-800 shrink-0 font-normal rounded-full flex items-center gap-1">
+                                                                                        <Film className="w-2 h-2" />
                                                                                         视频
-                                                                                    </Badge>
+                                                                                    </span>
                                                                                 )}
                                                                                 {/* Audio Status Badge */}
                                                                                 {shot.audio_url && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-emerald-600 text-white shrink-0 font-normal">
-                                                                                        <Music className="w-2 h-2 mr-0.5" />
+                                                                                    <span className="text-[9px] px-1.5 py-0.5 h-4 bg-green-100 text-green-800 shrink-0 font-normal rounded-full flex items-center gap-1">
+                                                                                        <Music className="w-2 h-2" />
                                                                                         音频
-                                                                                    </Badge>
+                                                                                    </span>
                                                                                 )}
                                                                                 {/* Subtitle Status Badge */}
                                                                                 {shot.narration && shot.narration.length > 0 && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-amber-600 text-white shrink-0 font-normal">
-                                                                                        <Type className="w-2 h-2 mr-0.5" />
+                                                                                    <span className="text-[9px] px-1.5 py-0.5 h-4 bg-amber-100 text-amber-800 shrink-0 font-normal rounded-full flex items-center gap-1">
+                                                                                        <Type className="w-2 h-2" />
                                                                                         字幕
-                                                                                    </Badge>
+                                                                                    </span>
                                                                                 )}
                                                                                 {/* Video Generating Badge */}
                                                                                 {getVideoGenerationStatus(shot) === 'generating' && (
-                                                                                    <Badge className="text-[9px] px-1 py-0 h-3.5 bg-purple-500 text-white animate-pulse shrink-0 font-normal">
-                                                                                        <Loader2 className="w-2 h-2 mr-0.5 animate-spin" />
+                                                                                    <span className="text-[9px] px-1.5 py-0.5 h-4 bg-green-100 text-green-800 animate-pulse shrink-0 font-normal rounded-full flex items-center gap-1">
+                                                                                        <Loader2 className="w-2 h-2 animate-spin" />
                                                                                         生成中
-                                                                                    </Badge>
+                                                                                    </span>
                                                                                 )}
                                                                             </div>
-                                                                            <div className="text-xs text-slate-300 leading-relaxed max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+                                                                            <div className="text-xs text-gray-700 leading-relaxed max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-blue">
                                                                                 {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"]) || t('noDescription')}
                                                                             </div>
                                                                         </div>
 
                                                                         {/* Hover Actions */}
-                                                                        <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-slate-800/90 p-1 rounded-md backdrop-blur-sm shadow-xl border border-slate-700/50">
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-orange-400/80 hover:text-orange-400 hover:bg-slate-700/50 rounded-full"
+                                                                        <div className="hidden group-hover:flex absolute right-2 top-1/2 -translate-y-1/2 gap-1 bg-gradient-to-br from-white to-blue-50 p-1 rounded-xl shadow-[8px_8px_24px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.9)] border border-blue-100 backdrop-blur-sm">
+                                                                            <button
+                                                                                className="h-6 w-6 text-orange-500 hover:text-orange-600 hover:bg-orange-100 rounded-full flex items-center justify-center transition-all duration-200"
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
                                                                                     handleRegenerateShotImage(shot.uuid || String(shot.shot_id), undefined, 'both');
@@ -3188,11 +3175,9 @@ export default function DynamicComicEditor() {
                                                                                 title={t('regenerate')}
                                                                             >
                                                                                 <RotateCcw size={12} className={(regeneratingShots.has(shot.uuid || String(shot.shot_id)) || shot.status === 'generating') ? "animate-spin" : ""} />
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-blue-400/80 hover:text-blue-400 hover:bg-slate-700/50 rounded-full"
+                                                                            </button>
+                                                                            <button
+                                                                                className="h-6 w-6 text-blue-500 hover:text-blue-600 hover:bg-blue-100 rounded-full flex items-center justify-center transition-all duration-200"
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
                                                                                     setEditingShot(shot);
@@ -3200,11 +3185,9 @@ export default function DynamicComicEditor() {
                                                                                 title={t('edit')}
                                                                             >
                                                                                 <Edit2 size={12} />
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-purple-400/80 hover:text-purple-400 hover:bg-slate-700/50 rounded-full"
+                                                                            </button>
+                                                                            <button
+                                                                                className="h-6 w-6 text-green-500 hover:text-green-600 hover:bg-green-100 rounded-full flex items-center justify-center transition-all duration-200"
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
                                                                                     handleGenerateShotVideo(shot);
@@ -3217,11 +3200,9 @@ export default function DynamicComicEditor() {
                                                                                 ) : (
                                                                                     <Film size={12} />
                                                                                 )}
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-green-400/80 hover:text-green-400 hover:bg-slate-700/50 rounded-full"
+                                                                            </button>
+                                                                            <button
+                                                                                className="h-6 w-6 text-green-500 hover:text-green-600 hover:bg-green-100 rounded-full flex items-center justify-center transition-all duration-200"
                                                                                 onClick={(e) => {
                                                                                     e.stopPropagation();
                                                                                     handleAddShotToTracks(shot);
@@ -3230,11 +3211,9 @@ export default function DynamicComicEditor() {
                                                                                 title={t('addToTracks')}
                                                                             >
                                                                                 <Plus size={12} />
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="icon"
-                                                                                className="h-6 w-6 text-green-500/80 hover:text-green-500 hover:bg-slate-700/50 rounded-full"
+                                                                            </button>
+                                                                            <button
+                                                                                className="h-6 w-6 text-purple-500 hover:text-purple-600 hover:bg-purple-100 rounded-full flex items-center justify-center transition-all duration-200"
                                                                                 onClick={async (e) => {
                                                                                     e.stopPropagation();
                                                                                     if (!shot.video_url && !shot.audio_url) {
@@ -3249,7 +3228,7 @@ export default function DynamicComicEditor() {
                                                                                 title={t('oneClickDownload')}
                                                                             >
                                                                                 <FolderDown size={12} />
-                                                                            </Button>
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 ));
@@ -3369,7 +3348,7 @@ export default function DynamicComicEditor() {
 
                 {/* Usage Guide Dialog */}
                 <Dialog open={showUsageGuide} onOpenChange={setShowUsageGuide}>
-                    <DialogContent className="sm:max-w-[600px]">
+                    <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 rounded-2xl">
                         <DialogHeader>
                             <DialogTitle className="flex items-center gap-2 text-lg">
                                 <HelpCircle className="h-5 w-5 text-blue-500" />
@@ -3436,16 +3415,17 @@ export default function DynamicComicEditor() {
                             </div>
                         </div>
                         <div className="flex justify-end">
-                            <Button onClick={() => setShowUsageGuide(false)}>
-                                {tC('ok')}
-                            </Button>
+                            <button onClick={() => setShowUsageGuide(false)} className="h-10 px-4 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2">
+                                <Save size={14} />
+                                <span className="text-sm">{tC('ok')}</span>
+                            </button>
                         </div>
                     </DialogContent>
                 </Dialog>
 
                 {/* Model Settings Dialog */}
                 <Dialog open={showModelSettings} onOpenChange={setShowModelSettings}>
-                    <DialogContent className="sm:max-w-[500px] bg-slate-900 border-slate-800 text-white">
+                    <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 rounded-2xl">
                         <DialogHeader>
                             <DialogTitle className="flex items-center gap-2 text-xl font-bold">
                                 <Settings className="h-5 w-5 text-blue-400" />
@@ -3464,10 +3444,10 @@ export default function DynamicComicEditor() {
                                     {t('aspectRatio') || '生成比例'}
                                 </Label>
                                 <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
-                                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700">
                                         <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-slate-900 border-slate-800 text-white">
+                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         <SelectItem value="16:9">{t('landscape') || '横版 (16:9)'}</SelectItem>
                                         <SelectItem value="9:16">{t('portrait') || '竖版 (9:16)'}</SelectItem>
                                     </SelectContent>
@@ -3481,15 +3461,14 @@ export default function DynamicComicEditor() {
                                     {t('videoModel') || '视频生成模型'}
                                 </Label>
                                 <Select value={videoModel} onValueChange={(val) => handleModelChange('video', val)}>
-                                    <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700 hover:bg-blue-50">
                                         <SelectValue placeholder="选择视频模型" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         {videoModels.map((model: any) => (
                                             <SelectItem
                                                 key={model.model_name}
                                                 value={model.model_name}
-                                                className="focus:bg-slate-700 focus:text-white"
                                             >
                                                 <div className="flex flex-col gap-0.5">
                                                     <span className="font-medium">{model.display_name}</span>
@@ -3510,15 +3489,14 @@ export default function DynamicComicEditor() {
                                     {t('textToImageModel') || '文生图模型'}
                                 </Label>
                                 <Select value={textToImageModel} onValueChange={(val) => handleModelChange('text_to_image', val)}>
-                                    <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700 hover:bg-blue-50">
                                         <SelectValue placeholder="选择文生图模型" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         {textToImageModels.map((model: any) => (
                                             <SelectItem
                                                 key={model.model_name}
                                                 value={model.model_name}
-                                                className="focus:bg-slate-700 focus:text-white"
                                             >
                                                 <div className="flex flex-col gap-0.5">
                                                     <span className="font-medium">{model.display_name}</span>
@@ -3539,15 +3517,14 @@ export default function DynamicComicEditor() {
                                     {t('imageToImageModel') || '图生图模型'}
                                 </Label>
                                 <Select value={imageToImageModel} onValueChange={(val) => handleModelChange('image_to_image', val)}>
-                                    <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white hover:bg-slate-750">
+                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700 hover:bg-blue-50">
                                         <SelectValue placeholder="选择图生图模型" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         {imageToImageModels.map((model: any) => (
                                             <SelectItem
                                                 key={model.model_name}
                                                 value={model.model_name}
-                                                className="focus:bg-slate-700 focus:text-white"
                                             >
                                                 <div className="flex flex-col gap-0.5">
                                                     <span className="font-medium">{model.display_name}</span>
@@ -3563,9 +3540,10 @@ export default function DynamicComicEditor() {
                         </div>
 
                         <div className="flex justify-end">
-                            <Button onClick={() => setShowModelSettings(false)} className="bg-blue-600 hover:bg-blue-500 text-white">
-                                {tC('ok')}
-                            </Button>
+                            <button onClick={() => setShowModelSettings(false)} className="h-10 px-4 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2">
+                                <Save size={14} />
+                                <span className="text-sm">{tC('ok')}</span>
+                            </button>
                         </div>
                     </DialogContent>
                 </Dialog>

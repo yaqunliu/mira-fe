@@ -235,16 +235,39 @@ export default function ScriptDetailPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-black">
+            <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80">
                 <div className="container mx-auto px-4 py-8 lg:px-8">
                     <div className="max-w-5xl mx-auto">
-                        <div className="animate-pulse space-y-4">
-                            <div className="h-10 bg-zinc-900 rounded-lg w-1/3"></div>
-                            <div className="h-48 bg-zinc-900 rounded-xl border border-blue-900/20"></div>
-                            <div className="space-y-2">
-                                <div className="h-16 bg-zinc-900 rounded-xl border border-blue-900/10"></div>
-                                <div className="h-16 bg-zinc-900 rounded-xl border border-blue-900/10"></div>
-                                <div className="h-16 bg-zinc-900 rounded-xl border border-blue-900/10"></div>
+                        <div className="animate-pulse space-y-6">
+                            {/* 返回按钮骨架屏 */}
+                            <div className="h-10 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-xl w-24 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+                            
+                            {/* 主卡片骨架屏 */}
+                            <div className="h-48 bg-white rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] p-6">
+                                <div className="flex items-center gap-4">
+                                    {/* 图标骨架屏 */}
+                                    <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#ADD8E6] to-[#FDBCB4] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+                                    
+                                    {/* 标题和信息骨架屏 */}
+                                    <div className="flex-1 space-y-3">
+                                        <div className="h-10 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-lg w-3/4 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+                                        <div className="flex flex-wrap gap-2">
+                                            <div className="h-6 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-full px-3 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+                                            <div className="h-6 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-full px-3 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+                                            <div className="h-6 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-full px-3 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* 章节列表标题骨架屏 */}
+                            <div className="h-10 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-lg w-1/3 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"></div>
+                            
+                            {/* 章节项骨架屏 */}
+                            <div className="space-y-4">
+                                <div className="h-20 bg-white rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] p-4"></div>
+                                <div className="h-20 bg-white rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] p-4"></div>
+                                <div className="h-20 bg-white rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] p-4"></div>
                             </div>
                         </div>
                     </div>
@@ -255,12 +278,12 @@ export default function ScriptDetailPage() {
 
     if (error || !script) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-black text-blue-50">
-                <div className="w-20 h-20 rounded-full bg-blue-900/20 flex items-center justify-center mb-6 border border-blue-800/50">
-                    <FileText className="h-10 w-10 text-blue-400" />
+            <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 flex items-center justify-center mb-6 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                    <FileText className="h-10 w-10 text-[#ADD8E6]" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3 text-blue-100">文案未找到</h2>
-                <Button onClick={() => router.push(`/${locale}/scripts`)} variant="outline" className="mt-2 border-blue-800 text-blue-400 hover:bg-blue-950 hover:text-blue-300">
+                <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">文案未找到</h2>
+                <Button onClick={() => router.push(`/${locale}/scripts`)} variant="outline" className="mt-2 border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                     返回列表
                 </Button>
             </div>
@@ -278,12 +301,12 @@ export default function ScriptDetailPage() {
 
         return (
             <div className="space-y-6 animate-in fade-in duration-500">
-                <div className="flex items-center justify-between border-b border-blue-900/30 pb-6">
+                <div className="flex items-center justify-between border-b border-gray-200/30 pb-6">
                     <div className="space-y-1">
-                        <h2 className="text-2xl font-bold tracking-tight text-blue-50">
+                        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
                             {script.type === 'novel' ? '章节列表' : '文案列表'}
                         </h2>
-                        <p className="text-sm text-blue-400/60">
+                        <p className="text-sm text-gray-600">
                             {script.type === 'novel' 
                                 ? `管理您的小说章节，共 ${itemsTotal} 章`
                                 : `管理您的分镜脚本和文案内容，共 ${itemsTotal} 篇`
@@ -293,7 +316,7 @@ export default function ScriptDetailPage() {
                     {script.type === 'script' && (
                         <Button 
                             onClick={() => setIsAddingItem(true)} 
-                            className="rounded-full px-6 bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] transition-all hover:scale-105 border border-blue-400/20"
+                            className="rounded-full px-6 bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(253,188,180,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all hover:scale-105"
                         >
                             <Plus className="h-4 w-4 mr-2" /> 
                             新增文案
@@ -302,20 +325,20 @@ export default function ScriptDetailPage() {
                 </div>
 
                 {isAddingItem && (
-                    <div className="relative overflow-hidden rounded-xl border border-blue-500/30 bg-zinc-900/80 backdrop-blur-xl shadow-2xl shadow-blue-900/20 animate-in slide-in-from-top-4 duration-300">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent pointer-events-none" />
+                    <div className="relative overflow-hidden rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-gradient-to-br from-white to-gray-50/80 animate-in slide-in-from-top-4 duration-300">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#ADD8E6]/10 via-transparent to-transparent pointer-events-none" />
                         <div className="p-6 space-y-6 relative">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-blue-200">标题</label>
+                                <label className="text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">标题</label>
                                 <Input
                                     placeholder="给文案起个好听的名字"
                                     value={newItemTitle}
                                     onChange={(e) => setNewItemTitle(e.target.value)}
-                                    className="bg-black/50 border-blue-900/50 focus:border-blue-500 focus:bg-black transition-all text-blue-50 placeholder:text-blue-900/50"
+                                    className="bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-blue-200">内容</label>
+                                <label className="text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">内容</label>
                                 <div className="relative">
                                     <Textarea
                                         placeholder="在此输入文案内容..."
@@ -326,19 +349,19 @@ export default function ScriptDetailPage() {
                                             }
                                         }}
                                         maxLength={3000}
-                                        className="min-h-[200px] bg-black/50 border-blue-900/50 focus:border-blue-500 focus:bg-black transition-all resize-y leading-relaxed pb-8 text-blue-50 placeholder:text-blue-900/50"
+                                        className="min-h-[200px] bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] transition-all resize-y leading-relaxed pb-8"
                                     />
-                                    <div className="absolute bottom-2 right-3 text-xs text-blue-500/60">
+                                    <div className="absolute bottom-2 right-3 text-xs text-[#ADD8E6]">
                                         {newItemContent.length}/3000
                                     </div>
                                 </div>
                             </div>
                             <div className="flex justify-end gap-3 pt-2">
-                                <Button variant="ghost" onClick={() => setIsAddingItem(false)} className="hover:bg-blue-900/20 text-blue-400 hover:text-blue-300">取消</Button>
+                                <Button variant="ghost" onClick={() => setIsAddingItem(false)} className="hover:bg-[#ADD8E6]/10 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">取消</Button>
                                 <Button
                                     onClick={handleAddItem}
                                     disabled={!newItemTitle.trim() || !newItemContent.trim() || createItemMutation.isPending}
-                                    className="min-w-[100px] bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="min-w-[100px] bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {createItemMutation.isPending ? <LoadingIcon /> : "确认添加"}
                                 </Button>
@@ -348,12 +371,12 @@ export default function ScriptDetailPage() {
                 )}
 
                 {!finalItems?.length ? (
-                    <div className="flex flex-col items-center justify-center py-24 text-center rounded-xl border border-dashed border-blue-900/30 bg-blue-950/5">
-                        <div className="w-16 h-16 rounded-full bg-blue-900/20 flex items-center justify-center mb-4 border border-blue-800/30">
-                            <BookOpen className="h-8 w-8 text-blue-400" />
+                    <div className="flex flex-col items-center justify-center py-24 text-center rounded-2xl border border-dashed border-[#ADD8E6]/30 bg-gradient-to-br from-[#ADD8E6]/10 to-[#FDBCB4]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#FDBCB4]/20 flex items-center justify-center mb-4 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                            <BookOpen className="h-8 w-8 text-[#ADD8E6]" />
                         </div>
-                        <h3 className="text-lg font-medium text-blue-100 mb-2">暂无文案</h3>
-                        <p className="text-sm text-blue-400/60 max-w-xs mx-auto">
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">暂无文案</h3>
+                        <p className="text-sm text-gray-600 max-w-xs mx-auto">
                             {script.type === 'script' 
                                 ? '点击右上角的"新增文案"按钮，开始创作您的第一个文案。'
                                 : '该小说暂无章节。'}
@@ -368,7 +391,7 @@ export default function ScriptDetailPage() {
                             return (
                                 <div
                                     key={itemUuid}
-                                    className="group relative flex flex-col sm:flex-row gap-4 p-4 rounded-xl border border-blue-900/20 bg-zinc-900/40 hover:bg-blue-950/20 hover:border-blue-500/30 hover:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all duration-300"
+                                    className="group relative flex flex-col sm:flex-row gap-4 p-4 rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-gradient-to-br from-white to-gray-50/80 hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-300"
                                 >
                                     <div className="flex-1 space-y-2 min-w-0">
                                         {isEditing ? (
@@ -376,35 +399,35 @@ export default function ScriptDetailPage() {
                                                 <Input
                                                     value={itemTitleValue}
                                                     onChange={(e) => setItemTitleValue(e.target.value)}
-                                                    className="h-9 font-medium bg-black/50 border-blue-500/50 text-blue-50"
+                                                    className="h-9 font-medium bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                                                     autoFocus
                                                     onKeyDown={(e) => e.key === "Enter" && handleSaveItemTitle(itemUuid)}
                                                 />
-                                                <Button size="icon" variant="ghost" onClick={() => handleSaveItemTitle(itemUuid)} className="h-9 w-9 text-green-500 hover:text-green-400 hover:bg-green-950/30 rounded-full">
+                                                <Button size="icon" variant="ghost" onClick={() => handleSaveItemTitle(itemUuid)} className="h-9 w-9 text-[#22C55E] hover:text-[#22C55E] hover:bg-[#22C55E]/10 rounded-full shadow-[4px_4px_8px_rgba(34,197,94,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                                     <Check className="h-4 w-4" />
                                                 </Button>
-                                                <Button size="icon" variant="ghost" onClick={() => setEditingItemId(null)} className="h-9 w-9 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded-full">
+                                                <Button size="icon" variant="ghost" onClick={() => setEditingItemId(null)} className="h-9 w-9 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                                     <X className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         ) : (
                                             <div className="flex items-center gap-3 group/title">
-                                                <div className="flex items-center justify-center w-6 h-6 rounded bg-blue-900/30 text-blue-400 font-mono text-xs border border-blue-800/30">
+                                                <div className="flex items-center justify-center w-6 h-6 rounded bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 font-mono text-xs shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] text-gray-700">
                                                     {index + 1}
                                                 </div>
-                                                <h4 className="text-base font-semibold text-blue-50 truncate cursor-pointer hover:text-blue-400 transition-colors" onClick={() => handleStartEditItemTitle(item)}>
+                                                <h4 className="text-base font-semibold text-gray-900 truncate cursor-pointer hover:text-[#ADD8E6] transition-colors" onClick={() => handleStartEditItemTitle(item)}>
                                                     {item.title}
                                                 </h4>
                                                 <Button
                                                     size="icon"
                                                     variant="ghost"
-                                                    className="h-6 w-6 opacity-0 group-hover/title:opacity-100 transition-all -ml-1 text-zinc-500 hover:text-blue-400"
+                                                    className="h-6 w-6 opacity-0 group-hover/title:opacity-100 transition-all -ml-1 text-gray-500 hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                                                     onClick={() => handleStartEditItemTitle(item)}
                                                 >
                                                     <Pencil className="h-3 w-3" />
                                                 </Button>
                                                 {item.has_creation && (
-                                                    <span className="flex items-center gap-1.5 text-white bg-blue-600 px-2 py-0.5 rounded text-[10px] font-bold shadow-[0_0_8px_rgba(37,99,235,0.6)] animate-pulse">
+                                                    <span className="flex items-center gap-1.5 text-white bg-gradient-to-r from-[#22C55E] to-[#16A34A] px-2 py-0.5 rounded text-[10px] font-bold shadow-[4px_4px_8px_rgba(34,197,94,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] animate-pulse">
                                                         <Check className="h-3 w-3" />
                                                         已有创作
                                                     </span>
@@ -414,20 +437,20 @@ export default function ScriptDetailPage() {
                                         
                                         {item.preview && (
                                             <div className="pl-9">
-                                                <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed font-light">
+                                                <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed font-light">
                                                     {item.preview.length > 50 ? item.preview.slice(0, 50) + "…" : item.preview}
                                                 </p>
                                             </div>
                                         )}
                                         
-                                        <div className="flex items-center gap-6 text-xs text-blue-900/60 pl-9 pt-1">
-                                            <span className="flex items-center gap-1.5 text-zinc-600 hover:text-zinc-400 transition-colors">
-                                                <Calendar className="h-3 w-3" />
+                                        <div className="flex items-center gap-6 text-xs pl-9 pt-1">
+                                            <span className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-lg shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] text-gray-700">
+                                                <Calendar className="h-3.5 w-3.5 text-[#ADD8E6]" />
                                                 {formatDate(item.created_at)}
                                             </span>
                                             {item.word_count > 0 && (
-                                                <span className="flex items-center gap-1.5 text-zinc-600 hover:text-zinc-400 transition-colors">
-                                                    <FileText className="h-3 w-3" />
+                                                <span className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-lg shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] text-gray-700">
+                                                    <FileText className="h-3.5 w-3.5 text-[#ADD8E6]" />
                                                     {item.word_count} 字
                                                 </span>
                                             )}
@@ -437,7 +460,7 @@ export default function ScriptDetailPage() {
                                     <div className="flex items-center gap-2 sm:self-center sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 sm:translate-x-4 sm:group-hover:translate-x-0">
                                         <Button 
                                             size="sm" 
-                                            className="h-8 px-4 rounded-full font-medium shadow-sm hover:shadow-md bg-blue-900/20 text-blue-400 hover:bg-blue-600 hover:text-white border border-blue-800/30 hover:border-blue-500 transition-all" 
+                                            className="h-8 px-4 rounded-full font-medium shadow-sm hover:shadow-md bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white hover:from-[#ADD8E6] hover:to-[#ADD8E6] transition-all shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]" 
                                             onClick={() => handleCreateVideo(itemUuid)}
                                         >
                                             去创作
@@ -445,7 +468,7 @@ export default function ScriptDetailPage() {
                                         <Button
                                             size="icon"
                                             variant="ghost"
-                                            className="h-8 w-8 text-zinc-600 hover:text-red-400 hover:bg-red-950/20 rounded-full transition-colors"
+                                            className="h-8 w-8 text-gray-500 hover:text-[#FDBCB4] hover:bg-[#FDBCB4]/10 rounded-full transition-colors shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                                             onClick={() => handleDeleteItem(itemUuid, item.title)}
                                             disabled={deletingItemId === itemUuid}
                                         >
@@ -462,22 +485,22 @@ export default function ScriptDetailPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-blue-50 transition-colors duration-300">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30 transition-colors duration-300">
             <div className="container mx-auto px-4 py-8 lg:px-8">
                 <div className="max-w-5xl mx-auto space-y-10">
                     {/* Header Navigation */}
                     <div className="flex items-center justify-between">
-                        <Button variant="ghost" size="sm" onClick={() => router.push(`/${locale}/scripts`)} className="hover:bg-blue-900/20 -ml-2 text-blue-400 hover:text-blue-300">
+                        <Button variant="ghost" size="sm" onClick={() => router.push(`/${locale}/scripts`)} className="hover:bg-[#ADD8E6]/10 -ml-2 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-white rounded-xl">
                             <ChevronLeft className="h-4 w-4 mr-1" />返回列表
                         </Button>
                     </div>
 
                     {/* Script Info Card */}
-                    <Card className="overflow-hidden border border-blue-900/20 shadow-xl shadow-blue-900/5 bg-zinc-900/40 backdrop-blur-md">
-                        <CardHeader className="p-6 md:p-8">
+                    <div className="overflow-hidden rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-gradient-to-br from-white to-gray-50/80">
+                        <div className="p-6 md:p-8">
                             <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
-                                <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-blue-900/20 to-indigo-900/20 border border-blue-800/30 flex items-center justify-center flex-shrink-0 shadow-inner">
-                                    <FileText className="h-10 w-10 md:h-12 md:w-12 text-blue-400" />
+                                <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl bg-gradient-to-br from-[#ADD8E6] to-[#FDBCB4] flex items-center justify-center flex-shrink-0 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                                    <FileText className="h-10 w-10 md:h-12 md:w-12 text-white" />
                                 </div>
                                 
                                 <div className="flex-1 space-y-4 w-full">
@@ -486,46 +509,46 @@ export default function ScriptDetailPage() {
                                             <Input
                                                 value={scriptTitleValue}
                                                 onChange={(e) => setScriptTitleValue(e.target.value)}
-                                                className="text-2xl font-bold h-12 bg-black/50 border-blue-900/50 text-blue-50"
+                                                className="text-2xl font-bold h-12 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                                                 autoFocus
                                                 onKeyDown={(e) => e.key === "Enter" && handleSaveScriptTitle()}
                                             />
-                                            <Button size="icon" onClick={handleSaveScriptTitle} className="h-10 w-10 bg-blue-600 hover:bg-blue-500 text-white">
+                                            <Button size="icon" onClick={handleSaveScriptTitle} className="h-10 w-10 bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                                 <Check className="h-4 w-4" />
                                             </Button>
-                                            <Button size="icon" variant="ghost" onClick={() => setEditingScriptTitle(false)} className="h-10 w-10 text-zinc-500 hover:text-zinc-300">
+                                            <Button size="icon" variant="ghost" onClick={() => setEditingScriptTitle(false)} className="h-10 w-10 text-gray-500 hover:text-gray-700 hover:bg-gray-100 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                                 <X className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     ) : (
                                         <div className="flex items-center gap-3 group">
-                                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-blue-50">
+                                            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
                                                 {script.title}
                                             </h1>
-                                            <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity rounded-full hover:bg-blue-900/20" onClick={handleStartEditScriptTitle}>
-                                                <Pencil className="h-4 w-4 text-blue-400" />
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity rounded-full hover:bg-[#ADD8E6]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]" onClick={handleStartEditScriptTitle}>
+                                                <Pencil className="h-4 w-4 text-[#ADD8E6]" />
                                             </Button>
                                         </div>
                                     )}
 
-                                    <div className="flex flex-wrap gap-4 md:gap-6 text-sm text-blue-200/60">
-                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/20 border border-blue-800/20">
-                                            <User className="h-3.5 w-3.5 text-blue-400" />
-                                            <span>{script.author || '未知作者'}</span>
+                                    <div className="flex flex-wrap gap-4 md:gap-6 text-sm">
+                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                                            <User className="h-3.5 w-3.5 text-[#ADD8E6]" />
+                                            <span className="text-gray-700">{script.author || '未知作者'}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/20 border border-blue-800/20">
-                                            <Calendar className="h-3.5 w-3.5 text-blue-400" />
-                                            <span>{formatDate(script.created_at)}</span>
+                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                                            <Calendar className="h-3.5 w-3.5 text-[#ADD8E6]" />
+                                            <span className="text-gray-700">{formatDate(script.created_at)}</span>
                                         </div>
-                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/20 border border-blue-800/20">
-                                            <BookOpen className="h-3.5 w-3.5 text-blue-400" />
-                                            <span>{itemsTotal} 条文案</span>
+                                        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                                            <BookOpen className="h-3.5 w-3.5 text-[#ADD8E6]" />
+                                            <span className="text-gray-700">{itemsTotal} 条文案</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </CardHeader>
-                    </Card>
+                        </div>
+                    </div>
 
                     {/* Content List */}
                     <div className="space-y-4">
@@ -534,13 +557,13 @@ export default function ScriptDetailPage() {
                         {/* Pagination */}
                         {itemsTotalPages > 1 && (
                             <div className="flex items-center justify-center gap-4 py-4">
-                                <Button variant="outline" size="sm" onClick={() => setItemPage(p => Math.max(1, p - 1))} disabled={itemPage <= 1} className="border-blue-900/30 text-blue-400 hover:bg-blue-900/20 hover:text-blue-300 disabled:opacity-50">
+                                <Button variant="outline" size="sm" onClick={() => setItemPage(p => Math.max(1, p - 1))} disabled={itemPage <= 1} className="border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] disabled:opacity-50 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                     <ChevronLeft className="h-4 w-4 mr-1" /> 上一页
                                 </Button>
-                                <span className="text-sm font-medium text-blue-300 bg-blue-900/20 px-3 py-1 rounded-md border border-blue-800/20">
+                                <span className="text-sm font-medium bg-gradient-to-r from-[#ADD8E6]/20 to-[#FDBCB4]/20 px-3 py-1 rounded-md shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-clip-text text-transparent">
                                     {itemPage} / {itemsTotalPages}
                                 </span>
-                                <Button variant="outline" size="sm" onClick={() => setItemPage(p => Math.min(itemsTotalPages, p + 1))} disabled={itemPage >= itemsTotalPages} className="border-blue-900/30 text-blue-400 hover:bg-blue-900/20 hover:text-blue-300 disabled:opacity-50">
+                                <Button variant="outline" size="sm" onClick={() => setItemPage(p => Math.min(itemsTotalPages, p + 1))} disabled={itemPage >= itemsTotalPages} className="border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] disabled:opacity-50 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                     下一页 <ChevronLeft className="h-4 w-4 ml-1 rotate-180" />
                                 </Button>
                             </div>

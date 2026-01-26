@@ -63,24 +63,24 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
                           subscription.payment_method === 'wechat'
 
   return (
-    <Card className="border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-800/70 shadow-xl">
+    <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-amber-400" />
+            <CardTitle className="text-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-[#FDBCB4]" />
               {product?.name || t('subscriptions.unknownProduct', { default: '未知产品' })}
               {getStatusBadge(subscription.status, t)}
             </CardTitle>
-            <div className="mt-2 flex items-center gap-4 text-sm text-slate-300">
+            <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
-                <Coins className="h-4 w-4 text-amber-400" />
+                <Coins className="h-4 w-4 text-[#FDBCB4]" />
                 <span>
                   {subscription.points_per_period.toLocaleString()} {t('subscriptions.pointsPerPeriod', { default: '积分/周期' })}
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <Repeat className="h-4 w-4 text-blue-400" />
+                <Repeat className="h-4 w-4 text-[#ADD8E6]" />
                 <span>
                   {subscription.billing_period === 'every-year'
                     ? t('subscriptions.billingYear', { default: '年付' })
@@ -90,7 +90,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-lg font-semibold text-white">
+                <span className="text-lg font-semibold text-gray-800">
                   {formatPrice(product?.price || 0, product?.currency || 'USD')}
                 </span>
               </div>
@@ -99,12 +99,12 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-lg bg-white/5 p-3 border border-white/10">
-          <div className="flex items-center gap-2 text-sm text-slate-300 mb-2">
-            <Calendar className="h-4 w-4 text-blue-400" />
+        <div className="rounded-lg bg-gray-50 p-3 border border-gray-200">
+          <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
+            <Calendar className="h-4 w-4 text-[#ADD8E6]" />
             <span className="font-semibold">{t('subscriptions.currentPeriod', { default: '订阅周期' })}</span>
           </div>
-          <div className="text-xs text-slate-400 space-y-1">
+          <div className="text-xs text-gray-500 space-y-1">
             <div>
               {t('subscriptions.periodStart', { default: '开始' })}:{' '}
               {formatDate(subscription.current_period_start)}
@@ -115,9 +115,9 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
             </div>
             {/* 微信订阅永远不显示下次扣款时间（next_billing_date永远为null） */}
             {!isManualRenewal && (
-              <div className="flex items-center gap-2 text-sm text-slate-300 pt-1">
-                <AlertCircle className="h-4 w-4 text-amber-400" />
-                <span className="text-xs text-slate-400">
+              <div className="flex items-center gap-2 text-sm text-gray-600 pt-1">
+                <AlertCircle className="h-4 w-4 text-[#FDBCB4]" />
+                <span className="text-xs text-gray-500">
                   {t('subscriptions.nextBilling', { default: '下次扣款' })}:{' '}
                   {subscription.status === 'active' 
                     ? (subscription.next_billing_date ? formatDate(subscription.next_billing_date) : t('subscriptions.noBillingDate', { default: '-' }))
@@ -126,9 +126,9 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
               </div>
             )}
             {isManualRenewal && (
-              <div className="flex items-center gap-2 text-sm text-blue-300 pt-1">
+              <div className="flex items-center gap-2 text-sm text-blue-600 pt-1">
                 <AlertCircle className="h-4 w-4 text-blue-400" />
-                <span className="text-xs text-blue-300">
+                <span className="text-xs text-blue-600">
                   {t('subscriptions.manualRenewal', { default: '手动续费' })} - {t('subscriptions.noBillingDate', { default: '-' })}
                 </span>
               </div>
@@ -136,15 +136,15 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
           </div>
         </div>
         {subscription.cancel_at_period_end && (
-          <div className="flex items-start gap-2 text-sm text-amber-300 bg-amber-500/10 border border-amber-200/30 dark:border-amber-500/30 rounded-lg p-2">
-            <AlertCircle className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2 text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2">
+            <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <span>
               {t('subscriptions.cancelAtPeriodEnd', { default: '已设置到期取消，本周期结束后不再自动扣费' })}
             </span>
           </div>
         )}
         {isCancelled && subscription.cancelled_at && (
-          <div className="flex items-center gap-2 text-sm text-red-400">
+          <div className="flex items-center gap-2 text-sm text-red-600">
             <XCircle className="h-4 w-4" />
             <span>
               {t('subscriptions.cancelledAt', { default: '已取消于' })}:{' '}
@@ -155,7 +155,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
         {/* 微信订阅不显示取消按钮（因为没有自动续费，不需要取消） */}
         {isManualRenewal && (
           <div className="space-y-2">
-            <div className="flex items-start gap-2 text-sm text-blue-300 bg-blue-500/10 border border-blue-200/30 dark:border-blue-500/30 rounded-lg p-2">
+            <div className="flex items-start gap-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-2">
               <AlertCircle className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
               <span>
                 {t('subscriptions.manualRenewalDesc', { default: '本订阅为手动续费，到期后需要手动购买续费' })}
@@ -167,7 +167,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
         {!isManualRenewal && isActive && !subscription.cancel_at_period_end && (
           <Button
             variant="outline"
-            className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+            className="w-full border-red-500/50 text-red-600 hover:bg-red-50 hover:text-red-700"
             onClick={() => onCancel(subscription.uuid)}
           >
             {t('subscriptions.cancelSubscription', { default: '取消订阅' })}
@@ -211,12 +211,12 @@ export default function SubscriptionsPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80">
         <div className="mx-auto w-full max-w-4xl px-4 py-8">
-          <Card className="border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-800/70">
+          <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
             <CardContent className="p-8 text-center">
-              <ShieldCheck className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-              <p className="text-slate-300">{t('subscriptions.loginRequired', { default: '请先登录以查看您的订阅' })}</p>
+              <ShieldCheck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">{t('subscriptions.loginRequired', { default: '请先登录以查看您的订阅' })}</p>
             </CardContent>
           </Card>
         </div>
@@ -225,17 +225,17 @@ export default function SubscriptionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80">
       <div className="mx-auto w-full max-w-4xl px-4 py-8">
         <div className="mb-8">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs text-amber-300 border border-white/10 mb-4">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#FDBCB4]/20 px-3 py-1 text-xs text-[#F9A899] border border-[#FDBCB4]/30 mb-4">
             <Repeat className="h-4 w-4" />
             {t('subscriptions.title', { default: '我的订阅' })}
           </div>
-          <h1 className="text-3xl font-bold leading-tight md:text-4xl">
+          <h1 className="text-3xl font-bold leading-tight md:text-4xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
             {t('subscriptions.headline', { default: '订阅管理' })}
           </h1>
-          <p className="mt-2 text-slate-300">
+          <p className="mt-2 text-gray-600">
             {t('subscriptions.subtitle', { default: '查看和管理您的订阅服务' })}
           </p>
         </div>
@@ -243,24 +243,26 @@ export default function SubscriptionsPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-64 w-full rounded-2xl bg-white/5" />
+              <div key={i} className="h-64 w-full rounded-2xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                <div className="h-full w-full animate-pulse rounded-2xl bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20" />
+              </div>
             ))}
           </div>
         ) : error ? (
-          <Card className="border border-red-500/50 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-800/70">
+          <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
             <CardContent className="p-8 text-center">
-              <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-              <p className="text-red-400">{t('subscriptions.loadError', { default: '加载订阅失败' })}</p>
+              <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <p className="text-red-600">{t('subscriptions.loadError', { default: '加载订阅失败' })}</p>
             </CardContent>
           </Card>
         ) : !subscriptions || subscriptions.items.length === 0 ? (
-          <Card className="border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-800/70">
+          <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
             <CardContent className="p-8 text-center">
-              <Sparkles className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-              <p className="text-slate-300 mb-4">{t('subscriptions.noSubscriptions', { default: '您还没有任何订阅' })}</p>
+              <Sparkles className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-4">{t('subscriptions.noSubscriptions', { default: '您还没有任何订阅' })}</p>
               <Button
                 onClick={() => (window.location.href = `/${locale}/pricing`)}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                className="bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white"
               >
                 {t('subscriptions.browsePlans', { default: '浏览套餐' })}
               </Button>

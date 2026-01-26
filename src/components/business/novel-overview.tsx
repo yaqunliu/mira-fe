@@ -123,7 +123,7 @@ export function NovelOverview() {
               className="group cursor-pointer"
             >
               {/* 书籍封面 */}
-              <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
+              <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-[4px_4px_8px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-6px_-6px_12px_rgba(255,255,255,0.8)] transition-all duration-300 transform group-hover:scale-105 hover:-translate-y-0.5">
                 {/* 封面背景 */}
                 <div
                   className="absolute inset-0"
@@ -179,12 +179,12 @@ export function NovelOverview() {
         {/* 查看更多卡片 */}
         {novels.length > 0 && (
           <div onClick={handleViewMore} className="group cursor-pointer">
-            <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 border-2 border-dashed border-slate-300 dark:border-zinc-600 bg-zinc-50/50 dark:bg-zinc-700/50 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transform group-hover:scale-105">
+            <div className="relative aspect-[3/4] rounded-md overflow-hidden shadow-[4px_4px_8px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-6px_-6px_12px_rgba(255,255,255,0.8)] transition-all duration-300 border-2 border-dashed border-[#ADD8E6]/50 bg-[#ADD8E6]/10 hover:border-[#ADD8E6]/70 hover:bg-[#ADD8E6]/20 transform group-hover:scale-105 hover:-translate-y-0.5">
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <ChevronRight className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
+                <div className="w-8 h-8 rounded-full bg-[#ADD8E6]/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <ChevronRight className="w-4 h-4 text-[#22C55E]" />
                 </div>
-                <span className="text-xs font-medium text-slate-600 dark:text-slate-400 text-center px-2">
+                <span className="text-xs font-medium text-[#22C55E] text-center px-2">
                   {t("home.viewMore")}
                 </span>
               </div>

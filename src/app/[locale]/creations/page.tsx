@@ -50,13 +50,13 @@ function CreationCard({
 
   return (
     <div className="relative rounded-2xl">
-      {/* 卡片内容 - 现代化设计 */}
+      {/* 卡片内容 - Claymorphism 设计 */}
       <div
         className={cn(
           "cursor-pointer group transition-all relative rounded-2xl overflow-hidden",
-          "bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-900/80",
-          "border-2 border-gray-200/50 dark:border-gray-700/50",
-          "hover:border-purple-400/50 hover:shadow-2xl hover:shadow-purple-500/20 hover:scale-[1.02]",
+          "bg-gradient-to-br from-white to-gray-50/80",
+          "shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]",
+          "hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:scale-[1.02]",
           "transition-transform duration-200"
         )}
         onClick={onClick}
@@ -98,14 +98,14 @@ function CreationCard({
         </div>
 
         {/* 信息区域 */}
-        <div className="p-4 bg-gradient-to-b from-transparent to-white/50 dark:to-gray-800/50">
+        <div className="p-4 bg-gradient-to-b from-transparent to-white/50">
           <div className="flex items-start justify-between gap-3">
             <div className="space-y-2 flex-1 min-w-0">
-              <h3 className="text-base line-clamp-1 font-bold text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+              <h3 className="text-base line-clamp-1 font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent group-hover:text-[#ADD8E6] transition-colors">
                 {creation.title}
               </h3>
-              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                <Film className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-2 text-xs bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-lg shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-clip-text text-transparent">
+                <Film className="w-3.5 h-3.5 text-[#ADD8E6]" />
                 <span>{new Date(creation.created_at).toLocaleDateString()}</span>
               </div>
             </div>
@@ -120,7 +120,7 @@ function CreationCard({
       <button
         onClick={handleDeleteClick}
         disabled={isDeleting}
-        className="absolute top-3 right-3 z-10 p-2 rounded-lg bg-red-500/90 hover:bg-red-600 text-white shadow-lg backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="absolute top-3 right-3 z-10 p-2 rounded-lg bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         aria-label={t("creation.delete")}
       >
         <Trash2 className="w-4 h-4" />
@@ -195,24 +195,19 @@ export default function CreationsPage() {
   const totalPages = Math.ceil(total / pageSize);
 
   const getStatusBadge = (status: CreationStatus) => {
-    const statusInfo = CreationStatusMap[status] || { label: t("common.unknown"), color: "bg-gray-500" };
-
-    let displayLabel = statusInfo.label;
-    let bgColor = statusInfo.color;
+    let displayLabel = t("common.inProgress");
+    let bgGradient = "bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80";
 
     if (status === CreationStatus.COMPLETED) {
       displayLabel = t("common.completed");
-      bgColor = "bg-green-600";
+      bgGradient = "bg-gradient-to-r from-[#22C55E] to-[#16A34A]";
     } else if (status === CreationStatus.FAILED) {
       displayLabel = t("common.failed");
-      bgColor = "bg-red-500";
-    } else {
-      displayLabel = t("common.inProgress");
-      bgColor = "bg-blue-500";
+      bgGradient = "bg-gradient-to-r from-[#FDBCB4] to-[#F9A899]";
     }
 
     return (
-      <Badge className={cn("text-xs text-white", bgColor)}>
+      <Badge className={cn("text-xs text-white", bgGradient, "shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]")}>
         {displayLabel}
       </Badge>
     );
@@ -229,23 +224,23 @@ export default function CreationsPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-b from-purple-50/50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+    <div className="h-screen flex flex-col bg-gradient-to-b from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white">
       {/* 页头 - 现代化设计 */}
       <div className="relative overflow-hidden">
         {/* 装饰性背景 */}
-        <div className="absolute -top-10 -left-10 w-40 h-40 bg-purple-400/10 dark:bg-purple-400/5 rounded-full blur-3xl" />
-        <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-400/10 dark:bg-blue-400/5 rounded-full blur-3xl" />
+        <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#FDBCB4]/20 rounded-full blur-3xl" />
+        <div className="absolute -top-10 -right-10 w-40 h-40 bg-[#ADD8E6]/20 rounded-full blur-3xl" />
 
         <div className="relative z-10 container mx-auto px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-purple-500" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-[#22C55E]" />
               {t("creation.creationList")}
             </h1>
           </div>
         </div>
       </div>
-      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-purple-200 dark:via-purple-800/30 to-transparent mb-6" />
+      <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[#ADD8E6]/30 to-transparent mb-6" />
 
       {/* 内容区域 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
@@ -253,17 +248,17 @@ export default function CreationsPage() {
           {/* 搜索和新建 - 现代化设计 */}
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400 dark:text-purple-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ADD8E6]" />
               <Input
                 placeholder={t("creation.searchCreation")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-11 h-12 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
+                className="pl-11 h-12 rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-0.5 transition-all duration-200"
               />
             </div>
             <Link href={`/${locale}/create-dynamic-comic`}>
               <Button
-                className="h-12 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105"
+                className="h-12 px-6 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(253,188,180,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 {t("creation.createCreation")}
@@ -277,13 +272,13 @@ export default function CreationsPage() {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="rounded-2xl aspect-video w-full bg-gradient-to-br from-gray-200 to-gray-100 dark:from-gray-800 dark:to-gray-900 animate-pulse overflow-hidden"
+                  className="rounded-2xl aspect-video w-full bg-gradient-to-br from-white to-gray-50/80 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] animate-pulse overflow-hidden"
                   style={{ animationDelay: `${i * 100}ms` }}
                 >
-                  <div className="w-full h-2/3 bg-gradient-to-br from-purple-200/30 to-blue-200/30 dark:from-purple-900/20 dark:to-blue-900/20" />
+                  <div className="w-full h-2/3 bg-gradient-to-br from-[#ADD8E6]/20 to-[#FDBCB4]/20" />
                   <div className="p-4 space-y-2">
-                    <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-3/4" />
-                    <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2" />
+                    <div className="h-4 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 rounded w-3/4 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]" />
+                    <div className="h-3 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 rounded w-1/2 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]" />
                   </div>
                 </div>
               ))}

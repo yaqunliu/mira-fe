@@ -53,40 +53,40 @@ export default function CreateScriptPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-purple-50/50 via-white to-pink-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 p-6">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50/50 via-white to-gray-100/30 p-6">
             <div className="max-w-2xl mx-auto space-y-8">
-                <Button variant="ghost" size="sm" onClick={() => router.back()}>
+                <Button variant="ghost" size="sm" onClick={() => router.back()} className="hover:bg-[#ADD8E6]/10 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-white rounded-xl">
                     <ChevronLeft className="h-4 w-4 mr-1" />返回
                 </Button>
 
                 <div className="space-y-2">
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">
                         {t("createVideo.createProject")}
                     </h1>
-                    <p className="text-muted-foreground">{t("home.manageYourNovels")}</p>
+                    <p className="text-gray-600">{t("home.manageYourNovels")}</p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6 bg-card p-6 rounded-2xl border-2 border-border shadow-xl">
+                <form onSubmit={handleSubmit} className="space-y-6 p-6 rounded-2xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-gradient-to-br from-white to-gray-50/80">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="title">标题 <span className="text-red-500">*</span></Label>
+                            <Label htmlFor="title" className="text-gray-700">标题 <span className="text-[#FDBCB4]">*</span></Label>
                             <Input
                                 id="title"
                                 placeholder="例如：都市职场系列文案"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                className="h-12 text-lg"
+                                className="h-12 text-lg bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                                 autoFocus
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="author">作者</Label>
+                            <Label htmlFor="author" className="text-gray-700">作者</Label>
                             <Input
                                 id="author"
                                 placeholder="输入作者名称（可选）"
                                 value={author}
                                 onChange={(e) => setAuthor(e.target.value)}
-                                className="h-12"
+                                className="h-12 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                             />
                         </div>
                     </div>
@@ -95,7 +95,7 @@ export default function CreateScriptPage() {
                         <Button
                             type="submit"
                             disabled={createMutation.isPending || !title.trim()}
-                            className="w-full h-12 text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 transition-all duration-200"
+                            className="w-full h-12 text-lg font-bold bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] transition-all duration-200"
                         >
                             {createMutation.isPending ? <><LoadingIcon className="mr-2" /> 创建中...</> : <><Check className="mr-2" /> 确认创建</>}
                         </Button>

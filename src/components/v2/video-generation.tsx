@@ -498,19 +498,22 @@ export function VideoGeneration() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">视频生成</h2>
-          <p className="text-muted-foreground">选择配音并生成最终视频</p>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">视频生成</h2>
+          <p className="text-gray-600">选择配音并生成最终视频</p>
         </div>
       </div>
 
       {!hasGenerated && !isGenerating ? (
-        <Card>
+        <Card className="border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300 rounded-2xl">
           <CardHeader>
-            <CardTitle>选择配音</CardTitle>
-            <CardDescription>为您的视频选择一个合适的旁白配音</CardDescription>
+            <CardTitle className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
+              <Mic className="w-5 h-5 text-[#ADD8E6]" />
+              选择配音
+            </CardTitle>
+            <CardDescription className="text-gray-600">为您的视频选择一个合适的旁白配音</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="h-[400px] overflow-y-auto border rounded-md p-4">
+            <div className="h-[400px] overflow-y-auto border border-blue-100 rounded-xl p-4 bg-gradient-to-br from-white to-blue-50/80 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.05),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]">
               <VoiceSelector
                 selectedVoiceId={selectedVoiceId}
                 onSelect={handleVoiceSelect}
@@ -522,7 +525,7 @@ export function VideoGeneration() {
                 size="lg" 
                 onClick={handleGenerate}
                 disabled={!selectedVoiceId}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
               >
                 <Video className="w-4 h-4 mr-2" />
                 开始生成视频
@@ -533,20 +536,20 @@ export function VideoGeneration() {
       ) : (
         <div className="space-y-6">
           {isGenerating && (
-            <Card>
+            <Card className="border-0 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300 rounded-2xl">
               <CardContent className="py-10">
                 <div className="max-w-md mx-auto space-y-6 text-center">
                   <div className="relative w-20 h-20 mx-auto">
-                    <Loader2 className="w-20 h-20 animate-spin text-primary opacity-20" />
+                    <Loader2 className="w-20 h-20 animate-spin text-[#ADD8E6] opacity-20" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-sm font-bold">{Math.round(progress)}%</span>
+                      <span className="text-sm font-bold text-gray-800">{Math.round(progress)}%</span>
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <h3 className="text-lg font-medium">{statusMessage}</h3>
-                    <Progress value={progress} className="h-2" />
-                    <p className="text-sm text-muted-foreground">
+                    <h3 className="text-lg font-medium text-gray-800">{statusMessage}</h3>
+                    <Progress value={progress} className="h-2 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-full" />
+                    <p className="text-sm text-gray-600">
                       正在处理视频生成任务，这可能需要几分钟时间...
                     </p>
                   </div>
@@ -556,14 +559,14 @@ export function VideoGeneration() {
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <div className="bg-gradient-to-br from-[#FDBCB4]/20 to-white border border-[#FDBCB4]/30 text-[#F9A899] px-4 py-3 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] relative" role="alert">
               <div className="flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
-                <span className="font-bold">生成失败</span>
+                <AlertCircle className="h-4 w-4 text-[#FDBCB4]" />
+                <span className="font-bold text-[#F9A899]">生成失败</span>
               </div>
-              <p className="mt-1 text-sm">{error}</p>
+              <p className="mt-1 text-sm text-gray-700">{error}</p>
               <div className="mt-2">
-                <Button variant="outline" size="sm" onClick={() => setIsGenerating(false)}>
+                <Button variant="outline" size="sm" onClick={() => setIsGenerating(false)} className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-xl">
                   返回重试
                 </Button>
               </div>
@@ -572,15 +575,15 @@ export function VideoGeneration() {
 
           {hasGenerated && !isGenerating && (
             <div className="space-y-6">
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative flex items-center justify-between">
+              <div className="bg-gradient-to-br from-[#22C55E]/20 to-white border border-[#22C55E]/30 text-[#22C55E] px-4 py-3 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] relative flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <span className="font-bold">生成完成</span>
-                  <span className="text-sm">您的视频已成功生成，您可以在下方预览和调整。</span>
+                  <CheckCircle2 className="h-4 w-4 text-[#22C55E]" />
+                  <span className="font-bold text-[#22C55E]">生成完成</span>
+                  <span className="text-sm text-gray-700">您的视频已成功生成，您可以在下方预览和调整。</span>
                 </div>
                 <Button 
-                  variant="link" 
-                  className="px-2 h-auto text-green-700 underline"
+                  variant="outline" 
+                  className="px-4 py-2 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
                   onClick={() => setIsGenerating(false)}
                 >
                   重新生成
@@ -589,7 +592,7 @@ export function VideoGeneration() {
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-medium">预览</h3>
+                  <h3 className="text-lg font-medium bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">预览</h3>
                   {videoUrl && (
                     <Button 
                       size="sm" 
@@ -598,13 +601,14 @@ export function VideoGeneration() {
                         toast.info("正在准备下载完整视频...");
                         await downloadFile(videoUrl, `creation_${creation.uuid}_final.mp4`);
                       }}
+                      className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
                     >
-                      <Download className="w-4 h-4 mr-2" />
+                      <Download className="w-4 h-4 mr-2 text-[#ADD8E6]" />
                       下载完整视频
                     </Button>
                   )}
                 </div>
-                <div className="aspect-video w-full bg-black rounded-lg overflow-hidden relative group">
+                <div className="aspect-video w-full bg-black rounded-xl overflow-hidden relative group shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                   {videoUrl ? (
                     <video
                       ref={videoRef}
@@ -616,7 +620,7 @@ export function VideoGeneration() {
                       onClick={() => isPlaying ? pauseTimeline() : playTimeline()}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
                       <p>视频生成中...</p>
                     </div>
                   )}
@@ -626,20 +630,20 @@ export function VideoGeneration() {
                       className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors cursor-pointer"
                       onClick={() => playTimeline()}
                     >
-                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform">
+                      <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:scale-110 transition-transform shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                          <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[20px] border-l-white border-b-[10px] border-b-transparent ml-1" />
                       </div>
                     </div>
                   )}
                 </div>
 
-                <div className="h-[300px] border rounded-lg overflow-hidden shadow-sm bg-background">
+                <div className="h-[300px] border border-blue-100 rounded-xl overflow-hidden shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] bg-gradient-to-br from-white to-blue-50">
                   <Timeline />
                 </div>
 
                 {/* Shot List for Individual Regeneration */}
-                <div className="border rounded-lg p-4 bg-muted/20">
-                  <h3 className="text-lg font-medium mb-4">分镜视频列表</h3>
+                <div className="border border-blue-100 rounded-xl p-4 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+                  <h3 className="text-lg font-medium mb-4 bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">分镜视频列表</h3>
                   <div className="space-y-4">
                     {/* Flatten and sort all shots by shot_number */}
                     {creation.scenes
@@ -652,8 +656,8 @@ export function VideoGeneration() {
                       )
                       .sort((a: FlattenedShot, b: FlattenedShot) => (a.shot_number || 0) - (b.shot_number || 0))
                       .map((shot: FlattenedShot) => (
-                        <div key={shot.shot_id} className="group relative flex gap-4 items-start border p-3 rounded bg-background hover:border-blue-500/50 transition-colors">
-                          <div className="w-40 aspect-video bg-black rounded relative overflow-hidden shrink-0">
+                        <div key={shot.shot_id} className="group relative flex gap-4 items-start border border-blue-100 p-3 rounded-xl bg-gradient-to-br from-white to-blue-50 hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300">
+                          <div className="w-40 aspect-video bg-black rounded-xl relative overflow-hidden shrink-0 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                             {shot.video_url ? (
                               <>
                                 <video
@@ -674,7 +678,7 @@ export function VideoGeneration() {
                                 </div>
                               </>
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground">
+                              <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
                                 无视频
                               </div>
                             )}
@@ -682,42 +686,42 @@ export function VideoGeneration() {
                           
                           <div className="flex-1 min-w-0 pr-32">
                             <div className="flex items-center gap-3 mb-2">
-                              <span className="text-sm font-medium text-muted-foreground shrink-0">#{shot.shot_number}</span>
+                              <span className="text-sm font-medium text-gray-600 shrink-0">#{shot.shot_number}</span>
                               <div className="flex items-center gap-2 overflow-hidden flex-wrap">
-                                <span className="text-sm font-medium truncate">{shot.sceneTitle || "场景"}</span>
-                                <Badge variant="secondary" className="bg-slate-100 text-slate-500 border-none h-5 px-1.5 text-[10px]">
+                                <span className="text-sm font-medium truncate text-gray-800">{shot.sceneTitle || "场景"}</span>
+                                <Badge variant="secondary" className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 text-gray-700 border-none h-5 px-1.5 text-[10px] shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                                   8s
                                 </Badge>
                                 <div className="flex items-center gap-1.5 shrink-0">
                                   {shot.video_url && (
-                                    <Badge variant="secondary" className="bg-blue-500 text-white border-none gap-1 h-5 px-2 text-[10px]">
-                                      <Video className="w-3 h-3" />
+                                    <Badge variant="secondary" className="bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/40 text-gray-700 border-none gap-1 h-5 px-2 text-[10px] shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
+                                      <Video className="w-3 h-3 text-[#ADD8E6]" />
                                       视频
                                     </Badge>
                                   )}
                                   {shot.audio_url && (
-                                    <Badge variant="secondary" className="bg-green-500 text-white border-none gap-1 h-5 px-2 text-[10px]">
-                                      <Mic className="w-3 h-3" />
+                                    <Badge variant="secondary" className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#FDBCB4]/40 text-gray-700 border-none gap-1 h-5 px-2 text-[10px] shadow-[2px_2px_4px_rgba(253,188,180,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
+                                      <Mic className="w-3 h-3 text-[#FDBCB4]" />
                                       音频
                                     </Badge>
                                   )}
-                                  <Badge variant="secondary" className="bg-orange-500 text-white border-none gap-1 h-5 px-2 text-[10px]">
-                                    <CheckCircle2 className="w-3 h-3" />
-                                    字幕
-                                  </Badge>
+                                  <Badge variant="secondary" className="bg-gradient-to-r from-[#22C55E]/20 to-[#22C55E]/40 text-gray-700 border-none gap-1 h-5 px-2 text-[10px] shadow-[2px_2px_4px_rgba(34,197,94,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
+                                      <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
+                                      字幕
+                                    </Badge>
                                 </div>
                               </div>
                             </div>
-                            <div className="text-sm text-muted-foreground leading-relaxed max-h-[80px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                            <div className="text-sm text-gray-700 leading-relaxed max-h-[80px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                               {shot.description || shot.image_prompt}
                             </div>
                           </div>
 
                           {/* 悬浮操作面板：强制显示 5 个按钮 */}
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center gap-1 bg-slate-900/90 backdrop-blur-md p-2 rounded-xl border border-white/20 shadow-2xl z-[100]">
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 flex items-center gap-1 bg-gradient-to-br from-white to-blue-50/80 backdrop-blur-sm p-2 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] z-[100]">
                             <button
                               type="button"
-                              className="h-8 w-8 flex items-center justify-center text-orange-400 hover:text-orange-300 hover:bg-white/10 rounded-full transition-colors"
+                              className="h-8 w-8 flex items-center justify-center text-[#FDBCB4] hover:text-[#F9A899] hover:bg-white/50 rounded-full transition-colors"
                               title="重新生成图片"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -728,7 +732,7 @@ export function VideoGeneration() {
                             </button>
                             <button
                               type="button"
-                              className="h-8 w-8 flex items-center justify-center text-blue-400 hover:text-blue-300 hover:bg-white/10 rounded-full transition-colors"
+                              className="h-8 w-8 flex items-center justify-center text-[#ADD8E6] hover:text-[#93C5FD] hover:bg-white/50 rounded-full transition-colors"
                               title="编辑"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -740,7 +744,7 @@ export function VideoGeneration() {
                             <button
                               type="button"
                               disabled={regeneratingShotVideos.has(shot.shot_id)}
-                              className="h-8 w-8 flex items-center justify-center text-purple-400 hover:text-purple-300 hover:bg-white/10 rounded-full transition-colors disabled:opacity-50"
+                              className="h-8 w-8 flex items-center justify-center text-[#22C55E] hover:text-[#16A34A] hover:bg-white/50 rounded-full transition-colors disabled:opacity-50"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleRegenerateShotVideo(shot);
@@ -751,7 +755,7 @@ export function VideoGeneration() {
                             </button>
                             <button
                               type="button"
-                              className="h-8 w-8 flex items-center justify-center text-green-500 hover:text-green-400 hover:bg-white/10 rounded-full transition-colors"
+                              className="h-8 w-8 flex items-center justify-center text-[#ADD8E6] hover:text-[#93C5FD] hover:bg-white/50 rounded-full transition-colors"
                               title="添加到轨道"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -762,7 +766,7 @@ export function VideoGeneration() {
                             </button>
                             <button
                               type="button"
-                              className="h-8 w-8 flex items-center justify-center text-green-500 hover:text-green-400 hover:bg-white/10 rounded-full transition-colors"
+                              className="h-8 w-8 flex items-center justify-center text-[#FDBCB4] hover:text-[#F9A899] hover:bg-white/50 rounded-full transition-colors"
                               title="一键下载"
                               onClick={async (e) => {
                                 e.stopPropagation();

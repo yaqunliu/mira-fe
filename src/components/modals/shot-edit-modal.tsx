@@ -309,45 +309,39 @@ export function ShotEditModal({
     return (
         <>
             <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-                <DialogContent className="bg-slate-900 border-slate-800 text-slate-200 sm:max-w-[1000px] max-h-[90vh] flex flex-col">
+                <DialogContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 sm:max-w-[1000px] max-h-[90vh] flex flex-col rounded-2xl">
                     <DialogHeader className="flex-shrink-0">
                         <DialogTitle className="flex items-center justify-between">
-                            <span>{shot.title || `Shot ${shot.shot_number}`}</span>
-                            <div className="flex items-center gap-2">
+                            <span className="text-xl font-semibold">{shot.title || `Shot ${shot.shot_number}`}</span>
+                            <div className="flex items-center gap-3">
                                 {/* Navigation Buttons */}
-                                <div className="flex items-center gap-1 border border-slate-700 rounded-lg px-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
+                                <div className="flex items-center gap-1 rounded-xl bg-gradient-to-br from-white to-blue-100 border border-blue-200 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.9)] px-2">
+                                    <button
                                         onClick={() => previousShot && onNavigate?.(previousShot)}
                                         disabled={!previousShot}
-                                        className="h-7 px-3 text-slate-400 hover:text-white disabled:opacity-30"
+                                        className={`h-8 px-4 rounded-lg flex items-center gap-2 transition-all duration-200 ${!previousShot ? 'opacity-60 cursor-not-allowed text-gray-500' : 'hover:bg-blue-100 hover:shadow-[2px_2px_8px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]'}`}
                                     >
-                                        <ChevronLeft size={14} className="mr-1" />
-                                        {t('previousShot')}
-                                    </Button>
-                                    <div className="h-4 w-px bg-slate-700" />
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
+                                        <ChevronLeft size={16} className="text-gray-700" />
+                                        <span className="text-sm font-medium text-gray-900">{t('previousShot')}</span>
+                                    </button>
+                                    <div className="h-4 w-px bg-blue-200" />
+                                    <button
                                         onClick={() => nextShot && onNavigate?.(nextShot)}
                                         disabled={!nextShot}
-                                        className="h-7 px-3 text-slate-400 hover:text-white disabled:opacity-30"
+                                        className={`h-8 px-4 rounded-lg flex items-center gap-2 transition-all duration-200 ${!nextShot ? 'opacity-60 cursor-not-allowed text-gray-500' : 'hover:bg-blue-100 hover:shadow-[2px_2px_8px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]'}`}
                                     >
-                                        {t('nextShot')}
-                                        <ChevronRight size={14} className="ml-1" />
-                                    </Button>
+                                        <span className="text-sm font-medium text-gray-900">{t('nextShot')}</span>
+                                        <ChevronRight size={16} className="text-gray-700" />
+                                    </button>
                                 </div>
                                 {!isEditing && (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
+                                    <button
                                         onClick={() => setIsEditing(true)}
-                                        className="h-8 text-slate-400 hover:text-white"
+                                        className="h-9 px-4 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2"
                                     >
-                                        <Edit2 size={14} className="mr-2" />
-                                        {t('editShot')}
-                                    </Button>
+                                        <Edit2 size={14} />
+                                        <span className="text-sm">{t('editShot')}</span>
+                                    </button>
                                 )}
                             </div>
                         </DialogTitle>
@@ -356,12 +350,12 @@ export function ShotEditModal({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-blue">
                         {/* Left Column: Media Area */}
                         <div className="space-y-6">
                             {/* Image Area */}
                             <div className={cn(
-                                "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
+                                "w-full rounded-xl bg-gradient-to-br from-white to-blue-50 overflow-hidden border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] relative group",
                                 "aspect-video"
                             )}>
                                 {shot.image_url ? (
@@ -372,18 +366,16 @@ export function ShotEditModal({
                                             className="w-full h-full object-contain cursor-pointer"
                                             onClick={() => setIsPreviewOpen(true)}
                                         />
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white rounded-full"
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+                                        <button
                                             onClick={() => setIsPreviewOpen(true)}
+                                            className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-full p-2 hover:scale-105 transition-all duration-200"
                                         >
-                                            <Maximize2 size={16} />
-                                        </Button>
+                                            <Maximize2 size={18} className="text-gray-700" />
+                                        </button>
                                     </>
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-500">
+                                    <div className="w-full h-full flex items-center justify-center text-gray-500">
                                         <ImageIcon size={32} className="opacity-50 mb-2" />
                                         <span className="text-xs">{t('noShotImage')}</span>
                                     </div>
@@ -391,30 +383,28 @@ export function ShotEditModal({
 
                                 {/* Generating Overlay */}
                                 {(regeneratingFrameType === 'start' || regeneratingFrameType === 'both') && (
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                                        <Loader2 className="w-8 h-8 text-orange-500 animate-spin mb-2" />
-                                        <span className="text-sm text-orange-400 font-medium">{tCommon('generating')}</span>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-[2px] rounded-xl">
+                                        <Loader2 className="w-8 h-8 text-green-500 animate-spin mb-2" />
+                                        <span className="text-sm text-green-600 font-medium">{tCommon('generating')}</span>
                                     </div>
                                 )}
 
                                 {/* Regenerate Button */}
-                                <Button
-                                    variant="secondary"
-                                    size="sm"
-                                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border border-white/10 backdrop-blur-md"
+                                <button
                                     onClick={handleRegenerate}
                                     disabled={regeneratingFrameType === 'start' || regeneratingFrameType === 'both'}
+                                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-xl px-3 py-1.5 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
                                 >
-                                    <RotateCcw size={14} className="mr-2" />
+                                    <RotateCcw size={14} />
                                     {t('regenerate')}
-                                </Button>
+                                </button>
                             </div>
 
                             {/* End Frame Image Area */}
-                            <div className="space-y-2">
-                                <Label className="text-xs text-slate-500">尾帧图片</Label>
+                            <div className="space-y-3">
+                                <Label className="text-sm font-medium text-gray-700">尾帧图片</Label>
                                 <div className={cn(
-                                    "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
+                                    "w-full rounded-xl bg-gradient-to-br from-white to-blue-50 overflow-hidden border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] relative group",
                                     "aspect-video"
                                 )}>
                                     {(shot.extra_data as any)?.end_frame_image_url ? (
@@ -425,18 +415,16 @@ export function ShotEditModal({
                                                 className="w-full h-full object-contain cursor-pointer"
                                                 onClick={() => setIsEndFramePreviewOpen(true)}
                                             />
-                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white rounded-full"
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+                                            <button
                                                 onClick={() => setIsEndFramePreviewOpen(true)}
+                                                className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-full p-2 hover:scale-105 transition-all duration-200"
                                             >
-                                                <Maximize2 size={16} />
-                                            </Button>
+                                                <Maximize2 size={18} className="text-gray-700" />
+                                            </button>
                                         </>
                                     ) : (
-                                        <div className="w-full h-full flex flex-col items-center justify-center text-slate-500">
+                                        <div className="w-full h-full flex items-center justify-center text-gray-500">
                                             <ImageIcon size={32} className="opacity-50 mb-2" />
                                             <span className="text-xs">暂无尾帧图片</span>
                                         </div>
@@ -444,42 +432,40 @@ export function ShotEditModal({
 
                                     {/* Generating Overlay */}
                                     {(regeneratingFrameType === 'end' || regeneratingFrameType === 'both') && (
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
-                                            <Loader2 className="w-8 h-8 text-cyan-500 animate-spin mb-2" />
-                                            <span className="text-sm text-cyan-400 font-medium">{tCommon('generating')}</span>
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-[2px] rounded-xl">
+                                            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
+                                            <span className="text-sm text-blue-600 font-medium">{tCommon('generating')}</span>
                                         </div>
                                     )}
 
                                     {/* Regenerate End Frame Button */}
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border border-white/10 backdrop-blur-md"
+                                    <button
                                         onClick={() => {
                                             const shotUuid = shot.uuid || String(shot.shot_id);
                                             onRegenerateImage(shotUuid, endFrameImagePrompt || undefined, 'end');
                                         }}
                                         disabled={regeneratingFrameType === 'end' || regeneratingFrameType === 'both'}
+                                        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-xl px-3 py-1.5 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
                                     >
-                                        <RotateCcw size={14} className="mr-2" />
+                                        <RotateCcw size={14} />
                                         {t('regenerate')}
-                                    </Button>
+                                    </button>
                                 </div>
                             </div>
 
                             {/* Video Preview Area */}
-                            <div className="space-y-2">
+                            <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-medium">{t('videoPreview')}</Label>
+                                    <Label className="text-sm font-medium text-gray-700">{t('videoPreview')}</Label>
                                     {(shot.extra_data as any)?.version_history?.length > 1 && (
                                         <Select
                                             value={selectedVersionId || undefined}
                                             onValueChange={setSelectedVersionId}
                                         >
-                                            <SelectTrigger className="h-7 w-[180px] text-xs bg-slate-800 border-slate-700">
+                                            <SelectTrigger className="h-8 w-[180px] text-xs bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                                 <SelectValue placeholder={t('selectVersion') || "选择版本"} />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-slate-800 border-slate-700 text-slate-200">
+                                            <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
                                                 {((shot.extra_data as any).version_history as any[]).map((v, idx) => (
                                                     <SelectItem key={v.version_id} value={v.version_id} className="text-xs">
                                                         {t('version') || "版本"} {idx + 1} ({new Date(v.created_at).toLocaleString()})
@@ -501,51 +487,47 @@ export function ShotEditModal({
 
                                     if (displayVideoUrl) {
                                         return (
-                                            <div className="space-y-2">
+                                            <div className="space-y-3">
                                                 <div className="relative group/video">
                                                     <video
                                                         key={displayVideoUrl}
                                                         src={displayVideoUrl}
                                                         controls
-                                                        className="w-full rounded-lg bg-black border border-slate-800"
+                                                        className="w-full rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
                                                         preload="metadata"
                                                     />
                                                     {displayAudioUrl && (
-                                                        <div className="mt-2 p-2 rounded bg-slate-800/50 border border-slate-700 flex items-center gap-2">
-                                                            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Audio</div>
+                                                        <div className="mt-3 p-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] flex items-center gap-2">
+                                                            <div className="text-[10px] text-gray-600 uppercase tracking-wider font-bold">Audio</div>
                                                             <audio src={displayAudioUrl} controls className="h-8 flex-1" />
                                                         </div>
                                                     )}
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
+                                                <div className="flex gap-3">
+                                                    <button
                                                         onClick={handleGenerateVideo}
                                                         disabled={isGeneratingVideo}
-                                                        className="border-slate-700 hover:bg-slate-800"
+                                                        className="flex-1 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 px-3 py-2 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-1.5"
                                                     >
                                                         {isGeneratingVideo ? (
-                                                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                                            <Loader2 className="w-4 h-4 animate-spin" />
                                                         ) : (
-                                                            <RotateCcw className="w-4 h-4 mr-2" />
+                                                            <RotateCcw className="w-4 h-4" />
                                                         )}
                                                         {t('regenerateVideo')}
-                                                    </Button>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
+                                                    </button>
+                                                    <button
                                                         onClick={() => {
                                                             const a = document.createElement('a');
                                                             a.href = displayVideoUrl;
                                                             a.download = `${shot.title || 'video'}_v${selectedVersionId || 'latest'}.mp4`;
                                                             a.click();
                                                         }}
-                                                        className="border-slate-700 hover:bg-slate-800"
+                                                        className="flex-1 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 px-3 py-2 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center justify-center gap-1.5"
                                                     >
-                                                        <Download className="w-4 h-4 mr-2" />
+                                                        <Download className="w-4 h-4" />
                                                         {t('downloadVideo')}
-                                                    </Button>
+                                                    </button>
                                                 </div>
                                             </div>
                                         );
@@ -556,30 +538,30 @@ export function ShotEditModal({
 
                                     if (isVideoInProgress) {
                                         return (
-                                            <div className="border-2 border-dashed border-purple-700/50 rounded-lg p-8 text-center bg-purple-900/10">
-                                                <Loader2 className="w-12 h-12 mx-auto mb-2 text-purple-500 animate-spin" />
-                                                <p className="text-sm text-purple-400 mb-2">视频生成中...</p>
-                                                <p className="text-xs text-slate-500">生成完成后将自动刷新</p>
+                                            <div className="rounded-xl bg-gradient-to-br from-white to-blue-50 border-2 border-dashed border-green-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] p-8 text-center">
+                                                <Loader2 className="w-12 h-12 mx-auto mb-2 text-green-500 animate-spin" />
+                                                <p className="text-sm text-green-600 mb-2">视频生成中...</p>
+                                                <p className="text-xs text-gray-500">生成完成后将自动刷新</p>
                                             </div>
                                         );
                                     }
 
                                     return (
-                                        <div className="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center">
-                                            <Film className="w-12 h-12 mx-auto mb-2 text-slate-600" />
-                                            <p className="text-sm text-slate-500 mb-4">{t('noVideoYet')}</p>
-                                            <Button
+                                        <div className="rounded-xl bg-gradient-to-br from-white to-blue-50 border-2 border-dashed border-blue-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] p-8 text-center">
+                                            <Film className="w-12 h-12 mx-auto mb-2 text-gray-500" />
+                                            <p className="text-sm text-gray-600 mb-4">{t('noVideoYet')}</p>
+                                            <button
                                                 onClick={handleGenerateVideo}
                                                 disabled={isGeneratingVideo || !shot.image_url}
-                                                className="bg-purple-600 hover:bg-purple-700"
+                                                className="rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 px-6 py-2.5 flex items-center justify-center gap-2 mx-auto"
                                             >
                                                 {isGeneratingVideo ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
                                                 ) : (
-                                                    <Film className="w-4 h-4 mr-2" />
+                                                    <Film className="w-4 h-4" />
                                                 )}
                                                 {t('generateVideo')}
-                                            </Button>
+                                            </button>
                                             {!shot.image_url && (
                                                 <p className="text-xs text-red-500 mt-2">{t('needImageFirst')}</p>
                                             )}
@@ -590,86 +572,78 @@ export function ShotEditModal({
                         </div>
 
                         {/* Right Column: Prompt & Form Area */}
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                             {/* Prompt Editing Area */}
-                            <div className="space-y-3">
-                                <div className="p-3 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 space-y-2">
-                                    <Label className="text-xs font-semibold text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                            <div className="space-y-4">
+                                <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-orange-100 space-y-2">
+                                    <Label className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
                                         <Sparkles className="w-3 h-3" />
                                         {t('imagePrompt') || "生图提示词"}
                                     </Label>
                                     {isEditing ? (
-                                        <AutosizeTextarea
+                                        <textarea
                                             value={imagePrompt}
                                             onChange={(e) => setImagePrompt(e.target.value)}
                                             placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
-                                            className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
-                                            minRows={2}
-                                            maxRows={10}
+                                            className="w-full text-sm resize-none bg-gradient-to-br from-white to-orange-50 border border-orange-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all duration-200 rounded-lg p-3 min-h-[80px]"
                                         />
                                     ) : (
-                                        <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-orange-200/20 hover:scrollbar-thumb-orange-200/40">
+                                        <div className="text-sm text-gray-700 leading-relaxed min-h-[80px] max-h-[200px] overflow-y-auto break-all pr-2 scrollbar-thin scrollbar-thumb-blue">
                                             {imagePrompt || tCommon('none')}
                                         </div>
                                     )}
                                 </div>
 
                                 {/* End Frame Image Prompt */}
-                                <div className="p-3 rounded-lg bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-900/30 space-y-2">
-                                    <Label className="text-xs font-semibold text-cyan-700 dark:text-cyan-400 flex items-center gap-1.5">
+                                <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 space-y-2">
+                                    <Label className="text-xs font-semibold text-blue-700 flex items-center gap-1.5">
                                         <Sparkles className="w-3 h-3" />
                                         尾帧图片提示词
                                     </Label>
                                     {isEditing ? (
-                                        <AutosizeTextarea
+                                        <textarea
                                             value={endFrameImagePrompt}
                                             onChange={(e) => setEndFrameImagePrompt(e.target.value)}
                                             placeholder="输入尾帧图片提示词..."
-                                            className="text-sm resize-none bg-white dark:bg-slate-950 border-cyan-200 dark:border-cyan-800/50 focus:border-cyan-500"
-                                            minRows={2}
-                                            maxRows={10}
+                                            className="w-full text-sm resize-none bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 rounded-lg p-3 min-h-[80px]"
                                         />
                                     ) : (
-                                        <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-cyan-200/20 hover:scrollbar-thumb-cyan-200/40">
+                                        <div className="text-sm text-gray-700 leading-relaxed min-h-[80px] max-h-[200px] overflow-y-auto break-all pr-2 scrollbar-thin scrollbar-thumb-blue">
                                             {endFrameImagePrompt || tCommon('none')}
                                         </div>
                                     )}
                                 </div>
 
-                                <div className="p-3 rounded-lg bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-900/30 space-y-2">
+                                <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-purple-100 space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <Label className="text-xs font-semibold text-purple-700 dark:text-purple-400 flex items-center gap-1.5">
+                                        <Label className="text-xs font-semibold text-purple-700 flex items-center gap-1.5">
                                             <Film className="w-3 h-3" />
                                             {t('videoPrompt') || "视频提示词"}
                                         </Label>
                                         {!isEditing && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
+                                            <button
                                                 onClick={handleRegenerateVideoPrompt}
                                                 disabled={isGeneratingPrompt}
-                                                className="h-6 text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 hover:bg-purple-500/10"
+                                                className="h-7 text-[10px] text-purple-600 hover:text-purple-700 hover:bg-purple-100 rounded-lg px-2 flex items-center gap-1 transition-all duration-200"
                                             >
                                                 {isGeneratingPrompt ? (
-                                                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                                    <Loader2 className="w-3 h-3 animate-spin" />
                                                 ) : (
-                                                    <Sparkles className="w-3 h-3 mr-1" />
+                                                    <Sparkles className="w-3 h-3" />
                                                 )}
                                                 {t('regeneratePrompt') || "重新生成提示词"}
-                                            </Button>
+                                            </button>
                                         )}
                                     </div>
                                     {isEditing ? (
-                                        <AutosizeTextarea
+                                        <textarea
                                             value={videoPrompt}
                                             onChange={(e) => setVideoPrompt(e.target.value)}
                                             placeholder={t('videoPromptPlaceholder') || "输入视频提示词..."}
-                                            className="text-sm resize-none bg-white dark:bg-slate-950 border-purple-200 dark:border-purple-800/50 focus:border-purple-500"
-                                            minRows={2}
-                                            maxRows={10}
+                                            className="w-full text-sm resize-none bg-gradient-to-br from-white to-purple-50 border border-purple-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all duration-200 rounded-lg p-3 min-h-[80px]"
                                         />
                                     ) : (
-                                        <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[200px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-purple-200/20 hover:scrollbar-thumb-purple-200/40">
+                                        <div className="text-sm text-gray-700 leading-relaxed min-h-[80px] max-h-[200px] overflow-y-auto break-all pr-2 scrollbar-thin scrollbar-thumb-blue">
                                             {videoPrompt || t('clickToAddVideoPrompt') || tCommon('none')}
                                         </div>
                                     )}
@@ -680,22 +654,22 @@ export function ShotEditModal({
                             <div className="space-y-4">
                                 {/* Scene Selection */}
                                 <div className="space-y-2">
-                                    <Label className="text-xs text-slate-500">{t('scene')}</Label>
+                                    <Label className="text-sm font-medium text-gray-700">{t('scene')}</Label>
                                     {isEditing ? (
                                         <Select value={sceneId} onValueChange={setSceneId}>
-                                            <SelectTrigger className="bg-slate-800 border-slate-700 h-9 text-sm">
+                                            <SelectTrigger className="h-9 text-sm bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                                 <SelectValue placeholder={t('scene')} />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-slate-800 border-slate-700">
+                                            <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
                                                 {availableScenes.map((s) => (
-                                                    <SelectItem key={s.scene_id} value={String(s.scene_id)} className="text-slate-200 focus:bg-slate-700">
+                                                    <SelectItem key={s.scene_id} value={String(s.scene_id)} className="text-sm">
                                                         {s.title || s.location || `${t('scene')} ${s.scene_id}`}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
                                     ) : (
-                                        <div className="text-sm text-slate-300 bg-slate-800/30 p-2 rounded-md border border-slate-800">
+                                        <div className="text-sm text-gray-700 bg-gradient-to-br from-white to-blue-50 p-2 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                             {getSceneName(sceneId)}
                                         </div>
                                     )}
@@ -703,9 +677,9 @@ export function ShotEditModal({
 
                                 {/* Duration Input */}
                                 <div className="space-y-2">
-                                    <Label className="text-xs text-slate-500">{t('duration')} ({tCommon('seconds')})</Label>
+                                    <Label className="text-sm font-medium text-gray-700">{t('duration')} ({tCommon('seconds')})</Label>
                                     {isEditing ? (
-                                        <Input
+                                        <input
                                             type="number"
                                             min={1}
                                             max={60}
@@ -713,10 +687,10 @@ export function ShotEditModal({
                                             value={videoDuration}
                                             onChange={(e) => setVideoDuration(e.target.value)}
                                             onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                                            className="bg-slate-800 border-slate-700 h-9 text-sm"
+                                            className="w-full h-9 px-3 text-sm rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                         />
                                     ) : (
-                                        <div className="text-sm text-slate-300 bg-slate-800/30 p-2 rounded-md border border-slate-800">
+                                        <div className="text-sm text-gray-700 bg-gradient-to-br from-white to-blue-50 p-2 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                             {videoDuration}s
                                         </div>
                                     )}
@@ -724,21 +698,21 @@ export function ShotEditModal({
 
                                 {/* Character Selection */}
                                 <div className="space-y-2">
-                                    <Label className="text-xs text-slate-500">{t('characters')}</Label>
+                                    <Label className="text-sm font-medium text-gray-700">{t('characters')}</Label>
                                     {isEditing ? (
-                                        <div className="grid grid-cols-2 gap-2 bg-slate-800/50 p-3 rounded-md border border-slate-800">
+                                        <div className="grid grid-cols-2 gap-2 bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                             {availableCharacters.map((char) => {
                                                 const isSelected = characterIds.includes(char.character_id!);
                                                 return (
                                                     <div
                                                         key={char.character_id}
                                                         onClick={() => toggleCharacter(char.character_id!)}
-                                                        className={`flex items-center gap-2 p-1.5 rounded-md cursor-pointer transition-all border ${isSelected
-                                                            ? "bg-blue-600/20 border-blue-500 text-blue-100"
-                                                            : "bg-slate-900/50 border-slate-700 text-slate-400 hover:border-slate-600 hover:bg-slate-800"
+                                                        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected
+                                                            ? "bg-gradient-to-br from-blue-100 to-blue-50 border-blue-200 text-blue-700"
+                                                            : "bg-gradient-to-br from-white to-blue-50 border-blue-100 text-gray-700 hover:border-blue-200"
                                                             }`}
                                                     >
-                                                        <div className="w-8 h-8 rounded overflow-hidden bg-slate-800 shrink-0 border border-slate-700">
+                                                        <div className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)] border border-blue-100 shrink-0">
                                                             {char.image_url ? (
                                                                 <img
                                                                     src={char.image_url}
@@ -747,23 +721,23 @@ export function ShotEditModal({
                                                                 />
                                                             ) : (
                                                                 <div className="w-full h-full flex items-center justify-center">
-                                                                    <ImageIcon size={14} className="opacity-20" />
+                                                                    <ImageIcon size={14} className="opacity-40" />
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <span className="text-xs truncate flex-1">{char.name}</span>
+                                                        <span className="text-xs truncate flex-1 font-medium">{char.name}</span>
                                                         {isSelected ? (
-                                                            <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                                                            <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center shrink-0 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-1px_-1px_3px_rgba(255,255,255,0.8)]">
                                                                 <X size={10} className="text-white" />
                                                             </div>
                                                         ) : (
-                                                            <Plus size={12} className="opacity-30 shrink-0" />
+                                                            <Plus size={12} className="opacity-40 shrink-0 text-gray-500" />
                                                         )}
                                                     </div>
                                                 );
                                             })}
                                             {availableCharacters.length === 0 && (
-                                                <span className="text-xs text-slate-500 italic col-span-full">{t('noCharactersAvailable')}</span>
+                                                <span className="text-xs text-gray-500 italic col-span-full">{t('noCharactersAvailable')}</span>
                                             )}
                                         </div>
                                     ) : (
@@ -771,17 +745,17 @@ export function ShotEditModal({
                                             {characterIds.filter(id => id !== undefined && id !== null).length > 0 ? characterIds.filter(id => id !== undefined && id !== null).map(id => {
                                                 const char = availableCharacters.find(c => Number(c.character_id) === Number(id));
                                                 return (
-                                                    <Badge key={String(id)} variant="secondary" className="bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1.5 pl-1 py-0.5">
+                                                    <span key={String(id)} className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-lg px-2 py-1 text-xs font-medium text-gray-700 flex items-center gap-1.5">
                                                         {char?.image_url && (
-                                                            <div className="w-4 h-4 rounded-full overflow-hidden bg-slate-700 shrink-0 border border-slate-600">
+                                                            <div className="w-4 h-4 rounded-full overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_4px_rgba(0,0,0,0.05),-1px_-1px_3px_rgba(255,255,255,0.8)] border border-blue-100 shrink-0">
                                                                 <img src={char.image_url} alt={char.name} className="w-full h-full object-cover" />
                                                             </div>
                                                         )}
                                                         {char ? char.name : `ID: ${id}`}
-                                                    </Badge>
+                                                    </span>
                                                 );
                                             }) : (
-                                                <span className="text-sm text-slate-500 italic">{tCommon('none')}</span>
+                                                <span className="text-sm text-gray-500 italic">{tCommon('none')}</span>
                                             )}
                                         </div>
                                     )}
@@ -790,51 +764,47 @@ export function ShotEditModal({
                                 {/* Appearance Elements */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <Label className="text-xs text-slate-500">出镜元素 (手机、包包等道具)</Label>
+                                        <Label className="text-sm font-medium text-gray-700">出镜元素 (手机、包包等道具)</Label>
                                         {isEditing && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
+                                            <button
                                                 onClick={handleAddAppearanceElement}
-                                                className="h-6 text-[10px] text-blue-400 hover:text-blue-300"
+                                                className="h-7 text-[10px] text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg px-2 flex items-center gap-1 transition-all duration-200"
                                             >
-                                                <Plus size={10} className="mr-1" />
+                                                <Plus size={10} />
                                                 {tCommon('add')}
-                                            </Button>
+                                            </button>
                                         )}
                                     </div>
                                     {isEditing ? (
-                                        <div className="flex flex-wrap gap-2 bg-slate-800/50 p-3 rounded-md border border-slate-800">
+                                        <div className="flex flex-wrap gap-2 bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                             {appearanceElements.map((element, index) => (
-                                                <div key={index} className="flex items-center gap-1 bg-slate-900 border border-slate-700 rounded-md px-2 py-1">
-                                                    <Input
+                                                <div key={index} className="flex items-center gap-1 bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-lg px-2 py-1 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
+                                                    <input
                                                         value={element}
                                                         onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
-                                                        className="h-6 w-24 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs p-0"
+                                                        className="h-6 w-24 bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-200 text-xs"
                                                         placeholder="元素名称"
                                                     />
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
+                                                    <button
                                                         onClick={() => handleRemoveAppearanceElement(index)}
-                                                        className="h-4 w-4 text-slate-500 hover:text-red-400"
+                                                        className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors duration-200"
                                                     >
                                                         <X size={10} />
-                                                    </Button>
+                                                    </button>
                                                 </div>
                                             ))}
                                             {appearanceElements.length === 0 && (
-                                                <span className="text-xs text-slate-500 italic">暂无元素</span>
+                                                <span className="text-xs text-gray-500 italic">暂无元素</span>
                                             )}
                                         </div>
                                     ) : (
                                         <div className="flex flex-wrap gap-2">
                                             {appearanceElements.length > 0 ? appearanceElements.map((element, index) => (
-                                                <Badge key={index} variant="secondary" className="bg-slate-800 text-slate-300 border border-slate-700">
+                                                <span key={index} className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-lg px-2 py-1 text-xs font-medium text-gray-700">
                                                     {element}
-                                                </Badge>
+                                                </span>
                                             )) : (
-                                                <span className="text-sm text-slate-500 italic">{tCommon('none')}</span>
+                                                <span className="text-sm text-gray-500 italic">{tCommon('none')}</span>
                                             )}
                                         </div>
                                     )}
@@ -842,16 +812,16 @@ export function ShotEditModal({
 
                                 {/* Description */}
                                 <div className="space-y-2">
-                                    <Label className="text-xs text-slate-500">{t('description')}</Label>
+                                    <Label className="text-sm font-medium text-gray-700">{t('description')}</Label>
                                     {isEditing ? (
-                                        <Textarea
+                                        <textarea
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
-                                            className="bg-slate-800 border-slate-700 text-sm min-h-[80px]"
+                                            className="w-full text-sm resize-none bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 rounded-lg p-3 min-h-[80px]"
                                             placeholder={t('describeShot')}
                                         />
                                     ) : (
-                                        <div className="text-sm text-slate-300 leading-relaxed bg-slate-800/30 p-3 rounded-md min-h-[40px]">
+                                        <div className="text-sm text-gray-700 leading-relaxed bg-gradient-to-br from-white to-blue-50 p-3 rounded-lg border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] min-h-[80px]">
                                             {description || tCommon('none')}
                                         </div>
                                     )}
@@ -860,22 +830,20 @@ export function ShotEditModal({
                                 {/* Narration/Dialogue */}
                                 <div className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <Label className="text-xs text-slate-500">{t('narration')} / {t('dialogue')}</Label>
+                                        <Label className="text-sm font-medium text-gray-700">{t('narration')} / {t('dialogue')}</Label>
                                         {isEditing && (
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
+                                            <button
                                                 onClick={handleAddNarration}
-                                                className="h-6 text-[10px] text-blue-400 hover:text-blue-300"
+                                                className="h-7 text-[10px] text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg px-2 flex items-center gap-1 transition-all duration-200"
                                             >
-                                                <Plus size={10} className="mr-1" />
+                                                <Plus size={10} />
                                                 {tCommon('add')}
-                                            </Button>
+                                            </button>
                                         )}
                                     </div>
                                     <div className="space-y-2">
                                         {narration.length > 0 ? narration.map((item, index) => (
-                                            <div key={index} className="flex flex-col gap-2 p-2 bg-slate-800/50 rounded-md border border-slate-800 group">
+                                            <div key={index} className="flex flex-col gap-2 p-3 bg-gradient-to-br from-white to-blue-50 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] group">
                                                 <div className="flex items-center gap-2">
                                                     {isEditing ? (
                                                         <div className="flex-1 flex gap-2">
@@ -883,7 +851,7 @@ export function ShotEditModal({
                                                                 value={item.角色}
                                                                 onValueChange={(val) => handleUpdateNarration(index, '角色', val)}
                                                             >
-                                                                <SelectTrigger className="w-[120px] h-8 bg-slate-800 border-slate-700 text-xs">
+                                                                <SelectTrigger className="w-[120px] h-8 bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-xs shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
                                                                     <SelectValue />
                                                                 </SelectTrigger>
                                                                 <SelectContent className="bg-slate-800 border-slate-700 text-slate-200">

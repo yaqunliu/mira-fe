@@ -312,25 +312,25 @@ export function NovelSelect({
 
   const renderFixNovelArea = () => {
     return (
-      <Card className={cn("w-full py-4", novelFixedClassName)}>
-        <CardContent className="px-4">
+      <div className={cn("w-full py-4 rounded-2xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100", novelFixedClassName)}>
+        <div className="px-4 py-2">
           <div className="flex items-center gap-3">
-            <BookOpen className="w-5 h-5 text-primary" />
+            <BookOpen className="w-5 h-5 text-#22C55E" />
             <div className="flex-1 space-y-1">
-              <h3 className="font-medium text-primary">
+              <h3 className="font-medium text-gray-800">
                 {currentNovel?.title}
               </h3>
-              {/* <p className="text-xs text-secondary">
+              {/* <p className="text-xs text-gray-600">
                 作者：{currentNovel?.author}
               </p> */}
-              <p className="text-xs text-secondary">
+              <p className="text-xs text-gray-600">
                 {t("novel.totalChapters", { count: currentNovel?.chapter_count || 0 })}
               </p>
             </div>
             {fixedAction}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   };
 
@@ -362,24 +362,24 @@ export function NovelSelect({
           />
         </div>
         {showSearch && (
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
             <Input
               placeholder="搜索小说标题或作者..."
               value={novelSearchTerm}
               onChange={(e) => setNovelSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
             />
           </div>
         )}
         {filteredNovels.length === 0 ? (
-          <div className="py-8 text-gray-300 h-full flex items-center justify-center flex-col px-4">
-            <div className="text-sm sm:text-base text-gray-300 text-center">{t("novel.noNovels")}</div>
+          <div className="py-8 text-gray-600 h-full flex items-center justify-center flex-col px-4">
+            <div className="text-sm sm:text-base text-gray-600 text-center">{t("novel.noNovels")}</div>
             <Button
               variant="default"
               size="sm"
               onClick={() => setShowUploadModal(true)}
-              className="mt-4 text-xs sm:text-sm whitespace-nowrap"
+              className="mt-4 text-xs sm:text-sm whitespace-nowrap rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
             >
               <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               <span>{t("createVideo.uploadNovel")}</span>
@@ -388,7 +388,7 @@ export function NovelSelect({
               variant="outline"
               size="sm"
               onClick={() => setIsProjectDialogOpen(true)}
-              className="mt-2 text-xs sm:text-sm whitespace-nowrap"
+              className="mt-2 text-xs sm:text-sm whitespace-nowrap rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
             >
               <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               <span>{t("createVideo.createProject")}</span>
@@ -396,10 +396,10 @@ export function NovelSelect({
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="text-base text-gray-300">
+            <div className="text-base text-gray-600">
               {t("createVideo.uploadNovel")}:
             </div>
-            <div className="space-y-2 min-h-[200px]">
+            <div className="space-y-3 min-h-[200px]">
               {currentNovels.length > 0 &&
                 currentNovels.map((novel: Novel) => {
                   const isSelected = selectedNovel?.novel_id === novel.novel_id;
@@ -407,33 +407,33 @@ export function NovelSelect({
                     <div
                       key={novel.novel_id}
                       className={cn(
-                        "p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted/50 border-gray-500/20 dark:border-gray-500/70",
-                        isSelected && "border-primary bg-primary/5"
+                        "p-3 rounded-2xl cursor-pointer transition-all duration-300 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:scale-[1.02]",
+                        isSelected && "border-2 border-#22C55E shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.5)]"
                       )}
                       onClick={() => handleNovelSelect(novel)}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h3 className="font-medium text-sm sm:text-base truncate">
+                            <h3 className="font-medium text-sm sm:text-base truncate text-gray-800">
                               {novel.title}
                             </h3>
-                            <span className="text-xs text-secondary flex-shrink-0">
+                            <span className="text-xs text-gray-600 flex-shrink-0">
                               · {novel.author}
                             </span>
                           </div>
                           {showChapterCount && (
                             <div className="flex items-center gap-1.5 mt-1.5">
-                              <FileText className="w-3 h-3 text-secondary flex-shrink-0" />
-                              <span className="text-xs text-secondary whitespace-nowrap">
+                              <FileText className="w-3 h-3 text-gray-600 flex-shrink-0" />
+                              <span className="text-xs text-gray-600 whitespace-nowrap">
                                 {novel.chapter_count || 0} {t("novel.chapters")}
                               </span>
                             </div>
                           )}
                         </div>
                         {isSelected && (
-                          <div className="flex items-center justify-center rounded-full bg-orange-500/70 p-1 flex-shrink-0">
-                            <Check className="w-3 h-3" />
+                          <div className="flex items-center justify-center rounded-full bg-#22C55E p-1 flex-shrink-0 shadow-md">
+                            <Check className="w-3 h-3 text-white" />
                           </div>
                         )}
                       </div>
@@ -453,7 +453,7 @@ export function NovelSelect({
                     }
                   }}
                   disabled={currentPage === 1}
-                  className="text-xs sm:text-sm whitespace-nowrap"
+                  className="text-xs sm:text-sm whitespace-nowrap rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
                 >
                   <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
                   <span>{t("novel.previousPage")}</span>
@@ -468,7 +468,9 @@ export function NovelSelect({
                         onClick={() => setCurrentPage(page)}
                         className={cn(
                           "min-w-[32px] text-xs sm:text-sm",
-                          currentPage === page && "bg-primary"
+                          currentPage === page 
+                            ? "bg-#22C55E text-white rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)]"
+                            : "rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
                         )}
                       >
                         {page}
@@ -485,7 +487,7 @@ export function NovelSelect({
                     }
                   }}
                   disabled={currentPage === totalPages}
-                  className="text-xs sm:text-sm whitespace-nowrap"
+                  className="text-xs sm:text-sm whitespace-nowrap rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
                 >
                   <span>{t("novel.nextPage")}</span>
                   <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-0.5 sm:ml-1" />
@@ -495,12 +497,12 @@ export function NovelSelect({
           </div>
         )}
         {filteredNovels.length > 0 && (
-          <div className="flex justify-center items-center text-secondary mt-4 px-2">
+          <div className="flex justify-center items-center text-gray-600 mt-4 px-2 gap-4">
             <Button
               variant="link"
               size="sm"
               onClick={() => setShowUploadModal(true)}
-              className="text-xs sm:text-sm whitespace-nowrap min-w-fit"
+              className="text-xs sm:text-sm whitespace-nowrap min-w-fit rounded-xl hover:bg-blue-50 p-2"
             >
               <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               <span>{t("createVideo.uploadNovel")}</span>
@@ -509,7 +511,7 @@ export function NovelSelect({
               variant="link"
               size="sm"
               onClick={() => setIsProjectDialogOpen(true)}
-              className="text-xs sm:text-sm whitespace-nowrap min-w-fit"
+              className="text-xs sm:text-sm whitespace-nowrap min-w-fit rounded-xl hover:bg-blue-50 p-2"
             >
               <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
               <span>{t("createVideo.createProject")}</span>
@@ -524,24 +526,24 @@ export function NovelSelect({
     return (
       <div className={cn("w-full flex flex-col flex-1 min-h-0", chapterClassName)}>
         {/* 章节列表区域 - 可滚动 */}
-        <div className="flex-shrink-0 flex items-center justify-between px-2 mb-2">
-          <div className="text-sm font-medium text-gray-300">
+        <div className="flex-shrink-0 flex items-center justify-between px-2 mb-3">
+          <div className="text-sm font-medium text-gray-800">
             {t("createVideo.selectScript")}
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsChapterDialogOpen(true)}
-            className="h-8 text-xs px-2 border-orange-500/50 text-orange-500 hover:bg-orange-500/10"
+            className="h-8 text-xs px-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
           >
             <Plus className="w-3 h-3 mr-1" />
             {t("createVideo.addChapter")}
           </Button>
         </div>
         <div className="flex-1 min-h-0 overflow-y-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <div className="space-y-2 p-2">
+          <div className="space-y-3 p-2">
             {filteredChapters.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="text-center py-8 text-gray-600">
                 {chapterSearchTerm ? t("novel.noNovels") : t("createVideo.selectScript")}
               </div>
             ) : (
@@ -553,8 +555,8 @@ export function NovelSelect({
                   <div
                     key={chapter.chapter_id}
                     className={cn(
-                      "p-3 border-[1px] rounded-lg border-gray-500/20 dark:border-gray-500/20 cursor-pointer transition-colors hover:bg-muted/50",
-                      isSelected && "bg-stone-600/10 dark:bg-stone-600/20"
+                      "p-3 rounded-2xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 cursor-pointer transition-all duration-300 hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:scale-[1.02]",
+                      isSelected && "border-2 border-#22C55E shadow-[inset_2px_2px_5px_rgba(0,0,0,0.05),inset_-2px_-2px_5px_rgba(255,255,255,0.5)]"
                     )}
                     onClick={() => handleChapterToggle(chapter as Chapter)}
                   >
@@ -564,30 +566,30 @@ export function NovelSelect({
                           <Badge
                             variant="secondary"
                             className={cn(
-                              "text-xs bg-gray-400/10 text-stone-400",
-                              isSelected && "bg-orange-800/10 text-primary"
+                              "text-xs bg-blue-100 text-blue-800",
+                              isSelected && "bg-#22C55E/20 text-#22C55E"
                             )}
                           >
                             {t("novelDetail.chapterNumber", { number: chapter.chapter_number })}
                           </Badge>
                           <span
                             className={cn(
-                              "text-sm font-medium",
-                              isSelected && "text-primary"
+                              "text-sm font-medium text-gray-800",
+                              isSelected && "text-#22C55E"
                             )}
                           >
                             {chapter.title}
                           </span>
                         </div>
                         {"preview" in chapter && chapter.preview && (
-                          <p className="text-xs text-gray-300 mt-2 line-clamp-2">
+                          <p className="text-xs text-gray-600 mt-2 line-clamp-2">
                             {chapter.preview.substring(0, 100)}...
                           </p>
                         )}
                       </div>
                       {isSelected && (
-                        <div className="flex items-center justify-center rounded-full bg-orange-500/70 p-1">
-                          <Check className="w-3 h-3" />
+                        <div className="flex items-center justify-center rounded-full bg-#22C55E p-1 shadow-md">
+                          <Check className="w-3 h-3 text-white" />
                         </div>
                       )}
                     </div>
@@ -601,7 +603,7 @@ export function NovelSelect({
 
         {/* 分页控件 - 固定在底部 */}
         {!chapters && chaptersTotalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 p-3 border-t border-gray-500/20 flex-shrink-0 bg-card">
+          <div className="flex items-center justify-center gap-2 p-3 border-t border-blue-100 flex-shrink-0 bg-gradient-to-br from-white to-blue-50 rounded-b-2xl mt-2">
             <Button
               variant="outline"
               size="sm"
@@ -610,13 +612,13 @@ export function NovelSelect({
                 setChapterPageInput("");
               }}
               disabled={chapterPage <= 1 || isChaptersLoading}
-              className="h-7 w-7 p-0"
+              className="h-8 w-8 p-0 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
             >
               <ChevronLeft className="w-3 h-3" />
             </Button>
 
-            <div className="flex items-center gap-1">
-              <span className="text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-600">
                 {chapterPage} / {chaptersTotalPages}
               </span>
               <Input
@@ -641,7 +643,7 @@ export function NovelSelect({
                   }
                 }}
                 placeholder={String(chapterPage)}
-                className="w-16 h-7 text-center text-xs"
+                className="w-16 h-8 text-center text-xs rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
               />
               <Button
                 variant="outline"
@@ -656,7 +658,7 @@ export function NovelSelect({
                   }
                 }}
                 disabled={!chapterPageInput || isChaptersLoading}
-                className="h-7 text-xs px-2"
+                className="h-8 text-xs px-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
               >
                 跳转
               </Button>
@@ -670,7 +672,7 @@ export function NovelSelect({
                 setChapterPageInput("");
               }}
               disabled={chapterPage >= chaptersTotalPages || isChaptersLoading}
-              className="h-7 w-7 p-0"
+              className="h-8 w-8 p-0 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
             >
               <ChevronRight className="w-3 h-3" />
             </Button>

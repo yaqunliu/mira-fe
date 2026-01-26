@@ -126,7 +126,7 @@ export function NarrationEditBottomSheet({
         <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6">
           {/* 图片预览 */}
           <div className="flex justify-center">
-            <div className="relative w-32 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900 border-2 border-purple-200/50 dark:border-purple-700/50 shadow-lg">
+            <div className="relative w-32 h-24 rounded-xl overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
               {image.image_url ? (
                 <img
                   src={image.image_url}
@@ -147,18 +147,18 @@ export function NarrationEditBottomSheet({
             name="narration"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
+                <FormLabel className="text-base font-semibold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
                   {t("storyboard.editNarration")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder={t("storyboard.editNarration") + "..."}
-                    className="min-h-[120px] resize-none rounded-xl border-2 border-purple-200/50 dark:border-purple-700/50 focus:border-purple-400 dark:focus:border-purple-500 transition-colors"
+                    className="min-h-[120px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.05),inset_-4px_-4px_8px_rgba(255,255,255,0.8)] border border-blue-100 focus:border-[#ADD8E6] focus:shadow-[inset_4px_4px_8px_rgba(0,0,0,0.05),inset_-4px_-4px_8px_rgba(255,255,255,0.8),0_0_0_2px_rgba(173,221,230,0.5)] transition-all duration-200"
                     {...field}
                   />
                 </FormControl>
                 <FormMessage />
-                <p className="text-xs text-gray-500 dark:text-gray-400">
+                <p className="text-xs text-gray-600">
                   {t("storyboard.editNarration")}
                 </p>
               </FormItem>

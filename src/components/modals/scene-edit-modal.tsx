@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, RotateCcw, Map as LucideMap, Save, Edit2, Sparkles } from 'lucide-react';
+import { Loader2, RotateCcw, Map as LucideMap, Save, Edit2, Sparkles, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { IScene } from '@/types/scene';
 import sceneApi from '@/lib/api/scene';
@@ -92,20 +92,18 @@ export function SceneEditModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="bg-slate-900 border-slate-800 text-slate-200 sm:max-w-[1000px] max-h-[90vh] flex flex-col">
+            <DialogContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 sm:max-w-[1000px] max-h-[90vh] flex flex-col rounded-2xl">
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle className="flex items-center justify-between">
-                        <span>{scene.location || t('sceneDisplay')}</span>
+                        <span className="text-xl font-semibold">{scene.location || t('sceneDisplay')}</span>
                         {!isEditing && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
+                            <button
                                 onClick={() => setIsEditing(true)}
-                                className="h-8 text-slate-400 hover:text-white"
+                                className="h-9 px-4 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2"
                             >
-                                <Edit2 size={14} className="mr-2" />
-                                {tCommon('edit')}
-                            </Button>
+                                <Edit2 size={14} />
+                                <span className="text-sm">{tCommon('edit')}</span>
+                            </button>
                         )}
                     </DialogTitle>
                     <DialogDescription className="sr-only">
@@ -113,82 +111,86 @@ export function SceneEditModal({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-800">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 overflow-y-auto pr-2">
                     {/* Left Column: Image Area */}
                     <div className="space-y-4">
                         <div className={cn(
-                            "w-full rounded-lg bg-black overflow-hidden border border-slate-800 relative group",
+                            "w-full rounded-xl bg-gradient-to-br from-white to-blue-50 overflow-hidden border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] relative group",
                             "aspect-video"
                         )}>
                             {isRegenerating ? (
-                                <div className="w-full h-full flex items-center justify-center text-orange-500 gap-2">
-                                    <Loader2 className="w-6 h-6 animate-spin" />
-                                    <span className="text-sm">{tCommon('generating')}</span>
+                                <div className="w-full h-full flex items-center justify-center text-green-500 gap-2 bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-[2px] rounded-xl">
+                                    <Loader2 className="w-8 h-8 animate-spin" />
+                                    <span className="text-sm font-medium">{tCommon('generating')}</span>
                                 </div>
                             ) : scene.image_url ? (
-                                <img
-                                    src={scene.image_url}
-                                    alt="Scene"
-                                    className="w-full h-full object-contain cursor-pointer"
-                                    onClick={() => setIsPreviewOpen(true)}
-                                />
+                                <>
+                                    <img
+                                        src={scene.image_url}
+                                        alt="Scene"
+                                        className="w-full h-full object-contain cursor-pointer"
+                                        onClick={() => setIsPreviewOpen(true)}
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+                                </>
                             ) : (
-                                <div className="w-full h-full flex items-center justify-center text-slate-500">
+                                <div className="w-full h-full flex items-center justify-center text-gray-500">
                                     <LucideMap size={32} className="opacity-50 mb-2" />
                                     <span className="text-xs">{t('noSceneImage')}</span>
                                 </div>
                             )}
 
                             {/* Regenerate Button */}
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 hover:bg-black/70 text-white border border-white/10 backdrop-blur-md"
+                            <button
                                 onClick={handleRegenerateClick}
                                 disabled={isRegenerating}
+                                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-xl px-3 py-1.5 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
                             >
-                                <RotateCcw size={14} className={`mr-2 ${isRegenerating ? "animate-spin" : ""}`} />
+                                <RotateCcw size={14} className={isRegenerating ? "animate-spin" : ""} />
                                 {t('regenerate')}
-                            </Button>
+                            </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label className="text-xs text-slate-500">{t('location')}</Label>
+                                <Label className="text-sm font-medium text-gray-700">{t('location')}</Label>
                                 {isEditing ? (
-                                    <Input
+                                    <input
+                                        type="text"
                                         value={location}
                                         onChange={(e) => setLocation(e.target.value)}
-                                        className="bg-slate-800 border-slate-700 h-8 text-sm"
+                                        className="w-full h-9 px-3 text-sm rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                     />
                                 ) : (
-                                    <div className="text-sm font-medium">{location || '-'}</div>
+                                    <div className="text-sm font-medium bg-gradient-to-br from-white to-blue-50 p-2 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">{location || '-'}</div>
                                 )}
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs text-slate-500">{t('time')}</Label>
+                                <Label className="text-sm font-medium text-gray-700">{t('time')}</Label>
                                 {isEditing ? (
-                                    <Input
+                                    <input
+                                        type="text"
                                         value={timeSetting}
                                         onChange={(e) => setTimeSetting(e.target.value)}
-                                        className="bg-slate-800 border-slate-700 h-8 text-sm"
+                                        className="w-full h-9 px-3 text-sm rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                     />
                                 ) : (
-                                    <div className="text-sm font-medium">{timeSetting || '-'}</div>
+                                    <div className="text-sm font-medium bg-gradient-to-br from-white to-blue-50 p-2 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">{timeSetting || '-'}</div>
                                 )}
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-xs text-slate-500">{t('atmosphere')}</Label>
+                            <Label className="text-sm font-medium text-gray-700">{t('atmosphere')}</Label>
                             {isEditing ? (
-                                <Input
+                                <input
+                                    type="text"
                                     value={atmosphere}
                                     onChange={(e) => setAtmosphere(e.target.value)}
-                                    className="bg-slate-800 border-slate-700 h-8 text-sm"
+                                    className="w-full h-9 px-3 text-sm rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                                 />
                             ) : (
-                                <div className="text-sm font-medium">{atmosphere || '-'}</div>
+                                <div className="text-sm font-medium bg-gradient-to-br from-white to-blue-50 p-2 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">{atmosphere || '-'}</div>
                             )}
                         </div>
                     </div>
@@ -196,37 +198,35 @@ export function SceneEditModal({
                     {/* Right Column: Prompt & Description Area */}
                     <div className="space-y-4">
                         {/* Prompt Editing Area */}
-                        <div className="p-3 rounded-lg bg-orange-50/50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 space-y-2">
-                            <Label className="text-xs font-semibold text-orange-700 dark:text-orange-400 flex items-center gap-1.5">
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-orange-100 space-y-2">
+                            <Label className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3" />
                                 {t('imagePrompt') || "生图提示词"}
                             </Label>
                             {isEditing ? (
-                                <AutosizeTextarea
+                                <textarea
                                     value={imagePrompt}
                                     onChange={(e) => setImagePrompt(e.target.value)}
                                     placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
-                                    className="text-sm resize-none bg-white dark:bg-slate-950 border-orange-200 dark:border-orange-800/50 focus:border-orange-500"
-                                    minRows={2}
-                                    maxRows={10}
+                                    className="w-full text-sm resize-none bg-gradient-to-br from-white to-orange-50 border border-orange-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all duration-200 rounded-lg p-3 min-h-[80px]"
                                 />
                             ) : (
-                                <div className="text-sm text-slate-300 leading-relaxed min-h-[40px] max-h-[300px] overflow-y-auto break-all pr-1 scrollbar-thin scrollbar-thumb-orange-200/20 hover:scrollbar-thumb-orange-200/40">
+                                <div className="text-sm text-gray-700 leading-relaxed min-h-[80px] max-h-[200px] overflow-y-auto break-all pr-2">
                                     {imagePrompt || tCommon('none')}
                                 </div>
                             )}
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-xs text-slate-500">{t('environmentDescription')} (Space Type)</Label>
+                            <Label className="text-sm font-medium text-gray-700">{t('environmentDescription')} (Space Type)</Label>
                             {isEditing ? (
-                                <Textarea
+                                <textarea
                                     value={spaceType}
                                     onChange={(e) => setSpaceType(e.target.value)}
-                                    className="bg-slate-800 border-slate-700 text-sm min-h-[100px]"
+                                    className="w-full text-sm resize-none bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 rounded-lg p-3 min-h-[100px]"
                                 />
                             ) : (
-                                <div className="text-sm text-slate-300 leading-relaxed bg-slate-800/30 p-2 rounded-md min-h-[60px] max-h-[200px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
+                                <div className="text-sm text-gray-700 leading-relaxed bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] min-h-[100px] max-h-[200px] overflow-y-auto pr-2">
                                     {spaceType || tCommon('none')}
                                 </div>
                             )}
@@ -235,14 +235,24 @@ export function SceneEditModal({
                 </div>
 
                 {isEditing && (
-                    <DialogFooter className="mt-4">
-                        <Button variant="ghost" onClick={() => setIsEditing(false)} disabled={isSaving}>
-                            {tCommon('cancel')}
-                        </Button>
-                        <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-500">
-                            {isSaving && <Loader2 className="w-3 h-3 mr-2 animate-spin" />}
-                            {tCommon('save')}
-                        </Button>
+                    <DialogFooter className="mt-4 flex gap-3">
+                        <button
+                            onClick={() => setIsEditing(false)}
+                            disabled={isSaving}
+                            className="flex-1 h-10 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                        >
+                            <X size={14} />
+                            <span className="text-sm">{tCommon('cancel')}</span>
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="flex-1 h-10 px-4 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                        >
+                            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                            <Save size={14} />
+                            <span className="text-sm">{tCommon('save')}</span>
+                        </button>
                     </DialogFooter>
                 )}
             </DialogContent>

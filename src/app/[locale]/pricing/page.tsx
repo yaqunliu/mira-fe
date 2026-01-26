@@ -55,20 +55,20 @@ function PriceCard({
   hasActiveSubscription?: boolean
 }) {
   return (
-    <Card className="group relative flex flex-col h-full overflow-hidden border border-white/10 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-800/70 shadow-xl backdrop-blur transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-white/20">
-      <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(56,189,248,0.18),transparent_25%),radial-gradient(circle_at_50%_80%,rgba(236,72,153,0.18),transparent_30%)] group-hover:opacity-60 transition-opacity duration-300" />
+    <Card className="group relative flex flex-col h-full overflow-hidden border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+      <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_20%_20%,rgba(253,188,180,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(173,221,230,0.18),transparent_25%),radial-gradient(circle_at_50%_80%,rgba(253,188,180,0.18),transparent_30%)] group-hover:opacity-60 transition-opacity duration-300" />
       {highlight && (
-        <Badge className="absolute right-4 top-4 bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-lg animate-pulse z-10">{highlight}</Badge>
+        <Badge className="absolute right-4 top-4 bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] text-white shadow-md animate-pulse z-10">{highlight}</Badge>
       )}
       <CardHeader className="relative space-y-2 flex-shrink-0">
-        <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-400 group-hover:animate-spin" />
+        <CardTitle className="text-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-[#FDBCB4] group-hover:animate-spin" />
           {product.name}
         </CardTitle>
-        <div className="text-3xl font-extrabold text-white">
+        <div className="text-3xl font-extrabold text-gray-800">
           {formatPrice(product.price, product.currency)}
           {product.billing_type === 'recurring' && (
-            <span className="text-sm text-slate-300 ml-1">
+            <span className="text-sm text-gray-500 ml-1">
               / {product.billing_period === 'every-year'
                 ? t('pricing.year', { default: '年' })
                 : product.billing_period === 'every-quarter'
@@ -77,7 +77,7 @@ function PriceCard({
             </span>
           )}
         </div>
-        <p className="text-sm text-slate-300">
+        <p className="text-sm text-gray-600">
           {product.billing_type === 'onetime'
             ? `${product.points_amount.toLocaleString()} ${t('pricing.points', { default: '积分' })} · ${t('pricing.instantDelivery', { default: '即时到账' })}`
             : `${product.points_amount.toLocaleString()} ${t('pricing.points', { default: '积分' })} / ${t('pricing.month', { default: '月' })} · ${t('pricing.autoDelivery', { default: '自动发放' })}`}
@@ -86,23 +86,23 @@ function PriceCard({
       <CardContent className="relative flex flex-col flex-1 min-h-0">
         <div className="flex-1 overflow-y-auto mb-3">
           {product.description ? (
-            <div className="prose prose-invert prose-sm max-w-none text-slate-200 [&>*]:text-slate-200 [&>ul]:list-disc [&>ul]:ml-4 [&>ul]:space-y-1 [&>ol]:list-decimal [&>ol]:ml-4 [&>ol]:space-y-1 [&>p]:text-slate-300 [&>p]:text-sm [&>h1]:text-white [&>h2]:text-white [&>h3]:text-white [&>h4]:text-white [&>strong]:text-white [&>a]:text-amber-400 [&>a]:hover:text-amber-300">
+            <div className="prose prose-sm max-w-none text-gray-700 [&>*]:text-gray-700 [&>ul]:list-disc [&>ul]:ml-4 [&>ul]:space-y-1 [&>ol]:list-decimal [&>ol]:ml-4 [&>ol]:space-y-1 [&>p]:text-gray-600 [&>p]:text-sm [&>h1]:text-gray-800 [&>h2]:text-gray-800 [&>h3]:text-gray-800 [&>h4]:text-gray-800 [&>strong]:text-gray-800 [&>a]:text-[#FDBCB4] [&>a]:hover:text-[#F9A899]">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {product.description}
               </ReactMarkdown>
             </div>
           ) : (
-            <ul className="space-y-2 text-sm text-slate-200">
+            <ul className="space-y-2 text-sm text-gray-700">
               <li className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-purple-400" />
+                <Sparkles className="h-4 w-4 text-[#FDBCB4]" />
                 {t('pricing.feature1', { default: 'AI 角色生成 · 分镜创作' })}
               </li>
               <li className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-sky-400" />
+                <Clock className="h-4 w-4 text-[#ADD8E6]" />
                 {t('pricing.feature2', { default: '小说改编 · 视频生成' })}
               </li>
               <li className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
+                <ShieldCheck className="h-4 w-4 text-[#22C55E]" />
                 {t('pricing.feature3', { default: '积分长期有效 · 永久使用' })}
               </li>
             </ul>
@@ -110,7 +110,7 @@ function PriceCard({
         </div>
         {hasActiveSubscription && product.billing_type === 'recurring' ? (
           <Button
-            className="w-full flex-shrink-0 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 transition-all duration-300 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full flex-shrink-0 bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#22C55E] text-white transition-all duration-300 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
             disabled
           >
             <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -118,7 +118,7 @@ function PriceCard({
           </Button>
         ) : (
           <Button
-            className="w-full flex-shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 transition-all duration-300 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full flex-shrink-0 bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white transition-all duration-300 hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
             onClick={() => onPurchase(product)}
             disabled={isLoading}
           >
@@ -228,26 +228,26 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80">
       {isSubmitting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="flex items-center gap-3 rounded-xl bg-slate-900/80 px-4 py-3 border border-white/10 text-white shadow-2xl">
-            <Loader2 className="h-5 w-5 animate-spin text-amber-400" />
+          <div className="flex items-center gap-3 rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] px-4 py-3 text-gray-800">
+            <Loader2 className="h-5 w-5 animate-spin text-[#FDBCB4]" />
             <span>{t('pricing.processing', { default: '正在发起支付…' })}</span>
           </div>
         </div>
       )}
       <div className="mx-auto w-full max-w-5xl px-4 py-8">
         <div className="mb-10 flex flex-col gap-4">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs text-amber-300 border border-white/10">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#FDBCB4]/20 px-3 py-1 text-xs text-[#F9A899] border border-[#FDBCB4]/30">
             <Sparkles className="h-4 w-4" />
             {t('pricing.title', { default: '套餐与订阅' })}
           </div>
           <div>
-            <h1 className="text-3xl font-bold leading-tight md:text-4xl">
+            <h1 className="text-3xl font-bold leading-tight md:text-4xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
               {t('pricing.headline', { default: '选择适合你的积分套餐或订阅' })}
             </h1>
-            <p className="mt-2 text-slate-300">
+            <p className="mt-2 text-gray-600">
               {t('pricing.subtitle', { default: '一次性购买即时到账 · 订阅自动按月发放 · 可随时取消' })}
             </p>
           </div>
@@ -255,13 +255,13 @@ export default function PricingPage() {
 
         {/* 居中显示的 Tab 切换，带动态效果 */}
         <div className="flex justify-center mb-8">
-          <div className="relative inline-flex items-center gap-1 p-1.5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 shadow-xl w-full max-w-md">
+          <div className="relative inline-flex items-center gap-1 p-1.5 rounded-2xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] w-full max-w-md">
             <button
               onClick={() => setTab('recurring')}
               className={`relative z-10 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 flex-1 min-w-0 ${
                 tab === 'recurring'
-                  ? 'text-white shadow-lg'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-gray-800 shadow-md'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               <Repeat className="h-4 w-4 flex-shrink-0" />
@@ -271,8 +271,8 @@ export default function PricingPage() {
               onClick={() => setTab('onetime')}
               className={`relative z-10 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 flex-1 min-w-0 ${
                 tab === 'onetime'
-                  ? 'text-white shadow-lg'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-gray-800 shadow-md'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               <Coins className="h-4 w-4 flex-shrink-0" />
@@ -280,7 +280,7 @@ export default function PricingPage() {
             </button>
             {/* 动态背景指示器 */}
             <div
-              className={`absolute top-1.5 bottom-1.5 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 shadow-lg transition-all duration-300 ease-out ${
+              className={`absolute top-1.5 bottom-1.5 rounded-xl bg-gradient-to-r from-[#FDBCB4]/30 to-[#F9A899]/30 shadow-sm transition-all duration-300 ease-out ${
                 tab === 'recurring' ? 'left-1.5 right-1/2' : 'left-1/2 right-1.5'
               }`}
             />
@@ -293,7 +293,9 @@ export default function PricingPage() {
             {loadingSubs ? (
               <div className="grid gap-4 md:grid-cols-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-64 w-full rounded-2xl bg-white/5" />
+                  <div key={i} className="h-64 w-full rounded-2xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                    <div className="h-full w-full animate-pulse rounded-2xl bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20" />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -323,7 +325,9 @@ export default function PricingPage() {
             {loadingOnetime ? (
               <div className="grid gap-4 md:grid-cols-3">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-64 w-full rounded-2xl bg-white/5" />
+                  <div key={i} className="h-64 w-full rounded-2xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                    <div className="h-full w-full animate-pulse rounded-2xl bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20" />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -346,4 +350,3 @@ export default function PricingPage() {
     </div>
   )
 }
-

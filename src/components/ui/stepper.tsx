@@ -35,9 +35,9 @@ const stepperVariants = {
 
 const stepVariants = {
   status: {
-    completed: "text-white bg-gradient-to-r from-green-500 to-emerald-500 dark:from-green-600 dark:to-emerald-600 border-0 shadow-md shadow-green-500/30",
-    current: "text-white bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-600 dark:to-purple-600 border-0 shadow-lg shadow-blue-500/40 scale-110",
-    upcoming: "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600",
+    completed: "text-white bg-[#22C55E] border-0 shadow-md shadow-[#22C55E]/30",
+    current: "text-white bg-[#ADD8E6] border-0 shadow-lg shadow-[#ADD8E6]/40 scale-110",
+    upcoming: "text-gray-600 bg-[#FDBCB4]/10 border-2 border-[#FDBCB4]/30",
   },
   size: {
     sm: "w-6 h-6 text-xs",
@@ -137,9 +137,9 @@ const StepContent = ({
         <h3
         className={cn(
           "transition-colors font-semibold",
-          step.status === "current" && "text-gray-900 dark:text-default",
-          step.status === "completed" && "text-gray-700 dark:text-primary",
-          step.status === "upcoming" && "text-gray-500 dark:text-gray-500",
+          step.status === "current" && "text-[#22C55E]",
+          step.status === "completed" && "text-[#22C55E]",
+          step.status === "upcoming" && "text-gray-500",
           stepperVariants.size[size]
         )}
       >
@@ -149,7 +149,7 @@ const StepContent = ({
         <p
           className={cn(
             "text-sm text-muted-foreground mt-1",
-            step.status === "current" && "text-primary/70"
+            step.status === "current" && "text-[#ADD8E6]"
           )}
         >
           {step.description}
@@ -177,7 +177,7 @@ const Connector = ({
       <div
         className={cn(
           "w-px h-6 ml-4",
-          "border-l border-dashed border-orange-300 dark:border-orange-300/30 border-[1px]",
+          "border-l border-dashed border-[#ADD8E6] border-[1px]",
           variant === "minimal" && "ml-2"
         )}
       />
@@ -194,7 +194,7 @@ const Connector = ({
       <div
         className={cn(
           "h-px flex-1",
-          "border-t border-dashed border-orange-300 dark:border-orange-300/30 border-[1px]",
+          "border-t border-dashed border-[#ADD8E6] border-[1px]",
           variant === "minimal" && "mx-2"
         )}
       />

@@ -151,11 +151,11 @@ export function BottomSheet({
         <DialogPrimitive.Content
           className={cn(
             "fixed left-0 right-0 bottom-0 z-50 w-full max-w-5xl mx-auto flex flex-col",
-            "shadow-2xl rounded-t-3xl overflow-hidden",
+            "claymorphism rounded-t-3xl overflow-hidden",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
             "duration-300",
-            "bg-zinc-900",
+            "bg-white",
             className
           )}
           style={{
@@ -167,24 +167,24 @@ export function BottomSheet({
         >
           {/* 顶部拖动指示条 */}
           <div className="flex items-center justify-center pt-4 pb-2 flex-shrink-0">
-            <div className="w-12 h-1.5 rounded-full bg-zinc-700" />
+            <div className="w-12 h-1.5 rounded-full bg-[#ADD8E6]" />
           </div>
 
           {/* 关闭按钮 */}
           {showCloseButton && (
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none z-10 text-zinc-400">
+            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none z-10 text-gray-600">
               <X className="h-6 w-6" />
               <span className="sr-only">关闭</span>
             </DialogPrimitive.Close>
           )}
 
           {/* 标题区域 */}
-          <div className="flex flex-col space-y-2 px-6 pb-4 flex-shrink-0 border-b border-zinc-700">
-            <DialogPrimitive.Title className="text-lg font-semibold leading-none tracking-tight text-zinc-100">
+          <div className="flex flex-col space-y-2 px-6 pb-4 flex-shrink-0">
+            <DialogPrimitive.Title className="text-lg font-semibold leading-none tracking-tight text-gray-900">
               {title}
             </DialogPrimitive.Title>
             {description && (
-              <DialogPrimitive.Description className="text-sm text-zinc-400">
+              <DialogPrimitive.Description className="text-sm text-gray-600">
                 {description}
               </DialogPrimitive.Description>
             )}
@@ -194,7 +194,7 @@ export function BottomSheet({
           <div
             className={cn(
               "flex-1 overflow-y-auto overscroll-contain px-6 py-4",
-              "scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-700",
+              "scrollbar-thin scrollbar-thumb-blue",
               contentClassName
             )}
             style={{ 
@@ -208,7 +208,7 @@ export function BottomSheet({
 
           {/* 底部操作栏 */}
           {actions && actions.length > 0 && (
-            <div className="flex flex-row items-center gap-4 px-6 py-5 border-t flex-shrink-0 border-zinc-700 bg-zinc-800">
+            <div className="flex flex-row items-center gap-4 px-6 py-5 flex-shrink-0 bg-white">
               {actions.map((action, index) => (
                 <Button
                   key={index}

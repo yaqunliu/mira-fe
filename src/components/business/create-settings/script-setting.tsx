@@ -159,8 +159,8 @@ export function ScriptSetting({
   return (
     <div className="h-[calc(100vh-136px)] min-h-0 flex flex-col relative">
       {/* 装饰性背景 */}
-      <div className="absolute -top-20 -left-20 w-60 h-60 bg-indigo-400/10 dark:bg-indigo-400/5 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute -top-20 -right-20 w-60 h-60 bg-pink-400/10 dark:bg-pink-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="absolute -top-20 -left-20 w-60 h-60 bg-[#FDBCB4]/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute -top-20 -right-20 w-60 h-60 bg-[#ADD8E6]/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <ModuleLoading
         loading={isLoading || isGeneratingPlaybook}
@@ -169,19 +169,19 @@ export function ScriptSetting({
       >
         <div className={cn("space-y-4 h-full min-h-0 flex flex-col relative z-10", className)}>
           <div className="space-y-4 h-full min-h-0 flex-1 overflow-y-auto pb-22 px-6">
-            <h3 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-pink-600 dark:from-indigo-400 dark:to-pink-400 bg-clip-text text-transparent flex items-center gap-2">
-              <Film className="w-5 h-5 text-indigo-500" />
+            <h3 className="text-lg font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
+              <Film className="w-5 h-5 text-[#22C55E]" />
               {t("scene.totalScenes", { count: scenes.length })}
             </h3>
             {scenes.map((scene: IScene, index: number) => (
               <Card
                 key={scene.scene_id}
                 className={cn(
-                  "overflow-hidden p-0 border-2 border-indigo-200/50 dark:border-indigo-700/50 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900"
+                  "overflow-hidden p-0 claymorphism hover:shadow-xl transition-all duration-300 rounded-xl bg-white"
                 )}
               >
                 <CardHeader
-                  className="cursor-pointer bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 transition-all duration-200 p-3"
+                  className="cursor-pointer bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] hover:from-[#22C55E]/90 hover:to-[#ADD8E6]/90 transition-all duration-200 p-3"
                   onClick={() => toggleScene(scene.scene_id)}
                 >
               <div className="flex items-center justify-between">
@@ -190,27 +190,27 @@ export function ScriptSetting({
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="secondary"
-                        className="text-xs bg-white/80 dark:bg-gray-400/50 text-gray-700 dark:text-gray-300"
+                        className="text-xs bg-white/80 text-[#22C55E]"
                       >
                         {t("scene.sceneDisplay")} {index + 1}
                       </Badge>
-                      <CardTitle className="text-lg font-semibold text-white dark:text-gray-100">
+                      <CardTitle className="text-lg font-semibold text-white">
                         {scene.title}
                       </CardTitle>
                     </div>
                     <div className="flex items-center gap-4 mt-1">
-                      <div className="flex items-center gap-1 text-sm text-white/90 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-sm text-white/90">
                         <Clock className="h-4 w-4" />
                         {scene.duration}
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-white/90 dark:text-gray-400">
+                      <div className="flex items-center gap-1 text-sm text-white/90">
                         <Layers className="h-4 w-4" />
                         {scene.shots.length} {t("scene.shots")}
                       </div>
                     </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-white">
                   {isExpanded(scene.scene_id) ? (
                     <ChevronUp className="h-5 w-5" />
                   ) : (
@@ -224,29 +224,29 @@ export function ScriptSetting({
               <CardContent className="space-y-3 px-3">
                 {/* 场景设置信息 */}
                 <div className="space-y-3">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-stone-400 flex items-center gap-2">
+                  <h3 className="text-base font-semibold text-[#22C55E] flex items-center gap-2">
                     {t("scene.sceneSettings")}
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
+                    <Badge variant="secondary" className="text-xs whitespace-nowrap bg-[#FDBCB4]/10 text-[#22C55E] border border-[#FDBCB4]/30">
                       <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {`${scene.time_setting}`}
                       </div>
                     </Badge>
-                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
+                    <Badge variant="secondary" className="text-xs whitespace-nowrap bg-[#ADD8E6]/10 text-[#22C55E] border border-[#ADD8E6]/30">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-3 w-3" />
                         {`${scene.location}`}
                       </div>
                     </Badge>
-                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
+                    <Badge variant="secondary" className="text-xs whitespace-nowrap bg-[#FDBCB4]/10 text-[#22C55E] border border-[#FDBCB4]/30">
                       <div className="flex items-center gap-1">
                         <Building className="h-3 w-3" />
                         {`${scene.space_type}`}
                       </div>
                     </Badge>
-                    <Badge variant="destructive" className="text-xs whitespace-nowrap">
+                    <Badge variant="secondary" className="text-xs whitespace-nowrap bg-[#ADD8E6]/10 text-[#22C55E] border border-[#ADD8E6]/30">
                       <div className="flex items-center gap-1">
                         <Eye className="h-3 w-3" />
                         {`${scene.atmosphere}`}
@@ -301,7 +301,7 @@ export function ScriptSetting({
 
                 {/* 分镜列表 */}
                 <div className="space-y-3">
-                  <div className="text-md font-semibold text-gray-900 dark:text-stone-400 flex items-center gap-2">
+                  <div className="text-md font-semibold text-[#22C55E] flex items-center gap-2">
                     分镜列表 ({scene.shots.length} 个)
                   </div>
 
@@ -334,7 +334,7 @@ export function ScriptSetting({
         ))}
       </div>
       {/* 底部操作浮层 */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-t-2 border-indigo-200/50 dark:border-indigo-700/50 shadow-2xl backdrop-blur-sm">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-white via-[#ADD8E6]/10 to-white border-t-2 border-[#ADD8E6]/30 shadow-2xl backdrop-blur-sm">
         <div className="px-6 py-4">
           <div className="flex items-center justify-center">
             {/* 右侧操作按钮 */}
@@ -344,7 +344,7 @@ export function ScriptSetting({
               <Button
                 onClick={handleGeneratePlaybook}
                 disabled={isGeneratingPlaybook || isLoading}
-                className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white px-6 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 w-[160px]"
+                className="bg-[#22C55E] hover:bg-[#22C55E]/90 text-white px-6 shadow-lg shadow-[#22C55E]/20 hover:shadow-[#22C55E]/30 transition-all duration-200 hover:translate-y-0.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-[160px] border border-black/10"
               >
                 {isGeneratingPlaybook || isLoading ? (
                   <>
@@ -386,7 +386,7 @@ export function ScriptSetting({
                   onGenerateShots?.();
                 }}
                 disabled={isLoading || isGeneratingPlaybook}
-                className="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white px-4 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap"
+                className="bg-[#22C55E] hover:bg-[#22C55E]/90 text-white px-4 shadow-lg shadow-[#22C55E]/20 hover:shadow-[#22C55E]/30 transition-all duration-200 hover:translate-y-0.5 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 whitespace-nowrap border border-black/10"
               >
                 {isLoading || isGeneratingPlaybook ? (
                   <>

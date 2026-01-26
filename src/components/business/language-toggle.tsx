@@ -47,20 +47,20 @@ export function LanguageToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-full justify-start px-2 hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">
+        <Button variant="ghost" size="sm" className="h-8 w-full justify-start px-2 hover:bg-[#ADD8E6]/30 text-gray-600 hover:text-[#22C55E] transition-all shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-0.5">
           <Globe className="h-4 w-4 flex-shrink-0" />
           <span className="ml-2 text-xs font-medium">{currentLocale?.toUpperCase()}</span>
           <span className="sr-only">{t('toggle')}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900 border-gray-200 dark:border-white/10 z-[110]">
+      <DropdownMenuContent align="end" className="bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)] z-[110]">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => handleLanguageChange(lang.code)}
             className={cn(
-              currentLocale === lang.code ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white',
-              'cursor-pointer'
+              currentLocale === lang.code ? 'bg-[#22C55E]/20 text-[#22C55E]' : 'text-gray-700 hover:bg-[#ADD8E6]/30 hover:text-[#22C55E]',
+              'cursor-pointer transition-all duration-300'
             )}
           >
             {lang.name}

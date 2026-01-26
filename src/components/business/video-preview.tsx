@@ -227,24 +227,27 @@ export const VideoPreview: React.FC = () => {
   }, [currentTime, isPlaying, allRenderedClips, getClipPlaybackPosition]);
 
   return (
-    <div className="w-full h-full bg-black flex items-center justify-center relative overflow-hidden group">
+    <div className="w-full h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden group">
       {/* 时间和状态指示器 (仅在播放或有错误时显示) */}
       <div className="absolute top-4 left-4 z-50 pointer-events-none flex flex-col gap-2">
-        <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}`} />
-          <span className="text-xs font-mono text-white/90 tracking-widest">{formatTime(currentTime)} / {formatTime(project.duration)}</span>
-          <span className="text-[10px] text-white/40 border-l border-white/10 pl-2 ml-1">
+        <div className="bg-gradient-to-br from-gray-900/80 to-slate-900/80 backdrop-blur-lg px-3 py-1.5 rounded-full border border-gray-800/50 shadow-xl shadow-indigo-950/20 flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-gradient-to-r from-green-500 to-teal-500 animate-pulse shadow-lg shadow-green-500/50' : 'bg-gray-600'}`} />
+          <span className="text-xs font-mono text-gray-200 tracking-widest">{formatTime(currentTime)} / {formatTime(project.duration)}</span>
+          <span className="text-[10px] text-gray-400 border-l border-gray-700/50 pl-2 ml-1">
             {visibleClips.length} 片段
           </span>
         </div>
         
         {Object.keys(errors).map(clipId => (
-          <div key={clipId} className="bg-red-500/80 backdrop-blur-md px-3 py-1.5 rounded-md border border-red-400/20 text-[10px] text-white max-w-[200px] truncate">
+          <div key={clipId} className="bg-gradient-to-br from-red-500/90 to-rose-500/90 backdrop-blur-lg px-3 py-1.5 rounded-xl border border-red-500/50 shadow-xl shadow-red-500/20 text-[10px] text-white max-w-[200px] truncate">
             错误: {clipId}
           </div>
         ))}
       </div>
 
+      {/* 背景层 - 确保显示主题色渐变 */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-br from-gray-50 to-gray-100" />
+      
       {/* 视频层 */}
       <div className="absolute inset-0 z-10">
         {videoRenderItems.length > 0 ? (
@@ -254,28 +257,31 @@ export const VideoPreview: React.FC = () => {
               className={`absolute inset-0 flex items-center justify-center ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
               style={{ zIndex: clip.layer || 1 }}
             >
-              <PlayerItem 
-                clip={clip}
-                isPlaying={isPlaying}
-                isVisible={isVisible}
-                isMuted={isMuted}
-                setPlayer={handleSetPlayer}
-                onReady={handlePlayerReady}
-                onError={(e) => handlePlayerError(clip.id, e)}
-              />
+              {/* 添加视频背景容器，确保视频外区域显示主题色 */}
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+                <PlayerItem 
+                  clip={clip}
+                  isPlaying={isPlaying}
+                  isVisible={isVisible}
+                  isMuted={isMuted}
+                  setPlayer={handleSetPlayer}
+                  onReady={handlePlayerReady}
+                  onError={(e) => handlePlayerError(clip.id, e)}
+                />
+              </div>
               {isVisible && !isReady[clip.id] && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-900/80 to-slate-900/80 backdrop-blur-lg">
+                  <Loader2 className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 bg-clip-text text-transparent animate-spin shadow-lg shadow-green-500/30" />
                 </div>
               )}
             </div>
           ))
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-slate-600 gap-3">
-            <div className="p-4 bg-slate-900/50 rounded-full">
-              <Film size={48} strokeWidth={1.5} />
+          <div className="w-full h-full flex flex-col items-center justify-center text-gray-600 gap-3">
+            <div className="p-6 bg-gradient-to-br from-gray-900/90 to-slate-900/90 rounded-full border border-gray-800/50 shadow-xl shadow-indigo-950/20">
+              <Film size={48} strokeWidth={1.5} className="text-gray-500" />
             </div>
-            <p className="text-sm font-medium tracking-wide">暂无可见视频素材</p>
+            <p className="text-sm font-medium tracking-wide text-gray-400">暂无可见视频素材</p>
           </div>
         )}
       </div>
@@ -287,10 +293,10 @@ export const VideoPreview: React.FC = () => {
           .map(({ clip }) => (
             <div
               key={clip.id}
-              className="px-6 py-3 bg-black/75 backdrop-blur-sm rounded-lg max-w-[85%] text-center"
+              className="px-6 py-4 bg-gradient-to-br from-gray-900/90 to-slate-900/90 backdrop-blur-lg rounded-xl max-w-[85%] text-center border border-gray-800/50 shadow-2xl shadow-indigo-950/20"
               style={{ zIndex: clip.layer || 100 }}
             >
-              <p className="text-white text-lg leading-relaxed font-medium whitespace-pre-wrap break-words">
+              <p className="text-gray-200 text-lg leading-relaxed font-medium whitespace-pre-wrap break-words">
                 {clip.text}
               </p>
             </div>
@@ -317,7 +323,7 @@ export const VideoPreview: React.FC = () => {
       <div className="absolute bottom-4 right-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
         <button 
           onClick={() => setIsMuted(!isMuted)}
-          className="p-2 bg-slate-900/80 hover:bg-slate-800 text-white rounded-full backdrop-blur-md border border-white/10 transition-all active:scale-95"
+          className="p-2 bg-gradient-to-br from-gray-900/90 to-slate-900/90 hover:bg-gradient-to-br from-gray-800/90 to-slate-800/90 text-gray-300 hover:text-white rounded-full backdrop-blur-lg border border-gray-800/50 shadow-xl shadow-indigo-950/20 transition-all active:scale-95"
           title={isMuted ? '取消静音' : '静音'}
         >
           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
@@ -326,17 +332,12 @@ export const VideoPreview: React.FC = () => {
 
       {/* 播放状态指示器 */}
       {!isPlaying && videoRenderItems.some(item => item.isVisible) && (
-        <div className="absolute inset-0 z-20 bg-black/10 flex items-center justify-center pointer-events-none">
-          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20">
-            <div className="w-0 h-0 border-l-[15px] border-l-white border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent ml-1" />
+        <div className="absolute inset-0 z-20 bg-gradient-to-br from-black/20 to-transparent flex items-center justify-center pointer-events-none">
+          <div className="w-20 h-20 bg-gradient-to-br from-gray-900/80 to-slate-900/80 rounded-full flex items-center justify-center backdrop-blur-lg border border-gray-800/50 shadow-2xl shadow-indigo-950/30">
+            <div className="w-0 h-0 border-l-[18px] border-l-gray-300 hover:border-l-white border-t-[12px] border-t-transparent border-b-[12px] border-b-transparent ml-1 transition-colors" />
           </div>
         </div>
       )}
-
-      {/* 时间显示 */}
-      <div className="absolute top-4 left-4 px-3 py-1.5 bg-black/50 backdrop-blur-sm rounded text-white text-sm font-mono border border-white/10 z-30">
-        {formatTime(currentTime)} / {formatTime(project.duration)}
-      </div>
     </div>
   );
 };

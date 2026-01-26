@@ -43,49 +43,47 @@ export function ShotItem({
   };
   return (
     <>
-      <Card className={cn("p-3 gap-2 border-none bg-gray-600/30", className)}>
-        <CardHeader className="px-0 border-b-[1px] border-orange-500/20 dark:border-gray-600/20">
+      <div className={cn("p-4 gap-2 rounded-2xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100", className)}>
+        <div className="px-0 pb-3 border-b-[1px] border-blue-100">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-md font-semibold text-gray-900 dark:text-gray-100">
-              <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="text-xs bg-orange-400/40">
-                    {`分镜 ${index + 1}`} 
-                  </Badge>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground ml-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{currentShot.video_duration || 5}s</span>
-                  </div>
-                <div className="text-md font-semibold text-gray-900 dark:text-gray-100 ml-2">
-                  {currentShot.title}
-                </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 text-white px-2 py-0.5">
+                {`分镜 ${index + 1}`} 
+              </Badge>
+              <div className="flex items-center gap-1 text-xs text-gray-600 ml-1">
+                <Clock className="h-3 w-3" />
+                <span>{currentShot.video_duration || 5}s</span>
               </div>
-            </CardTitle>
+              <div className="text-md font-semibold text-gray-800 ml-2">
+                {currentShot.title}
+              </div>
+            </div>
             <PencilLine 
-              className="h-4 w-4 text-gray-500 dark:text-stone-400 cursor-pointer hover:text-orange-500 transition-colors" 
+              className="h-4 w-4 text-gray-500 cursor-pointer hover:text-#22C55E transition-colors" 
               onClick={handleEdit}
             />
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="space-y-3 p-0">
+        <div className="space-y-4 pt-3">
           {/* 角色信息 */}
           {currentShot.characters?.length > 0 && (
-            <div className="space-y-1">
-              <div className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="space-y-2">
+              <div className="flex items-center gap-1 text-sm font-medium text-gray-800">
                 <Users className="h-3 w-3" />
                 角色
               </div>
               <div className="flex flex-wrap gap-2">
                 {currentShot.characters.map((character: ICharacter, idx: number) => (
-                  <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1">
+                  <Badge key={idx} variant="outline" className="text-xs flex items-center gap-1 rounded-full bg-white border border-blue-100 shadow-sm">
                     {character.image_url ? (
                       <img
                         src={character.image_url}
                         alt={character.name}
-                        className="w-6 h-6 rounded-full object-cover"
+                        className="w-6 h-6 rounded-full object-cover shadow-sm"
                       />
                     ) : null}
-                    <span>{character.name}</span>
+                    <span className="text-gray-700">{character.name}</span>
                   </Badge>
                 ))}
               </div>
@@ -93,27 +91,27 @@ export function ShotItem({
           )}
 
           {/* 旁白 */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="space-y-2">
+            <div className="flex items-center gap-1 text-sm font-medium text-gray-800">
               <Mic className="h-3 w-3" />
               旁白
             </div>
             <div className="space-y-1">
               {Array.isArray(currentShot.narration) && currentShot.narration.length > 0 ? (
                 currentShot.narration.map((item, idx) => (
-                  <p key={idx} className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic">
+                  <p key={idx} className="text-sm text-gray-600 leading-relaxed italic">
                     "{typeof item === 'string' ? item : item.内容}"
                   </p>
                 ))
               ) : (
-                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic opacity-50">
+                <p className="text-sm text-gray-400 leading-relaxed italic">
                   暂无旁白
                 </p>
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <StoryboardEditModal
         isOpen={isEditModalOpen}

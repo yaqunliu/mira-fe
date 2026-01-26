@@ -40,20 +40,17 @@ export default function HomePage() {
     {
       title: t('homePage.feature1Title'),
       desc: t('homePage.feature1Description'),
-      icon: <BookOpenText className="h-5 w-5 text-orange-500" />,
-      accent: 'from-orange-400/70 to-amber-500/50',
+      icon: <BookOpenText className="h-6 w-6 text-[#22C55E]" />,
     },
     {
       title: t('homePage.feature2Title'),
       desc: t('homePage.feature2Description'),
-      icon: <Sparkles className="h-5 w-5 text-purple-500" />,
-      accent: 'from-purple-400/60 to-blue-500/40',
+      icon: <Sparkles className="h-6 w-6 text-[#22C55E]" />,
     },
     {
       title: t('homePage.feature3Title'),
       desc: t('homePage.feature3Description'),
-      icon: <Video className="h-5 w-5 text-teal-500" />,
-      accent: 'from-teal-400/60 to-emerald-400/40',
+      icon: <Video className="h-6 w-6 text-[#22C55E]" />,
     },
   ]
 
@@ -167,14 +164,14 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-orange-200 via-amber-100 to-amber-200 dark:from-zinc-950 dark:via-black dark:to-zinc-900">
-      <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-orange-500/10 blur-3xl animate-blob-slow" />
-      <div className="pointer-events-none absolute right-10 top-24 h-72 w-72 rounded-full bg-purple-500/10 blur-3xl animate-blob-slower" />
-      <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-amber-400/10 blur-3xl animate-blob-slow" />
+    <div className="relative min-h-screen bg-gradient-to-b from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white">
+      <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-[#FDBCB4]/30 blur-3xl animate-blob-slow" />
+      <div className="pointer-events-none absolute right-10 top-24 h-72 w-72 rounded-full bg-[#ADD8E6]/30 blur-3xl animate-blob-slower" />
+      <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-[#22C55E]/20 blur-3xl animate-blob-slow" />
 
       <div className="relative container mx-auto px-4 py-10 lg:py-16">
         {/* 顶部操作栏 */}
-        <div className="mb-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.push(`/${locale}/home`)}
@@ -185,93 +182,96 @@ export default function HomePage() {
                 alt="Mira"
                 width={48}
                 height={48}
-                className="object-contain group-hover:opacity-80 transition-opacity"
+                className="object-contain group-hover:opacity-80 transition-opacity shadow-md shadow-[#ADD8E6]/30 rounded-xl"
               />
-              <h1 className="text-3xl font-bold text-gradient-primary lg:text-4xl group-hover:opacity-80 transition-opacity">
+              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-br from-[#22C55E] to-[#ADD8E6] lg:text-4xl group-hover:opacity-80 transition-opacity">
                 {t('homePage.title')}
               </h1>
             </button>
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-sm text-muted-foreground shadow-sm ring-1 ring-orange-100/80 backdrop-blur dark:bg-white/5 dark:ring-white/10">
-              <Sparkles className="h-4 w-4 text-orange-500" />
+            <p className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-medium text-[#22C55E] shadow-[2px_2px_4px_rgba(173,221,230,0.3),-1px_-1px_3px_rgba(255,255,255,0.7)] hover:shadow-[3px_3px_6px_rgba(173,221,230,0.4),-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all duration-300">
+              <Sparkles className="h-4 w-4 text-[#22C55E]" />
               {t('homePage.heroBadge')}
             </p>
           </div>
           {/* 隐藏签到按钮 */}
         </div>
 
-        <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div className="space-y-7">
-            <div className="space-y-3">
-              <h2 className="text-4xl font-semibold leading-tight text-zinc-900 dark:text-white lg:text-5xl">
+        {/* Hero 区块 */}
+        <div className="mb-16 grid items-center gap-10 lg:grid-cols-2">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-4xl font-bold leading-tight text-gray-900 lg:text-5xl">
                 {t('homePage.heroHeadline')}
               </h2>
-              <p className="max-w-2xl text-lg text-muted-foreground">
+              <p className="max-w-2xl text-lg text-gray-600">
                 {t('homePage.heroDescription')}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-4">
               <Button
                 onClick={handleStartCreating}
                 size="lg"
-                className="gap-2 rounded-full px-6 shadow-lg shadow-orange-300/30 transition hover:scale-[1.01] hover:shadow-orange-400/40"
+                className="gap-2 rounded-lg px-8 transition-all hover:scale-[1.02]"
               >
                 <Wand2 className="h-5 w-5" />
                 {t('homePage.startCreating')}
                 <ArrowRight className="h-5 w-5" />
               </Button>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="lg"
                 onClick={handleBrowseCreations}
-                className="gap-2 rounded-full border-orange-100 bg-white/60 px-6 text-orange-700 hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-white"
+                className="gap-2 rounded-lg px-8"
               >
                 <Video className="h-5 w-5" />
                 {t('homePage.browseCreations')}
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-4 rounded-2xl border border-white/80 bg-white/70 p-4 shadow-sm backdrop-blur dark:border-white/5 dark:bg-white/5">
-              {stats.map((item) => (
-                <div key={item.label} className="space-y-1">
-                  <div className="text-2xl font-semibold text-zinc-900 dark:text-white">{item.value}</div>
-                  <p className="text-sm text-muted-foreground">{item.sub}</p>
-                </div>
-              ))}
+            <div className="shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] rounded-xl p-6 bg-white transition-all duration-300">
+              <div className="grid grid-cols-2 gap-6">
+                {stats.map((item) => (
+                  <div key={item.label} className="space-y-2">
+                    <div className="text-3xl font-bold text-gray-900">{item.value}</div>
+                    <p className="text-sm text-gray-600">{item.sub}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
+          {/* 右侧卡片区块 */}
           <div className="relative">
-            <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-tr from-orange-300/50 via-amber-200/40 to-purple-300/40 blur-2xl dark:from-orange-500/10 dark:via-white/5 dark:to-purple-500/10" />
-            <div className="rounded-3xl border border-white/60 bg-white/70 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-white/5">
-              <div className="flex flex-col gap-4 p-6">
+            <div className="shadow-[8px_8px_16px_rgba(173,221,230,0.3),-6px_-6px_12px_rgba(255,255,255,0.7)] hover:shadow-[10px_10px_20px_rgba(173,221,230,0.4),-8px_-8px_16px_rgba(255,255,255,0.8)] rounded-2xl p-8 bg-white transition-all duration-300">
+              <div className="flex flex-col gap-6">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">{t('homePage.workspaceLabel')}</p>
-                    <p className="mt-1 text-xl font-semibold text-zinc-900 dark:text-white">
+                    <p className="text-sm text-gray-500">{t('homePage.workspaceLabel')}</p>
+                    <p className="mt-2 text-xl font-semibold text-gray-900">
                       {isGuest ? t('homePage.welcomeGuest') : t('homePage.welcomeBack', { name: user?.username || '' })}
                     </p>
                   </div>
-                  <div className="rounded-full bg-orange-100 px-3 py-1 text-xs font-medium text-orange-700 dark:bg-orange-500/20 dark:text-orange-200">
+                  <div className="rounded-full bg-[#22C55E]/20 px-4 py-2 text-xs font-medium text-[#22C55E]">
                     {t('homePage.realtimeSync')}
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-orange-100/50 bg-gradient-to-r from-orange-100/70 via-amber-50/60 to-amber-200/60 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:from-orange-500/10 dark:via-white/5 dark:to-amber-400/10">
+                <div className="shadow-[inset_2px_2px_4px_rgba(173,221,230,0.3),inset_-1px_-1px_2px_rgba(255,255,255,0.7)] rounded-xl p-6 bg-white">
                   {authLoading || waitingForUserInfo ? (
-                    <div className="flex items-center justify-center py-6 text-muted-foreground">
+                    <div className="flex items-center justify-center py-8 text-gray-500">
                       {t('common.loading')}
                     </div>
                   ) : isAuthenticated && user ? (
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-14 w-14 ring-2 ring-orange-200 dark:ring-orange-500/30">
+                    <div className="flex items-center gap-6">
+                      <Avatar className="h-16 w-16">
                         {user.avatar ? <AvatarImage src={user.avatar} alt={user.username} /> : null}
-                        <AvatarFallback className="bg-orange-500/10">
-                          <User className="h-6 w-6 text-orange-500" />
+                        <AvatarFallback className="bg-[#22C55E]">
+                          <User className="h-8 w-8 text-white" />
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <p className="text-lg font-semibold text-zinc-900 dark:text-white">{user.username}</p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                        <div className="mt-2 flex items-center gap-2 text-xs text-orange-600 dark:text-orange-300">
+                        <p className="text-lg font-semibold text-gray-900">{user.username}</p>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <div className="mt-3 flex items-center gap-2 text-xs text-[#22C55E]">
                           <ShieldCheck className="h-4 w-4" />
                           {t('homePage.dataProtected')}
                         </div>
@@ -279,61 +279,61 @@ export default function HomePage() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <p className="text-lg font-semibold text-zinc-900 dark:text-white">
+                      <div className="space-y-2">
+                        <p className="text-lg font-semibold text-gray-900">
                           {t('homePage.notLoggedIn')}
                         </p>
-                        <p className="text-sm text-muted-foreground">{t('homePage.loginPrompt')}</p>
+                        <p className="text-sm text-gray-500">{t('homePage.loginPrompt')}</p>
                       </div>
-                      <Button onClick={handleLogin} variant="secondary" className="rounded-full">
+                      <Button onClick={handleLogin} variant="secondary" className="rounded-lg">
                         {t('auth.login')}
                       </Button>
                     </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <Card className="border-none bg-white/60 p-4 shadow-sm backdrop-blur dark:bg-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-orange-500/10 p-2">
-                        <Cpu className="h-5 w-5 text-orange-500" />
+                <div className="grid grid-cols-2 gap-4">
+                  <Card className="p-5 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="rounded-xl bg-[#ADD8E6]/30 p-3">
+                        <Cpu className="h-6 w-6 text-[#22C55E]" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-zinc-900 dark:text-white">{t('homePage.cardSmartStoryboard')}</p>
-                        <p className="text-xs text-muted-foreground">{t('homePage.cardSmartStoryboardDesc')}</p>
+                        <p className="text-sm font-semibold text-gray-900">{t('homePage.cardSmartStoryboard')}</p>
+                        <p className="text-xs text-gray-500">{t('homePage.cardSmartStoryboardDesc')}</p>
                       </div>
                     </div>
                   </Card>
-                  <Card className="border-none bg-white/60 p-4 shadow-sm backdrop-blur dark:bg-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-purple-500/10 p-2">
-                        <Palette className="h-5 w-5 text-purple-500" />
+                  <Card className="p-5 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="rounded-xl bg-[#FDBCB4]/30 p-3">
+                        <Palette className="h-6 w-6 text-[#22C55E]" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-zinc-900 dark:text-white">{t('homePage.cardMoodLight')}</p>
-                        <p className="text-xs text-muted-foreground">{t('homePage.cardMoodLightDesc')}</p>
+                        <p className="text-sm font-semibold text-gray-900">{t('homePage.cardMoodLight')}</p>
+                        <p className="text-xs text-gray-500">{t('homePage.cardMoodLightDesc')}</p>
                       </div>
                     </div>
                   </Card>
-                  <Card className="border-none bg-white/70 p-4 shadow-sm backdrop-blur dark:bg-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-teal-500/10 p-2">
-                        <Clock3 className="h-5 w-5 text-teal-500" />
+                  <Card className="p-5 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="rounded-xl bg-[#22C55E]/20 p-3">
+                        <Clock3 className="h-6 w-6 text-[#22C55E]" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-zinc-900 dark:text-white">{t('homePage.cardRealtimePreview')}</p>
-                        <p className="text-xs text-muted-foreground">{t('homePage.cardRealtimePreviewDesc')}</p>
+                        <p className="text-sm font-semibold text-gray-900">{t('homePage.cardRealtimePreview')}</p>
+                        <p className="text-xs text-gray-500">{t('homePage.cardRealtimePreviewDesc')}</p>
                       </div>
                     </div>
                   </Card>
-                  <Card className="border-none bg-white/70 p-4 shadow-sm backdrop-blur dark:bg-white/5">
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-emerald-500/10 p-2">
-                        <Wand2 className="h-5 w-5 text-emerald-500" />
+                  <Card className="p-5 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-1 transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="rounded-xl bg-[#ADD8E6]/30 p-3">
+                        <Wand2 className="h-6 w-6 text-[#22C55E]" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-zinc-900 dark:text-white">{t('homePage.cardOneClickExport')}</p>
-                        <p className="text-xs text-muted-foreground">{t('homePage.cardOneClickExportDesc')}</p>
+                        <p className="text-sm font-semibold text-gray-900">{t('homePage.cardOneClickExport')}</p>
+                        <p className="text-xs text-gray-500">{t('homePage.cardOneClickExportDesc')}</p>
                       </div>
                     </div>
                   </Card>
@@ -343,41 +343,40 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="mt-14 space-y-8">
-          <div className="flex flex-col gap-2">
-            <p className="text-sm uppercase tracking-[0.2em] text-orange-500">{t('homePage.featureSectionTag')}</p>
-            <h3 className="text-2xl font-semibold text-zinc-900 dark:text-white">{t('homePage.featureSectionTitle')}</h3>
-            <p className="text-muted-foreground">
+        {/* 特性区块 */}
+        <div className="mb-16 space-y-8">
+          <div className="flex flex-col gap-3">
+            <p className="text-sm uppercase tracking-[0.2em] text-[#22C55E]">{t('homePage.featureSectionTag')}</p>
+            <h3 className="text-3xl font-bold text-gray-900">{t('homePage.featureSectionTitle')}</h3>
+            <p className="text-gray-600">
               {t('homePage.featureSectionDesc')}
             </p>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-3">
             {featureCards.map((item) => (
               <Card
                 key={item.title}
-                className="relative overflow-hidden border-none bg-white/80 p-5 shadow-md ring-1 ring-white/70 backdrop-blur hover:-translate-y-1 hover:shadow-xl transition dark:bg-white/5 dark:ring-white/10"
+                className="shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.7)] hover:shadow-[8px_8px_16px_rgba(173,221,230,0.4),-6px_-6px_12px_rgba(255,255,255,0.8)] p-6 hover:-translate-y-2 transition-all duration-300 bg-white"
               >
-                <div
-                  className={`absolute inset-0 -z-10 bg-gradient-to-br ${item.accent} opacity-70 blur-3xl`}
-                />
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/80 shadow-sm ring-1 ring-white/70 backdrop-blur dark:bg-white/10 dark:ring-white/10">
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white shadow-[2px_2px_4px_rgba(173,221,230,0.3),-1px_-1px_3px_rgba(255,255,255,0.7)]">
                   {item.icon}
                 </div>
-                <div className="mt-4 space-y-1">
-                  <p className="text-lg font-semibold text-zinc-900 dark:text-white">{item.title}</p>
-                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <div className="mt-5 space-y-3">
+                  <p className="text-xl font-semibold text-gray-900">{item.title}</p>
+                  <p className="text-sm text-gray-600">{item.desc}</p>
                 </div>
               </Card>
             ))}
           </div>
         </div>
 
-        <div className="mt-14 rounded-3xl border border-white/80 bg-white/70 p-6 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-orange-500">{t('homePage.workflowTag')}</p>
-              <h4 className="text-xl font-semibold text-zinc-900 dark:text-white">{t('homePage.workflowTitle')}</h4>
-              <p className="text-sm text-muted-foreground">
+        {/* 工作流程区块 */}
+        <div className="mb-16 shadow-[8px_8px_16px_rgba(173,221,230,0.3),-6px_-6px_12px_rgba(255,255,255,0.7)] rounded-2xl p-8 bg-white transition-all duration-300">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-4 lg:max-w-md">
+              <p className="text-sm font-medium text-[#22C55E]">{t('homePage.workflowTag')}</p>
+              <h4 className="text-2xl font-bold text-gray-900">{t('homePage.workflowTitle')}</h4>
+              <p className="text-gray-600">
                 {t('homePage.workflowDesc')}
               </p>
             </div>
@@ -385,13 +384,13 @@ export default function HomePage() {
               {workflow.map((step) => (
                 <div
                   key={step.title}
-                  className="rounded-2xl border border-orange-100 bg-gradient-to-b from-white to-orange-50/60 p-4 text-sm shadow-sm transition hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:from-white/10 dark:to-white/5"
+                  className="shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] rounded-xl p-5 transition-all duration-300 hover:-translate-y-2 bg-white"
                 >
-                  <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-orange-500/10 px-3 py-1 text-orange-600 dark:text-orange-300">
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#22C55E]/20 px-4 py-2 text-[#22C55E]">
                     {step.icon}
                     <span className="text-xs font-semibold">{step.title}</span>
                   </div>
-                  <p className="text-muted-foreground">{step.desc}</p>
+                  <p className="text-sm text-gray-600">{step.desc}</p>
                 </div>
               ))}
             </div>

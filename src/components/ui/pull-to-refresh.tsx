@@ -109,13 +109,13 @@ export function PullToRefresh({
         <div className="flex flex-col items-center gap-1 py-2">
           {isRefreshing ? (
             <>
-              <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#22C55E]" />
               <span className="text-xs text-muted-foreground">刷新中...</span>
             </>
           ) : (
             <>
               <ArrowDown
-                className="w-5 h-5 text-orange-500 transition-transform"
+                className="w-5 h-5 text-[#22C55E] transition-transform"
                 style={{ transform: `rotate(${indicatorRotation}deg)` }}
               />
               <span className="text-xs text-muted-foreground">

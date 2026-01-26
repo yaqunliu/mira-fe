@@ -71,37 +71,37 @@ export function SceneBreakdown() {
         <h2 className="text-xl font-semibold">{t("createVideo.script")}</h2>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {scenes.map((scene: IScene, index: number) => (
-          <Card key={scene.scene_id} className="overflow-hidden">
-            <CardHeader
-              className="cursor-pointer bg-muted/50 hover:bg-muted transition-colors p-4"
+          <div key={scene.scene_id} className="rounded-2xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] overflow-hidden transition-all duration-200 hover:scale-[1.01]">
+            <div
+              className="cursor-pointer p-6 transition-colors"
               onClick={() => toggleScene(scene.scene_id)}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Badge variant="outline">{t("scene.sceneDisplay")} {index + 1}</Badge>
-                  <CardTitle className="text-base">{scene.title}</CardTitle>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-4 flex-wrap">
+                  <span className="px-3 py-1 rounded-xl bg-gradient-to-br from-pink-100 to-pink-50 border border-pink-100 shadow-[2px_2px_8px_rgba(0,0,0,0.05),-2px_-2px_8px_rgba(255,255,255,0.8)] text-sm font-medium">{t("scene.sceneDisplay")} {index + 1}</span>
+                  <h3 className="text-lg font-semibold">{scene.title}</h3>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {scene.duration}</span>
                      <span className="flex items-center gap-1"><Layers className="w-3 h-3" /> {scene.shots?.length || 0} {t("scene.shots")}</span>
                   </div>
                 </div>
-                {expandedScenes.has(scene.scene_id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {expandedScenes.has(scene.scene_id) ? <ChevronUp className="w-5 h-5 text-gray-600" /> : <ChevronDown className="w-5 h-5 text-gray-600" />}
               </div>
-            </CardHeader>
+            </div>
             {expandedScenes.has(scene.scene_id) && (
-                <CardContent className="p-4 space-y-4">
+                <div className="p-6 space-y-4 border-t border-blue-100">
                     {/* Scene Details */}
-                    <div className="flex flex-wrap gap-2 text-xs">
-                        <Badge variant="secondary">{scene.time_setting}</Badge>
-                        <Badge variant="secondary">{scene.location}</Badge>
-                        <Badge variant="secondary">{scene.space_type}</Badge>
-                        <Badge variant="secondary">{scene.atmosphere}</Badge>
+                    <div className="flex flex-wrap gap-3 text-xs">
+                        <span className="px-3 py-1 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">{scene.time_setting}</span>
+                        <span className="px-3 py-1 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">{scene.location}</span>
+                        <span className="px-3 py-1 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">{scene.space_type}</span>
+                        <span className="px-3 py-1 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">{scene.atmosphere}</span>
                     </div>
                     
                     {/* Shots List */}
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {scene.shots?.map((shot, sIndex) => (
                             <ShotItem 
                                 key={shot.shot_id} 
@@ -112,17 +112,21 @@ export function SceneBreakdown() {
                             />
                         ))}
                     </div>
-                </CardContent>
+                </div>
             )}
-          </Card>
+          </div>
         ))}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t flex justify-end container mx-auto z-10">
-          <Button onClick={submitGenerate} size="lg" className="gap-2" disabled={isSubmitting || isGenerating}>
+      <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-br from-white to-blue-50 border-t border-blue-100 flex justify-end container mx-auto z-10 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+          <button 
+            onClick={submitGenerate} 
+            disabled={isSubmitting || isGenerating}
+            className={`px-8 py-3 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 ${(isSubmitting || isGenerating) ? 'opacity-60 cursor-not-allowed' : ''}`}
+          >
               {isSubmitting || isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               {t("createVideo.generateShotImages")} <ArrowRight className="w-4 h-4" />
-          </Button>
+          </button>
       </div>
     </div>
   );
