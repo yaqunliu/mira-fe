@@ -8,7 +8,7 @@ import { AssetManager } from '@/components/business/asset-manager';
 import { useTimelineStore } from '@/stores/timeline';
 import { TimelineProject, TimelineTrack } from '@/types/timeline';
 import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus, Monitor, Smartphone } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, NextIntlClientProvider } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import creationApi from '@/lib/api/creation';
 import characterApi from '@/lib/api/character';
@@ -45,20 +45,93 @@ import { ShotEditModal } from "@/components/modals/shot-edit-modal";
 import { VideoGenerationDialog } from "@/components/modals/video-generation-dialog";
 import { ExportTriggerDialog } from "@/components/timeline/export-trigger-dialog";
 import { ExportPreviewDialog } from "@/components/timeline/export-preview-dialog";
+import { ImageHistoryDialog } from "@/components/timeline/image-history-dialog";
 import { produce } from 'immer';
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ImagePreview } from "@/components/ui/image-preview";
 import { cn, downloadFile } from "@/lib/utils";
+// 移除服务器端函数导入，因为不能在客户端组件中使用
 
 // API BASE URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// 创建一个简单的消息对象作为 fallback
+const fallbackMessages = {
+    Editor: {
+        initializing: "初始化中...",
+        newProject: "新项目",
+        analyzingCharacters: "正在分析角色...",
+        analysisStarted: "分析已开始",
+        analysisCompleted: "分析已完成",
+        analysisFailed: "分析失败",
+        analyzingScenes: "正在分析场景...",
+        sceneAnalysisStarted: "场景分析已开始",
+        sceneAnalysisCompleted: "场景分析已完成",
+        sceneAnalysisFailed: "场景分析失败",
+        regenerating: "重新生成中...",
+        regenerationFailed: "重新生成失败",
+        generationStarted: "生成已开始",
+        sceneImagesGenerated: "场景图片已生成",
+        generationFailed: "生成失败",
+        analyzingShots: "正在分析分镜...",
+        shotAnalysisStarted: "分镜分析已开始",
+        shotAnalysisCompleted: "分镜分析已完成",
+        shotAnalysisFailed: "分镜分析失败",
+        shotImagesGenerated: "分镜图片已生成",
+        videoGenerationStarted: "视频生成已开始",
+        videoGenerated: "视频已生成",
+        videoGenerationFailed: "视频生成失败",
+        noShotsWithImages: "没有带图片的分镜",
+        batchVideoGenerationStarted: "批量视频生成已开始",
+        batchVideoGenerationCompleted: "批量视频生成已完成",
+        needImageFirst: "请先生成分镜图片",
+        videoAlreadyGenerating: "视频正在生成中",
+        failedToFetchTaskData: "获取任务数据失败",
+        failedToLoadTask: "加载任务失败",
+        importedClips: "已导入片段",
+        shots: "分镜",
+        createdTracks: "已创建轨道",
+        addedAssetsToTracks: "已添加素材到轨道",
+        noAssetsAvailable: "没有可用素材",
+        pleaseAnalyzeCharacters: "请分析角色",
+        analyzeCharactersDescription: "分析角色后可以生成角色图片",
+        analyzeCharacters: "分析角色",
+        titleUpdated: "标题已更新",
+        updateFailed: "更新失败",
+        error: "错误",
+        generatingDynamicComic: "正在生活动漫...",
+        saveSuccess: "保存成功",
+        saveFailed: "保存失败",
+        modelSettings: "模型设置",
+        usageGuide: "使用指南",
+        landscape: "横版 (16:9)",
+        portrait: "竖版 (9:16)",
+        characters: "角色",
+        scenes: "场景",
+        assets: "素材"
+    },
+    common: {
+        insufficientPoints: "点数不足"
+    }
+};
+
 export default function DynamicComicEditor() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const t = useTranslations('Editor');
-    const tC = useTranslations('common');
+    
+    // 尝试使用 useTranslations，如果失败则使用 fallback
+    let t: (key: string, options?: any) => string;
+    let tC: (key: string, options?: any) => string;
+    
+    try {
+        t = useTranslations('Editor');
+        tC = useTranslations('common');
+    } catch (error) {
+        // 如果无法获取上下文，使用 fallback
+        t = (key: string) => fallbackMessages.Editor[key] || key;
+        tC = (key: string) => fallbackMessages.common[key] || key;
+    }
     const taskId = searchParams.get('taskId');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -72,6 +145,7 @@ export default function DynamicComicEditor() {
     const [textToImageModel, setTextToImageModel] = useState<string>("");
     const [imageToImageModel, setImageToImageModel] = useState<string>("");
     const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
+    const [visualStyle, setVisualStyle] = useState<string>("anime");
 
     // Fetch model configs
     const { data: modelConfigsData } = useQuery({
@@ -144,7 +218,9 @@ export default function DynamicComicEditor() {
     // Export Dialog State
     const [showExportTriggerDialog, setShowExportTriggerDialog] = useState(false);
     const [showExportPreviewDialog, setShowExportPreviewDialog] = useState(false);
+    const [showImageHistoryDialog, setShowImageHistoryDialog] = useState(false);
     const [showModelSettings, setShowModelSettings] = useState(false);
+    const [showTimeline, setShowTimeline] = useState(true);
     const [exportProgress, setExportProgress] = useState<{
         percent: number;
         status: string;
@@ -170,10 +246,16 @@ export default function DynamicComicEditor() {
         const savedTextToImageModel = extraData?.text_to_image_model;
         const savedImageToImageModel = extraData?.image_to_image_model;
         const savedAspectRatio = extraData?.aspect_ratio;
+        const savedVisualStyle = extraData?.visual_style;
 
         // Aspect Ratio
         if (savedAspectRatio && savedAspectRatio !== aspectRatio) {
             setAspectRatio(savedAspectRatio as "16:9" | "9:16");
+        }
+
+        // Visual Style
+        if (savedVisualStyle && savedVisualStyle !== visualStyle) {
+            setVisualStyle(savedVisualStyle);
         }
 
         // Video Model
@@ -229,6 +311,31 @@ export default function DynamicComicEditor() {
             } catch (error) {
                 console.error("Failed to update model:", error);
                 toast.error("更新模型配置失败");
+            }
+        }
+    };
+
+    const handleStyleChange = async (newStyle: string) => {
+        setVisualStyle(newStyle);
+        if (creation?.uuid) {
+            try {
+                const updatedExtraData = {
+                    ...(creation.extra_data || {}),
+                    visual_style: newStyle
+                };
+
+                await creationApi.updateCreation(creation.uuid, {
+                    extra_data: updatedExtraData
+                });
+                // 更新本地 creation 状态，防止重新初始化覆盖
+                setCreation({
+                    ...creation,
+                    extra_data: updatedExtraData
+                });
+                toast.success("风格配置已更新");
+            } catch (error) {
+                console.error("Failed to update style:", error);
+                toast.error("更新风格配置失败");
             }
         }
     };
@@ -2322,6 +2429,20 @@ export default function DynamicComicEditor() {
                             <History size={14} />
                             <span>导出历史</span>
                         </button>
+                        <button
+                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-purple-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-purple-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
+                            onClick={() => setShowImageHistoryDialog(true)}
+                        >
+                            <ImageIcon size={14} className="text-purple-500" />
+                            <span>图片历史</span>
+                        </button>
+                        <button
+                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
+                            onClick={() => setShowTimeline(!showTimeline)}
+                        >
+                            <Monitor size={14} className={showTimeline ? "text-blue-500" : "text-gray-400"} />
+                            <span>{showTimeline ? '隐藏时间轴' : '显示时间轴'}</span>
+                        </button>
                         <Button
                             size="sm"
                             className={cn(
@@ -2497,7 +2618,7 @@ export default function DynamicComicEditor() {
                                                                     {regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating' ? (
                                                                         <div className={cn(
                                                                             "w-full flex items-center justify-center bg-[#FDBCB4]/50",
-                                                                            aspectRatio === "9:16" ? "aspect-[9/16]" : "aspect-[16/9]"
+                                                                            "aspect-[16/9]"
                                                                         )}>
                                                                             <Loader2 className="w-4 h-4 text-[#22C55E] animate-spin" />
                                                                         </div>
@@ -2539,11 +2660,51 @@ export default function DynamicComicEditor() {
                                                                                 >
                                                                                     <RotateCcw size={14} className={(regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating') ? "animate-spin" : ""} />
                                                                                 </Button>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
+                                                                                    onClick={() => setShowImageHistoryDialog(true)}
+                                                                                    title="查看历史"
+                                                                                >
+                                                                                    <History size={14} />
+                                                                                </Button>
                                                                             </div>
                                                                         </div>
                                                                     ) : (
-                                                                        <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-[#FDBCB4]/30">
-                                                                            <ImageIcon size={14} className="opacity-50" />
+                                                                        <div className="relative w-full h-full flex flex-col items-center justify-center text-gray-500 bg-[#FDBCB4]/30 group">
+                                                                            <ImageIcon size={14} className="opacity-50 mb-2" />
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="sm"
+                                                                                className="text-[10px] text-white bg-[#22C55E]/70 hover:bg-[#22C55E]/90 px-2 py-1 rounded-full mt-1"
+                                                                                onClick={() => handleRegenerateSingleCharacter(char)}
+                                                                                disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
+                                                                            >
+                                                                                {t('generate') || '生成'}
+                                                                            </Button>
+                                                                            {/* Hover Actions Overlay */}
+                                                                            <div className="absolute inset-0 bg-[#22C55E]/30 opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center justify-center gap-2">
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
+                                                                                    onClick={() => handleEditCharacter(char)}
+                                                                                    title={t('edit')}
+                                                                                >
+                                                                                    <PenLine size={14} />
+                                                                                </Button>
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="icon"
+                                                                                    className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
+                                                                                    onClick={() => handleRegenerateSingleCharacter(char)}
+                                                                                    disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
+                                                                                    title={t('generate') || '生成'}
+                                                                                >
+                                                                                    <ImageIcon size={14} />
+                                                                                </Button>
+                                                                            </div>
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -2804,6 +2965,18 @@ export default function DynamicComicEditor() {
                                                                         title={t('regenerate')}
                                                                     >
                                                                         <RotateCcw size={12} className={(regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating') ? "animate-spin" : ""} />
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="h-6 w-6 text-white hover:text-white hover:bg-white/20 rounded-full"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setShowImageHistoryDialog(true);
+                                                                        }}
+                                                                        title="查看历史"
+                                                                    >
+                                                                        <History size={12} />
                                                                     </Button>
                                                                 </div>
                                                             </div>
@@ -3214,6 +3387,16 @@ export default function DynamicComicEditor() {
                                                                             </button>
                                                                             <button
                                                                                 className="h-6 w-6 text-purple-500 hover:text-purple-600 hover:bg-purple-100 rounded-full flex items-center justify-center transition-all duration-200"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    setShowImageHistoryDialog(true);
+                                                                                }}
+                                                                                title="查看历史"
+                                                                            >
+                                                                                <History size={12} />
+                                                                            </button>
+                                                                            <button
+                                                                                className="h-6 w-6 text-purple-500 hover:text-purple-600 hover:bg-purple-100 rounded-full flex items-center justify-center transition-all duration-200"
                                                                                 onClick={async (e) => {
                                                                                     e.stopPropagation();
                                                                                     if (!shot.video_url && !shot.audio_url) {
@@ -3311,9 +3494,11 @@ export default function DynamicComicEditor() {
                     </div>
 
                     {/* Bottom Section: Timeline */}
-                    <div className="h-[40%] min-h-[300px] border-t border-slate-800 bg-slate-900 shrink-0">
-                        <Timeline />
-                    </div>
+                    {showTimeline && (
+                        <div className="h-[40%] min-h-[300px] border-t border-slate-800 bg-slate-900 shrink-0">
+                            <Timeline />
+                        </div>
+                    )}
                 </div>
 
                 {/* Global Confirm Dialog - works across all tabs */}
@@ -3343,6 +3528,15 @@ export default function DynamicComicEditor() {
                         creationId={taskId}
                         isOpen={showExportPreviewDialog}
                         onClose={() => setShowExportPreviewDialog(false)}
+                    />
+                )}
+
+                {/* Image History Dialog */}
+                {taskId && (
+                    <ImageHistoryDialog
+                        creationId={taskId}
+                        isOpen={showImageHistoryDialog}
+                        onClose={() => setShowImageHistoryDialog(false)}
                     />
                 )}
 
@@ -3425,55 +3619,41 @@ export default function DynamicComicEditor() {
 
                 {/* Model Settings Dialog */}
                 <Dialog open={showModelSettings} onOpenChange={setShowModelSettings}>
-                    <DialogContent className="sm:max-w-[500px] bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 rounded-2xl">
-                        <DialogHeader>
-                            <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-                                <Settings className="h-5 w-5 text-blue-400" />
-                                {t('modelSettings') || '模型设置'}
+                    <DialogContent className="sm:max-w-[500px] bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 rounded-2xl">
+                        <DialogHeader className="text-left">
+                            <DialogTitle className="flex items-center gap-2 text-xl font-bold justify-start text-left">
+                                <Settings className="h-5 w-5 text-blue-500" />
+                                <div className='text-gray-600'>{t('modelSettings') || '模型设置'}</div>
                             </DialogTitle>
-                            <DialogDescription className="text-slate-400">
+                            <DialogDescription className="text-gray-600">
                                 {t('modelSettingsDesc') || '配置用于视频、文生图和图生图的 AI 模型'}
                             </DialogDescription>
                         </DialogHeader>
 
                         <div className="space-y-6 py-6">
-                            {/* Aspect Ratio */}
-                            <div className="space-y-3">
-                                <Label className="text-slate-400 flex items-center gap-2">
-                                    <Maximize2 className="h-4 w-4" />
-                                    {t('aspectRatio') || '生成比例'}
-                                </Label>
-                                <Select value={aspectRatio} onValueChange={(value) => handleAspectRatioChange(value as "16:9" | "9:16")}>
-                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
-                                        <SelectItem value="16:9">{t('landscape') || '横版 (16:9)'}</SelectItem>
-                                        <SelectItem value="9:16">{t('portrait') || '竖版 (9:16)'}</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+
 
                             {/* Video Model */}
                             <div className="space-y-3">
-                                <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                     <Film className="w-4 h-4 text-purple-400" />
                                     {t('videoModel') || '视频生成模型'}
                                 </Label>
                                 <Select value={videoModel} onValueChange={(val) => handleModelChange('video', val)}>
-                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700 hover:bg-blue-50">
+                                    <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
                                         <SelectValue placeholder="选择视频模型" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
+                                    <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 ">
                                         {videoModels.map((model: any) => (
                                             <SelectItem
                                                 key={model.model_name}
                                                 value={model.model_name}
+                                                className="justify-start"
                                             >
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="font-medium">{model.display_name}</span>
+                                                <div className="flex flex-col gap-0.5 items-start w-full">
+                                                    <span className="font-medium text-left">{model.display_name}</span>
                                                     {model.description && (
-                                                        <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                        <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{model.description}</span>
                                                     )}
                                                 </div>
                                             </SelectItem>
@@ -3484,24 +3664,25 @@ export default function DynamicComicEditor() {
 
                             {/* Text to Image Model */}
                             <div className="space-y-3">
-                                <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                     <Type className="w-4 h-4 text-blue-400" />
                                     {t('textToImageModel') || '文生图模型'}
                                 </Label>
                                 <Select value={textToImageModel} onValueChange={(val) => handleModelChange('text_to_image', val)}>
-                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700 hover:bg-blue-50">
+                                    <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
                                         <SelectValue placeholder="选择文生图模型" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
+                                    <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         {textToImageModels.map((model: any) => (
                                             <SelectItem
                                                 key={model.model_name}
                                                 value={model.model_name}
+                                                className="justify-start"
                                             >
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="font-medium">{model.display_name}</span>
+                                                <div className="flex flex-col gap-0.5 items-start w-full">
+                                                    <span className="font-medium text-left">{model.display_name}</span>
                                                     {model.description && (
-                                                        <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                        <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{model.description}</span>
                                                     )}
                                                 </div>
                                             </SelectItem>
@@ -3512,28 +3693,74 @@ export default function DynamicComicEditor() {
 
                             {/* Image to Image Model */}
                             <div className="space-y-3">
-                                <Label className="text-sm font-medium text-slate-300 flex items-center gap-2">
+                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                     <ImageIcon className="w-4 h-4 text-green-400" />
                                     {t('imageToImageModel') || '图生图模型'}
                                 </Label>
                                 <Select value={imageToImageModel} onValueChange={(val) => handleModelChange('image_to_image', val)}>
-                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-gray-700 hover:bg-blue-50">
+                                    <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
                                         <SelectValue placeholder="选择图生图模型" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
+                                    <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         {imageToImageModels.map((model: any) => (
                                             <SelectItem
                                                 key={model.model_name}
                                                 value={model.model_name}
+                                                className="justify-start"
                                             >
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="font-medium">{model.display_name}</span>
+                                                <div className="flex flex-col gap-0.5 items-start w-full">
+                                                    <span className="font-medium text-left">{model.display_name}</span>
                                                     {model.description && (
-                                                        <span className="text-[10px] text-slate-400 line-clamp-1">{model.description}</span>
+                                                        <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{model.description}</span>
                                                     )}
                                                 </div>
                                             </SelectItem>
                                         ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {/* Visual Style */}
+                            <div className="space-y-3 pt-4 border-t border-slate-700/50">
+                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-purple-400" />
+                                    创作风格
+                                </Label>
+                                <Select value={visualStyle} onValueChange={handleStyleChange}>
+                                    <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
+                                        <SelectValue placeholder="选择创作风格" />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
+                                        <SelectItem value="realism" className="justify-start">
+                                            <div className="flex flex-col gap-0.5 items-start w-full">
+                                                <span className="font-medium text-left">写实主义</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">真实人物的AI真人剧</span>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="cyberpunk" className="justify-start">
+                                            <div className="flex flex-col gap-0.5 items-start w-full">
+                                                <span className="font-medium text-left">赛博朋克动画</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">未来科幻赛博朋克风格</span>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="ukiyoe" className="justify-start">
+                                            <div className="flex flex-col gap-0.5 items-start w-full">
+                                                <span className="font-medium text-left">浮世绘</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">传统日本浮世绘风格</span>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="watercolor" className="justify-start">
+                                            <div className="flex flex-col gap-0.5 items-start w-full">
+                                                <span className="font-medium text-left">水彩画风格</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">柔和细腻的水彩画风格</span>
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="anime" className="justify-start">
+                                            <div className="flex flex-col gap-0.5 items-start w-full">
+                                                <span className="font-medium text-left">日漫风格</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">经典日本动漫风格</span>
+                                            </div>
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

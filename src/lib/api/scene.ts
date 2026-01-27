@@ -61,6 +61,30 @@ const sceneApi = {
       data
     ) as unknown as Promise<{ data: IScene; message: string }>;
   },
+  
+  // 获取场景图片生成历史
+  getImageHistory: async (sceneUuid: string) => {
+    return apiClient.get(
+      `/api/v1/scenes/${sceneUuid}/image-history`
+    );
+  },
+  
+  // 应用场景历史图片版本
+  applyImageVersion: async (
+    sceneUuid: string,
+    versionId: string,
+    imageUrl: string,
+    imagePrompt?: string
+  ) => {
+    return apiClient.post(
+      `/api/v1/scenes/${sceneUuid}/apply-image-version`,
+      {
+        version_id: versionId,
+        image_url: imageUrl,
+        image_prompt: imagePrompt
+      }
+    );
+  },
 };
 
 export default sceneApi;

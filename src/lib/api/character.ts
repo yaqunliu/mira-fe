@@ -59,6 +59,28 @@ const characterApi = {
       }
     );
   },
+  // 获取角色图片生成历史
+  getImageHistory: async (characterUuid: string) => {
+    return apiClient.get(
+      `/api/v1/characters/${characterUuid}/image-history`
+    );
+  },
+  // 应用角色历史图片版本
+  applyImageVersion: async (
+    characterUuid: string,
+    versionId: string,
+    imageUrl: string,
+    imagePrompt?: string
+  ) => {
+    return apiClient.post(
+      `/api/v1/characters/${characterUuid}/apply-image-version`,
+      {
+        version_id: versionId,
+        image_url: imageUrl,
+        image_prompt: imagePrompt
+      }
+    );
+  },
 };
 
 export default characterApi;

@@ -37,7 +37,7 @@ interface Chapter {
 }
 
 export default function CreateDynamicComicPage() {
-    const t = useTranslations();
+    const t = useTranslations('createDynamicComic');
     const router = useRouter();
     const params = useParams();
     const locale = params?.locale as string;
@@ -74,6 +74,7 @@ export default function CreateDynamicComicPage() {
     // Global Loading
     const [isGenerating, setIsGenerating] = useState(false);
     const [activeTab, setActiveTab] = useState("novel");
+    const [style, setStyle] = useState("anime"); // Default style: anime
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -134,7 +135,7 @@ export default function CreateDynamicComicPage() {
             }
         } catch (error) {
             console.error("Failed to fetch novels", error);
-            toast.error("获取项目列表失败");
+            toast.error(t('fetchNovelsFailed'));
         }
     };
 
@@ -193,15 +194,15 @@ export default function CreateDynamicComicPage() {
 
     const createNewScript = async () => {
         if (!selectedProject) {
-            toast.error("请先选择一个项目");
+            toast.error(t('selectProjectFirst'));
             return;
         }
         if (!newScriptTitle.trim()) {
-            toast.error("文案标题不能为空");
+            toast.error(t('scriptTitleRequired'));
             return;
         }
         if (!newScriptContent.trim()) {
-            toast.error("文案内容不能为空");
+            toast.error(t('scriptContentRequired'));
             return;
         }
 
@@ -226,7 +227,7 @@ export default function CreateDynamicComicPage() {
 
             if (res.ok) {
                 const data = await res.json();
-                toast.success("文案创建成功");
+                toast.success(t('scriptCreated'));
                 setIsScriptDialogOpen(false);
                 setNewScriptTitle("");
                 setNewScriptContent("");
@@ -247,7 +248,7 @@ export default function CreateDynamicComicPage() {
                 throw new Error(data.detail || "创建失败");
             }
         } catch (e: any) {
-            toast.error(`创建文案失败: ${e.message}`);
+            toast.error(`${t('scriptCreationFailed')}: ${e.message}`);
         } finally {
             setIsCreatingScript(false);
         }
@@ -256,7 +257,7 @@ export default function CreateDynamicComicPage() {
 
     const createNewProject = async () => {
         if (!newProjectTitle.trim()) {
-            toast.error("项目名称不能为空");
+            toast.error(t('projectNameRequired'));
             return;
         }
         setIsCreatingProject(true);
@@ -274,7 +275,7 @@ export default function CreateDynamicComicPage() {
                 })
             });
             if (res.ok) {
-                toast.success("项目创建成功");
+                toast.success(t('creationSuccess'));
                 setIsDialogOpen(false);
                 setNewProjectTitle("");
                 fetchNovels(); // Refresh lists
@@ -283,7 +284,7 @@ export default function CreateDynamicComicPage() {
                 throw new Error(data.detail);
             }
         } catch (e: any) {
-            toast.error(`创建失败: ${e.message}`);
+            toast.error(`${t('creationFailed', { error: e.message })}`);
         } finally {
             setIsCreatingProject(false);
         }
@@ -295,7 +296,7 @@ export default function CreateDynamicComicPage() {
         if (activeTab === "novel") {
             // Logic for Novel + Chapter
             if (!selectedNovel || !selectedChapterUuid) {
-                toast.error("请选择小说和章节");
+                toast.error(t('selectNovelChapter'));
                 return;
             }
             const novel = novels.find(n => n.uuid === selectedNovel);
@@ -304,13 +305,14 @@ export default function CreateDynamicComicPage() {
 
             payload = {
                 novel_id: novel.novel_id,
-                chapter_id: chapter.chapter_id
+                chapter_id: chapter.chapter_id,
+                style: style
             };
 
         } else if (activeTab === "script") {
             // Logic for Project + Script Selection
             if (!selectedProject || !selectedProjectChapterUuid) {
-                toast.error("请选择项目和文案");
+                toast.error(t('selectProjectScript'));
                 return;
             }
             const project = scriptProjects.find(p => p.uuid === selectedProject);
@@ -319,12 +321,13 @@ export default function CreateDynamicComicPage() {
 
             payload = {
                 novel_id: project.novel_id,
-                chapter_id: script.chapter_id
+                chapter_id: script.chapter_id,
+                style: style
             };
         }
 
         setIsGenerating(true);
-        toast.info("正在创建生成任务...");
+        toast.info(t('creatingTask'));
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/v1/video-generation/v2/create`, {
@@ -344,7 +347,7 @@ export default function CreateDynamicComicPage() {
             const data = await response.json();
             const taskId = data.task_id;
 
-            toast.success("任务创建成功！即将跳转编辑器...");
+            toast.success(t('creationSuccess'));
             // 跳转到 dynamic-comic-editor，传递 taskId
             // The API returns task_id (which is creation UUID in new flow usually, or we use taskId as UUID)
             // Use task_id (UUID) as the taskId parameter for consistency with backend expectations
@@ -352,7 +355,7 @@ export default function CreateDynamicComicPage() {
 
         } catch (error: any) {
             console.error("Creation failed:", error);
-            toast.error(`创建任务失败: ${error.message}`);
+            toast.error(t('creationFailed', { error: error.message }));
         } finally {
             setIsGenerating(false);
         }
@@ -360,21 +363,21 @@ export default function CreateDynamicComicPage() {
 
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white flex flex-col">
+        <div className="min-h-screen bg-gradient-to-br from-white to-blue-50 flex flex-col">
             <div className="max-w-6xl w-full mx-auto p-4 sm:p-6 lg:p-8">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     {/* Back button removed as requested */}
                     <div className="text-center w-full">
-                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#22C55E] to-[#ADD8E6]">
-                            创建高品质动态漫
+                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-emerald-600 drop-shadow-sm">
+                            {t('title')}
                         </h1>
-                        <p className="text-gray-600 mt-1">选择小说或项目开始创作</p>
+                        <p className="text-gray-600 mt-1">{t('description')}</p>
                     </div>
                 </div>
 
                 {/* Main Content */}
-                <Card className="claymorphism bg-white p-6">
+                <Card className="bg-gradient-to-br from-white to-blue-50 shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.95)] border border-white/50 p-6 rounded-xl">
                     <CustomTabs
                         variant="segmented"
                         value={activeTab}
@@ -384,58 +387,64 @@ export default function CreateDynamicComicPage() {
                             {
                                 value: "novel",
                                 label: (
-                                    <div className="flex items-center gap-2">
-                                        <Book className="h-4 w-4 text-[#22C55E]" />
-                                        <span>选择小说章节</span>
+                                    <div className="flex items-center gap-2 py-3 px-4">
+                                        <Book className="h-4 w-4 text-green-600" />
+                                        <span className="font-medium">{t('selectNovelChapter')}</span>
                                     </div>
                                 ),
                                 content: (
-                                    <div>
+                                    <div className="p-6 bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)]">
                                         <div className="space-y-6">
                                             <div>
-                                                <Label className="text-lg font-medium mb-2 block text-white">选择小说</Label>
+                                                <Label className="text-lg font-medium mb-2 block text-gray-800">{t('selectNovel')}</Label>
                                                 <Select value={selectedNovel} onValueChange={setSelectedNovel}>
-                                                    <SelectTrigger className="w-full bg-zinc-800 border-zinc-700 text-white">
-                                                        <SelectValue placeholder="选择一本小说" />
+                                                    <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-white/50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] text-gray-800">
+                                                        <SelectValue placeholder={t('selectNovel')} />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
-                                                        {novels.map((novel) => (
-                                                            <SelectItem key={novel.uuid} value={novel.uuid}>{novel.title}</SelectItem>
-                                                        ))}
+                                                    <SelectContent className="bg-white border border-white/50 shadow-[8px_8px_24px_rgba(0,0,0,0.15),-4px_-4px_16px_rgba(255,255,255,0.95)] text-gray-800">
+                                                        {novels.length > 0 ? (
+                                                            novels.map((novel) => (
+                                                                <SelectItem key={novel.uuid} value={novel.uuid}>{novel.title}</SelectItem>
+                                                            ))
+                                                        ) : (
+                                                            <div className="py-6 px-4 text-center text-gray-500">
+                                                                {t('noNovels')}
+                                                            </div>
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </div>
                                             {selectedNovel && (
                                                 <div>
                                                     <div className="flex items-center justify-between mb-2">
-                                                        <Label className="text-white">选择章节</Label>
+                                                        <Label className="text-gray-800 font-medium">{t('selectNovelChapter')}</Label>
                                                         {totalPages > 1 && (
                                                             <div className="flex gap-2 text-sm">
-                                                                <Button variant="ghost" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="h-6 px-2">上一页</Button>
-                                                                <span className="text-gray-400 leading-6">{page} / {totalPages}</span>
-                                                                <Button variant="ghost" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="h-6 px-2">下一页</Button>
+                                                                <Button variant="ghost" size="sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="h-6 px-2 text-gray-600 hover:text-gray-900">{t('previous')}</Button>
+                                                                <span className="text-gray-600 leading-6">{t('pageInfo', { current: page, total: totalPages })}</span>
+                                                                <Button variant="ghost" size="sm" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="h-6 px-2 text-gray-600 hover:text-gray-900">{t('next')}</Button>
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <ScrollArea className="h-[300px] border border-zinc-700 rounded-lg p-2 bg-zinc-800">
+                                                    <ScrollArea className="h-[300px] border border-gray-200 rounded-xl p-3 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)]">
                                                         {isLoadingChapters ? (
-                                                            <div className="flex justify-center items-center h-full"><Loader2 className="w-8 h-8 animate-spin text-purple-500" /></div>
+                                                            <div className="flex justify-center items-center h-full"><Loader2 className="w-8 h-8 animate-spin text-green-500" /></div>
                                                         ) : (
-                                                            <div className="space-y-2">
+                                                            <div className="space-y-3">
                                                                 {chapters.map((chapter) => (
                                                                     <div key={chapter.uuid || chapter.chapter_id}
-                                                                        className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-all ${selectedChapterUuid === chapter.uuid ? "border-purple-500 bg-purple-900/50" : "border-zinc-700 hover:border-purple-500 hover:bg-zinc-700"}`}
+                                                                        className={`flex items-start justify-between p-4 rounded-xl border cursor-pointer transition-all duration-300 ${selectedChapterUuid === chapter.uuid ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
                                                                         onClick={() => setSelectedChapterUuid(chapter.uuid)}
                                                                     >
                                                                         <div className="flex flex-col gap-1 flex-1 min-w-0 mr-4">
-                                                                            <div className="font-medium text-white truncate">{chapter.title}</div>
+                                                                            <div className="font-medium text-gray-800 truncate">{chapter.title}</div>
                                                                             {chapter.preview && (
-                                                                                <div className="text-xs text-gray-400 line-clamp-2 break-all">
+                                                                                <div className="text-sm text-gray-600 line-clamp-2 break-all">
                                                                                     {chapter.preview}
                                                                                 </div>
                                                                             )}
                                                                         </div>
-                                                                        {chapter.has_creation && <span className="shrink-0 text-xs bg-green-900 text-green-400 px-2 py-1 rounded">已创作</span>}
+                                                                        {chapter.has_creation && <span className="shrink-0 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">{t('hasCreation')}</span>}
                                                                     </div>
                                                                 ))}
                                                             </div>
@@ -450,53 +459,59 @@ export default function CreateDynamicComicPage() {
                             {
                                 value: "script",
                                 label: (
-                                    <div className="flex items-center gap-2">
-                                        <FileText className="h-4 w-4 text-[#22C55E]" />
-                                        <span>选择项目文案</span>
+                                    <div className="flex items-center gap-2 py-3 px-4">
+                                        <FileText className="h-4 w-4 text-green-600" />
+                                        <span className="font-medium">{t('selectScript')}</span>
                                     </div>
                                 ),
                                 content: (
-                                    <div className="p-6">
+                                    <div className="p-6 bg-gradient-to-br from-white to-blue-50 rounded-xl shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)]">
                                         <div className="space-y-6">
                                             <div className="flex items-end gap-4">
                                                 <div className="flex-1">
-                                                    <Label className="text-lg font-medium mb-2 block text-white">选择项目</Label>
+                                                    <Label className="text-lg font-medium mb-2 block text-gray-800">{t('selectProject')}</Label>
                                                     <Select value={selectedProject} onValueChange={setSelectedProject}>
-                                                        <SelectTrigger className="w-full bg-zinc-800 border-zinc-700 text-white">
-                                                            <SelectValue placeholder="选择一个项目" />
+                                                        <SelectTrigger className="w-full bg-gradient-to-br from-white to-blue-50 border border-white/50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] text-gray-800">
+                                                            <SelectValue placeholder={t('selectProject')} />
                                                         </SelectTrigger>
-                                                        <SelectContent className="bg-zinc-800 border-zinc-700 text-white">
-                                                            {scriptProjects.map((p) => (
-                                                                <SelectItem key={p.uuid} value={p.uuid}>{p.title}</SelectItem>
-                                                            ))}
+                                                        <SelectContent className="bg-white border border-white/50 shadow-[8px_8px_24px_rgba(0,0,0,0.15),-4px_-4px_16px_rgba(255,255,255,0.95)] text-gray-800">
+                                                            {scriptProjects.length > 0 ? (
+                                                                scriptProjects.map((p) => (
+                                                                    <SelectItem key={p.uuid} value={p.uuid}>{p.title}</SelectItem>
+                                                                ))
+                                                            ) : (
+                                                                <div className="py-6 px-4 text-center text-gray-500">
+                                                                    {t('noProjects')}
+                                                                </div>
+                                                            )}
                                                         </SelectContent>
                                                     </Select>
                                                 </div>
                                                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                                     <DialogTrigger asChild>
-                                                        <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-900/50">
-                                                            <Plus className="w-4 h-4 mr-2" />新建项目
+                                                        <Button variant="outline" className="border-purple-500 text-purple-600 hover:bg-purple-50 shadow-[4px_4px_12px_rgba(168,85,247,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)] rounded-xl">
+                                                            <Plus className="w-4 h-4 mr-2" />{t('createProject')}
                                                         </Button>
                                                     </DialogTrigger>
-                                                    <DialogContent className="bg-zinc-900 border-zinc-700 text-white">
+                                                    <DialogContent className="bg-gradient-to-br from-white to-blue-50 border border-white/50 shadow-[8px_8px_24px_rgba(0,0,0,0.15),-4px_-4px_16px_rgba(255,255,255,0.95)]">
                                                         <DialogHeader>
-                                                            <DialogTitle>创建新项目</DialogTitle>
-                                                            <DialogDescription className="sr-only">
-                                                                输入项目名称以开始新的动态漫创作
+                                                            <DialogTitle className="text-gray-900">{t('createProject')}</DialogTitle>
+                                                            <DialogDescription className="sr-only text-gray-600">
+                                                                {t('enterProjectName')}
                                                             </DialogDescription>
                                                         </DialogHeader>
                                                         <div className="py-4">
-                                                            <Label className="mb-2 block">项目名称</Label>
+                                                            <Label className="mb-2 block text-gray-800">{t('projectName')}</Label>
                                                             <Input
                                                                 value={newProjectTitle}
                                                                 onChange={(e) => setNewProjectTitle(e.target.value)}
-                                                                className="bg-zinc-800 border-zinc-700"
-                                                                placeholder="输入项目名称"
+                                                                className="bg-gradient-to-br from-white to-blue-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] text-gray-800"
+                                                                placeholder={t('enterProjectName')}
                                                             />
                                                         </div>
                                                         <DialogFooter>
-                                                            <Button onClick={createNewProject} disabled={isCreatingProject}>
-                                                                {isCreatingProject ? "创建中..." : "创建"}
+                                                            <Button onClick={createNewProject} disabled={isCreatingProject} className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border border-green-400/30 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)] rounded-xl">
+                                                                {isCreatingProject ? t('creating') : t('create')}
                                                             </Button>
                                                         </DialogFooter>
                                                     </DialogContent>
@@ -506,67 +521,67 @@ export default function CreateDynamicComicPage() {
                                             {selectedProject && (
                                                 <div>
                                                     <div className="flex items-center justify-between mb-2">
-                                                        <Label className="text-white block">选择已有文案</Label>
+                                                        <Label className="text-gray-800 font-medium block">{t('selectScript')}</Label>
                                                         <Dialog open={isScriptDialogOpen} onOpenChange={setIsScriptDialogOpen}>
                                                             <DialogTrigger asChild>
-                                                                <Button variant="outline" size="sm" className="h-8 border-purple-500 text-purple-400 hover:bg-purple-900/50">
-                                                                    <Plus className="w-3 h-3 mr-1" />添加新文案
+                                                                <Button variant="outline" size="sm" className="h-8 border-purple-500 text-purple-600 hover:bg-purple-50">
+                                                                    <Plus className="w-3 h-3 mr-1" />{t('addScript')}
                                                                 </Button>
                                                             </DialogTrigger>
-                                                            <DialogContent className="bg-zinc-900 border-zinc-700 text-white max-w-2xl">
+                                                            <DialogContent className="bg-gradient-to-br from-white to-blue-50 border border-white/50 shadow-[8px_8px_24px_rgba(0,0,0,0.15),-4px_-4px_16px_rgba(255,255,255,0.95)] max-w-2xl">
                                                                 <DialogHeader>
-                                                                    <DialogTitle>添加新文案</DialogTitle>
-                                                                    <DialogDescription className="sr-only">
-                                                                        在当前选中的位置插入一段新的字幕文案
+                                                                    <DialogTitle className="text-gray-900">{t('addScript')}</DialogTitle>
+                                                                    <DialogDescription className="sr-only text-gray-600">
+                                                                        {t('enterScriptContent')}
                                                                     </DialogDescription>
                                                                 </DialogHeader>
                                                                 <div className="space-y-4 py-4">
                                                                     <div>
-                                                                        <Label className="mb-2 block">文案标题</Label>
+                                                                        <Label className="mb-2 block text-gray-800">{t('scriptTitle')}</Label>
                                                                         <Input
                                                                             value={newScriptTitle}
                                                                             onChange={(e) => setNewScriptTitle(e.target.value)}
-                                                                            placeholder="输入标题..."
-                                                                            className="bg-zinc-800 border-zinc-700"
+                                                                            placeholder={t('enterScriptTitle')}
+                                                                            className="bg-gradient-to-br from-white to-blue-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] text-gray-800"
                                                                         />
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="mb-2 block">文案内容</Label>
+                                                                        <Label className="mb-2 block text-gray-800">{t('scriptContent')}</Label>
                                                                         <textarea
                                                                             value={newScriptContent}
                                                                             onChange={(e) => setNewScriptContent(e.target.value)}
-                                                                            className="w-full h-[300px] p-3 border border-zinc-700 rounded-md bg-zinc-800 text-gray-300 resize-none focus:outline-none focus:border-purple-500"
-                                                                            placeholder="输入文案内容..."
+                                                                            className="w-full h-[300px] p-3 border border-gray-200 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] text-gray-800 resize-none focus:outline-none focus:border-green-500"
+                                                                            placeholder={t('enterScriptContent')}
                                                                         />
                                                                     </div>
                                                                 </div>
                                                                 <DialogFooter>
-                                                                    <Button onClick={createNewScript} disabled={isCreatingScript}>
-                                                                        {isCreatingScript ? "保存中..." : "保存并使用"}
+                                                                    <Button onClick={createNewScript} disabled={isCreatingScript} className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border border-green-400/30 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)] rounded-xl">
+                                                                        {isCreatingScript ? t('saving') : t('saveAndUse')}
                                                                     </Button>
                                                                 </DialogFooter>
                                                             </DialogContent>
                                                         </Dialog>
                                                     </div>
-                                                    <ScrollArea className="h-[300px] border border-zinc-700 rounded-lg p-2 bg-zinc-800">
-                                                        <div className="space-y-2">
+                                                    <ScrollArea className="h-[300px] border border-gray-200 rounded-xl p-3 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)]">
+                                                        <div className="space-y-3">
                                                             {projectChapters.map((chapter) => (
                                                                 <div key={chapter.uuid || chapter.chapter_id}
-                                                                    className={`flex items-start justify-between p-3 rounded-lg border cursor-pointer transition-all ${selectedProjectChapterUuid === chapter.uuid ? "border-purple-500 bg-purple-900/50" : "border-zinc-700 hover:border-purple-500 hover:bg-zinc-700"}`}
+                                                                    className={`flex items-start justify-between p-4 rounded-xl border cursor-pointer transition-all duration-300 ${selectedProjectChapterUuid === chapter.uuid ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
                                                                     onClick={() => setSelectedProjectChapterUuid(chapter.uuid)}
                                                                 >
                                                                     <div className="flex flex-col gap-1 flex-1 min-w-0 mr-4">
-                                                                        <div className="font-medium text-white truncate">{chapter.title}</div>
+                                                                        <div className="font-medium text-gray-800 truncate">{chapter.title}</div>
                                                                         {chapter.preview && (
-                                                                            <div className="text-xs text-gray-400 line-clamp-2 break-all">
+                                                                            <div className="text-sm text-gray-600 line-clamp-2 break-all">
                                                                                 {chapter.preview}
                                                                             </div>
                                                                         )}
                                                                     </div>
-                                                                    {chapter.has_creation && <span className="shrink-0 text-xs bg-green-900 text-green-400 px-2 py-1 rounded">已创作</span>}
+                                                                    {chapter.has_creation && <span className="shrink-0 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">{t('hasCreation')}</span>}
                                                                 </div>
                                                             ))}
-                                                            {projectChapters.length === 0 && <div className="text-center text-gray-500 py-10">暂无文案，请点击右上方添加</div>}
+                                                            {projectChapters.length === 0 && <div className="text-center text-gray-500 py-10">{t('noScripts')}</div>}
                                                         </div>
                                                     </ScrollArea>
                                                 </div>
@@ -578,13 +593,55 @@ export default function CreateDynamicComicPage() {
                         ]}
                     />
 
-                    <div className="px-6 py-4 border-t border-[#ADD8E6]/30 flex justify-end">
+                    {/* Style Selection */}
+                    <div className="px-6 py-6 border-t border-blue-100">
+                        <Label className="text-lg font-medium mb-4 block text-gray-800">{t('styleSelection')}</Label>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                            <div 
+                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "realism" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                onClick={() => setStyle("realism")}
+                            >
+                                <div className="font-medium text-gray-800 mb-1">{t('realism')}</div>
+                                <div className="text-sm text-gray-600">{t('realismDescription')}</div>
+                            </div>
+                            <div 
+                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "cyberpunk" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                onClick={() => setStyle("cyberpunk")}
+                            >
+                                <div className="font-medium text-gray-800 mb-1">{t('cyberpunk')}</div>
+                                <div className="text-sm text-gray-600">{t('cyberpunkDescription')}</div>
+                            </div>
+                            <div 
+                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "ukiyoe" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                onClick={() => setStyle("ukiyoe")}
+                            >
+                                <div className="font-medium text-gray-800 mb-1">{t('ukiyoe')}</div>
+                                <div className="text-sm text-gray-600">{t('ukiyoeDescription')}</div>
+                            </div>
+                            <div 
+                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "watercolor" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                onClick={() => setStyle("watercolor")}
+                            >
+                                <div className="font-medium text-gray-800 mb-1">{t('watercolor')}</div>
+                                <div className="text-sm text-gray-600">{t('watercolorDescription')}</div>
+                            </div>
+                            <div 
+                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "anime" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                onClick={() => setStyle("anime")}
+                            >
+                                <div className="font-medium text-gray-800 mb-1">{t('anime')}</div>
+                                <div className="text-sm text-gray-600">{t('animeDescription')}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="px-6 py-4 border-t border-blue-100 flex justify-end">
                         <Button
                             onClick={onSubmit}
                             disabled={isGenerating}
-                            className="bg-[#22C55E] hover:bg-[#22C55E]/90 text-white px-8 py-6 rounded-lg hover:translate-y-0.5 transition-transform border border-black/10 shadow-lg shadow-[#22C55E]/20"
+                            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-6 rounded-xl hover:translate-y-0.5 transition-all duration-300 border border-green-400/30 shadow-[6px_6px_20px_rgba(34,197,94,0.3),-2px_-2px_12px_rgba(255,255,255,0.9)]"
                         >
-                            {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />处理中...</> : <><span className="mr-2">开始创作</span><ChevronRight className="h-4 w-4" /></>}
+                            {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('processing')}</> : <><span className="mr-2 font-medium">{t('startCreating')}</span><ChevronRight className="h-4 w-4" /></>}
                         </Button>
                     </div>
                 </Card>

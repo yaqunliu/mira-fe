@@ -129,6 +129,32 @@ const shotApi = {
       }
     ) as unknown as Promise<{ data: IShot; message: string }>;
   },
+
+  // 获取分镜图片生成历史
+  getImageHistory: async (shotUuid: string) => {
+    return apiClient.get(
+      `/api/v1/shots/${shotUuid}/image-history`
+    );
+  },
+  
+  // 应用分镜历史图片版本
+  applyImageVersion: async (
+    shotUuid: string,
+    versionId: string,
+    imageUrl: string,
+    endFrameImageUrl?: string,
+    imagePrompt?: string
+  ) => {
+    return apiClient.post(
+      `/api/v1/shots/${shotUuid}/apply-image-version`,
+      {
+        version_id: versionId,
+        image_url: imageUrl,
+        end_frame_image_url: endFrameImageUrl,
+        image_prompt: imagePrompt
+      }
+    );
+  },
 };
 
 export default shotApi;

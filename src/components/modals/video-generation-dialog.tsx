@@ -117,7 +117,7 @@ export function VideoGenerationDialog({
                                 {shot.image_url ? (
                                     <img src={shot.image_url} alt="First Frame" className="w-full h-full object-cover rounded-xl" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-#FDBCB4 to-#ADD8E6">
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-100 to-blue-200">
                                         <ImageIcon className="w-6 h-6 text-white" />
                                     </div>
                                 )}
@@ -125,7 +125,7 @@ export function VideoGenerationDialog({
                         </div>
 
                         <div className="flex items-center pt-6">
-                            <ArrowRight className={`w-5 h-5 ${useLastFrame ? 'text-#22C55E' : 'text-gray-400'}`} />
+                            <ArrowRight className={`w-5 h-5 ${useLastFrame ? 'text-green-500' : 'text-gray-400'}`} />
                         </div>
 
                         {/* Last Frame */}
@@ -147,8 +147,8 @@ export function VideoGenerationDialog({
                                         ) : uploadedImageUrl ? (
                                             <img src={uploadedImageUrl} alt="Uploaded Frame" className="w-full h-full object-cover rounded-xl" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-#FDBCB4 to-#ADD8E6">
-                                                <Upload className="w-6 h-6 text-white" />
+                                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-100 to-blue-200">
+                                                <ImageIcon className="w-6 h-6 text-white" />
                                             </div>
                                         )}
                                         <button
@@ -163,7 +163,7 @@ export function VideoGenerationDialog({
                                         className="w-full h-full flex flex-col items-center justify-center cursor-pointer hover:bg-gradient-to-br from-blue-50 to-white transition-colors"
                                         onClick={() => setUseLastFrame(true)}
                                     >
-                                        <Plus className="w-6 h-6 text-#22C55E mb-1" />
+                                        <Plus className="w-6 h-6 text-green-500 mb-1" />
                                         <span className="text-[10px] text-gray-600">{t('addLastFrame') || "添加尾帧"}</span>
                                     </div>
                                 )}
@@ -179,7 +179,7 @@ export function VideoGenerationDialog({
                                     <Button
                                         variant={lastFrameType === 'current_shot_end' ? 'default' : 'outline'}
                                         size="sm"
-                                        className={`flex-1 text-xs h-8 ${lastFrameType === 'current_shot_end' ? 'rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
+                                        className={`flex-1 text-xs h-8 ${lastFrameType === 'current_shot_end' ? 'rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
                                         onClick={() => setLastFrameType('current_shot_end')}
                                     >
                                         当前分镜尾帧
@@ -189,7 +189,7 @@ export function VideoGenerationDialog({
                                     <Button
                                         variant={lastFrameType === 'next_shot' ? 'default' : 'outline'}
                                         size="sm"
-                                        className={`flex-1 text-xs h-8 ${lastFrameType === 'next_shot' ? 'rounded-xl bg-gradient-to-br from-green-400 to-green-500 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
+                                        className={`flex-1 text-xs h-8 ${lastFrameType === 'next_shot' ? 'rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
                                         onClick={() => setLastFrameType('next_shot')}
                                     >
                                         {t('useNextShot') || "使用下一分镜"}
@@ -198,7 +198,7 @@ export function VideoGenerationDialog({
                                 <Button
                                     variant={lastFrameType === 'upload' ? 'default' : 'outline'}
                                     size="sm"
-                                    className={`flex-1 text-xs h-8 ${lastFrameType === 'upload' ? 'rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
+                                    className={`flex-1 text-xs h-8 ${lastFrameType === 'upload' ? 'rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200' : 'rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200'}`}
                                     onClick={() => setLastFrameType('upload')}
                                 >
                                     {t('uploadImage') || "上传图片"}
@@ -219,10 +219,10 @@ export function VideoGenerationDialog({
                                         className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-blue-200 rounded-xl cursor-pointer hover:bg-blue-50 transition-colors bg-gradient-to-br from-white to-blue-50"
                                     >
                                         {isUploading ? (
-                                            <Loader2 className="w-5 h-5 animate-spin text-#22C55E" />
+                                            <Loader2 className="w-5 h-5 animate-spin text-green-500" />
                                         ) : (
                                             <>
-                                                <Upload className="w-5 h-5 text-#22C55E mb-1" />
+                                                <Upload className="w-5 h-5 text-green-500 mb-1" />
                                                 <span className="text-xs text-gray-600">{t('clickToUpload') || "点击上传图片"}</span>
                                             </>
                                         )}
@@ -257,11 +257,11 @@ export function VideoGenerationDialog({
                     <Button
                         onClick={handleConfirm}
                         disabled={isGenerating || isUploading || (useLastFrame && lastFrameType === 'upload' && !uploadedImageUrl)}
-                        className="rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 min-w-[100px]"
+                        className="rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 min-w-[100px]"
                     >
                         {isGenerating ? (
                             <>
-                                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                                <Loader2 className="w-4 h-4 animate-spin mr-2 text-white" />
                                 {tCommon('processing')}
                             </>
                         ) : (

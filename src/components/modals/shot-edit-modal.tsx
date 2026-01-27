@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RotateCcw, Image as ImageIcon, Edit2, Maximize2, Plus, X, Trash2, ListPlus, Film, Download, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, RotateCcw, Image as ImageIcon, Edit2, Maximize2, Plus, X, Trash2, ListPlus, Film, Download, Sparkles, ChevronLeft, ChevronRight, History } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { IShot, INarrationItem } from '@/types/scene';
 import { ICharacter } from '@/types/character';
@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { VideoGenerationDialog } from "./video-generation-dialog";
 import { AutosizeTextarea } from "@/components/ui/autosize-textarea";
 import { ImagePreview } from "@/components/ui/image-preview";
+import { ShotImageHistoryDialog } from "@/components/timeline/shot-image-history-dialog";
 
 interface ShotEditModalProps {
     isOpen: boolean;
@@ -59,6 +60,10 @@ export function ShotEditModal({
     const tracks = useTimelineStore(state => state.project.tracks);
     const currentTime = useTimelineStore(state => state.currentTime);
 
+    // Refs for video and audio elements
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const audioRef = useRef<HTMLAudioElement>(null);
+
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -82,6 +87,21 @@ export function ShotEditModal({
     const [isVideoConfigOpen, setIsVideoConfigOpen] = useState(false);
     const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
     const [isEndFramePreviewOpen, setIsEndFramePreviewOpen] = useState(false);
+    const [isImageHistoryOpen, setIsImageHistoryOpen] = useState(false);
+
+    // Play both video and audio simultaneously
+    const handlePlayBoth = () => {
+        if (videoRef.current) {
+            videoRef.current.play().catch(error => {
+                console.error('Error playing video:', error);
+            });
+        }
+        if (audioRef.current) {
+            audioRef.current.play().catch(error => {
+                console.error('Error playing audio:', error);
+            });
+        }
+    };
 
     // Reset form when shot changes
     useEffect(() => {
@@ -390,14 +410,23 @@ export function ShotEditModal({
                                 )}
 
                                 {/* Regenerate Button */}
-                                <button
-                                    onClick={handleRegenerate}
-                                    disabled={regeneratingFrameType === 'start' || regeneratingFrameType === 'both'}
-                                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-xl px-3 py-1.5 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
-                                >
-                                    <RotateCcw size={14} />
-                                    {t('regenerate')}
-                                </button>
+                                <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        onClick={handleRegenerate}
+                                        disabled={regeneratingFrameType === 'start' || regeneratingFrameType === 'both'}
+                                        className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-xl px-3 py-1.5 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
+                                    >
+                                        <RotateCcw size={14} />
+                                        {t('regenerate')}
+                                    </button>
+                                    <button
+                                        onClick={() => setIsImageHistoryOpen(true)}
+                                        className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-xl px-3 py-1.5 text-sm font-medium text-gray-700 hover:scale-105 transition-all duration-200 flex items-center gap-1.5"
+                                    >
+                                        <History size={14} />
+                                        历史
+                                    </button>
+                                </div>
                             </div>
 
                             {/* End Frame Image Area */}
@@ -490,6 +519,7 @@ export function ShotEditModal({
                                             <div className="space-y-3">
                                                 <div className="relative group/video">
                                                     <video
+                                                        ref={videoRef}
                                                         key={displayVideoUrl}
                                                         src={displayVideoUrl}
                                                         controls
@@ -499,11 +529,21 @@ export function ShotEditModal({
                                                     {displayAudioUrl && (
                                                         <div className="mt-3 p-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] flex items-center gap-2">
                                                             <div className="text-[10px] text-gray-600 uppercase tracking-wider font-bold">Audio</div>
-                                                            <audio src={displayAudioUrl} controls className="h-8 flex-1" />
+                                                            <audio ref={audioRef} src={displayAudioUrl} controls className="h-8 flex-1" />
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="flex gap-3">
+                                                    <button
+                                                        onClick={handlePlayBoth}
+                                                        className="flex-1 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 px-3 py-2 text-sm flex items-center justify-center gap-1.5"
+                                                    >
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        播放视频和音频
+                                                    </button>
                                                     <button
                                                         onClick={handleGenerateVideo}
                                                         disabled={isGeneratingVideo}
@@ -854,13 +894,13 @@ export function ShotEditModal({
                                                                 <SelectTrigger className="w-[120px] h-8 bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-xs shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
                                                                     <SelectValue />
                                                                 </SelectTrigger>
-                                                                <SelectContent className="bg-slate-800 border-slate-700 text-slate-200">
+                                                                <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
                                                                     <SelectItem value="旁白">{t('narration')}</SelectItem>
                                                                     {availableCharacters.map(char => (
                                                                         <SelectItem key={char.character_id} value={char.name}>
                                                                             <div className="flex items-center gap-2">
                                                                                 {char.image_url && (
-                                                                                    <div className="w-4 h-4 rounded-full overflow-hidden bg-slate-700 shrink-0 border border-slate-600">
+                                                                                    <div className="w-4 h-4 rounded-full overflow-hidden bg-gradient-to-br from-white to-blue-50 shrink-0 border border-blue-100 shadow-[2px_2px_4px_rgba(0,0,0,0.05),-1px_-1px_3px_rgba(255,255,255,0.8)]">
                                                                                         <img src={char.image_url} alt={char.name} className="w-full h-full object-cover" />
                                                                                     </div>
                                                                                 )}
@@ -873,13 +913,13 @@ export function ShotEditModal({
                                                             <Textarea
                                                                 value={item.内容}
                                                                 onChange={(e) => handleUpdateNarration(index, '内容', e.target.value)}
-                                                                className="bg-slate-800 border-slate-700 text-sm min-h-[40px] flex-1"
+                                                                className="w-full text-sm resize-none bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 rounded-lg p-3 min-h-[40px] flex-1"
                                                                 placeholder={t('dialoguePlaceholder')}
                                                             />
                                                         </div>
                                                     ) : (
-                                                        <div className="flex-1 text-sm text-slate-300">
-                                                            <span className="font-bold text-blue-400 mr-2">{item.角色}：</span>
+                                                        <div className="flex-1 text-sm text-gray-700">
+                                                            <span className="font-bold text-blue-600 mr-2">{item.角色}：</span>
                                                             {item.内容}
                                                         </div>
                                                     )}
@@ -889,7 +929,7 @@ export function ShotEditModal({
                                                                 variant="ghost"
                                                                 size="sm"
                                                                 onClick={() => handleAddToTrack(item)}
-                                                                className="h-8 px-3 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                                                                className="h-8 px-3 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
                                                             >
                                                                 <ListPlus size={14} className="mr-1.5" />
                                                                 <span className="text-xs font-medium">添加到轨道</span>
@@ -909,7 +949,7 @@ export function ShotEditModal({
                                                 </div>
                                             </div>
                                         )) : (
-                                            <div className="text-sm text-slate-500 italic p-3 bg-slate-800/30 rounded-md">
+                                            <div className="text-sm text-gray-500 italic p-3 bg-gradient-to-br from-white to-blue-50 rounded-lg border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                                 {tCommon('none')}
                                             </div>
                                         )}
@@ -957,6 +997,13 @@ export function ShotEditModal({
                 nextShot={nextShot}
                 isGenerating={isGeneratingVideo}
                 aspectRatio={aspectRatio}
+            />
+
+            <ShotImageHistoryDialog
+                isOpen={isImageHistoryOpen}
+                onClose={() => setIsImageHistoryOpen(false)}
+                shotUuid={shot.uuid || String(shot.shot_id)}
+                onSuccess={onSuccess}
             />
         </>
     );

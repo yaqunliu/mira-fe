@@ -176,14 +176,14 @@ export function AppSidebar() {
     <>
       {/* 移动端顶部栏 */}
       {isMobile && (
-        <div className="fixed top-0 left-0 right-0 z-[100] h-14 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl flex items-center justify-between px-4 lg:hidden shadow-md">
+        <div className="fixed top-0 left-0 right-0 z-[100] h-14 bg-gradient-to-r from-white to-blue-50 backdrop-blur-xl flex items-center justify-between px-4 lg:hidden shadow-[0px_4px_16px_rgba(0,0,0,0.12),0px_-2px_8px_rgba(255,255,255,0.95)] border-b border-white/50">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="h-9 w-9 p-0 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
+            className="h-9 w-9 p-0 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_8px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] hover:shadow-[3px_3px_12px_rgba(0,0,0,0.15),-3px_-3px_12px_rgba(255,255,255,1)] transition-all duration-300 hover:-translate-y-0.5 border border-white/50"
           >
-            <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            <Menu className="h-5 w-5 text-gray-700" />
           </Button>
 
           <div className="flex items-center gap-2">
@@ -226,7 +226,7 @@ export function AppSidebar() {
       {/* 侧边栏 */}
       <aside
         className={cn(
-          'fixed left-0 top-0 h-screen bg-gradient-to-b from-white to-blue-50 z-[100] transition-all duration-300 ease-in-out shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.9)]',
+          'fixed left-0 top-0 h-screen bg-gradient-to-b from-white to-blue-50 z-[100] transition-all duration-300 ease-in-out shadow-[8px_8px_24px_rgba(0,0,0,0.15),-8px_-8px_24px_rgba(255,255,255,0.95)] border-r border-white/50',
           'lg:translate-x-0',
           isMobile
             ? sidebarOpen
@@ -246,7 +246,7 @@ export function AppSidebar() {
               onClick={() => handleNavClick(`/${locale}/home`)}
               className="flex items-center gap-3 transition-transform hover:scale-105"
             >
-              <div className="relative w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-md">
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-[4px_4px_12px_rgba(0,0,0,0.15),-2px_-2px_8px_rgba(255,255,255,0.8)] bg-gradient-to-br from-white to-blue-50 border border-white/50">
                 <Image
                   src="/favicon.png"
                   alt="Mira"
@@ -256,7 +256,7 @@ export function AppSidebar() {
                 />
               </div>
               {!isCollapsed && (
-                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent whitespace-nowrap">
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-700 to-purple-700 dark:from-blue-500 dark:to-purple-500 bg-clip-text text-transparent whitespace-nowrap drop-shadow-sm">
                   Mira
                 </span>
               )}
@@ -265,9 +265,9 @@ export function AppSidebar() {
             {!isMobile && !isCollapsed && (
               <button
                 onClick={() => setIsCollapsed(true)}
-                className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors flex-shrink-0"
+                className="p-1.5 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_8px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] hover:shadow-[3px_3px_12px_rgba(0,0,0,0.15),-3px_-3px_12px_rgba(255,255,255,1)] transition-all duration-300 flex-shrink-0 hover:-translate-y-0.5 border border-white/50"
               >
-                <ChevronLeft className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                <ChevronLeft className="h-4.5 w-4.5 text-gray-700" />
               </button>
             )}
             {/* 移动端关闭按钮 */}
@@ -275,25 +275,25 @@ export function AppSidebar() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-all ml-auto"
+                className="h-8 w-8 p-0 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_8px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)] hover:shadow-[3px_3px_12px_rgba(0,0,0,0.15),-3px_-3px_12px_rgba(255,255,255,1)] transition-all duration-300 hover:-translate-y-0.5 border border-white/50 ml-auto"
                 onClick={() => setSidebarOpen(false)}
               >
-                <X className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                <X className="h-5 w-5 text-gray-700" />
               </Button>
             )}
           </div>
 
           {/* 收缩状态下的展开按钮 */}
           {!isMobile && isCollapsed && (
-            <div className="absolute top-4 right-0 translate-x-full">
-              <button
-                onClick={() => setIsCollapsed(false)}
-                className="p-2 rounded-r-lg bg-white dark:bg-slate-900 shadow-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors hover:shadow-lg hover:-translate-y-0.5"
-              >
-                <ChevronRight className="h-4 w-4 text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
-          )}
+              <div className="absolute top-4 right-0 translate-x-full">
+                <button
+                  onClick={() => setIsCollapsed(false)}
+                  className="p-2 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.15),-2px_-2px_8px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.2),-3px_-3px_12px_rgba(255,255,255,1)] transition-all duration-300 hover:-translate-y-0.5 border border-white/50"
+                >
+                  <ChevronRight className="h-4.5 w-4.5 text-gray-700" />
+                </button>
+              </div>
+            )}
 
           {/* 导航菜单 */}
           <nav className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1">
@@ -305,25 +305,25 @@ export function AppSidebar() {
                   key={item.href}
                   onClick={() => handleNavClick(item.href)}
                   className={cn(
-                    'w-full flex items-center rounded-xl transition-all duration-300 group relative',
-                    isCollapsed ? 'justify-center h-12 p-0' : 'gap-3 px-3 py-2.5',
+                    'w-full flex items-center rounded-xl transition-all duration-300 group relative overflow-hidden',
+                    isCollapsed ? 'justify-center h-12 p-0' : 'gap-3 px-4 py-3.5',
                     active
-                      ? 'bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] text-white hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:-translate-y-0.5'
-                      : 'bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] text-slate-600 hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:-translate-y-0.5'
+                      ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-[4px_4px_16px_rgba(34,197,94,0.3),-4px_-4px_16px_rgba(255,255,255,0.95)] text-white hover:shadow-[6px_6px_20px_rgba(34,197,94,0.4),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 transform hover:scale-[1.02]'
+                      : 'bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_16px_rgba(0,0,0,0.1),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.15),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 hover:bg-gradient-to-br from-blue-50 to-white transform hover:scale-[1.02] border border-white/50'
                   )}
                 >
                   <Icon className={cn(
-                    'h-5 w-5 flex-shrink-0 transition-colors',
+                    'h-5 w-5 flex-shrink-0 transition-all duration-300',
                     active
-                      ? 'text-white'
-                      : 'text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200'
+                      ? 'text-white drop-shadow-sm'
+                      : 'text-gray-700 group-hover:text-gray-900 group-hover:scale-110'
                   )} />
                   {(!isCollapsed || isMobile) && (
                     <span className={cn(
-                      'text-sm font-medium transition-colors whitespace-nowrap',
+                      'text-sm font-bold transition-all duration-300 whitespace-nowrap',
                       active
-                        ? 'text-white'
-                        : 'text-gray-700 dark:text-gray-300'
+                        ? 'text-white drop-shadow-sm'
+                        : 'text-gray-900 group-hover:text-gray-950 group-hover:translate-x-0.5'
                     )}>
                       {item.label}
                     </span>
@@ -357,7 +357,7 @@ export function AppSidebar() {
                 ) : (
                   <button
                     onClick={() => handleNavClick(`/${locale}/points`)}
-                    className="w-full p-3 bg-gradient-to-br from-white to-blue-50 rounded-xl hover:shadow-md transition-all shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:-translate-y-0.5"
+                    className="w-full p-3 bg-gradient-to-br from-white to-blue-50 rounded-xl transition-all duration-300 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.18),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-white/50"
                   >
                     <div className="flex items-center gap-3 w-full">
                       <div className="p-2 rounded-lg bg-gradient-to-br from-amber-400 to-orange-500 flex-shrink-0 shadow-md">
@@ -368,10 +368,10 @@ export function AppSidebar() {
                           <div className="h-5 w-20 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-xl shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] animate-pulse" />
                         ) : (
                           <>
-                            <div className="text-lg font-bold text-amber-700 dark:text-amber-300 lining-nums">
+                            <div className="text-xl font-bold text-amber-700 dark:text-amber-300 lining-nums drop-shadow-sm">
                               {currentBalance?.available_points?.toLocaleString() ?? 0}
                             </div>
-                            <div className="text-xs text-amber-600/80 dark:text-amber-400/80 font-medium">
+                            <div className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                               {t('points', { default: '积分余额' })}
                             </div>
                           </>
@@ -400,7 +400,7 @@ export function AppSidebar() {
                   ) : (
                     <button
                       onClick={() => window.open(`/${locale}/pricing`, '_blank', 'noopener,noreferrer')}
-                      className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-2.5 px-3 bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70 text-white shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:-translate-y-0.5"
+                      className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-3 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-[4px_4px_16px_rgba(59,130,246,0.3),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(59,130,246,0.4),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-blue-400/30"
                     >
                       <Sparkles className="h-4 w-4 flex-shrink-0" />
                       <span className="text-sm font-semibold">{t('recharge', { default: '充值' })}</span>
@@ -425,7 +425,7 @@ export function AppSidebar() {
                   ) : (
                     <button
                       onClick={() => window.open(`/${locale}/subscriptions`, '_blank', 'noopener,noreferrer')}
-                      className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-2.5 px-3 bg-gradient-to-br from-white to-blue-50 text-gray-900 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:-translate-y-0.5"
+                      className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-3 px-3 bg-gradient-to-br from-white to-blue-50 text-gray-900 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.18),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-white/50"
                     >
                       <Repeat className="h-4 w-4 flex-shrink-0" />
                       <span className="text-sm font-semibold">{t('subscriptionsShort', { default: '订阅' })}</span>
@@ -439,8 +439,8 @@ export function AppSidebar() {
             {isAuthenticated ? (
               <div className="space-y-2">
                 <div className={cn(
-                  'flex items-center rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-300',
-                  isCollapsed ? 'justify-center px-2 py-2' : 'gap-3 px-3 py-2'
+                  'flex items-center rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.18),-6px_-6px_20px_rgba(255,255,255,1)] transition-all duration-300 hover:-translate-y-0.5 border border-white/50',
+                  isCollapsed ? 'justify-center px-2 py-2' : 'gap-3 px-3 py-3'
                 )}>
                   <div className="relative h-10 w-10 rounded-full overflow-hidden shadow-md flex-shrink-0">
                     {user?.avatar ? (
@@ -459,10 +459,10 @@ export function AppSidebar() {
                   </div>
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                      <div className="text-base font-bold text-gray-900 dark:text-white truncate drop-shadow-sm">
                         {user?.username || user?.email}
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      <div className="text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
                         {user?.email}
                       </div>
                     </div>
@@ -471,8 +471,8 @@ export function AppSidebar() {
                 <button
                   onClick={handleLogout}
                   className={cn(
-                    'w-full flex items-center rounded-xl bg-gradient-to-br from-white to-blue-50 text-sm font-medium text-gray-700 transition-colors shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:-translate-y-0.5',
-                    isCollapsed ? 'justify-center px-2 py-2' : 'gap-3 px-3 py-2'
+                    'w-full flex items-center rounded-xl bg-gradient-to-br from-white to-blue-50 text-sm font-semibold text-gray-800 transition-all duration-300 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.18),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-white/50',
+                    isCollapsed ? 'justify-center px-2 py-2' : 'gap-3 px-3 py-3'
                   )}
                 >
                   <LogOut className="h-4 w-4 flex-shrink-0" />
@@ -483,8 +483,8 @@ export function AppSidebar() {
               <button
                 onClick={() => handleNavClick(`/${locale}/auth/login`)}
                 className={cn(
-                  'w-full flex items-center rounded-xl bg-gradient-to-r from-[#22C55E] to-[#22C55E]/80 hover:from-[#22C55E]/90 hover:to-[#22C55E]/70 text-white text-sm font-medium transition-all shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] hover:-translate-y-0.5',
-                  isCollapsed ? 'justify-center px-2 py-2' : 'justify-center gap-2 px-3 py-2'
+                  'w-full flex items-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-semibold transition-all duration-300 shadow-[4px_4px_16px_rgba(34,197,94,0.3),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(34,197,94,0.4),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-green-400/30',
+                  isCollapsed ? 'justify-center px-2 py-3' : 'justify-center gap-2 px-3 py-3'
                 )}
               >
                 <LogIn className="h-4 w-4 flex-shrink-0" />

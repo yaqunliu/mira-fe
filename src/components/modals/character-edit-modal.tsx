@@ -18,13 +18,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Save, X, Loader2, Sparkles } from "lucide-react";
+import { Save, X, Loader2, Sparkles, History } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { ICharacter } from "@/types/character";
 import characterApi from "@/lib/api/character";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
+import { CharacterImageHistoryDialog } from "@/components/timeline/character-image-history-dialog";
 
 interface CharacterEditModalProps {
   isOpen: boolean;
@@ -45,7 +46,7 @@ type EditCharacterFormData = {
   voiceDescription?: string;
 };
 
-function CharacterFormFields({ form, character, t }: { form: any, character: ICharacter, t: any }) {
+function CharacterFormFields({ form, character, t, onViewHistory }: { form: any, character: ICharacter, t: any, onViewHistory: () => void }) {
   const [previewImage, setPreviewImage] = useState<{src: string | null, alt: string} | null>(null);
 
   return (
@@ -69,11 +70,27 @@ function CharacterFormFields({ form, character, t }: { form: any, character: ICh
                 </div>
               </>
             ) : (
-              <span className="text-xs text-gray-500">暂未生成</span>
+              <div className="w-full h-full flex items-center justify-center text-gray-500">
+                <Sparkles className="h-6 w-6" />
+                <span className="text-xs text-gray-500 ml-2">暂未生成</span>
+              </div>
             )}
           </div>
           <div className="flex-1">
-             <h4 className="text-sm font-semibold text-gray-900 mb-1">当前形象</h4>
+             <div className="flex items-center justify-between mb-1">
+               <h4 className="text-sm font-semibold text-gray-900">当前形象</h4>
+               {character.image_url && (
+                 <Button
+                   size="sm"
+                   variant="outline"
+                   onClick={onViewHistory}
+                   className="h-6 text-[10px] px-2 border-gray-200 hover:bg-gray-50"
+                 >
+                   <History className="h-3 w-3 mr-1" />
+                   查看历史
+                 </Button>
+               )}
+             </div>
              <p className="text-xs text-gray-600">
                 {character.image_url ? "这是当前生成的角色参考图" : "角色形象暂未生成，请完善设定后点击生成"}
              </p>
@@ -321,6 +338,7 @@ export function CharacterEditModal({
   const t = useTranslations("character");
   const tCommon = useTranslations("common");
   const [isLoading, setIsLoading] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   // 动态创建 schema，因为验证消息需要国际化
@@ -378,7 +396,7 @@ export function CharacterEditModal({
         hair: data.hair,
         clothing: data.clothing,
         tags: data.tags ? data.tags.split(",") : [],
-        image_prompt: data.imagePrompt || character.image_prompt,
+        image_prompt: data.imagePrompt === undefined ? character.image_prompt : data.imagePrompt,
         voice_description: data.voiceDescription,
       };
       
@@ -425,78 +443,106 @@ export function CharacterEditModal({
   // Desktop Dialog View
   if (isDesktop) {
     return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl bg-gradient-to-br from-white to-blue-50 shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-blue-100 rounded-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{headerContent}</DialogTitle>
-            <DialogDescription asChild>
-              <div className="mt-1">{descriptionContent}</div>
-            </DialogDescription>
-          </DialogHeader>
+      <>
+        <Dialog open={isOpen} onOpenChange={onClose}>
+          <DialogContent className="sm:max-w-2xl bg-gradient-to-br from-white to-blue-50 shadow-[8px_8px_24px_rgba(0,0,0,0.12),-8px_-8px_24px_rgba(255,255,255,0.9)] border border-blue-100 rounded-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{headerContent}</DialogTitle>
+              <DialogDescription asChild>
+                <div className="mt-1">{descriptionContent}</div>
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="py-4 px-2">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSave)}>
-                <CharacterFormFields form={form} character={character} t={t} />
-              </form>
-            </Form>
-          </div>
+            <div className="py-4 px-2">
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSave)}>
+                  <CharacterFormFields 
+                    form={form} 
+                    character={character} 
+                    t={t} 
+                    onViewHistory={() => setIsHistoryOpen(true)}
+                  />
+                </form>
+              </Form>
+            </div>
 
-          <DialogFooter className="gap-3 sm:justify-end p-4 border-t border-blue-100 bg-gradient-to-br from-white to-blue-50 rounded-b-2xl">
-            <button 
-              onClick={handleCancel} 
-              disabled={isLoading}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 text-gray-700 font-medium"
-            >
-              <X className="h-4 w-4" />
-              {tCommon("cancel")}
-            </button>
-            <button 
-              onClick={form.handleSubmit(handleSave)} 
-              disabled={isLoading}
-              className={`px-6 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
-            >
-              {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {!isLoading && <Save className="h-4 w-4" />}
-              {tCommon("save")}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter className="gap-3 sm:justify-end p-4 border-t border-blue-100 bg-gradient-to-br from-white to-blue-50 rounded-b-2xl">
+              <button 
+                onClick={handleCancel} 
+                disabled={isLoading}
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 text-gray-700 font-medium"
+              >
+                <X className="h-4 w-4" />
+                {tCommon("cancel")}
+              </button>
+              <button 
+                onClick={form.handleSubmit(handleSave)} 
+                disabled={isLoading}
+                className={`px-6 py-2.5 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 ${isLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+              >
+                {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                {!isLoading && <Save className="h-4 w-4" />}
+                {tCommon("save")}
+              </button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <CharacterImageHistoryDialog
+          isOpen={isHistoryOpen}
+          onClose={() => setIsHistoryOpen(false)}
+          characterUuid={(character as any).uuid || (character as any).UUID}
+          onSuccess={onSuccess}
+        />
+      </>
     );
   }
 
   // Mobile BottomSheet View
   return (
-    <BottomSheet
-      open={isOpen}
-      onOpenChange={onClose}
-      title={headerContent}
-      description={descriptionContent}
-      actions={[
-        {
-          label: tCommon("cancel"),
-          onClick: handleCancel,
-          className: "px-6 py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-700 font-medium",
-          icon: <X className="h-4 w-4" />,
-          disabled: isLoading,
-        },
-        {
-          label: tCommon("save"),
-          onClick: form.handleSubmit(handleSave),
-          className: "px-6 py-3 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200",
-          icon: <Save className="h-4 w-4" />,
-          loading: isLoading,
-        },
-      ]}
-    >
-      <div className="px-4 pb-4">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)}>
-            <CharacterFormFields form={form} character={character} t={t} />
-          </form>
-        </Form>
-      </div>
-    </BottomSheet>
+    <>
+      <BottomSheet
+        open={isOpen}
+        onOpenChange={onClose}
+        title={headerContent}
+        description={descriptionContent}
+        actions={[
+          {
+            label: tCommon("cancel"),
+            onClick: handleCancel,
+            className: "px-6 py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-700 font-medium",
+            icon: <X className="h-4 w-4" />,
+            disabled: isLoading,
+          },
+          {
+            label: tCommon("save"),
+            onClick: form.handleSubmit(handleSave),
+            className: "px-6 py-3 rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200",
+            icon: <Save className="h-4 w-4" />,
+            loading: isLoading,
+          },
+        ]}
+      >
+        <div className="px-4 pb-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleSave)}>
+              <CharacterFormFields 
+                form={form} 
+                character={character} 
+                t={t} 
+                onViewHistory={() => setIsHistoryOpen(true)}
+              />
+            </form>
+          </Form>
+        </div>
+      </BottomSheet>
+
+      <CharacterImageHistoryDialog
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        characterUuid={(character as any).uuid || (character as any).UUID}
+        onSuccess={onSuccess}
+      />
+    </>
   );
 }
