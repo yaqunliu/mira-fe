@@ -129,8 +129,8 @@ export default function DynamicComicEditor() {
         tC = useTranslations('common');
     } catch (error) {
         // 如果无法获取上下文，使用 fallback
-        t = (key: string) => fallbackMessages.Editor[key] || key;
-        tC = (key: string) => fallbackMessages.common[key] || key;
+        t = (key: string) => (fallbackMessages.Editor as any)[key] || key;
+        tC = (key: string) => (fallbackMessages.common as any)[key] || key;
     }
     const taskId = searchParams.get('taskId');
     const [loading, setLoading] = useState(true);
