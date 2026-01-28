@@ -13,9 +13,9 @@ class AgentAPI {
    * 注意：此方法返回 fetch Response，需要调用者自行处理 SSE 流
    */
   async chat(creationUuid: string, request: ChatRequest): Promise<Response> {
-    const url = `/creations/${creationUuid}/agent/chat`;
+    const url = `/api/v1/creations/${creationUuid}/agent/chat`;
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL || ''}${url}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}${url}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ class AgentAPI {
       after?: string;
     }
   ) {
-    return apiClient.get<ChatHistory>(`/creations/${creationUuid}/agent/messages`, {
+    return apiClient.get<ChatHistory>(`/api/v1/creations/${creationUuid}/agent/messages`, {
       params,
     });
   }
@@ -51,7 +51,7 @@ class AgentAPI {
    * 中断对话
    */
   async interrupt(creationUuid: string, messageId: string, reason?: string) {
-    return apiClient.post(`/creations/${creationUuid}/agent/interrupt`, {
+    return apiClient.post(`/api/v1/creations/${creationUuid}/agent/interrupt`, {
       message_id: messageId,
       reason,
     });
@@ -61,7 +61,7 @@ class AgentAPI {
    * 重置会话
    */
   async reset(creationUuid: string, keepAssets: boolean = true) {
-    return apiClient.post(`/creations/${creationUuid}/agent/reset`, {
+    return apiClient.post(`/api/v1/creations/${creationUuid}/agent/reset`, {
       keep_assets: keepAssets,
     });
   }

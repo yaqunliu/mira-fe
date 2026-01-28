@@ -26,10 +26,14 @@ export function useAgentChat(creationUuid: string) {
   const [isPollingMode, setIsPollingMode] = useState(false);
   const [isInterrupting, setIsInterrupting] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const hasLoadedHistoryRef = useRef(false);
 
   const {
+    messages,
     addMessage,
     updateMessage,
+    setMessages,
     setConnected,
     setStreaming,
     setConnectionError,
@@ -239,7 +243,7 @@ export function useAgentChat(creationUuid: string) {
    * SSE 连接
    */
   const { isConnected, isConnecting, error, connect, disconnect: sseDisconnect } = useSSEConnection({
-    url: `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/creations/${creationUuid}/agent/chat`,
+    url: `${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/creations/${creationUuid}/agent/chat`,
     onEvent: (event) => {
       // 重置失败计数
       sseFailureCountRef.current = 0;
@@ -304,6 +308,37 @@ export function useAgentChat(creationUuid: string) {
       stopPolling();
     };
   }, [stopPolling]);
+
+  /**
+   * 初次进入时加载历史消息
+   */
+  useEffect(() => {
+    if (hasLoadedHistoryRef.current || !creationUuid) return;
+
+    const loadHistory = async () => {
+      setIsLoadingHistory(true);
+      try {
+        const response = await agentApi.getMessages(creationUuid);
+        const historyMessages = response.data?.messages || [];
+
+        if (historyMessages.length > 0) {
+          setMessages(historyMessages);
+          // 记录最后一条消息的ID，用于后续增量获取
+          const lastMsg = historyMessages[historyMessages.length - 1];
+          lastMessageIdRef.current = lastMsg.id;
+        }
+
+        hasLoadedHistoryRef.current = true;
+      } catch (err) {
+        console.error('Failed to load chat history:', err);
+        // 加载失败不影响使用，只是没有历史记录
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadHistory();
+  }, [creationUuid, setMessages]);
 
   /**
    * 发送消息

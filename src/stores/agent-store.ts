@@ -40,6 +40,7 @@ export interface AgentState {
   // ============ Actions - 消息管理 ============
   addMessage: (message: AgentMessage) => void;
   updateMessage: (id: string, updates: Partial<AgentMessage>) => void;
+  setMessages: (messages: AgentMessage[]) => void;
   clearMessages: () => void;
   setCurrentMessageId: (id: string | null) => void;
 
@@ -117,6 +118,9 @@ export const useAgentStore = create<AgentState>((set) => ({
 
   clearMessages: () =>
     set({ messages: [] }),
+
+  setMessages: (messages: AgentMessage[]) =>
+    set({ messages }),
 
   setCurrentMessageId: (id: string | null) =>
     set({ currentMessageId: id }),
