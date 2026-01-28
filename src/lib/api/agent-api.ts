@@ -1,8 +1,16 @@
 import { apiClient } from './client';
+import { useAuthStore } from '@/stores/auth';
 import type {
   ChatRequest,
   ChatHistory,
 } from '@/types/agent';
+
+/**
+ * 获取当前用户的 token
+ */
+function getAuthToken(): string | null {
+  return useAuthStore.getState().token;
+}
 
 /**
  * Agent API 服务
@@ -14,13 +22,20 @@ class AgentAPI {
    */
   async chat(creationUuid: string, request: ChatRequest): Promise<Response> {
     const url = `/api/v1/creations/${creationUuid}/agent/chat`;
+    const token = getAuthToken();
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'text/event-stream',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}${url}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'text/event-stream',
-      },
+      headers,
       body: JSON.stringify(request),
     });
 

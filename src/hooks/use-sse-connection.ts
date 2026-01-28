@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
+import { useAuthStore } from '@/stores/auth';
 
 /**
  * SSE 事件解析器
@@ -25,6 +26,13 @@ function parseSSEChunk(chunk: string): any[] {
   }
 
   return events;
+}
+
+/**
+ * 获取当前用户的 token
+ */
+function getAuthToken(): string | null {
+  return useAuthStore.getState().token;
 }
 
 /**
@@ -98,12 +106,20 @@ export function useSSEConnection(options: SSEConnectionOptions) {
         // 创建 AbortController 用于取消请求
         abortControllerRef.current = new AbortController();
 
+        // 构建请求头，添加 token
+        const token = getAuthToken();
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream',
+        };
+
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(url, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'text/event-stream',
-          },
+          headers,
           body: JSON.stringify(requestBody),
           signal: abortControllerRef.current.signal,
         });
