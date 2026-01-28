@@ -44,6 +44,9 @@ export function useAgentChat(creationUuid: string) {
     highlightElement,
   } = useAgentStore();
 
+  // 跟踪当前流式消息的 ID
+  const currentStreamMessageIdRef = useRef<string | null>(null);
+
   /**
    * 处理 SSE 事件
    */
@@ -53,26 +56,36 @@ export function useAgentChat(creationUuid: string) {
 
       switch (type) {
         case 'message.start':
+          // 使用 message.start 中的 message_id 创建消息，并保存引用
+          const messageId = event.message_id || `assistant-${Date.now()}`;
+          currentStreamMessageIdRef.current = messageId;
           addMessage({
-            id: event.message_id!,
+            id: messageId,
             role: 'assistant',
             content: '',
-            timestamp: event.timestamp,
+            timestamp: event.timestamp || new Date().toISOString(),
             status: 'streaming',
           });
           setStreaming(true);
           break;
 
         case 'message.content':
-          updateMessage(event.message_id!, {
-            content: event.content,
-          });
+          // 使用保存的消息 ID 进行更新，而不是 event.message_id
+          if (currentStreamMessageIdRef.current) {
+            updateMessage(currentStreamMessageIdRef.current, {
+              content: event.content,
+            });
+          }
           break;
 
         case 'message.end':
-          updateMessage(event.message_id!, {
-            status: 'completed',
-          });
+          // 使用保存的消息 ID 进行更新
+          if (currentStreamMessageIdRef.current) {
+            updateMessage(currentStreamMessageIdRef.current, {
+              status: 'completed',
+            });
+            currentStreamMessageIdRef.current = null;
+          }
           setStreaming(false);
           break;
 
@@ -319,9 +332,19 @@ export function useAgentChat(creationUuid: string) {
       setIsLoadingHistory(true);
       try {
         const response = await agentApi.getMessages(creationUuid);
-        const historyMessages = response.data?.messages || [];
+        // apiClient.get 已经返回 response.data，所以直接访问 messages
+        const rawMessages = (response as any).messages || response.data?.messages || [];
 
-        if (historyMessages.length > 0) {
+        if (rawMessages.length > 0) {
+          // 转换 API 返回的消息格式为前端格式
+          const historyMessages: AgentMessage[] = rawMessages.map((msg: any) => ({
+            id: String(msg.id),
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content || '',
+            timestamp: msg.created_at || new Date().toISOString(),
+            status: 'completed' as const,
+          }));
+
           setMessages(historyMessages);
           // 记录最后一条消息的ID，用于后续增量获取
           const lastMsg = historyMessages[historyMessages.length - 1];

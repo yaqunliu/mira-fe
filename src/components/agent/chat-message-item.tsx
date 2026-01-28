@@ -105,7 +105,18 @@ function formatFileSize(bytes: number): string {
  * 格式化时间戳
  */
 function formatTimestamp(timestamp: string): string {
+  // 处理空值或无效时间戳
+  if (!timestamp) {
+    return '刚刚';
+  }
+
   const date = new Date(timestamp);
+
+  // 检查是否为有效日期
+  if (isNaN(date.getTime())) {
+    return '刚刚';
+  }
+
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);

@@ -71,7 +71,7 @@ function SceneCard({ scene, sceneNumber, isHighlighted }: {
   sceneNumber: number;
   isHighlighted: boolean;
 }) {
-  const referenceImage = scene.reference_image_url;
+  const referenceImage = scene.image_url || scene.reference_image_url;
   const shotCount = scene.shots?.length || 0;
 
   return (
