@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Book, FileText, ChevronRight, Check, ArrowLeft, Loader2, PlayCircle, Plus } from "lucide-react";
+import { Book, FileText, ChevronRight, Check, ArrowLeft, Loader2, PlayCircle, Plus, Bot, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { useAuthStore } from "@/stores/auth";
@@ -75,6 +75,7 @@ export default function CreateDynamicComicPage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [activeTab, setActiveTab] = useState("novel");
     const [style, setStyle] = useState("anime"); // Default style: anime
+    const [creationMode, setCreationMode] = useState<"professional" | "agent">("professional"); // Creation mode
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -348,10 +349,12 @@ export default function CreateDynamicComicPage() {
             const taskId = data.task_id;
 
             toast.success(t('creationSuccess'));
-            // 跳转到 dynamic-comic-editor，传递 taskId
-            // The API returns task_id (which is creation UUID in new flow usually, or we use taskId as UUID)
-            // Use task_id (UUID) as the taskId parameter for consistency with backend expectations
-            router.push(`/${locale}/dynamic-comic-editor?taskId=${taskId}`);
+            // 根据创作模式跳转到不同页面
+            if (creationMode === "agent") {
+                router.push(`/${locale}/create-agent?creationId=${taskId}`);
+            } else {
+                router.push(`/${locale}/dynamic-comic-editor?taskId=${taskId}`);
+            }
 
         } catch (error: any) {
             console.error("Creation failed:", error);
@@ -597,40 +600,77 @@ export default function CreateDynamicComicPage() {
                     <div className="px-6 py-6 border-t border-blue-100">
                         <Label className="text-lg font-medium mb-4 block text-gray-800">{t('styleSelection')}</Label>
                         <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                            <div 
+                            <div
                                 className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "realism" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
                                 onClick={() => setStyle("realism")}
                             >
                                 <div className="font-medium text-gray-800 mb-1">{t('realism')}</div>
                                 <div className="text-sm text-gray-600">{t('realismDescription')}</div>
                             </div>
-                            <div 
+                            <div
                                 className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "cyberpunk" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
                                 onClick={() => setStyle("cyberpunk")}
                             >
                                 <div className="font-medium text-gray-800 mb-1">{t('cyberpunk')}</div>
                                 <div className="text-sm text-gray-600">{t('cyberpunkDescription')}</div>
                             </div>
-                            <div 
+                            <div
                                 className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "ukiyoe" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
                                 onClick={() => setStyle("ukiyoe")}
                             >
                                 <div className="font-medium text-gray-800 mb-1">{t('ukiyoe')}</div>
                                 <div className="text-sm text-gray-600">{t('ukiyoeDescription')}</div>
                             </div>
-                            <div 
+                            <div
                                 className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "watercolor" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
                                 onClick={() => setStyle("watercolor")}
                             >
                                 <div className="font-medium text-gray-800 mb-1">{t('watercolor')}</div>
                                 <div className="text-sm text-gray-600">{t('watercolorDescription')}</div>
                             </div>
-                            <div 
+                            <div
                                 className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "anime" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
                                 onClick={() => setStyle("anime")}
                             >
                                 <div className="font-medium text-gray-800 mb-1">{t('anime')}</div>
                                 <div className="text-sm text-gray-600">{t('animeDescription')}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Creation Mode Selection */}
+                    <div className="px-6 py-6 border-t border-blue-100">
+                        <Label className="text-lg font-medium mb-4 block text-gray-800">创作模式</Label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div
+                                className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${creationMode === "professional" ? "border-[#FDBCB4] bg-gradient-to-br from-[#FDBCB4]/10 to-[#ADD8E6]/10 shadow-[4px_4px_12px_rgba(253,188,180,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-[#FDBCB4] hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                onClick={() => setCreationMode("professional")}
+                            >
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className={`p-2 rounded-lg ${creationMode === "professional" ? "bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6]" : "bg-gray-100"}`}>
+                                        <Wrench className={`w-5 h-5 ${creationMode === "professional" ? "text-white" : "text-gray-600"}`} />
+                                    </div>
+                                    <div className="font-semibold text-gray-800">专业模式</div>
+                                    {creationMode === "professional" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
+                                </div>
+                                <div className="text-sm text-gray-600 pl-12">
+                                    手动精细控制每一步创作流程，适合专业用户深度定制
+                                </div>
+                            </div>
+                            <div
+                                className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${creationMode === "agent" ? "border-[#22C55E] bg-gradient-to-br from-[#22C55E]/10 to-[#ADD8E6]/10 shadow-[4px_4px_12px_rgba(34,197,94,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-[#22C55E] hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                onClick={() => setCreationMode("agent")}
+                            >
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className={`p-2 rounded-lg ${creationMode === "agent" ? "bg-gradient-to-r from-[#22C55E] to-[#ADD8E6]" : "bg-gray-100"}`}>
+                                        <Bot className={`w-5 h-5 ${creationMode === "agent" ? "text-white" : "text-gray-600"}`} />
+                                    </div>
+                                    <div className="font-semibold text-gray-800">Agent 模式</div>
+                                    {creationMode === "agent" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
+                                </div>
+                                <div className="text-sm text-gray-600 pl-12">
+                                    AI 全自动引导创作，通过对话完成所有步骤，适合快速创作
+                                </div>
                             </div>
                         </div>
                     </div>

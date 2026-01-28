@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 import { CustomTabs } from "@/components/ui/custom-tabs";
 import { NovelSelect } from "../novel-select";
 import { Novel, Chapter } from "@/types";
-import { ArrowRight, X, Check, FileText, Settings } from "lucide-react";
+import { ArrowRight, X, Check, FileText, Settings, Bot, Wrench } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import creationApi from "@/lib/api/creation";
 import { toast } from "sonner";
@@ -51,6 +51,7 @@ export function StorySetting() {
   const [narrationMode, setNarrationMode] = useState<"original" | "rewrite">("original");
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+  const [creationMode, setCreationMode] = useState<"professional" | "agent">("professional");
 
   // 获取模型配置列表
   const { data: modelConfigsData } = useQuery({
@@ -193,8 +194,12 @@ export function StorySetting() {
       if (creationIdToUse) {
         setCreationId(creationIdToUse);
         toast.success(t("creation.characterAnalysisStart") || "开始分析章节内容...");
-        // 跳转到创作页面，显示分析进度
-        router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationIdToUse}`);
+        // 根据创作模式跳转到不同页面
+        if (creationMode === "agent") {
+          router.replace(`/${locale}/create-agent?creationId=${creationIdToUse}`);
+        } else {
+          router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationIdToUse}`);
+        }
       } else {
         throw new Error(t("creation.taskIdNotFound") || "未获取到创作ID");
       }
@@ -224,9 +229,13 @@ export function StorySetting() {
     try {
       const existingCreation = await creationApi.queryCreationByChapterId(chapterUuid);
       if (existingCreation?.data) {
-        // 如果已有创作，直接跳转到该创作
+        // 如果已有创作，根据选择的模式跳转
         const creationUuid = (existingCreation.data as any).uuid || existingCreation.data.creation_id;
-        router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
+        if (creationMode === "agent") {
+          router.replace(`/${locale}/create-agent?creationId=${creationUuid}`);
+        } else {
+          router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
+        }
         return; // 直接返回，不创建新创作
       }
     } catch (error) {
@@ -275,7 +284,7 @@ export function StorySetting() {
         }
       );
     });
-  }, [selectedNovel, selectedChapters, t, createCreationMutation, router, locale]);
+  }, [selectedNovel, selectedChapters, t, createCreationMutation, router, locale, llmModel, textToImageModel, imageToImageModel, videoModel, narrationMode, aspectRatio, creationMode]);
 
   // 使用任务提交 hook 包装分析函数
   const { submit: analyseContent, isSubmitting: isSubmittingAnalysis } = useTaskSubmission(
@@ -387,6 +396,36 @@ export function StorySetting() {
                           </div>
 
                           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 w-full sm:w-auto">
+                            {/* 模式选择 */}
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <div className="flex rounded-xl overflow-hidden border border-gray-200 shadow-[2px_2px_8px_rgba(0,0,0,0.08),-2px_-2px_8px_rgba(255,255,255,0.8)]">
+                                <button
+                                  type="button"
+                                  onClick={() => setCreationMode("professional")}
+                                  className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-all ${
+                                    creationMode === "professional"
+                                      ? "bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] text-white"
+                                      : "bg-white text-gray-600 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  <Wrench className="w-3.5 h-3.5" />
+                                  专业模式
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setCreationMode("agent")}
+                                  className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-all ${
+                                    creationMode === "agent"
+                                      ? "bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] text-white"
+                                      : "bg-white text-gray-600 hover:bg-gray-50"
+                                  }`}
+                                >
+                                  <Bot className="w-3.5 h-3.5" />
+                                  Agent
+                                </button>
+                              </div>
+                            </div>
+
                             {/* 配置按钮 */}
                             <Dialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen}>
                               <DialogTrigger asChild>

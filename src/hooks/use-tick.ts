@@ -118,9 +118,29 @@ export const useTick = () => {
       lastUpdateTimeRef.current = timestamp;
       const newTime = state.currentTime + (deltaTime / 1000);
 
-      if (newTime >= state.project.duration) {
+      // 计算所有轨道上最后一个片段的结束时间
+      let maxClipEndTime = 0;
+      state.project.tracks.forEach(track => {
+        track.clips.forEach(clip => {
+          const clipEndTime = clip.startInTimeline + clip.duration;
+          if (clipEndTime > maxClipEndTime) {
+            maxClipEndTime = clipEndTime;
+          }
+        });
+      });
+
+      // 如果没有任何片段，停止播放
+      if (maxClipEndTime === 0) {
         state.pause();
-        state.seek(state.project.duration);
+        state.seek(0);
+        lastUpdateTimeRef.current = 0;
+        return;
+      }
+
+      // 如果播放时间超过最后一个片段的结束时间，停止播放
+      if (newTime >= maxClipEndTime) {
+        state.pause();
+        state.seek(maxClipEndTime);
         lastUpdateTimeRef.current = 0;
       } else {
         state.seek(newTime);

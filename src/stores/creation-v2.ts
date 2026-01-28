@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { produce } from 'immer';
 import { ICreation, ICharacter, IScene, IShot, CreationStatus } from '@/types';
 
-export type V2Step = 
+export type V2Step =
   | 'character_analysis'
   | 'scene_breakdown'
   | 'visual_generation'
@@ -15,11 +15,17 @@ export interface V2StepConfig {
   progress?: number;
 }
 
+// 创作模式类型
+export type CreationMode = 'agent' | 'professional';
+
 export interface CreationV2State {
   // Creation Data
   creation: ICreation | null;
   isLoading: boolean;
   error: string | null;
+
+  // Mode Control
+  mode: CreationMode;
 
   // Flow Control
   currentStep: number;
@@ -35,6 +41,9 @@ export interface CreationV2State {
   updateCreation: (updates: Partial<ICreation>) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+
+  // Mode Actions
+  setMode: (mode: CreationMode) => void;
   
   // Step Actions
   setStep: (stepIndex: number) => void;
@@ -64,7 +73,9 @@ export const useCreationV2Store = create<CreationV2State>((set) => ({
   creation: null,
   isLoading: false,
   error: null,
-  
+
+  mode: 'professional', // 默认为专业模式
+
   currentStep: 0,
   steps: initialSteps,
   
@@ -82,6 +93,8 @@ export const useCreationV2Store = create<CreationV2State>((set) => ({
 
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
+
+  setMode: (mode) => set({ mode }),
 
   setStep: (stepIndex) => set({ currentStep: stepIndex }),
   

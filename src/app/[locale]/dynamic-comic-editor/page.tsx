@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Timeline } from '@/components/business/timeline';
 import { VideoPreview } from '@/components/business/video-preview';
 import { AssetManager } from '@/components/business/asset-manager';
 import { useTimelineStore } from '@/stores/timeline';
 import { TimelineProject, TimelineTrack } from '@/types/timeline';
-import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus, Monitor, Smartphone } from 'lucide-react';
+import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus, Monitor, Smartphone, Bot } from 'lucide-react';
 import { useTranslations, NextIntlClientProvider } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import creationApi from '@/lib/api/creation';
@@ -119,7 +119,8 @@ const fallbackMessages = {
 export default function DynamicComicEditor() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    
+    const pathname = usePathname();
+
     // 尝试使用 useTranslations，如果失败则使用 fallback
     let t: (key: string, options?: any) => string;
     let tC: (key: string, options?: any) => string;
@@ -2465,6 +2466,17 @@ export default function DynamicComicEditor() {
                                 </>
                             )}
                         </Button>
+                        {/* 切换到 Agent 模式按钮 */}
+                        <button
+                            onClick={() => {
+                                const locale = pathname.split('/')[1] || 'zh';
+                                router.push(`/${locale}/create-agent?creationId=${taskId}`);
+                            }}
+                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-[#22C55E]/20 to-[#ADD8E6]/30 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-[#22C55E]/50 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
+                        >
+                            <Bot size={14} className="text-[#22C55E]" />
+                            <span>切换到 Agent 模式</span>
+                        </button>
                     </div>
                 </div>
 
