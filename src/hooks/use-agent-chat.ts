@@ -1,17 +1,31 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAgentStore } from '@/stores/agent-store';
 import { useSSEConnection } from './use-sse-connection';
 import { useQueryClient } from '@tanstack/react-query';
-import type { SSEEvent, ChatRequest, BoardAction } from '@/types/agent';
+import { toast } from 'sonner';
+import agentApi from '@/lib/api/agent-api';
+import type { SSEEvent, ChatRequest, BoardAction, AgentMessage } from '@/types/agent';
+
+/** SSE 连续失败次数阈值，超过后降级到轮询模式 */
+const SSE_FAILURE_THRESHOLD = 3;
+/** 轮询间隔（毫秒） */
+const POLLING_INTERVAL = 2000;
 
 /**
  * Agent 对话管理 Hook
  *
- * 封装 SSE 连接和事件处理逻辑
+ * 封装 SSE 连接和事件处理逻辑，支持降级轮询
  */
 export function useAgentChat(creationUuid: string) {
   const queryClient = useQueryClient();
   const lastRequestRef = useRef<ChatRequest | null>(null);
+  const lastMessageIdRef = useRef<string | null>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const sseFailureCountRef = useRef(0);
+
+  const [isPollingMode, setIsPollingMode] = useState(false);
+  const [isInterrupting, setIsInterrupting] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const {
     addMessage,
@@ -170,7 +184,7 @@ export function useAgentChat(creationUuid: string) {
 
           case 'update':
             // 刷新 creation 数据
-            queryClient.invalidateQueries(['creation', creationUuid]);
+            queryClient.invalidateQueries({ queryKey: ['creation', creationUuid] });
             break;
 
           case 'add':
@@ -184,19 +198,79 @@ export function useAgentChat(creationUuid: string) {
   );
 
   /**
+   * 停止轮询
+   */
+  const stopPolling = useCallback(() => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+  }, []);
+
+  /**
+   * 启动轮询模式（SSE 降级方案）
+   */
+  const startPolling = useCallback(() => {
+    if (pollingIntervalRef.current) return;
+
+    setIsPollingMode(true);
+    toast.warning('实时连接失败，已切换到轮询模式');
+
+    pollingIntervalRef.current = setInterval(async () => {
+      try {
+        const response = await agentApi.getMessages(creationUuid, {
+          after: lastMessageIdRef.current || undefined,
+        });
+
+        const messages = response.data?.messages || [];
+        if (messages.length > 0) {
+          for (const msg of messages) {
+            addMessage(msg);
+            lastMessageIdRef.current = msg.id;
+          }
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    }, POLLING_INTERVAL);
+  }, [creationUuid, addMessage]);
+
+  /**
    * SSE 连接
    */
-  const { isConnected, isConnecting, error, connect, disconnect } = useSSEConnection({
+  const { isConnected, isConnecting, error, connect, disconnect: sseDisconnect } = useSSEConnection({
     url: `${process.env.NEXT_PUBLIC_API_BASE_URL || ''}/creations/${creationUuid}/agent/chat`,
-    onEvent: handleSSEEvent,
+    onEvent: (event) => {
+      // 重置失败计数
+      sseFailureCountRef.current = 0;
+      // 记录最后消息ID
+      if (event.message_id) {
+        lastMessageIdRef.current = event.message_id;
+      }
+      handleSSEEvent(event);
+    },
     onError: (err) => {
       console.error('SSE connection error:', err);
       setConnectionError(err.message);
+
+      // 累计失败次数
+      sseFailureCountRef.current += 1;
+
+      // 超过阈值，降级到轮询模式
+      if (sseFailureCountRef.current >= SSE_FAILURE_THRESHOLD) {
+        startPolling();
+      }
     },
     onConnected: () => {
       console.log('SSE connected');
       setConnected(true);
       setConnectionError(null);
+      // 如果之前在轮询模式，停止轮询
+      if (isPollingMode) {
+        stopPolling();
+        setIsPollingMode(false);
+        toast.success('已恢复实时连接');
+      }
     },
     onDisconnected: () => {
       console.log('SSE disconnected');
@@ -207,57 +281,167 @@ export function useAgentChat(creationUuid: string) {
   });
 
   /**
+   * 断开连接（包括 SSE 和轮询）
+   */
+  const disconnect = useCallback(() => {
+    sseDisconnect();
+    stopPolling();
+    setIsPollingMode(false);
+  }, [sseDisconnect, stopPolling]);
+
+  /**
    * 同步连接状态到 store
    */
   useEffect(() => {
-    setConnected(isConnected);
-  }, [isConnected, setConnected]);
+    setConnected(isConnected || isPollingMode);
+  }, [isConnected, isPollingMode, setConnected]);
+
+  /**
+   * 组件卸载时清理
+   */
+  useEffect(() => {
+    return () => {
+      stopPolling();
+    };
+  }, [stopPolling]);
 
   /**
    * 发送消息
    */
   const sendMessage = useCallback(
     async (message: string, actionResponse?: any, attachments?: any[]) => {
-      // 添加用户消息
-      addMessage({
-        id: `user-${Date.now()}`,
-        role: 'user',
-        content: message,
-        timestamp: new Date().toISOString(),
-        status: 'completed',
-      });
+      // 添加用户消息（非空消息才添加）
+      if (message.trim()) {
+        addMessage({
+          id: `user-${Date.now()}`,
+          role: 'user',
+          content: message,
+          timestamp: new Date().toISOString(),
+          status: 'completed',
+        });
+      }
 
       // 构建请求
       const request: ChatRequest = {
         message,
         action_response: actionResponse,
         attachments,
-        stream: true,
+        stream: !isPollingMode,
       };
 
       lastRequestRef.current = request;
 
+      // 如果在轮询模式，使用普通 API 调用
+      if (isPollingMode) {
+        try {
+          await agentApi.chat(creationUuid, request);
+        } catch (err) {
+          console.error('Chat API error:', err);
+          toast.error('发送消息失败');
+        }
+        return;
+      }
+
       // 建立 SSE 连接
       await connect(request);
     },
-    [addMessage, connect]
+    [addMessage, connect, isPollingMode, creationUuid]
   );
 
   /**
    * 重连
    */
   const reconnect = useCallback(async () => {
+    // 尝试恢复 SSE 连接
+    sseFailureCountRef.current = 0;
+    stopPolling();
+    setIsPollingMode(false);
+
     if (lastRequestRef.current) {
       await connect(lastRequestRef.current);
     }
-  }, [connect]);
+  }, [connect, stopPolling]);
+
+  /**
+   * 中断当前对话
+   */
+  const interrupt = useCallback(
+    async (messageId?: string, reason?: string) => {
+      if (isInterrupting) return;
+
+      setIsInterrupting(true);
+      try {
+        const targetMessageId = messageId || lastMessageIdRef.current;
+        if (!targetMessageId) {
+          toast.error('没有可中断的消息');
+          return;
+        }
+
+        await agentApi.interrupt(creationUuid, targetMessageId, reason);
+
+        // 断开 SSE 连接
+        sseDisconnect();
+        setStreaming(false);
+        toast.success('已中断当前对话');
+      } catch (err: any) {
+        console.error('Interrupt error:', err);
+        toast.error(err.message || '中断失败');
+      } finally {
+        setIsInterrupting(false);
+      }
+    },
+    [creationUuid, isInterrupting, sseDisconnect, setStreaming]
+  );
+
+  /**
+   * 重置会话
+   */
+  const reset = useCallback(
+    async (keepAssets: boolean = true) => {
+      if (isResetting) return;
+
+      setIsResetting(true);
+      try {
+        await agentApi.reset(creationUuid, keepAssets);
+
+        // 断开连接并清理状态
+        disconnect();
+        lastMessageIdRef.current = null;
+        lastRequestRef.current = null;
+
+        // 清空消息（需要在 store 中实现 clearMessages）
+        // clearMessages();
+
+        // 刷新 creation 数据
+        queryClient.invalidateQueries({ queryKey: ['creation', creationUuid] });
+
+        toast.success(keepAssets ? '会话已重置（保留资产）' : '会话已完全重置');
+      } catch (err: any) {
+        console.error('Reset error:', err);
+        toast.error(err.message || '重置失败');
+      } finally {
+        setIsResetting(false);
+      }
+    },
+    [creationUuid, isResetting, disconnect, queryClient]
+  );
 
   return {
-    isConnected,
+    // 连接状态
+    isConnected: isConnected || isPollingMode,
     isConnecting,
+    isPollingMode,
     error,
+
+    // 操作状态
+    isInterrupting,
+    isResetting,
+
+    // 方法
     sendMessage,
     disconnect,
     reconnect,
+    interrupt,
+    reset,
   };
 }

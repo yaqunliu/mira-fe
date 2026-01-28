@@ -9,6 +9,7 @@ import ModuleLoading from "@/components/ui/module-loading";
 import { AgentChatPanel } from "@/components/agent/agent-chat-panel";
 import { AgentCanvas } from "@/components/agent/agent-canvas";
 import { AgentSidebar } from "@/components/agent/agent-sidebar";
+import { AgentProvider } from "@/components/agent/agent-provider";
 import { EditorToolbar } from "@/components/shared/editor-toolbar";
 
 export default function CreateAgentPage() {
@@ -59,16 +60,18 @@ export default function CreateAgentPage() {
 
       {/* 三栏式布局 */}
       <div className="relative z-10 flex-1 flex overflow-hidden mx-4 mb-4">
-        <div className="claymorphism rounded-2xl overflow-hidden flex w-full">
-          {/* 左侧：侧边栏 */}
-          <AgentSidebar creation={creation} />
+        <AgentProvider creationUuid={creationId}>
+          <div className="claymorphism rounded-2xl overflow-hidden flex w-full">
+            {/* 左侧：侧边栏 */}
+            <AgentSidebar creation={creation} />
 
-          {/* 中间：看板区 */}
-          <AgentCanvas creation={creation} />
+            {/* 中间：看板区 */}
+            <AgentCanvas creation={creation} />
 
-          {/* 右侧：对话区 */}
-          <AgentChatPanel creationUuid={creationId} />
-        </div>
+            {/* 右侧：对话区 */}
+            <AgentChatPanel />
+          </div>
+        </AgentProvider>
       </div>
     </div>
   );
