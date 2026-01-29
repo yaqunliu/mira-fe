@@ -266,8 +266,8 @@ export function useAgentChat(creationUuid: string) {
       try {
         const response = await creationApi.queryCreationById(creationUuid, true);
         if (response.data) {
-          // 更新 react-query 缓存
-          queryClient.setQueryData(['creation', creationUuid], response.data);
+          // 更新 react-query 缓存，保持与初始加载一致的结构 { data: ICreation, ... }
+          queryClient.setQueryData(['creation', creationUuid], response);
         }
       } catch (err) {
         console.error('Creation polling error:', err);
