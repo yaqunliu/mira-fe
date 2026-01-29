@@ -4,12 +4,17 @@ import { useSSEConnection } from './use-sse-connection';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import agentApi from '@/lib/api/agent-api';
+import creationApi from '@/lib/api/creation';
 import type { SSEEvent, ChatRequest, BoardAction, AgentMessage } from '@/types/agent';
 
 /** SSE 连续失败次数阈值，超过后降级到轮询模式 */
 const SSE_FAILURE_THRESHOLD = 3;
 /** 轮询间隔（毫秒） */
 const POLLING_INTERVAL = 2000;
+/** Agent 模式创作资产轮询间隔（毫秒） */
+const CREATION_POLLING_INTERVAL = 5000;
+/** Agent 模式消息轮询间隔（毫秒） */
+const MESSAGES_POLLING_INTERVAL = 3000;
 
 /**
  * Agent 对话管理 Hook
@@ -22,6 +27,10 @@ export function useAgentChat(creationUuid: string) {
   const lastMessageIdRef = useRef<string | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const sseFailureCountRef = useRef(0);
+
+  // Agent 模式轮询 refs
+  const creationPollingRef = useRef<NodeJS.Timeout | null>(null);
+  const messagesPollingRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isPollingMode, setIsPollingMode] = useState(false);
   const [isInterrupting, setIsInterrupting] = useState(false);
@@ -231,6 +240,78 @@ export function useAgentChat(creationUuid: string) {
   }, []);
 
   /**
+   * 停止 Agent 模式轮询
+   */
+  const stopAgentPolling = useCallback(() => {
+    if (creationPollingRef.current) {
+      clearInterval(creationPollingRef.current);
+      creationPollingRef.current = null;
+    }
+    if (messagesPollingRef.current) {
+      clearInterval(messagesPollingRef.current);
+      messagesPollingRef.current = null;
+    }
+  }, []);
+
+  /**
+   * 启动 Agent 模式轮询
+   * 每5秒查询创作资产信息，每3秒查询最新消息
+   */
+  const startAgentPolling = useCallback(() => {
+    // 先停止已有的轮询
+    stopAgentPolling();
+
+    // 轮询创作资产信息（每5秒）
+    creationPollingRef.current = setInterval(async () => {
+      try {
+        const response = await creationApi.queryCreationById(creationUuid, true);
+        if (response.data) {
+          // 更新 react-query 缓存
+          queryClient.setQueryData(['creation', creationUuid], response.data);
+        }
+      } catch (err) {
+        console.error('Creation polling error:', err);
+      }
+    }, CREATION_POLLING_INTERVAL);
+
+    // 轮询最新消息（每3秒）
+    messagesPollingRef.current = setInterval(async () => {
+      try {
+        const response = await agentApi.getMessages(creationUuid, {
+          after: lastMessageIdRef.current || undefined,
+        });
+
+        const rawMessages = (response as any).messages || response.data?.messages || [];
+        if (rawMessages.length > 0) {
+          // 获取当前已有消息的 ID 集合
+          const existingMessageIds = new Set(
+            useAgentStore.getState().messages.map((m) => m.id)
+          );
+
+          for (const msg of rawMessages) {
+            const messageId = String(msg.id);
+            // 只添加不存在的新消息
+            if (!existingMessageIds.has(messageId)) {
+              const formattedMessage: AgentMessage = {
+                id: messageId,
+                role: msg.role as 'user' | 'assistant',
+                content: msg.content || '',
+                timestamp: msg.created_at || new Date().toISOString(),
+                status: 'completed' as const,
+              };
+              addMessage(formattedMessage);
+            }
+            // 更新最后消息ID
+            lastMessageIdRef.current = messageId;
+          }
+        }
+      } catch (err) {
+        console.error('Messages polling error:', err);
+      }
+    }, MESSAGES_POLLING_INTERVAL);
+  }, [creationUuid, queryClient, addMessage, stopAgentPolling]);
+
+  /**
    * 启动轮询模式（SSE 降级方案）
    */
   const startPolling = useCallback(() => {
@@ -325,8 +406,23 @@ export function useAgentChat(creationUuid: string) {
   useEffect(() => {
     return () => {
       stopPolling();
+      stopAgentPolling();
     };
-  }, [stopPolling]);
+  }, [stopPolling, stopAgentPolling]);
+
+  /**
+   * Agent 模式轮询：每1秒查询创作资产和最新消息
+   */
+  useEffect(() => {
+    if (!creationUuid) return;
+
+    // 启动 agent 模式轮询
+    startAgentPolling();
+
+    return () => {
+      stopAgentPolling();
+    };
+  }, [creationUuid, startAgentPolling, stopAgentPolling]);
 
   /**
    * 初次进入时加载历史消息
