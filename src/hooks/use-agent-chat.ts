@@ -46,6 +46,8 @@ export function useAgentChat(creationUuid: string) {
 
   // 跟踪当前流式消息的 ID
   const currentStreamMessageIdRef = useRef<string | null>(null);
+  // 标记是否已创建当前流式消息
+  const hasCreatedMessageRef = useRef<boolean>(false);
 
   /**
    * 处理 SSE 事件
@@ -56,22 +58,25 @@ export function useAgentChat(creationUuid: string) {
 
       switch (type) {
         case 'message.start':
-          // 使用 message.start 中的 message_id 创建消息，并保存引用
-          const messageId = event.message_id || `assistant-${Date.now()}`;
-          currentStreamMessageIdRef.current = messageId;
-          addMessage({
-            id: messageId,
-            role: 'assistant',
-            content: '',
-            timestamp: event.timestamp || new Date().toISOString(),
-            status: 'streaming',
-          });
+          // 只保存消息 ID，不创建空消息
+          currentStreamMessageIdRef.current = event.message_id || `assistant-${Date.now()}`;
+          hasCreatedMessageRef.current = false;
           setStreaming(true);
           break;
 
         case 'message.content':
-          // 使用保存的消息 ID 进行更新，而不是 event.message_id
-          if (currentStreamMessageIdRef.current) {
+          // 第一次收到内容时才创建消息
+          if (currentStreamMessageIdRef.current && !hasCreatedMessageRef.current) {
+            addMessage({
+              id: currentStreamMessageIdRef.current,
+              role: 'assistant',
+              content: event.content || '',
+              timestamp: new Date().toISOString(),
+              status: 'streaming',
+            });
+            hasCreatedMessageRef.current = true;
+          } else if (currentStreamMessageIdRef.current) {
+            // 后续内容更新消息
             updateMessage(currentStreamMessageIdRef.current, {
               content: event.content,
             });
@@ -80,12 +85,13 @@ export function useAgentChat(creationUuid: string) {
 
         case 'message.end':
           // 使用保存的消息 ID 进行更新
-          if (currentStreamMessageIdRef.current) {
+          if (currentStreamMessageIdRef.current && hasCreatedMessageRef.current) {
             updateMessage(currentStreamMessageIdRef.current, {
               status: 'completed',
             });
-            currentStreamMessageIdRef.current = null;
           }
+          currentStreamMessageIdRef.current = null;
+          hasCreatedMessageRef.current = false;
           setStreaming(false);
           break;
 
