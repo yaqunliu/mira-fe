@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from 'react';
 import Image from 'next/image';
 import type { ICreation } from '@/types/creation';
 
@@ -67,6 +68,7 @@ export function CanvasStoryboardView({ creation, highlightedElement }: CanvasSto
             shot={shot}
             shotNumber={idx + 1}
             isHighlighted={highlightedElement === `shot-${shot.shot_id}`}
+            allCharacters={creation.characters}
           />
         ))}
       </div>
@@ -77,13 +79,60 @@ export function CanvasStoryboardView({ creation, highlightedElement }: CanvasSto
 /**
  * 分镜卡片组件
  */
-function ShotCard({ shot, shotNumber, isHighlighted }: {
+function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [] }: {
   shot: any;
   shotNumber: number;
   isHighlighted: boolean;
+  allCharacters?: any[];
 }) {
   const hasImage = !!shot.image_url;
   const hasAudio = !!shot.audio_url;
+
+  // 提取当前分镜的角色
+  const displayCharacters = useMemo(() => {
+    const charMap = new Map<string | number, any>();
+    
+    // 1. 尝试直接从 shot.characters 获取
+    if (shot.characters && Array.isArray(shot.characters)) {
+      shot.characters.forEach((c: any) => {
+        const id = c.uuid || c.character_id;
+        if (id) charMap.set(id, c);
+      });
+    }
+
+    // 2. 尝试从 associated_characters 获取
+    if (shot.associated_characters && Array.isArray(shot.associated_characters)) {
+      shot.associated_characters.forEach((id: any) => {
+        if (id && !charMap.has(id)) {
+          const char = allCharacters.find(c => (c.uuid || c.character_id) === id);
+          if (char) charMap.set(id, char);
+        }
+      });
+    }
+
+    // 3. 尝试从 narration 获取
+    let narration = shot.narration;
+    if (typeof narration === 'string' && narration.trim()) {
+      try {
+        narration = JSON.parse(narration);
+      } catch (e) {}
+    }
+
+    if (Array.isArray(narration)) {
+      narration.forEach((item: any) => {
+        const name = item.角色;
+        if (name) {
+          const char = allCharacters.find(c => c.name === name);
+          if (char) {
+            const id = char.uuid || char.character_id;
+            if (id && !charMap.has(id)) charMap.set(id, char);
+          }
+        }
+      });
+    }
+
+    return Array.from(charMap.values());
+  }, [shot.characters, shot.associated_characters, shot.narration, allCharacters]);
 
   return (
     <div
@@ -129,6 +178,20 @@ function ShotCard({ shot, shotNumber, isHighlighted }: {
         <div className="text-xs text-gray-500">
           {shot.scene_name}
         </div>
+
+        {/* 关联角色 */}
+        {displayCharacters.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {displayCharacters.map((char: any) => (
+              <span
+                key={char.uuid || char.character_id}
+                className="px-1.5 py-0.5 bg-green-50 text-green-600 text-[10px] rounded border border-green-200"
+              >
+                👤 {char.name}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* 分镜描述/提示词 */}
         {shot.prompt && (

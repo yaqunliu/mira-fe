@@ -2,10 +2,83 @@
 
 import Image from 'next/image';
 import type { ICreation } from '@/types/creation';
+import type { ICharacter } from '@/types/character';
 
 interface CanvasCharacterViewProps {
   creation: ICreation;
   highlightedElement: string | null;
+}
+
+/**
+ * 从分镜中提取所有角色
+ */
+export function getAllCharactersFromShots(creation: ICreation | null): ICharacter[] {
+  if (!creation || !creation.scenes) return [];
+
+  const characterMap = new Map<string | number, ICharacter>();
+  const allCharacters = creation.characters || [];
+  
+  // 建立 ID 和 Name 的快速查找表
+  const idToChar = new Map<string | number, ICharacter>();
+  const nameToChar = new Map<string, ICharacter>();
+  
+  allCharacters.forEach(char => {
+    const id = char.uuid || char.character_id;
+    if (id) idToChar.set(id, char);
+    if (char.name) nameToChar.set(char.name, char);
+  });
+
+  // 1. 从所有分镜中提取关联角色
+  creation.scenes.forEach(scene => {
+    if (scene.shots && Array.isArray(scene.shots)) {
+      scene.shots.forEach(shot => {
+        // 1.1 检查 shot.characters (直接对象)
+        if (shot.characters && Array.isArray(shot.characters)) {
+          shot.characters.forEach(char => {
+            const id = char.uuid || char.character_id;
+            if (id && !characterMap.has(id)) {
+              // 优先使用 creation.characters 里的完整数据，因为那里的信息更全（如描述、属性等）
+              characterMap.set(id, idToChar.get(id) || char);
+            }
+          });
+        }
+        
+        // 1.2 检查 shot.associated_characters (ID 列表)
+        if (shot.associated_characters && Array.isArray(shot.associated_characters)) {
+          shot.associated_characters.forEach(id => {
+            if (id && !characterMap.has(id)) {
+              const char = idToChar.get(id);
+              if (char) characterMap.set(id, char);
+            }
+          });
+        }
+        
+        // 1.3 检查 shot.narration (台词中的角色名)
+        // 这是一个重要的兜底方案，如果后端没返回关联字段，我们通过台词中的角色名进行匹配
+        let narration = shot.narration;
+        if (typeof narration === 'string' && (narration as string).trim()) {
+          try {
+            narration = JSON.parse(narration);
+          } catch (e) {}
+        }
+
+        if (Array.isArray(narration)) {
+          narration.forEach(item => {
+            const name = item.角色;
+            if (name && nameToChar.has(name)) {
+              const char = nameToChar.get(name)!;
+              const id = char.uuid || char.character_id;
+              if (id && !characterMap.has(id)) {
+                characterMap.set(id, char);
+              }
+            }
+          });
+        }
+      });
+    }
+  });
+
+  return Array.from(characterMap.values());
 }
 
 /**
@@ -59,7 +132,7 @@ function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated
  * 展示所有角色及其候选图、描述、状态
  */
 export function CanvasCharacterView({ creation, highlightedElement }: CanvasCharacterViewProps) {
-  const characters = creation.characters || [];
+  const characters = getAllCharactersFromShots(creation);
 
   if (characters.length === 0) {
     return (

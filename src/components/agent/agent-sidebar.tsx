@@ -2,6 +2,7 @@
 
 import { useAgentStore } from '@/stores/agent-store';
 import type { ICreation } from '@/types/creation';
+import { getAllCharactersFromShots } from './canvas-character-view';
 
 interface AgentSidebarProps {
   creation: ICreation | null;
@@ -19,8 +20,9 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
   const { setBoardView, currentView } = useAgentStore();
 
   // 计算资产数量
+  const allCharacters = getAllCharactersFromShots(creation);
   const stats = {
-    characters: creation?.characters?.length || 0,
+    characters: allCharacters.length,
     scenes: creation?.scenes?.length || 0,
     shots: creation?.scenes?.reduce((sum, scene) => sum + (scene.shots?.length || 0), 0) || 0,
   };

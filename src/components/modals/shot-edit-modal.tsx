@@ -38,6 +38,20 @@ interface ShotEditModalProps {
 import { useTimelineStore } from '@/stores/timeline';
 import { cn } from '@/lib/utils';
 
+// 辅助函数：安全解析台词数据
+const parseNarration = (data: any): INarrationItem[] => {
+    if (Array.isArray(data)) return data;
+    if (typeof data === 'string' && data.trim()) {
+        try {
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) return parsed;
+        } catch (e) {
+            console.error("Failed to parse narration JSON", e);
+        }
+    }
+    return [];
+};
+
 export function ShotEditModal({
     isOpen,
     onClose,
@@ -69,7 +83,7 @@ export function ShotEditModal({
 
     // Form state
     const [description, setDescription] = useState(shot.description || '');
-    const [narration, setNarration] = useState<INarrationItem[]>(shot.narration || []);
+    const [narration, setNarration] = useState<INarrationItem[]>(parseNarration(shot.narration));
     const [imagePrompt, setImagePrompt] = useState(shot.image_prompt || '');
     const [endFrameImagePrompt, setEndFrameImagePrompt] = useState((shot.extra_data as any)?.end_frame_image_prompt || '');
     const [sceneId, setSceneId] = useState<string>(String(shot.scene_id));
@@ -107,7 +121,7 @@ export function ShotEditModal({
     useEffect(() => {
         if (isOpen && shot) {
             setDescription(shot.description || '');
-            setNarration(Array.isArray(shot.narration) ? shot.narration : []);
+            setNarration(parseNarration(shot.narration));
             setImagePrompt(shot.image_prompt || '');
             setSceneId(String(shot.scene_id));
             // Handle both full character objects (from shot.characters) or just IDs if that's what we get
@@ -817,7 +831,7 @@ export function ShotEditModal({
                                     </div>
                                     {isEditing ? (
                                         <div className="flex flex-wrap gap-2 bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                                            {appearanceElements.map((element, index) => (
+                                            {Array.isArray(appearanceElements) && appearanceElements.map((element, index) => (
                                                 <div key={index} className="flex items-center gap-1 bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-lg px-2 py-1 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
                                                     <input
                                                         value={element}
@@ -833,13 +847,13 @@ export function ShotEditModal({
                                                     </button>
                                                 </div>
                                             ))}
-                                            {appearanceElements.length === 0 && (
+                                            {(!Array.isArray(appearanceElements) || appearanceElements.length === 0) && (
                                                 <span className="text-xs text-gray-500 italic">暂无元素</span>
                                             )}
                                         </div>
                                     ) : (
                                         <div className="flex flex-wrap gap-2">
-                                            {appearanceElements.length > 0 ? appearanceElements.map((element, index) => (
+                                            {Array.isArray(appearanceElements) && appearanceElements.length > 0 ? appearanceElements.map((element, index) => (
                                                 <span key={index} className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-lg px-2 py-1 text-xs font-medium text-gray-700">
                                                     {element}
                                                 </span>
@@ -882,7 +896,7 @@ export function ShotEditModal({
                                         )}
                                     </div>
                                     <div className="space-y-2">
-                                        {narration.length > 0 ? narration.map((item, index) => (
+                                        {Array.isArray(narration) && narration.length > 0 ? narration.map((item, index) => (
                                             <div key={index} className="flex flex-col gap-2 p-3 bg-gradient-to-br from-white to-blue-50 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] group">
                                                 <div className="flex items-center gap-2">
                                                     {isEditing ? (

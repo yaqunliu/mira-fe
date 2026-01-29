@@ -16,7 +16,7 @@ interface CanvasPreviewViewProps {
 export function CanvasPreviewView({ creation, highlightedElement }: CanvasPreviewViewProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const videoUrl = creation.video_url;
-  const coverUrl = creation.cover_url;
+  const coverUrl = creation.extra_data?.cover_url;
 
   return (
     <div className="space-y-6">
