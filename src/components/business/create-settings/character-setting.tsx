@@ -29,8 +29,19 @@ import {
   Users,
   Mic,
   Volume2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Plus,
+  X,
+  Check
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import { novelApi } from "@/lib/api/novel";
 import { CharacterEditModal } from "@/components/modals/character-edit-modal";
 import { ImagePreview } from "@/components/ui/image-preview";
 import { cn } from "@/lib/utils";
@@ -87,6 +98,13 @@ export function CharacterSetting({
 
   // 单个角色重新生成状态管理：Map<characterUuid, taskId>
   const [regeneratingCharacters, setRegeneratingCharacters] = useState<Map<string, string>>(new Map());
+
+  // 添加角色弹窗状态
+  const [isAddCharacterModalOpen, setIsAddCharacterModalOpen] = useState(false);
+  const [novelCharacters, setNovelCharacters] = useState<ICharacter[]>([]);
+  const [selectedCharacterIds, setSelectedCharacterIds] = useState<Set<string>>(new Set());
+  const [isLoadingNovelCharacters, setIsLoadingNovelCharacters] = useState(false);
+  const [isSavingCharacters, setIsSavingCharacters] = useState(false);
   
   // 角色图片生成任务轮询
   const { data: task } = useQuery({
@@ -293,6 +311,88 @@ export function CharacterSetting({
     setIsImagePreviewOpen(true);
   };
 
+  // 打开添加角色弹窗
+  const handleOpenAddCharacterModal = async () => {
+    if (!creation?.novel_id) {
+      toast.error("无法获取小说信息");
+      return;
+    }
+
+    setIsAddCharacterModalOpen(true);
+    setIsLoadingNovelCharacters(true);
+
+    try {
+      // 获取小说详情，包含所有角色
+      const response = await novelApi.getNovel(String(creation.novel_id));
+      const novelData = response.data as any;
+
+      if (novelData?.characters) {
+        setNovelCharacters(novelData.characters);
+
+        // 初始化已选中的角色（当前 creation 已有的角色）
+        const currentCharacterIds = new Set(
+          characters.map(c => c.uuid || String(c.character_id)).filter(Boolean)
+        );
+        setSelectedCharacterIds(currentCharacterIds);
+      }
+    } catch (error) {
+      console.error("获取小说角色失败:", error);
+      toast.error("获取角色列表失败");
+    } finally {
+      setIsLoadingNovelCharacters(false);
+    }
+  };
+
+  // 切换角色选择状态
+  const toggleCharacterSelection = (characterId: string) => {
+    setSelectedCharacterIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(characterId)) {
+        newSet.delete(characterId);
+      } else {
+        newSet.add(characterId);
+      }
+      return newSet;
+    });
+  };
+
+  // 保存角色选择
+  const handleSaveCharacterSelection = async () => {
+    if (!creationId) {
+      toast.error("创作ID不存在");
+      return;
+    }
+
+    setIsSavingCharacters(true);
+
+    try {
+      // 将选中的角色ID转换为数组（转换为数字ID）
+      const characterIdsArray = Array.from(selectedCharacterIds)
+        .map(id => {
+          const num = parseInt(id, 10);
+          return isNaN(num) ? 0 : num;
+        })
+        .filter(id => id > 0);
+
+      // 调用API更新creation的character_ids
+      const updateData: any = {
+        character_ids: characterIdsArray
+      };
+      await creationApi.updateCreation(creationId, updateData);
+
+      toast.success("角色更新成功");
+      setIsAddCharacterModalOpen(false);
+
+      // 刷新角色列表
+      handleUpdate();
+    } catch (error) {
+      console.error("保存角色失败:", error);
+      toast.error("保存角色失败");
+    } finally {
+      setIsSavingCharacters(false);
+    }
+  };
+
   // 单个角色重新生成图片
   const handleRegenerateSingleCharacter = useCallback(async (character: ICharacter) => {
     if (!creationId) {
@@ -472,6 +572,17 @@ export function CharacterSetting({
                 <WandSparkles className="w-3 h-3 mr-2" />
                 {isGenerating || isSubmittingCharacters ? t("generating") : "生成全部角色图片"}
                 </Button>
+
+                {/* 添加角色按钮 */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-4 text-xs border-[#22C55E] text-[#22C55E] hover:bg-[#22C55E] hover:text-white transition-colors"
+                  onClick={handleOpenAddCharacterModal}
+                >
+                  <Plus className="w-3 h-3 mr-2" />
+                  添加角色
+                </Button>
             </div>
           </div>
           
@@ -491,12 +602,12 @@ export function CharacterSetting({
           )}
           
           {/* 出镜角色展示 */}
-          {appearanceCharacters.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2 uppercase tracking-wider">
-                <Users className="w-4 h-4" />
-                出镜角色
-              </h3>
+          <div className="space-y-3">
+            <h3 className="text-sm font-semibold text-slate-400 flex items-center gap-2 uppercase tracking-wider">
+              <Users className="w-4 h-4" />
+              出镜角色
+            </h3>
+            {appearanceCharacters.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {appearanceCharacters.map((character) => {
                      // 找到该角色在原始数组中的索引，以便正确触发编辑
@@ -604,8 +715,13 @@ export function CharacterSetting({
                      );
                   })}
               </div>
-            </div>
-          )}
+            )}
+            {appearanceCharacters.length === 0 && (
+              <div className="text-center py-8 text-gray-400 text-sm">
+                暂无出镜角色，点击"添加角色"按钮添加
+              </div>
+            )}
+          </div>
 
           {/* 声音角色展示 */}
           {voiceCharacters.length > 0 && (
@@ -774,6 +890,132 @@ export function CharacterSetting({
         </div>
       </div>
       </ModuleLoading>
+
+      {/* 添加角色弹窗 */}
+      <Dialog open={isAddCharacterModalOpen} onOpenChange={setIsAddCharacterModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>添加角色</span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setIsAddCharacterModalOpen(false)}
+              >
+                <X size={18} />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto py-4">
+            {isLoadingNovelCharacters ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-8 h-8 border-2 border-[#22C55E] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : novelCharacters.length === 0 ? (
+              <div className="text-center py-8 text-gray-400">
+                该小说下暂无角色
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {novelCharacters.map((character) => {
+                  const characterId = character.uuid || String(character.character_id);
+                  const isSelected = selectedCharacterIds.has(characterId);
+                  const isVoiceCharacter = !character.body;
+
+                  return (
+                    <div
+                      key={characterId}
+                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                        isSelected
+                          ? "border-[#22C55E] bg-[#22C55E]/5"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                      onClick={() => toggleCharacterSelection(characterId)}
+                    >
+                      {/* 选择框 */}
+                      <div
+                        className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                          isSelected
+                            ? "bg-[#22C55E] border-[#22C55E]"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {isSelected && <Check size={14} className="text-white" />}
+                      </div>
+
+                      {/* 角色图片 */}
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        {character.image_url ? (
+                          <img
+                            src={character.image_url}
+                            alt={character.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            {isVoiceCharacter ? <Volume2 size={20} /> : <Users size={20} />}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* 角色信息 */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900 truncate">
+                            {character.name}
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className={`text-[10px] px-1.5 py-0 h-4 ${
+                              isVoiceCharacter
+                                ? "bg-[#FDBCB4]/10 text-[#FDBCB4]"
+                                : "bg-[#22C55E]/10 text-[#22C55E]"
+                            }`}
+                          >
+                            {isVoiceCharacter ? "声音" : "出镜"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-500 truncate">
+                          {character.appearance || character.basic_info || "暂无描述"}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* 底部按钮 */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => setIsAddCharacterModalOpen(false)}
+            >
+              取消
+            </Button>
+            <Button
+              onClick={handleSaveCharacterSelection}
+              disabled={isSavingCharacters}
+              className="bg-[#22C55E] hover:bg-[#22C55E]/90 text-white"
+            >
+              {isSavingCharacters ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  保存中...
+                </>
+              ) : (
+                <>
+                  <Check size={16} className="mr-2" />
+                  保存 ({selectedCharacterIds.size})
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -61,4 +61,5 @@ export interface ICreation {
   extra_data?: Record<string, any>;
   characters: ICharacter[];
   scenes: IScene[];
+  character_ids?: number[];  // 关联的角色ID列表
 }

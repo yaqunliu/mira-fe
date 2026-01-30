@@ -408,6 +408,65 @@ const creationApi = {
       message: string;
     }>;
   },
+
+  // 获取创作所属小说的所有角色
+  getNovelCharacters: async (
+    creationUuid: string
+  ): Promise<{
+    data: {
+      creation_uuid: string;
+      novel_id: number;
+      characters: Array<{
+        character_id: number;
+        uuid: string;
+        name: string;
+        status: string;
+        basic_info?: string;
+        appearance?: string;
+        body?: string;
+        hair?: string;
+        clothing?: string;
+        tags?: string[];
+        image_prompt?: string;
+        visual_style?: string;
+        image_url?: string;
+        creation_id?: number;
+        novel_id?: number;
+        created_at?: string;
+        updated_at?: string;
+      }>;
+    };
+    message: string;
+  }> => {
+    return apiClient.get(
+      `/api/v1/creations/${creationUuid}/novel-characters`
+    ) as unknown as Promise<{
+      data: {
+        creation_uuid: string;
+        novel_id: number;
+        characters: Array<{
+          character_id: number;
+          uuid: string;
+          name: string;
+          status: string;
+          basic_info?: string;
+          appearance?: string;
+          body?: string;
+          hair?: string;
+          clothing?: string;
+          tags?: string[];
+          image_prompt?: string;
+          visual_style?: string;
+          image_url?: string;
+          creation_id?: number;
+          novel_id?: number;
+          created_at?: string;
+          updated_at?: string;
+        }>;
+      };
+      message: string;
+    }>;
+  },
 };
 
 export default creationApi;

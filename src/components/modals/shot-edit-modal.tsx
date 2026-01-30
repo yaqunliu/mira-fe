@@ -737,7 +737,7 @@ export function ShotEditModal({
                                             type="number"
                                             min={1}
                                             max={60}
-                                            step={0.1}
+                                            step={1}
                                             value={videoDuration}
                                             onChange={(e) => setVideoDuration(e.target.value)}
                                             onWheel={(e) => (e.target as HTMLInputElement).blur()}

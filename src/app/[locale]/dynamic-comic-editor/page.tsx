@@ -7,7 +7,7 @@ import { VideoPreview } from '@/components/business/video-preview';
 import { AssetManager } from '@/components/business/asset-manager';
 import { useTimelineStore } from '@/stores/timeline';
 import { TimelineProject, TimelineTrack } from '@/types/timeline';
-import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus, Monitor, Smartphone, Bot } from 'lucide-react';
+import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus, Monitor, Smartphone, Bot, Check } from 'lucide-react';
 import { useTranslations, NextIntlClientProvider } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import creationApi from '@/lib/api/creation';
@@ -17,6 +17,7 @@ import shotApi from '@/lib/api/shot';
 import taskApi from '@/lib/api/task';
 import assetApi from '@/lib/api/asset';
 import modelConfigApi from '@/lib/api/model-config';
+import { novelApi } from '@/lib/api/novel';
 import { ICreation } from '@/types/creation';
 import { ICharacter } from '@/types/character';
 import { IAsset } from '@/types/asset';
@@ -176,6 +177,14 @@ export default function DynamicComicEditor() {
     const [editingCharacter, setEditingCharacter] = useState<ICharacter | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+
+    // Add Character Modal State
+    const [isAddCharacterModalOpen, setIsAddCharacterModalOpen] = useState(false);
+    const [novelCharacters, setNovelCharacters] = useState<ICharacter[]>([]);
+    const [selectedCharacterIds, setSelectedCharacterIds] = useState<Set<string>>(new Set());
+    const [isLoadingNovelCharacters, setIsLoadingNovelCharacters] = useState(false);
+    const [isSavingCharacters, setIsSavingCharacters] = useState(false);
+    const [characterSearchQuery, setCharacterSearchQuery] = useState("");
 
     // Scene Management State
     const [isAnalyzingScenes, setIsAnalyzingScenes] = useState(false);
@@ -922,8 +931,19 @@ export default function DynamicComicEditor() {
                 extra_data: newMetadata as any
             });
 
-            // Update local state
-            setCreation({ ...creation, extra_data: newMetadata as any });
+            // 3. 立即更新所有分镜的状态为 generating
+            const updatedCreation = {
+                ...creation,
+                extra_data: newMetadata as any,
+                scenes: creation.scenes?.map((scene: any) => ({
+                    ...scene,
+                    shots: scene.shots?.map((shot: any) => ({
+                        ...shot,
+                        status: 'generating'
+                    }))
+                }))
+            };
+            setCreation(updatedCreation);
 
             // forceRegenerate = false
             const res = await creationApi.generateShots(creation.uuid, false);
@@ -1848,19 +1868,8 @@ export default function DynamicComicEditor() {
     }, [taskId, importProject]);
 
     const convertToTimelineProject = (backendResult: any): TimelineProject => {
-        // Handle both Creation object (with shots/scenes) and direct shot_data list
-        let shots: any[] = [];
-
-        if (backendResult.scenes) {
-            // Flatten scenes to shots
-            shots = backendResult.scenes.flatMap((scene: any) => scene.shots || []);
-        } else if (backendResult.shots) {
-            shots = backendResult.shots;
-        } else if (backendResult.shot_data) {
-            shots = backendResult.shot_data;
-        } else if (Array.isArray(backendResult)) {
-            shots = backendResult;
-        }
+        // 不再自动从 shots 创建片段，只创建空轨道
+        // 用户需要手动点击"导入分镜"按钮来添加片段
 
         const videoTrack: TimelineTrack = {
             id: 'track-video-main',
@@ -1886,61 +1895,9 @@ export default function DynamicComicEditor() {
             clips: []
         };
 
-        let currentTime = 0;
-
-        shots.forEach((shot: any, index: number) => {
-            const duration = shot.video_duration || 5;
-
-            // Video Clip
-            const videoUrl = shot.video_url || shot.image_url || (shot["视频本地路径"] ? `${API_BASE_URL}/static/videos/${shot["视频本地路径"].split('/').pop()}` : null);
-
-            if (videoUrl) {
-                videoTrack.clips.push({
-                    id: `clip-video-${index}`,
-                    url: videoUrl,
-                    startInTimeline: currentTime,
-                    duration: duration,
-                    sourceStart: 0,
-                    sourceEnd: duration,
-                    layer: 1
-                });
-            }
-
-            // Audio Clip
-            const audioUrl = shot.audio_url || (shot["音频本地路径"] ? `${API_BASE_URL}/static/audio/${shot["音频本地路径"].split('/').pop()}` : null);
-
-            if (audioUrl) {
-                audioTrack.clips.push({
-                    id: `clip-audio-${index}`,
-                    url: audioUrl,
-                    startInTimeline: currentTime,
-                    duration: duration,
-                    sourceStart: 0,
-                    sourceEnd: duration,
-                    layer: 1
-                });
-            }
-
-            // Subtitle Clip
-            if (shot.dialogue) {
-                textTrack.clips.push({
-                    id: `clip-text-${index}`,
-                    url: '', // Text clips don't need URL
-                    text: shot.dialogue,
-                    startInTimeline: currentTime,
-                    duration: duration,
-                    sourceStart: 0,
-                    sourceEnd: duration,
-                    layer: 1
-                });
-            }
-
-            currentTime += duration;
-        });
-
         return {
             projectId: `project-${taskId}`,
-            duration: Math.max(currentTime + 10, 30),
+            duration: 30, // 默认空时间轴长度
             fps: 30,
             tracks: [videoTrack, audioTrack, textTrack]
         };
@@ -1958,6 +1915,154 @@ export default function DynamicComicEditor() {
             if (res && res.data) {
                 setCreation(res.data);
             }
+        }
+    };
+
+    // Add Character Modal Logic
+    // 打开添加角色弹窗时加载小说角色
+    useEffect(() => {
+        if (isAddCharacterModalOpen && creation?.uuid) {
+            loadNovelCharacters();
+        }
+    }, [isAddCharacterModalOpen, creation?.uuid]);
+
+    const loadNovelCharacters = async () => {
+        if (!creation?.uuid) {
+            console.log("无法加载角色: creation?.uuid 为空", creation);
+            return;
+        }
+
+        console.log("开始加载小说角色, creation_uuid:", creation.uuid);
+        setIsLoadingNovelCharacters(true);
+        try {
+            // 使用新的 API：通过 creation_uuid 获取小说角色
+            const response = await creationApi.getNovelCharacters(creation.uuid);
+            console.log("获取角色响应:", response);
+            const data = response.data;
+
+            if (data?.characters) {
+                console.log("获取到角色列表:", data.characters.length, "个角色");
+                // 将 API 返回的角色数据转换为 ICharacter 类型
+                const characters: ICharacter[] = data.characters.map((c: any) => ({
+                    character_id: c.character_id,
+                    uuid: c.uuid,
+                    name: c.name,
+                    status: c.status,
+                    basic_info: c.basic_info,
+                    appearance: c.appearance,
+                    body: c.body,
+                    hair: c.hair,
+                    clothing: c.clothing,
+                    tags: c.tags,
+                    image_prompt: c.image_prompt,
+                    visual_style: c.visual_style,
+                    image_url: c.image_url,
+                    creation_id: c.creation_id,
+                    novel_id: c.novel_id,
+                    created_at: c.created_at,
+                    updated_at: c.updated_at,
+                }));
+                setNovelCharacters(characters);
+
+                // 初始化已选中的角色（当前 creation 已有的角色）
+                // creation.character_ids 保存的是 int 类型的 character_id
+                console.log("creation.character_ids 原始值:", creation.character_ids);
+                console.log("creation.character_ids 类型:", typeof creation.character_ids);
+                if (creation.character_ids) {
+                    console.log("creation.character_ids 长度:", creation.character_ids.length);
+                    console.log("creation.character_ids 每个值的类型:", creation.character_ids.map((id: any) => ({ id, type: typeof id })));
+                }
+
+                const currentCharacterIdSet = new Set<number>(
+                    (creation.character_ids || []).map((id: any) => Number(id)).filter((id: number) => !isNaN(id))
+                );
+                console.log("当前 creation 已有的角色 IDs (int):", Array.from(currentCharacterIdSet));
+                console.log("小说中的角色 character_ids:", data.characters.map((c: any) => c.character_id));
+
+                // 将选中的 character_id 转换为字符串存入 selectedCharacterIds
+                const selectedIds = new Set<string>();
+                data.characters.forEach((character: any) => {
+                    const charId = Number(character.character_id);
+                    console.log(`检查角色 ${character.name}, character_id: ${charId}, 是否在集合中:`, currentCharacterIdSet.has(charId));
+                    if (currentCharacterIdSet.has(charId)) {
+                        // 使用 uuid 或 character_id 字符串作为 key
+                        const idKey = character.uuid || String(character.character_id);
+                        selectedIds.add(idKey);
+                    }
+                });
+                console.log("设置选中的角色 IDs:", Array.from(selectedIds));
+                setSelectedCharacterIds(selectedIds);
+            } else {
+                console.log("没有角色数据", data);
+                setNovelCharacters([]);
+            }
+        } catch (error) {
+            console.error("获取小说角色失败:", error);
+            toast.error("获取角色列表失败");
+            setNovelCharacters([]);
+        } finally {
+            setIsLoadingNovelCharacters(false);
+        }
+    };
+
+    // 切换角色选择状态
+    const toggleCharacterSelection = (characterId: string) => {
+        setSelectedCharacterIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(characterId)) {
+                newSet.delete(characterId);
+            } else {
+                newSet.add(characterId);
+            }
+            return newSet;
+        });
+    };
+
+    // 保存角色选择
+    const handleSaveCharacterSelection = async () => {
+        if (!creation?.uuid) {
+            toast.error("创作ID不存在");
+            return;
+        }
+
+        setIsSavingCharacters(true);
+
+        try {
+            // 将选中的角色ID转换为 character_id（数字）数组
+            // 需要通过 novelCharacters 查找对应的 character_id
+            const characterIdsArray: number[] = [];
+
+            selectedCharacterIds.forEach(id => {
+                // 在 novelCharacters 中查找匹配的角色
+                const character = novelCharacters.find((c: ICharacter) => {
+                    return c.uuid === id || String(c.character_id) === id;
+                });
+                if (character && character.character_id) {
+                    characterIdsArray.push(character.character_id);
+                }
+            });
+
+            console.log("保存角色选择, character_ids:", characterIdsArray);
+
+            // 调用API更新creation的character_ids
+            const updateData: any = {
+                character_ids: characterIdsArray
+            };
+            await creationApi.updateCreation(creation.uuid, updateData);
+
+            toast.success("角色更新成功");
+            setIsAddCharacterModalOpen(false);
+
+            // 刷新创作数据
+            const res = await creationApi.queryCreationById(creation.uuid);
+            if (res && res.data) {
+                setCreation(res.data);
+            }
+        } catch (error) {
+            console.error("保存角色失败:", error);
+            toast.error("保存角色失败");
+        } finally {
+            setIsSavingCharacters(false);
         }
     };
 
@@ -2586,6 +2691,17 @@ export default function DynamicComicEditor() {
                                                     >
                                                         <WandSparkles className="w-3 h-3 mr-2" />
                                                         {isGenerating ? t('generating') : t('generateAllImages')}
+                                                    </Button>
+
+                                                    {/* 添加角色按钮 */}
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        className="h-8 px-3 text-xs border-[#22C55E] text-[#22C55E] hover:bg-[#22C55E] hover:text-white transition-colors"
+                                                        onClick={() => setIsAddCharacterModalOpen(true)}
+                                                    >
+                                                        <Plus className="w-3 h-3 mr-1" />
+                                                        添加角色
                                                     </Button>
                                                     {/* Re-analyze Button: With text and smaller than Generate All */}
                                                     {creation.characters.length > 0 && (
@@ -3799,6 +3915,187 @@ export default function DynamicComicEditor() {
                         aspectRatio={aspectRatio}
                     />
                 )}
+
+                {/* Add Character Modal */}
+                <Dialog open={isAddCharacterModalOpen} onOpenChange={(open) => {
+                    setIsAddCharacterModalOpen(open);
+                    if (!open) {
+                        setCharacterSearchQuery(""); // 关闭时清空搜索
+                    }
+                }}>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" aria-describedby="add-character-description">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center justify-between">
+                                <span>添加角色</span>
+                            </DialogTitle>
+                            <p id="add-character-description" className="text-sm text-gray-500">
+                                从项目中选择要添加的角色
+                            </p>
+                        </DialogHeader>
+
+                        {/* 搜索框 */}
+                        {novelCharacters.length > 0 && (
+                            <div className="px-1 pb-2">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="搜索角色名称..."
+                                        value={characterSearchQuery}
+                                        onChange={(e) => setCharacterSearchQuery(e.target.value)}
+                                        className="w-full h-9 px-3 pl-9 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 focus:border-[#22C55E]"
+                                    />
+                                    <svg
+                                        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    {characterSearchQuery && (
+                                        <button
+                                            onClick={() => setCharacterSearchQuery("")}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex-1 overflow-y-auto py-4">
+                            {isLoadingNovelCharacters ? (
+                                <div className="flex items-center justify-center py-8">
+                                    <div className="w-8 h-8 border-2 border-[#22C55E] border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            ) : novelCharacters.length === 0 ? (
+                                <div className="text-center py-8 text-gray-400">
+                                    该项目下暂无角色
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {novelCharacters
+                                        .filter((character) => {
+                                            if (!characterSearchQuery.trim()) return true;
+                                            const query = characterSearchQuery.toLowerCase();
+                                            return (
+                                                character.name?.toLowerCase().includes(query) ||
+                                                character.appearance?.toLowerCase().includes(query) ||
+                                                character.basic_info?.toLowerCase().includes(query)
+                                            );
+                                        })
+                                        .map((character) => {
+                                        // 使用统一的 ID 格式：优先使用 uuid，否则使用 character_id 转为字符串
+                                        const characterId = character.uuid || String(character.character_id);
+                                        const isSelected = selectedCharacterIds.has(characterId);
+                                        const isVoiceCharacter = !character.body;
+                                        console.log(`角色 ${character.name} ID: ${characterId}, 是否选中: ${isSelected}, 在Set中:`, selectedCharacterIds.has(characterId));
+
+                                        return (
+                                            <div
+                                                key={characterId}
+                                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                                                    isSelected
+                                                        ? "border-[#22C55E] bg-[#22C55E]/5"
+                                                        : "border-gray-200 hover:border-gray-300"
+                                                }`}
+                                                onClick={() => toggleCharacterSelection(characterId)}
+                                            >
+                                                {/* 选择框 */}
+                                                <div
+                                                    className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                                                        isSelected
+                                                            ? "bg-[#22C55E] border-[#22C55E]"
+                                                            : "border-gray-300"
+                                                    }`}
+                                                >
+                                                    {isSelected && <Check size={14} className="text-white" />}
+                                                </div>
+
+                                                {/* 角色图片 */}
+                                                <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                                                    {character.image_url ? (
+                                                        <img
+                                                            src={character.image_url}
+                                                            alt={character.name}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                            {isVoiceCharacter ? <Volume2 size={20} /> : <User size={20} />}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* 角色信息 */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-medium text-gray-900 truncate">
+                                                            {character.name}
+                                                        </span>
+                                                        <span className={`text-[10px] px-1.5 py-0 h-4 rounded ${
+                                                            isVoiceCharacter
+                                                                ? "bg-[#FDBCB4]/10 text-[#FDBCB4]"
+                                                                : "bg-[#22C55E]/10 text-[#22C55E]"
+                                                        }`}>
+                                                            {isVoiceCharacter ? "声音" : "出镜"}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500 truncate">
+                                                        {character.appearance || character.basic_info || "暂无描述"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                    {novelCharacters.filter((character) => {
+                                        if (!characterSearchQuery.trim()) return true;
+                                        const query = characterSearchQuery.toLowerCase();
+                                        return (
+                                            character.name?.toLowerCase().includes(query) ||
+                                            character.appearance?.toLowerCase().includes(query) ||
+                                            character.basic_info?.toLowerCase().includes(query)
+                                        );
+                                    }).length === 0 && (
+                                        <div className="text-center py-8 text-gray-400">
+                                            没有找到匹配的角色
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 底部按钮 */}
+                        <div className="flex justify-end gap-3 pt-4 border-t">
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsAddCharacterModalOpen(false)}
+                            >
+                                取消
+                            </Button>
+                            <Button
+                                onClick={handleSaveCharacterSelection}
+                                disabled={isSavingCharacters}
+                                className="bg-[#22C55E] hover:bg-[#22C55E]/90 text-white"
+                            >
+                                {isSavingCharacters ? (
+                                    <>
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                                        保存中...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Check size={16} className="mr-2" />
+                                        保存 ({selectedCharacterIds.size})
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </DialogContent>
+                </Dialog>
             </div>
         </TooltipProvider>
     );

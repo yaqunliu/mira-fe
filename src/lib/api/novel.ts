@@ -1,5 +1,5 @@
 import { apiClient } from './client'
-import type { Novel, Chapter, PaginatedResponse, PaginationParams, Character } from '@/types'
+import type { Novel, Chapter, PaginatedResponse, PaginationParams } from '@/types'
 import mockNovels from '@/lib/mock-data/novels.json'
 import mockChapters from '@/lib/mock-data/chapters.json'
 
@@ -69,9 +69,14 @@ export const novelApi = {
     }
   },
 
-  // 获取单个小说详情
+  // 获取单个小说详情（通过UUID）
   getNovel: async (id: string) => {
     return apiClient.get<Novel>(`/api/v1/novels/${id}`)
+  },
+
+  // 获取单个小说详情（通过ID）
+  getNovelById: async (novelId: number | string) => {
+    return apiClient.get<Novel>(`/api/v1/novels/by-id/${novelId}`)
   },
 
   // 上传小说
@@ -106,14 +111,9 @@ export const novelApi = {
     return apiClient.post<Novel>('/api/v1/novels/create', data)
   },
 
-  // 获取章节列表
-  getChapters: async (novelId: string, params?: { page?: number; page_size?: number }) => {
-    return apiClient.get<Chapter[]>(`/api/v1/novels/${novelId}/chapters`, { params })
-  },
-
   // 创建章节
   createChapter: async (novelId: string, data: { title: string; content: string; chapter_number?: number; novel_id?: number }) => {
-    return apiClient.post<Chapter>(`/api/v1/novels/${novelId}/chapters`, data)
+    return apiClient.post<Chapter>(`/api/v1/novels/${novelId}/chapters`, { chapter_in: data })
   },
 
   // 获取单个章节
