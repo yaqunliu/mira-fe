@@ -57,94 +57,159 @@ export function useAgentChat(creationUuid: string) {
   const currentStreamMessageIdRef = useRef<string | null>(null);
   // 标记是否已创建当前流式消息
   const hasCreatedMessageRef = useRef<boolean>(false);
+  // 累积流式消息内容（增量模式）
+  const streamingContentRef = useRef<string>('');
 
   /**
    * 处理 SSE 事件
+   *
+   * 支持新版协议格式：
+   * - 会话控制类: thread, done
+   * - 消息类: message.start, message.delta, message.end
+   * - 思考类: thinking.start, thinking.delta, thinking.end
+   * - 工具类: tool.start, tool.progress, tool.end
+   * - 进度类: progress
+   *
+   * 同时兼容旧版事件名称：
+   * - message.content → message.delta
+   * - thinking.content → thinking.delta
+   * - tool.call → tool.start
+   * - tool.output → tool.end
    */
   const handleSSEEvent = useCallback(
     (event: SSEEvent) => {
       const { type } = event;
 
       switch (type) {
+        // ========== 会话控制类 ==========
+        case 'thread':
+          // 会话信息（首个事件），包含 thread_id
+          console.log('SSE thread started:', event.thread_id);
+          break;
+
+        case 'done':
+          // 流结束
+          console.log('SSE stream done');
+          setStreaming(false);
+          break;
+
+        // ========== 消息类 ==========
         case 'message.start':
-          // 只保存消息 ID，不创建空消息
-          currentStreamMessageIdRef.current = event.message_id || `assistant-${Date.now()}`;
+          // 消息开始，只保存消息 ID，不创建空消息
+          currentStreamMessageIdRef.current = event.id || event.message_id || `assistant-${Date.now()}`;
           hasCreatedMessageRef.current = false;
+          streamingContentRef.current = ''; // 重置累积内容
           setStreaming(true);
           break;
 
-        case 'message.content':
-          // 第一次收到内容时才创建消息
-          if (currentStreamMessageIdRef.current && !hasCreatedMessageRef.current) {
-            addMessage({
-              id: currentStreamMessageIdRef.current,
-              role: 'assistant',
-              content: event.content || '',
-              timestamp: new Date().toISOString(),
-              status: 'streaming',
-            });
-            hasCreatedMessageRef.current = true;
-          } else if (currentStreamMessageIdRef.current) {
-            // 后续内容更新消息
-            updateMessage(currentStreamMessageIdRef.current, {
-              content: event.content,
-            });
+        case 'message.delta':  // 新版
+        case 'message.content': // 兼容旧版
+          // 消息增量内容 - 需要累加而非替换
+          if (currentStreamMessageIdRef.current) {
+            // 累加增量内容
+            streamingContentRef.current += event.content || '';
+
+            if (!hasCreatedMessageRef.current) {
+              // 第一次收到内容时才创建消息
+              addMessage({
+                id: currentStreamMessageIdRef.current,
+                role: 'assistant',
+                content: streamingContentRef.current,
+                timestamp: new Date().toISOString(),
+                status: 'streaming',
+              });
+              hasCreatedMessageRef.current = true;
+            } else {
+              // 后续内容更新消息（使用累积的完整内容）
+              updateMessage(currentStreamMessageIdRef.current, {
+                content: streamingContentRef.current,
+              });
+            }
           }
           break;
 
         case 'message.end':
-          // 使用保存的消息 ID 进行更新
+          // 消息结束
           if (currentStreamMessageIdRef.current && hasCreatedMessageRef.current) {
             updateMessage(currentStreamMessageIdRef.current, {
-              status: 'completed',
+              content: streamingContentRef.current, // 确保最终内容是完整的
+              status: event.finish_reason === 'error' ? 'error' : 'completed',
             });
           }
           currentStreamMessageIdRef.current = null;
           hasCreatedMessageRef.current = false;
+          streamingContentRef.current = ''; // 清空累积内容
           setStreaming(false);
           break;
 
+        // ========== 思考类 ==========
         case 'thinking.start':
+          // 思考开始
           setThinking(true);
           break;
 
-        case 'thinking.content':
+        case 'thinking.delta':  // 新版
+        case 'thinking.content': // 兼容旧版
+          // 思考内容增量
           setThinking(true, event.content);
           break;
 
         case 'thinking.end':
+          // 思考结束
           setThinking(false);
           break;
 
-        case 'tool.call':
+        // ========== 工具调用类 ==========
+        case 'tool.start':  // 新版
+        case 'tool.call':   // 兼容旧版
+          // 工具调用开始
           setCurrentToolCall({
-            id: event.tool_call_id!,
+            id: event.id || event.tool_call_id!,
             name: event.tool_name!,
             arguments: event.arguments || {},
             status: 'calling',
           });
           break;
 
-        case 'tool.output':
+        case 'tool.progress':
+          // 工具执行进度
           setCurrentToolCall({
-            id: event.tool_call_id!,
-            name: event.tool_name!,
+            id: event.id || event.tool_call_id!,
+            name: event.tool_name || '',
             arguments: {},
-            status: event.status === 'success' ? 'success' : 'error',
-            output: event.output,
+            status: 'calling',
+            output: `进度: ${event.progress || 0}%`,
+          });
+          break;
+
+        case 'tool.end':    // 新版
+        case 'tool.output': // 兼容旧版
+          // 工具调用结束
+          setCurrentToolCall({
+            id: event.id || event.tool_call_id!,
+            name: event.tool_name || '',
+            arguments: {},
+            status: event.status === 'completed' || event.status === 'success' ? 'success' : 'error',
+            output: event.result_summary || event.output,
             error: event.error,
           });
           break;
 
-        case 'progress.update':
-          // 进度更新可以在消息中显示，或者单独处理
+        // ========== 进度类 ==========
+        case 'progress':        // 新版
+        case 'progress.update': // 兼容旧版
+          // 进度更新：可用于显示节点处理进度或任务步骤
+          console.log('Progress:', event.node || event.stage, event.status || event.message);
           break;
 
+        // ========== 看板操作类 ==========
         case 'board.action':
           executeBoardActions(event.actions || []);
           break;
 
+        // ========== 其他 ==========
         case 'action.request':
+          // 需要用户确认的操作
           setPendingActionRequest({
             requestId: event.request_id!,
             prompt: event.prompt!,
@@ -155,11 +220,13 @@ export function useAgentChat(creationUuid: string) {
 
         case 'attachment':
           // 处理附件
+          console.log('Attachment received:', event);
           break;
 
         case 'error':
+          // 错误处理
           console.error('Agent error:', event.error);
-          setConnectionError(event.error?.message || 'Unknown error');
+          setConnectionError(event.error?.message || event.error || 'Unknown error');
           break;
 
         default:

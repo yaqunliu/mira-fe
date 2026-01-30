@@ -15,7 +15,10 @@ interface CanvasScriptViewProps {
  */
 export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptViewProps) {
   const script = creation.extra_data?.script || creation.extra_data?.prompt;
-  const allCharacters = getAllCharactersFromShots(creation);
+  // 优先使用 creation.characters，如果没有再从分镜提取
+  const allCharacters = (creation.characters && creation.characters.length > 0)
+    ? creation.characters
+    : getAllCharactersFromShots(creation);
 
   return (
     <div className="space-y-6">

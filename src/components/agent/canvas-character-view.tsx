@@ -17,19 +17,36 @@ export function getAllCharactersFromShots(creation: ICreation | null): ICharacte
 
   const characterMap = new Map<string | number, ICharacter>();
   const allCharacters = creation.characters || [];
-  
+
   // 建立 ID 和 Name 的快速查找表
   const idToChar = new Map<string | number, ICharacter>();
   const nameToChar = new Map<string, ICharacter>();
-  
+
   allCharacters.forEach(char => {
     const id = char.uuid || char.character_id;
     if (id) idToChar.set(id, char);
     if (char.name) nameToChar.set(char.name, char);
   });
 
-  // 1. 从所有分镜中提取关联角色
+  // 1. 从场景和分镜中提取关联角色
   creation.scenes.forEach(scene => {
+    // 1.0 检查 scene.characters (场景级别的角色列表)
+    // API 可能将角色数据放在 scene.characters 里
+    const sceneAny = scene as any;
+    if (sceneAny.characters && Array.isArray(sceneAny.characters)) {
+      sceneAny.characters.forEach((char: any) => {
+        const id = char.uuid || char.character_id || char.id;
+        if (id && !characterMap.has(id)) {
+          // 优先使用 creation.characters 里的完整数据
+          characterMap.set(id, idToChar.get(id) || char);
+        }
+        // 同时更新查找表，以便后续台词匹配使用
+        if (char.name && !nameToChar.has(char.name)) {
+          nameToChar.set(char.name, char);
+        }
+      });
+    }
+
     if (scene.shots && Array.isArray(scene.shots)) {
       scene.shots.forEach(shot => {
         // 1.1 检查 shot.characters (直接对象)
@@ -42,7 +59,7 @@ export function getAllCharactersFromShots(creation: ICreation | null): ICharacte
             }
           });
         }
-        
+
         // 1.2 检查 shot.associated_characters (ID 列表)
         if (shot.associated_characters && Array.isArray(shot.associated_characters)) {
           shot.associated_characters.forEach(id => {
@@ -52,14 +69,14 @@ export function getAllCharactersFromShots(creation: ICreation | null): ICharacte
             }
           });
         }
-        
+
         // 1.3 检查 shot.narration (台词中的角色名)
         // 这是一个重要的兜底方案，如果后端没返回关联字段，我们通过台词中的角色名进行匹配
         let narration = shot.narration;
         if (typeof narration === 'string' && (narration as string).trim()) {
           try {
             narration = JSON.parse(narration);
-          } catch (e) {}
+          } catch (e) { }
         }
 
         if (Array.isArray(narration)) {
@@ -132,7 +149,10 @@ function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated
  * 展示所有角色及其候选图、描述、状态
  */
 export function CanvasCharacterView({ creation, highlightedElement }: CanvasCharacterViewProps) {
-  const characters = getAllCharactersFromShots(creation);
+  // 优先直接使用 creation.characters，如果没有再从分镜提取
+  const characters = (creation.characters && creation.characters.length > 0)
+    ? creation.characters
+    : getAllCharactersFromShots(creation);
 
   if (characters.length === 0) {
     return (

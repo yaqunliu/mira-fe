@@ -19,8 +19,10 @@ interface AgentSidebarProps {
 export function AgentSidebar({ creation }: AgentSidebarProps) {
   const { setBoardView, currentView } = useAgentStore();
 
-  // 计算资产数量
-  const allCharacters = getAllCharactersFromShots(creation);
+  // 计算资产数量 - 优先使用 creation.characters，如果没有再从分镜提取
+  const allCharacters = (creation?.characters && creation.characters.length > 0)
+    ? creation.characters
+    : getAllCharactersFromShots(creation);
   const stats = {
     characters: allCharacters.length,
     scenes: creation?.scenes?.length || 0,

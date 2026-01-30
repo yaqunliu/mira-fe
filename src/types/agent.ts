@@ -112,19 +112,35 @@ export interface Progress {
 // ============ SSE 事件相关 ============
 
 export type SSEEventType =
-  | 'message.start'
+  // 会话控制类
+  | 'thread'           // 会话信息（首个事件）
+  | 'done'             // 流结束
+  // 消息类（用户可见回复）
+  | 'message.start'    // 消息开始
+  | 'message.delta'    // 消息增量内容
+  | 'message.end'      // 消息结束
+  // 思考类（AI 思考过程，可选展示）
+  | 'thinking.start'   // 思考开始
+  | 'thinking.delta'   // 思考内容
+  | 'thinking.end'     // 思考结束
+  // 工具调用类
+  | 'tool.start'       // 工具调用开始
+  | 'tool.progress'    // 工具执行进度
+  | 'tool.end'         // 工具调用结束
+  // 进度类
+  | 'progress'         // 进度更新
+  // 看板操作类
+  | 'board.action'     // 看板UI操作
+  // 其他
+  | 'action.request'   // 需要用户确认的操作
+  | 'attachment'       // 附件
+  | 'error'            // 错误
+  // 兼容旧版本
   | 'message.content'
-  | 'message.end'
-  | 'thinking.start'
   | 'thinking.content'
-  | 'thinking.end'
   | 'tool.call'
   | 'tool.output'
-  | 'progress.update'
-  | 'board.action'
-  | 'action.request'
-  | 'attachment'
-  | 'error';
+  | 'progress.update';
 
 export interface SSEEvent {
   type: SSEEventType;

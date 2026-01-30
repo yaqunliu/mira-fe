@@ -3,25 +3,54 @@ import { useAuthStore } from '@/stores/auth';
 
 /**
  * SSE 事件解析器
+ *
+ * 支持标准 SSE 格式：
+ * event: <event_type>
+ * data: <json_data>
+ *
+ * 将 event 类型附加到解析后的数据中
  */
 function parseSSEChunk(chunk: string): any[] {
   const events: any[] = [];
   const lines = chunk.split('\n');
-  let currentEvent: any = {};
+  let currentEventType: string | null = null;
+  let currentEventId: string | null = null;
 
   for (const line of lines) {
     if (line.startsWith('event:')) {
-      currentEvent.eventType = line.substring(6).trim();
-    } else if (line.startsWith('data:')) {
-      try {
-        const data = JSON.parse(line.substring(5).trim());
-        events.push(data);
-        currentEvent = {};
-      } catch (e) {
-        console.error('Failed to parse SSE data:', e);
-      }
+      // 解析事件类型
+      currentEventType = line.substring(6).trim();
     } else if (line.startsWith('id:')) {
-      currentEvent.id = line.substring(3).trim();
+      // 解析事件 ID
+      currentEventId = line.substring(3).trim();
+    } else if (line.startsWith('data:')) {
+      // 解析数据
+      const dataStr = line.substring(5).trim();
+
+      // 跳过空数据
+      if (!dataStr) continue;
+
+      try {
+        const data = JSON.parse(dataStr);
+
+        // 将事件类型附加到数据中（如果尚未存在）
+        if (currentEventType && !data.type) {
+          data.type = currentEventType;
+        }
+
+        // 将事件 ID 附加到数据中（如果尚未存在）
+        if (currentEventId && !data.event_id) {
+          data.event_id = currentEventId;
+        }
+
+        events.push(data);
+
+        // 重置当前事件状态，准备解析下一个事件
+        currentEventType = null;
+        currentEventId = null;
+      } catch (e) {
+        console.error('Failed to parse SSE data:', dataStr, e);
+      }
     }
   }
 
