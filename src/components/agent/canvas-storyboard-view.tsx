@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from 'react';
-import Image from 'next/image';
+import { useMemo, useState, useCallback } from 'react';
 import type { ICreation } from '@/types/creation';
 import type { IShot } from '@/types/scene';
 import { ShotDetailDialog } from './shot-detail-dialog';
+
 interface CanvasStoryboardViewProps {
   creation: ICreation;
   highlightedElement: string | null;
@@ -16,14 +16,45 @@ interface CanvasStoryboardViewProps {
  * 展示所有分镜及其图片、描述、状态
  */
 export function CanvasStoryboardView({ creation, highlightedElement }: CanvasStoryboardViewProps) {
+  // 选中的分镜索引
+  const [selectedShotIndex, setSelectedShotIndex] = useState<number | null>(null);
+
   // 收集所有分镜
-  const allShots = creation.scenes?.flatMap(scene =>
+  const allShots = useMemo(() => creation.scenes?.flatMap(scene =>
     (scene.shots || []).map(shot => ({
       ...shot,
       scene_id: scene.scene_id,
       scene_name: `场景 ${scene.scene_id}`,
     }))
-  ) || [];
+  ) || [], [creation.scenes]);
+
+  // 当前选中的分镜
+  const selectedShot = selectedShotIndex !== null ? allShots[selectedShotIndex] : null;
+  const selectedSceneName = selectedShot?.scene_name || '';
+
+  // 打开分镜详情
+  const handleOpenDetail = useCallback((index: number) => {
+    setSelectedShotIndex(index);
+  }, []);
+
+  // 关闭分镜详情
+  const handleCloseDetail = useCallback(() => {
+    setSelectedShotIndex(null);
+  }, []);
+
+  // 导航到上一个分镜
+  const handleNavigatePrevious = useCallback(() => {
+    if (selectedShotIndex !== null && selectedShotIndex > 0) {
+      setSelectedShotIndex(selectedShotIndex - 1);
+    }
+  }, [selectedShotIndex]);
+
+  // 导航到下一个分镜
+  const handleNavigateNext = useCallback(() => {
+    if (selectedShotIndex !== null && selectedShotIndex < allShots.length - 1) {
+      setSelectedShotIndex(selectedShotIndex + 1);
+    }
+  }, [selectedShotIndex, allShots.length]);
 
   if (allShots.length === 0) {
     return (
@@ -40,54 +71,74 @@ export function CanvasStoryboardView({ creation, highlightedElement }: CanvasSto
   }
 
   return (
-    <div className="space-y-6">
-      {/* 分镜统计 */}
-      <div className="flex gap-4">
-        <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-          <div className="text-xs text-blue-600 mb-1">总分镜数</div>
-          <div className="text-2xl font-bold text-blue-900">{allShots.length}</div>
-        </div>
-        <div className="flex-1 bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-          <div className="text-xs text-green-600 mb-1">已生成</div>
-          <div className="text-2xl font-bold text-green-900">
-            {allShots.filter(s => s.image_url).length}
+    <>
+      <div className="space-y-6">
+        {/* 分镜统计 */}
+        <div className="flex gap-4">
+          <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+            <div className="text-xs text-blue-600 mb-1">总分镜数</div>
+            <div className="text-2xl font-bold text-blue-900">{allShots.length}</div>
+          </div>
+          <div className="flex-1 bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+            <div className="text-xs text-green-600 mb-1">已生成</div>
+            <div className="text-2xl font-bold text-green-900">
+              {allShots.filter(s => s.image_url).length}
+            </div>
+          </div>
+          <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+            <div className="text-xs text-purple-600 mb-1">已配音</div>
+            <div className="text-2xl font-bold text-purple-900">
+              {allShots.filter(s => s.audio_url).length}
+            </div>
           </div>
         </div>
-        <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-          <div className="text-xs text-purple-600 mb-1">已配音</div>
-          <div className="text-2xl font-bold text-purple-900">
-            {allShots.filter(s => s.audio_url).length}
-          </div>
+
+        {/* 分镜网格 */}
+        <div className="grid grid-cols-3 gap-4">
+          {allShots.map((shot, idx) => (
+            <ShotCard
+              key={shot.shot_id}
+              shot={shot}
+              shotNumber={idx + 1}
+              isHighlighted={highlightedElement === `shot-${shot.shot_id}`}
+              allCharacters={creation.characters}
+              onClick={() => handleOpenDetail(idx)}
+            />
+          ))}
         </div>
       </div>
 
-      {/* 分镜网格 */}
-      <div className="grid grid-cols-3 gap-4">
-        {allShots.map((shot, idx) => (
-          <ShotCard
-            key={shot.shot_id}
-            shot={shot}
-            shotNumber={idx + 1}
-            isHighlighted={highlightedElement === `shot-${shot.shot_id}`}
-            allCharacters={creation.characters}
-          />
-        ))}
-      </div>
-    </div>
+      {/* 分镜详情对话框 */}
+      <ShotDetailDialog
+        isOpen={selectedShotIndex !== null}
+        onClose={handleCloseDetail}
+        shot={selectedShot}
+        shotNumber={selectedShotIndex !== null ? selectedShotIndex + 1 : 0}
+        sceneName={selectedSceneName}
+        allCharacters={creation.characters}
+        onNavigatePrevious={handleNavigatePrevious}
+        onNavigateNext={handleNavigateNext}
+        hasPrevious={selectedShotIndex !== null && selectedShotIndex > 0}
+        hasNext={selectedShotIndex !== null && selectedShotIndex < allShots.length - 1}
+        aspectRatio={(creation.extra_data as any)?.aspect_ratio === "9:16" ? "9:16" : "16:9"}
+      />
+    </>
   );
 }
 
 /**
  * 分镜卡片组件
  */
-function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [] }: {
+function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [], onClick }: {
   shot: any;
   shotNumber: number;
   isHighlighted: boolean;
   allCharacters?: any[];
+  onClick?: () => void;
 }) {
   const hasImage = !!shot.image_url;
   const hasAudio = !!shot.audio_url;
+  const endFrameImageUrl = (shot.extra_data as any)?.end_frame_image_url;
 
   // 提取当前分镜的角色
   const displayCharacters = useMemo(() => {
@@ -138,47 +189,68 @@ function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [] }: {
   return (
     <div
       id={`shot-${shot.shot_id}`}
+      onClick={onClick}
       className={`
-        bg-white rounded-lg p-3 border border-gray-200 shadow-sm hover:shadow-md transition-all
+        bg-white rounded-lg p-3 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer
         ${isHighlighted ? 'ring-2 ring-green-500 animate-pulse' : ''}
       `}
     >
-      {/* 分镜图片 */}
-      {hasImage ? (
-        <div className="relative w-full aspect-video bg-gray-100 rounded overflow-hidden mb-3">
-          <Image
-            src={shot.image_url}
-            alt={`分镜 ${shotNumber}`}
-            fill
-            className="object-cover"
-          />
+      {/* 首尾帧缩略图 */}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        {/* 首帧 */}
+        <div className="relative aspect-video bg-gray-100 rounded overflow-hidden">
+          {hasImage ? (
+            <img
+              src={shot.image_url}
+              alt={`首帧 ${shotNumber}`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-gray-400 text-xs">首帧</span>
+            </div>
+          )}
           {/* 分镜编号角标 */}
-          <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 text-white text-xs rounded">
+          <div className="absolute top-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-[10px] rounded">
             #{shotNumber}
           </div>
+        </div>
+
+        {/* 尾帧 */}
+        <div className="relative aspect-video bg-gray-100 rounded overflow-hidden">
+          {endFrameImageUrl ? (
+            <img
+              src={endFrameImageUrl}
+              alt={`尾帧 ${shotNumber}`}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-gray-400 text-xs">尾帧</span>
+            </div>
+          )}
           {/* 音频标识 */}
           {hasAudio && (
-            <div className="absolute top-2 right-2 px-2 py-1 bg-green-500 text-white text-xs rounded">
-              🔊
+            <div className="absolute top-1 right-1 px-1 py-0.5 bg-green-500 text-white text-[10px] rounded">
+              �
             </div>
           )}
         </div>
-      ) : (
-        <div className="w-full aspect-video bg-gradient-to-br from-gray-100 to-gray-200 rounded mb-3 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-3xl mb-1">🎞️</div>
-            <p className="text-xs text-gray-400">#{shotNumber}</p>
-            <p className="text-xs text-gray-400">生成中...</p>
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* 分镜信息 */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         {/* 所属场景 */}
         <div className="text-xs text-gray-500">
           {shot.scene_name}
         </div>
+
+        {/* 分镜描述 */}
+        {shot.description && (
+          <p className="text-xs text-gray-700 line-clamp-2">
+            {shot.description}
+          </p>
+        )}
 
         {/* 关联角色 */}
         {displayCharacters.length > 0 && (
@@ -193,29 +265,8 @@ function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [] }: {
             ))}
           </div>
         )}
-
-        {/* 分镜描述/提示词 */}
-        {shot.prompt && (
-          <p className="text-sm text-gray-700 line-clamp-2">
-            {shot.prompt}
-          </p>
-        )}
-
-        {/* 画面运动 */}
-        {shot.camera_movement && (
-          <div className="text-xs text-gray-600 bg-blue-50 px-2 py-1 rounded border border-blue-200">
-            📹 {shot.camera_movement}
-          </div>
-        )}
-
-        {/* 持续时间 */}
-        {shot.duration && (
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-500">时长</span>
-            <span className="text-gray-700 font-medium">{shot.duration}s</span>
-          </div>
-        )}
       </div>
     </div>
   );
 }
+

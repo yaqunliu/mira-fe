@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Image from "next/image";
 import {
     Dialog,
     DialogContent,
@@ -9,15 +8,12 @@ import {
     DialogTitle,
     DialogDescription,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-    X,
     Film,
     Image as ImageIcon,
     FileText,
     Sparkles,
-    Play,
     ChevronLeft,
     ChevronRight,
     Maximize2,
@@ -39,6 +35,7 @@ interface ShotDetailDialogProps {
     onNavigateNext?: () => void;
     hasPrevious?: boolean;
     hasNext?: boolean;
+    aspectRatio?: "16:9" | "9:16";
 }
 
 // 安全解析 narration
@@ -54,14 +51,7 @@ const parseNarration = (data: any): INarrationItem[] => {
 };
 
 /**
- * 分镜详情弹窗 - Agent 模式下的只读查看版本
- *
- * 展示分镜的所有详细信息：
- * - 首帧/尾帧图片（可放大）
- * - 分镜脚本
- * - 图片提示词
- * - 分镜视频
- * - 台词/旁白
+ * 分镜详情弹窗 - 统一滚动布局版本
  */
 export function ShotDetailDialog({
     isOpen,
@@ -74,19 +64,13 @@ export function ShotDetailDialog({
     onNavigateNext,
     hasPrevious = false,
     hasNext = false,
+    aspectRatio = "16:9",
 }: ShotDetailDialogProps) {
-    const [activeTab, setActiveTab] = useState("images");
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-    if (!shot) return null;
-
-    const narration = parseNarration(shot.narration);
-    const endFrameImageUrl = (shot.extra_data as any)?.end_frame_image_url;
-    const endFrameImagePrompt = (shot.extra_data as any)?.end_frame_image_prompt;
-    const videoPrompt = (shot.extra_data as any)?.video_prompt;
-
-    // 获取关联的角色
+    // 获取关联的角色 - 必须在所有条件返回之前调用 hooks
     const associatedCharacters = useMemo(() => {
+        if (!shot) return [];
         const chars: ICharacter[] = [];
 
         if (shot.characters && Array.isArray(shot.characters)) {
@@ -103,10 +87,22 @@ export function ShotDetailDialog({
         return chars;
     }, [shot, allCharacters]);
 
+    // 条件返回必须在所有 hooks 之后
+    if (!shot) return null;
+
+    const narration = parseNarration(shot.narration);
+    const endFrameImageUrl = (shot.extra_data as any)?.end_frame_image_url;
+    const endFrameImagePrompt = (shot.extra_data as any)?.end_frame_image_prompt;
+    const videoPrompt = (shot.extra_data as any)?.video_prompt;
+
+    // 根据比例决定布局
+    const isPortrait = aspectRatio === "9:16";
+    const imageAspectClass = isPortrait ? "aspect-[9/16]" : "aspect-video";
+
     return (
         <>
             <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-                <DialogContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] sm:max-w-[900px] max-h-[90vh] flex flex-col rounded-2xl p-0 overflow-hidden">
+                <DialogContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] sm:max-w-[1000px] max-h-[90vh] flex flex-col rounded-2xl p-0 overflow-hidden">
                     {/* Header */}
                     <DialogHeader className="px-6 pt-5 pb-4 border-b border-blue-100 flex-shrink-0">
                         <div className="flex items-center justify-between">
@@ -115,10 +111,10 @@ export function ShotDetailDialog({
                                     #{shotNumber}
                                 </div>
                                 <div>
-                                    <DialogTitle className="text-lg font-semibold text-gray-900">
+                                    <DialogTitle className="text-lg font-semibold" style={{ color: '#111827' }}>
                                         {shot.title || `分镜 ${shotNumber}`}
                                     </DialogTitle>
-                                    <DialogDescription className="text-sm text-gray-500">
+                                    <DialogDescription className="text-sm" style={{ color: '#6b7280' }}>
                                         {sceneName}
                                     </DialogDescription>
                                 </div>
@@ -156,297 +152,223 @@ export function ShotDetailDialog({
                         </div>
                     </DialogHeader>
 
-                    {/* Content with Tabs */}
-                    <div className="flex-1 overflow-hidden flex flex-col">
-                        <Tabs
-                            value={activeTab}
-                            onValueChange={setActiveTab}
-                            className="flex-1 flex flex-col"
-                        >
-                            <TabsList className="mx-6 mt-4 mb-2 bg-white/50 border border-blue-100 rounded-xl p-1 justify-start flex-shrink-0">
-                                <TabsTrigger
-                                    value="images"
-                                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-4"
-                                >
-                                    <ImageIcon size={14} className="mr-1.5" />
-                                    图片
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="script"
-                                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-4"
-                                >
-                                    <FileText size={14} className="mr-1.5" />
-                                    脚本
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="prompts"
-                                    className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-4"
-                                >
-                                    <Sparkles size={14} className="mr-1.5" />
-                                    提示词
-                                </TabsTrigger>
-                                {shot.video_url && (
-                                    <TabsTrigger
-                                        value="video"
-                                        className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg px-4"
-                                    >
-                                        <Film size={14} className="mr-1.5" />
-                                        视频
-                                    </TabsTrigger>
-                                )}
-                            </TabsList>
-
-                            <div className="flex-1 overflow-y-auto px-6 pb-6">
-                                {/* 图片 Tab */}
-                                <TabsContent value="images" className="mt-0 space-y-4">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        {/* 首帧图片 */}
-                                        <div className="space-y-2">
-                                            <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                                                首帧图片
-                                            </div>
-                                            <div
-                                                className={cn(
-                                                    "relative aspect-video rounded-xl overflow-hidden bg-gray-100 group cursor-pointer",
-                                                    "border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                                                )}
-                                                onClick={() => shot.image_url && setPreviewImage(shot.image_url)}
-                                            >
-                                                {shot.image_url ? (
-                                                    <>
-                                                        <Image
-                                                            src={shot.image_url}
-                                                            alt="首帧"
-                                                            fill
-                                                            className="object-cover"
-                                                        />
-                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                                            <Maximize2
-                                                                className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                size={24}
-                                                            />
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                        <div className="text-center">
-                                                            <ImageIcon size={32} className="mx-auto mb-2 opacity-50" />
-                                                            <p className="text-xs">暂无图片</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* 尾帧图片 */}
-                                        <div className="space-y-2">
-                                            <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                                                尾帧图片
-                                            </div>
-                                            <div
-                                                className={cn(
-                                                    "relative aspect-video rounded-xl overflow-hidden bg-gray-100 group cursor-pointer",
-                                                    "border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                                                )}
-                                                onClick={() => endFrameImageUrl && setPreviewImage(endFrameImageUrl)}
-                                            >
-                                                {endFrameImageUrl ? (
-                                                    <>
-                                                        <Image
-                                                            src={endFrameImageUrl}
-                                                            alt="尾帧"
-                                                            fill
-                                                            className="object-cover"
-                                                        />
-                                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                                            <Maximize2
-                                                                className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                size={24}
-                                                            />
-                                                        </div>
-                                                    </>
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                        <div className="text-center">
-                                                            <ImageIcon size={32} className="mx-auto mb-2 opacity-50" />
-                                                            <p className="text-xs">暂无尾帧</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* 关联角色 */}
-                                    {associatedCharacters.length > 0 && (
-                                        <div className="pt-4 border-t border-gray-100">
-                                            <div className="text-sm font-medium text-gray-700 mb-3">
-                                                出场角色
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {associatedCharacters.map((char) => (
-                                                    <div
-                                                        key={char.character_id || char.uuid}
-                                                        className="flex items-center gap-2 px-3 py-1.5 bg-white rounded-lg border border-gray-200 shadow-sm"
-                                                    >
-                                                        {char.image_url && (
-                                                            <div className="w-6 h-6 rounded-full overflow-hidden">
-                                                                <Image
-                                                                    src={char.image_url}
-                                                                    alt={char.name}
-                                                                    width={24}
-                                                                    height={24}
-                                                                    className="object-cover"
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        <span className="text-sm text-gray-700">
-                                                            {char.name}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+                        {/* 图片区域 */}
+                        <div className={cn(
+                            "grid gap-4",
+                            isPortrait ? "grid-cols-4" : "grid-cols-2"
+                        )}>
+                            {/* 首帧图片 */}
+                            <div className={cn("space-y-2", isPortrait && "col-span-2")}>
+                                <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                    首帧图片
+                                </div>
+                                <div
+                                    className={cn(
+                                        "relative rounded-xl overflow-hidden bg-gray-100 group cursor-pointer",
+                                        "border border-gray-200 shadow-sm hover:shadow-md transition-shadow",
+                                        imageAspectClass
                                     )}
-                                </TabsContent>
-
-                                {/* 脚本 Tab */}
-                                <TabsContent value="script" className="mt-0 space-y-4">
-                                    {/* 分镜描述 */}
-                                    <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                                        <div className="text-sm font-medium text-gray-700 mb-2">
-                                            分镜描述
-                                        </div>
-                                        <p className="text-sm text-gray-600 leading-relaxed">
-                                            {shot.description || "暂无描述"}
-                                        </p>
-                                    </div>
-
-                                    {/* 台词/旁白 */}
-                                    {narration.length > 0 && (
-                                        <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                                            <div className="text-sm font-medium text-gray-700 mb-3">
-                                                台词 / 旁白
-                                            </div>
-                                            <div className="space-y-3">
-                                                {narration.map((item, idx) => (
-                                                    <div
-                                                        key={idx}
-                                                        className="flex gap-3 p-3 rounded-lg bg-gray-50"
-                                                    >
-                                                        <div className="flex-shrink-0">
-                                                            <Badge
-                                                                variant="secondary"
-                                                                className="bg-blue-100 text-blue-700 border-0"
-                                                            >
-                                                                {item.角色}
-                                                            </Badge>
-                                                        </div>
-                                                        <p className="text-sm text-gray-700 flex-1">
-                                                            {item.内容}
-                                                        </p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </TabsContent>
-
-                                {/* 提示词 Tab */}
-                                <TabsContent value="prompts" className="mt-0 space-y-4">
-                                    {/* 首帧图片提示词 */}
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-100">
-                                        <div className="text-sm font-medium text-orange-700 mb-2 flex items-center gap-1.5">
-                                            <Sparkles size={14} />
-                                            首帧图片提示词
-                                        </div>
-                                        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                            {shot.image_prompt || "暂无提示词"}
-                                        </p>
-                                    </div>
-
-                                    {/* 尾帧图片提示词 */}
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
-                                        <div className="text-sm font-medium text-blue-700 mb-2 flex items-center gap-1.5">
-                                            <Sparkles size={14} />
-                                            尾帧图片提示词
-                                        </div>
-                                        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                            {endFrameImagePrompt || "暂无提示词"}
-                                        </p>
-                                    </div>
-
-                                    {/* 视频提示词 */}
-                                    <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100">
-                                        <div className="text-sm font-medium text-purple-700 mb-2 flex items-center gap-1.5">
-                                            <Film size={14} />
-                                            视频提示词
-                                        </div>
-                                        <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
-                                            {videoPrompt || "暂无提示词"}
-                                        </p>
-                                    </div>
-                                </TabsContent>
-
-                                {/* 视频 Tab */}
-                                <TabsContent value="video" className="mt-0 space-y-4">
-                                    {shot.video_url ? (
-                                        <div className="space-y-4">
-                                            <div className="relative rounded-xl overflow-hidden bg-black aspect-video">
-                                                <video
-                                                    src={shot.video_url}
-                                                    controls
-                                                    className="w-full h-full"
-                                                    preload="metadata"
+                                    onClick={() => shot.image_url && setPreviewImage(shot.image_url)}
+                                >
+                                    {shot.image_url ? (
+                                        <>
+                                            <img
+                                                src={shot.image_url}
+                                                alt="首帧"
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                                <Maximize2
+                                                    className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    size={24}
                                                 />
                                             </div>
-
-                                            {/* 音频（如果有） */}
-                                            {shot.audio_url && (
-                                                <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                                                    <div className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-2">
-                                                        <Volume2 size={14} />
-                                                        配音音频
-                                                    </div>
-                                                    <audio
-                                                        src={shot.audio_url}
-                                                        controls
-                                                        className="w-full h-10"
-                                                    />
-                                                </div>
-                                            )}
-
-                                            {/* 视频时长 */}
-                                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                                                <span>
-                                                    时长：{shot.video_duration || 5}秒
-                                                </span>
-                                                {shot.video_status && (
-                                                    <Badge
-                                                        variant={
-                                                            shot.video_status === "completed"
-                                                                ? "default"
-                                                                : "secondary"
-                                                        }
-                                                    >
-                                                        {shot.video_status}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        </div>
+                                        </>
                                     ) : (
-                                        <div className="flex items-center justify-center h-64 rounded-xl bg-gray-50 border-2 border-dashed border-gray-200">
-                                            <div className="text-center text-gray-400">
-                                                <Film size={48} className="mx-auto mb-3 opacity-50" />
-                                                <p>暂无视频</p>
+                                        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                                            <div className="text-center">
+                                                <ImageIcon size={32} className="mx-auto mb-2 opacity-50" />
+                                                <p className="text-xs">暂无图片</p>
                                             </div>
                                         </div>
                                     )}
-                                </TabsContent>
+                                </div>
                             </div>
-                        </Tabs>
+
+                            {/* 尾帧图片 */}
+                            <div className={cn("space-y-2", isPortrait && "col-span-2")}>
+                                <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    尾帧图片
+                                </div>
+                                <div
+                                    className={cn(
+                                        "relative rounded-xl overflow-hidden bg-gray-100 group cursor-pointer",
+                                        "border border-gray-200 shadow-sm hover:shadow-md transition-shadow",
+                                        imageAspectClass
+                                    )}
+                                    onClick={() => endFrameImageUrl && setPreviewImage(endFrameImageUrl)}
+                                >
+                                    {endFrameImageUrl ? (
+                                        <>
+                                            <img
+                                                src={endFrameImageUrl}
+                                                alt="尾帧"
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                            />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                                <Maximize2
+                                                    className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    size={24}
+                                                />
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                                            <div className="text-center">
+                                                <ImageIcon size={32} className="mx-auto mb-2 opacity-50" />
+                                                <p className="text-xs">暂无尾帧</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 关联角色 */}
+                        {associatedCharacters.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                                <span className="text-sm text-gray-500 mr-1">出场角色:</span>
+                                {associatedCharacters.map((char) => (
+                                    <div
+                                        key={char.character_id || char.uuid}
+                                        className="flex items-center gap-1.5 px-2 py-1 bg-white rounded-lg border border-gray-200 shadow-sm text-sm"
+                                    >
+                                        {char.image_url && (
+                                            <img
+                                                src={char.image_url}
+                                                alt={char.name}
+                                                className="w-5 h-5 rounded-full object-cover"
+                                            />
+                                        )}
+                                        <span className="text-gray-700">{char.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* 分镜描述 */}
+                        {shot.description && (
+                            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
+                                <div className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+                                    <FileText size={14} />
+                                    分镜描述
+                                </div>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    {shot.description}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* 台词/旁白 */}
+                        {narration.length > 0 && (
+                            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
+                                <div className="text-sm font-medium text-gray-700 mb-3">
+                                    台词 / 旁白
+                                </div>
+                                <div className="space-y-2">
+                                    {narration.map((item, idx) => (
+                                        <div
+                                            key={idx}
+                                            className="flex gap-3 p-2.5 rounded-lg bg-gray-50"
+                                        >
+                                            <Badge
+                                                variant="secondary"
+                                                className="bg-blue-100 text-blue-700 border-0 shrink-0"
+                                            >
+                                                {item.角色}
+                                            </Badge>
+                                            <p className="text-sm text-gray-700 flex-1">
+                                                {item.内容}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 提示词区域 */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* 首帧图片提示词 */}
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-100">
+                                <div className="text-sm font-medium text-orange-700 mb-2 flex items-center gap-1.5">
+                                    <Sparkles size={14} />
+                                    首帧提示词
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">
+                                    {shot.image_prompt || "暂无"}
+                                </p>
+                            </div>
+
+                            {/* 尾帧图片提示词 */}
+                            <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100">
+                                <div className="text-sm font-medium text-blue-700 mb-2 flex items-center gap-1.5">
+                                    <Sparkles size={14} />
+                                    尾帧提示词
+                                </div>
+                                <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">
+                                    {endFrameImagePrompt || "暂无"}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* 视频提示词 */}
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100">
+                            <div className="text-sm font-medium text-purple-700 mb-2 flex items-center gap-1.5">
+                                <Film size={14} />
+                                视频提示词
+                            </div>
+                            <p className="text-xs text-gray-600 leading-relaxed">
+                                {videoPrompt || "暂无"}
+                            </p>
+                        </div>
+
+                        {/* 视频预览 */}
+                        {shot.video_url && (
+                            <div className="space-y-3">
+                                <div className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                                    <Film size={14} />
+                                    视频预览
+                                </div>
+                                <div className={cn(
+                                    "relative rounded-xl overflow-hidden bg-black",
+                                    imageAspectClass,
+                                    isPortrait ? "max-w-[300px]" : ""
+                                )}>
+                                    <video
+                                        src={shot.video_url}
+                                        controls
+                                        className="w-full h-full object-contain"
+                                        preload="metadata"
+                                    />
+                                </div>
+
+                                {/* 音频 */}
+                                {shot.audio_url && (
+                                    <div className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200">
+                                        <Volume2 size={16} className="text-gray-500 shrink-0" />
+                                        <audio
+                                            src={shot.audio_url}
+                                            controls
+                                            className="flex-1 h-8"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
             </Dialog>
