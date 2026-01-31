@@ -350,24 +350,65 @@ export function useAgentChat(creationUuid: string) {
 
         const rawMessages = (response as any).messages || response.data?.messages || [];
         if (rawMessages.length > 0) {
-          // 获取当前已有消息的 ID 集合
-          const existingMessageIds = new Set(
-            useAgentStore.getState().messages.map((m) => m.id)
-          );
+          // 获取当前已有消息
+          const existingMessages = useAgentStore.getState().messages;
+          const existingMessageIds = new Set(existingMessages.map((m) => m.id));
 
           for (const msg of rawMessages) {
             const messageId = String(msg.id);
-            // 只添加不存在的新消息
-            if (!existingMessageIds.has(messageId)) {
-              const formattedMessage: AgentMessage = {
-                id: messageId,
-                role: msg.role as 'user' | 'assistant',
-                content: msg.content || '',
-                timestamp: msg.created_at || new Date().toISOString(),
-                status: 'completed' as const,
-              };
-              addMessage(formattedMessage);
+            const msgContent = msg.content || '';
+            const msgRole = msg.role as 'user' | 'assistant';
+
+            // 检查是否已存在相同 ID 的消息
+            if (existingMessageIds.has(messageId)) {
+              // 更新最后消息ID
+              lastMessageIdRef.current = messageId;
+              continue;
             }
+
+            // 对于用户消息，检查是否有本地临时消息（user-xxx ID）内容相同
+            // 这种情况发生在用户发送消息后，轮询获取到服务器保存的同一条消息
+            if (msgRole === 'user') {
+              const duplicateLocalMessage = existingMessages.find(
+                (m) => m.id.startsWith('user-') && m.role === 'user' && m.content === msgContent
+              );
+              if (duplicateLocalMessage) {
+                // 用服务器消息替换本地临时消息
+                updateMessage(duplicateLocalMessage.id, {
+                  id: messageId,
+                });
+                // 更新最后消息ID
+                lastMessageIdRef.current = messageId;
+                continue;
+              }
+            }
+
+            // 对于 assistant 消息，检查是否有本地临时消息（assistant-xxx ID）内容相同
+            // 这种情况发生在 SSE 流式传输消息后，轮询获取到服务器保存的同一条消息
+            if (msgRole === 'assistant') {
+              const duplicateLocalMessage = existingMessages.find(
+                (m) => m.id.startsWith('assistant-') && m.role === 'assistant' && m.content === msgContent
+              );
+              if (duplicateLocalMessage) {
+                // 用服务器消息 ID 替换本地临时消息 ID
+                updateMessage(duplicateLocalMessage.id, {
+                  id: messageId,
+                });
+                // 更新最后消息ID
+                lastMessageIdRef.current = messageId;
+                continue;
+              }
+            }
+
+            // 添加新消息
+            const formattedMessage: AgentMessage = {
+              id: messageId,
+              role: msgRole,
+              content: msgContent,
+              timestamp: msg.created_at || new Date().toISOString(),
+              status: 'completed' as const,
+            };
+            addMessage(formattedMessage);
             // 更新最后消息ID
             lastMessageIdRef.current = messageId;
           }
@@ -376,7 +417,7 @@ export function useAgentChat(creationUuid: string) {
         console.error('Messages polling error:', err);
       }
     }, MESSAGES_POLLING_INTERVAL);
-  }, [creationUuid, queryClient, addMessage, stopAgentPolling]);
+  }, [creationUuid, queryClient, addMessage, updateMessage, stopAgentPolling]);
 
   /**
    * 启动轮询模式（SSE 降级方案）
@@ -490,6 +531,27 @@ export function useAgentChat(creationUuid: string) {
       stopAgentPolling();
     };
   }, [creationUuid, startAgentPolling, stopAgentPolling]);
+
+  /**
+   * 当 creationUuid 变化时，重置聊天状态
+   * 确保切换创作时清空旧的聊天记录和连接状态
+   */
+  useEffect(() => {
+    // 重置历史加载标记
+    hasLoadedHistoryRef.current = false;
+    // 清空旧的消息
+    setMessages([]);
+    // 重置连接状态 - 确保页面刷新后不显示错误的连接状态
+    setStreaming(false);
+    setThinking(false);
+    setCurrentToolCall(null);
+    // 重置其他相关的 refs
+    lastMessageIdRef.current = null;
+    lastRequestRef.current = null;
+    currentStreamMessageIdRef.current = null;
+    hasCreatedMessageRef.current = false;
+    streamingContentRef.current = '';
+  }, [creationUuid, setMessages, setStreaming, setThinking, setCurrentToolCall]);
 
   /**
    * 初次进入时加载历史消息

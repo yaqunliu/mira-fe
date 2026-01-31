@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import type { ICreation } from '@/types/creation';
-
+import type { IShot } from '@/types/scene';
+import { ShotDetailDialog } from './shot-detail-dialog';
 interface CanvasStoryboardViewProps {
   creation: ICreation;
   highlightedElement: string | null;
@@ -91,7 +92,7 @@ function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [] }: {
   // 提取当前分镜的角色
   const displayCharacters = useMemo(() => {
     const charMap = new Map<string | number, any>();
-    
+
     // 1. 尝试直接从 shot.characters 获取
     if (shot.characters && Array.isArray(shot.characters)) {
       shot.characters.forEach((c: any) => {
@@ -115,7 +116,7 @@ function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [] }: {
     if (typeof narration === 'string' && narration.trim()) {
       try {
         narration = JSON.parse(narration);
-      } catch (e) {}
+      } catch (e) { }
     }
 
     if (Array.isArray(narration)) {
