@@ -18,10 +18,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Save, X, Loader2, Sparkles, History } from "lucide-react";
+import { Save, X, Loader2, Sparkles, History, Volume2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { ICharacter } from "@/types/character";
+import { VoiceSelector } from "@/components/business/create-settings/voice-selector";
+import type { VoiceItem } from "@/types/voice";
 import characterApi from "@/lib/api/character";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
@@ -46,7 +48,27 @@ type EditCharacterFormData = {
   voiceDescription?: string;
 };
 
-function CharacterFormFields({ form, character, t, onViewHistory }: { form: any, character: ICharacter, t: any, onViewHistory: () => void }) {
+function CharacterFormFields({ 
+  form, 
+  character, 
+  t, 
+  onViewHistory,
+  selectedVoiceId,
+  selectedVoice,
+  onVoiceSelect,
+  onSpeedChange,
+  voiceSpeed
+}: { 
+  form: any, 
+  character: ICharacter, 
+  t: any, 
+  onViewHistory: () => void,
+  selectedVoiceId: string | null,
+  selectedVoice: VoiceItem | null,
+  onVoiceSelect: (voiceId: string, voice: VoiceItem) => void,
+  onSpeedChange: (speed: string) => void,
+  voiceSpeed: string
+}) {
   const [previewImage, setPreviewImage] = useState<{src: string | null, alt: string} | null>(null);
 
   return (
@@ -320,6 +342,44 @@ function CharacterFormFields({ form, character, t, onViewHistory }: { form: any,
           </div>
         )}
       </div>
+
+      {/* 音色选择区域 */}
+      <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-purple-100">
+        <div className="flex items-center gap-2 mb-4">
+          <Volume2 className="w-4 h-4 text-purple-600" />
+          <h3 className="text-sm font-semibold text-gray-800">角色音色</h3>
+        </div>
+        
+        <VoiceSelector
+          selectedVoiceId={selectedVoiceId}
+          onSelect={onVoiceSelect}
+        />
+
+        {selectedVoiceId && (
+          <div className="mt-4 flex items-center gap-4 p-3 rounded-lg bg-white/60 border border-purple-100">
+            <div className="flex-1">
+              <p className="text-xs text-gray-600">
+                已选择: <span className="font-medium text-purple-700">{selectedVoice?.title || "未知音色"}</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-600">语速:</span>
+              <select
+                value={voiceSpeed}
+                onChange={(e) => onSpeedChange(e.target.value)}
+                className="px-2 py-1 text-sm rounded-lg bg-white border border-purple-200 focus:outline-none focus:ring-2 focus:ring-purple-200"
+              >
+                <option value="0.5">0.5x</option>
+                <option value="0.75">0.75x</option>
+                <option value="1.0">1.0x (正常)</option>
+                <option value="1.25">1.25x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2.0">2.0x</option>
+              </select>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -340,6 +400,19 @@ export function CharacterEditModal({
   const [isLoading, setIsLoading] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(character.voice_id || null);
+  const [selectedVoice, setSelectedVoice] = useState<VoiceItem | null>(null);
+  const [voiceSpeed, setVoiceSpeed] = useState<string>(character.voice_speed || "1.0");
+
+  const handleVoiceSelect = (voiceId: string, voice: VoiceItem) => {
+    setSelectedVoiceId(voiceId);
+    setSelectedVoice(voice);
+  };
+
+  const handleSpeedChange = (speed: string) => {
+    setVoiceSpeed(speed);
+  };
 
   // 动态创建 schema，因为验证消息需要国际化
   const editCharacterSchema = useMemo(() => z.object({
@@ -382,6 +455,9 @@ export function CharacterEditModal({
       imagePrompt: character.image_prompt || "",
       voiceDescription: character.voice_description || "",
     });
+    setSelectedVoiceId(character.voice_id || null);
+    setVoiceSpeed(character.voice_speed || "1.0");
+    setSelectedVoice(null);
   }, [character, form]);
 
   const handleSave = async (data: EditCharacterFormData) => {
@@ -398,6 +474,8 @@ export function CharacterEditModal({
         tags: data.tags ? data.tags.split(",") : [],
         image_prompt: data.imagePrompt === undefined ? character.image_prompt : data.imagePrompt,
         voice_description: data.voiceDescription,
+        voice_id: selectedVoiceId || undefined,
+        voice_speed: voiceSpeed,
       };
       
       // 必须使用UUID，如果character对象没有uuid字段，说明数据有问题
@@ -461,6 +539,11 @@ export function CharacterEditModal({
                     character={character} 
                     t={t} 
                     onViewHistory={() => setIsHistoryOpen(true)}
+                    selectedVoiceId={selectedVoiceId}
+                    selectedVoice={selectedVoice}
+                    onVoiceSelect={handleVoiceSelect}
+                    onSpeedChange={handleSpeedChange}
+                    voiceSpeed={voiceSpeed}
                   />
                 </form>
               </Form>
@@ -531,6 +614,11 @@ export function CharacterEditModal({
                 character={character} 
                 t={t} 
                 onViewHistory={() => setIsHistoryOpen(true)}
+                selectedVoiceId={selectedVoiceId}
+                selectedVoice={selectedVoice}
+                onVoiceSelect={handleVoiceSelect}
+                onSpeedChange={handleSpeedChange}
+                voiceSpeed={voiceSpeed}
               />
             </form>
           </Form>

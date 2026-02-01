@@ -136,7 +136,7 @@ const shotApi = {
       `/api/v1/shots/${shotUuid}/image-history`
     );
   },
-  
+
   // 应用分镜历史图片版本
   applyImageVersion: async (
     shotUuid: string,
@@ -154,6 +154,23 @@ const shotApi = {
         image_prompt: imagePrompt
       }
     );
+  },
+
+  // 生成 narration 音频
+  generateNarrationAudio: async (
+    shotId: number,
+    narrationIndex: number,
+    speaker: string,
+    text: string
+  ): Promise<{ success: boolean; data?: { audio_url: string; audio_historys: string[] }; error?: string }> => {
+    return apiClient.post(
+      `/api/v1/shots/${shotId}/generate-narration-audio`,
+      {
+        narration_index: narrationIndex,
+        speaker: speaker,
+        text: text
+      }
+    ) as unknown as Promise<{ success: boolean; data?: { audio_url: string; audio_historys: string[] }; error?: string }>;
   },
 };
 

@@ -15,6 +15,8 @@ export interface ICharacter {
     image_prompt?: string;
     image_url?: string;
     voice_description?: string;
+    voice_id?: string;
+    voice_speed?: string;
     novel_id: number | string;
     creation_id: number | string;
     created_at: string;

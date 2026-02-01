@@ -20,6 +20,9 @@ export interface IScene {
 export interface INarrationItem {
     角色: string;
     内容: string;
+    audio_url?: string;           // 当前音频 URL
+    audio_historys?: string[];    // 音频历史版本列表
+    audio_error?: string;         // 音频生成错误信息
 }
 
 export interface IShotStatusDetail {

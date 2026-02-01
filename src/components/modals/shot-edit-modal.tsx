@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RotateCcw, Image as ImageIcon, Edit2, Maximize2, Plus, X, Trash2, ListPlus, Film, Download, Sparkles, ChevronLeft, ChevronRight, History } from 'lucide-react';
+import { Loader2, RotateCcw, Image as ImageIcon, Edit2, Maximize2, Plus, X, Trash2, ListPlus, Film, Download, Sparkles, ChevronLeft, ChevronRight, History, Volume2, Play, Pause, RefreshCw, Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { IShot, INarrationItem } from '@/types/scene';
 import { ICharacter } from '@/types/character';
@@ -103,6 +103,11 @@ export function ShotEditModal({
     const [isEndFramePreviewOpen, setIsEndFramePreviewOpen] = useState(false);
     const [isImageHistoryOpen, setIsImageHistoryOpen] = useState(false);
 
+    // Audio-related state
+    const [generatingAudioIndex, setGeneratingAudioIndex] = useState<number | null>(null);
+    const [playingAudioIndex, setPlayingAudioIndex] = useState<number | null>(null);
+    const [selectedAudioVersion, setSelectedAudioVersion] = useState<{[key: number]: number}>({}); // index -> history index
+
     // Play both video and audio simultaneously
     const handlePlayBoth = () => {
         if (videoRef.current) {
@@ -196,6 +201,87 @@ export function ShotEditModal({
 
     const handleRemoveNarration = (index: number) => {
         setNarration(prev => prev.filter((_, i) => i !== index));
+    };
+
+    // 音频播放控制（用于 narration 音频试听）
+    const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+
+    const handlePlayAudio = (index: number, audioUrl: string) => {
+        if (playingAudioIndex === index) {
+            // 停止播放
+            if (narrationAudioRef.current) {
+                narrationAudioRef.current.pause();
+                narrationAudioRef.current = null;
+            }
+            setPlayingAudioIndex(null);
+        } else {
+            // 开始播放
+            if (narrationAudioRef.current) {
+                narrationAudioRef.current.pause();
+            }
+            const audio = new Audio(audioUrl);
+            audio.onended = () => setPlayingAudioIndex(null);
+            audio.onerror = () => {
+                toast.error('音频播放失败');
+                setPlayingAudioIndex(null);
+            };
+            audio.play().catch(() => {
+                toast.error('音频播放失败');
+                setPlayingAudioIndex(null);
+            });
+            narrationAudioRef.current = audio;
+            setPlayingAudioIndex(index);
+        }
+    };
+
+    // 生成音频
+    const handleGenerateAudio = async (index: number) => {
+        const item = narration[index];
+        if (!item.内容) {
+            toast.error('请先输入内容');
+            return;
+        }
+
+        setGeneratingAudioIndex(index);
+        try {
+            // 调用 API 生成音频
+            const result = await shotApi.generateNarrationAudio(
+                shot.shot_id,
+                index,
+                item.角色,
+                item.内容
+            );
+
+            if (result.success && result.data) {
+                // 更新 narration 数据
+                setNarration(prev => {
+                    const next = [...prev];
+                    next[index] = {
+                        ...next[index],
+                        audio_url: result.data.audio_url,
+                        audio_historys: result.data.audio_historys || [],
+                    };
+                    return next;
+                });
+
+                // 自动选择最新版本
+                const newHistory = result.data.audio_historys || [];
+                setSelectedAudioVersion(prev => ({
+                    ...prev,
+                    [index]: newHistory.length - 1
+                }));
+
+                toast.success('音频生成成功');
+                onSuccess(); // 刷新父组件数据
+            } else {
+                toast.error(result.error || '音频生成失败');
+            }
+        } catch (error) {
+            console.error('生成音频失败:', error);
+            toast.error('音频生成失败');
+        } finally {
+            setGeneratingAudioIndex(null);
+        }
     };
 
     const handleAddToTrack = (item: INarrationItem) => {
@@ -896,73 +982,167 @@ export function ShotEditModal({
                                         )}
                                     </div>
                                     <div className="space-y-2">
-                                        {Array.isArray(narration) && narration.length > 0 ? narration.map((item, index) => (
-                                            <div key={index} className="flex flex-col gap-2 p-3 bg-gradient-to-br from-white to-blue-50 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] group">
-                                                <div className="flex items-center gap-2">
-                                                    {isEditing ? (
-                                                        <div className="flex-1 flex gap-2">
-                                                            <Select
-                                                                value={item.角色}
-                                                                onValueChange={(val) => handleUpdateNarration(index, '角色', val)}
-                                                            >
-                                                                <SelectTrigger className="w-[120px] h-8 bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-xs shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
-                                                                    <SelectValue />
-                                                                </SelectTrigger>
-                                                                <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
-                                                                    <SelectItem value="旁白">{t('narration')}</SelectItem>
-                                                                    {availableCharacters.map(char => (
-                                                                        <SelectItem key={char.character_id} value={char.name}>
-                                                                            <div className="flex items-center gap-2">
-                                                                                {char.image_url && (
-                                                                                    <div className="w-4 h-4 rounded-full overflow-hidden bg-gradient-to-br from-white to-blue-50 shrink-0 border border-blue-100 shadow-[2px_2px_4px_rgba(0,0,0,0.05),-1px_-1px_3px_rgba(255,255,255,0.8)]">
-                                                                                        <img src={char.image_url} alt={char.name} className="w-full h-full object-cover" />
-                                                                                    </div>
-                                                                                )}
-                                                                                <span>{char.name}</span>
-                                                                            </div>
-                                                                        </SelectItem>
-                                                                    ))}
-                                                                </SelectContent>
-                                                            </Select>
-                                                            <Textarea
-                                                                value={item.内容}
-                                                                onChange={(e) => handleUpdateNarration(index, '内容', e.target.value)}
-                                                                className="w-full text-sm resize-none bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 rounded-lg p-3 min-h-[40px] flex-1"
-                                                                placeholder={t('dialoguePlaceholder')}
-                                                            />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex-1 text-sm text-gray-700">
-                                                            <span className="font-bold text-blue-600 mr-2">{item.角色}：</span>
-                                                            {item.内容}
-                                                        </div>
-                                                    )}
-                                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        {!isEditing && (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() => handleAddToTrack(item)}
-                                                                className="h-8 px-3 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
-                                                            >
-                                                                <ListPlus size={14} className="mr-1.5" />
-                                                                <span className="text-xs font-medium">添加到轨道</span>
-                                                            </Button>
+                                        {Array.isArray(narration) && narration.length > 0 ? narration.map((item, index) => {
+                                            // 获取当前选中的音频版本
+                                            const history = item.audio_historys || [];
+                                            const selectedVersionIdx = selectedAudioVersion[index] ?? (history.length - 1);
+                                            const currentAudioUrl = history[selectedVersionIdx] || item.audio_url;
+                                            const isGenerating = generatingAudioIndex === index;
+                                            const isPlaying = playingAudioIndex === index;
+
+                                            return (
+                                                <div key={index} className="flex flex-col gap-2 p-3 bg-gradient-to-br from-white to-blue-50 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] group">
+                                                    {/* 角色和内容 */}
+                                                    <div className="flex items-center gap-2">
+                                                        {isEditing ? (
+                                                            <div className="flex-1 flex gap-2">
+                                                                <Select
+                                                                    value={item.角色}
+                                                                    onValueChange={(val) => handleUpdateNarration(index, '角色', val)}
+                                                                >
+                                                                    <SelectTrigger className="w-[120px] h-8 bg-gradient-to-br from-white to-blue-50 border border-blue-100 text-xs shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
+                                                                        <SelectItem value="旁白">{t('narration')}</SelectItem>
+                                                                        {availableCharacters.map(char => (
+                                                                            <SelectItem key={char.character_id} value={char.name}>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    {char.image_url && (
+                                                                                        <div className="w-4 h-4 rounded-full overflow-hidden bg-gradient-to-br from-white to-blue-50 shrink-0 border border-blue-100 shadow-[2px_2px_4px_rgba(0,0,0,0.05),-1px_-1px_3px_rgba(255,255,255,0.8)]">
+                                                                                            <img src={char.image_url} alt={char.name} className="w-full h-full object-cover" />
+                                                                                        </div>
+                                                                                    )}
+                                                                                    <span>{char.name}</span>
+                                                                                </div>
+                                                                            </SelectItem>
+                                                                        ))}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <Textarea
+                                                                    value={item.内容}
+                                                                    onChange={(e) => handleUpdateNarration(index, '内容', e.target.value)}
+                                                                    className="w-full text-sm resize-none bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 rounded-lg p-3 min-h-[40px] flex-1"
+                                                                    placeholder={t('dialoguePlaceholder')}
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="flex-1 text-sm text-gray-700">
+                                                                <span className="font-bold text-blue-600 mr-2">{item.角色}：</span>
+                                                                {item.内容}
+                                                            </div>
                                                         )}
-                                                        {isEditing && (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="icon"
-                                                                onClick={() => handleRemoveNarration(index)}
-                                                                className="h-8 w-8 text-slate-500 hover:text-red-400"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </Button>
+                                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            {!isEditing && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => handleAddToTrack(item)}
+                                                                    className="h-8 px-3 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+                                                                >
+                                                                    <ListPlus size={14} className="mr-1.5" />
+                                                                    <span className="text-xs font-medium">添加到轨道</span>
+                                                                </Button>
+                                                            )}
+                                                            {isEditing && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => handleRemoveNarration(index)}
+                                                                    className="h-8 w-8 text-slate-500 hover:text-red-400"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 音频控制区域 */}
+                                                    <div className="flex items-center gap-2 mt-1 pt-2 border-t border-blue-100">
+                                                        {/* 生成音频按钮 */}
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleGenerateAudio(index)}
+                                                            disabled={isGenerating || !item.内容}
+                                                            className="h-7 px-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-100"
+                                                        >
+                                                            {isGenerating ? (
+                                                                <Loader2 size={12} className="mr-1 animate-spin" />
+                                                            ) : (
+                                                                <Volume2 size={12} className="mr-1" />
+                                                            )}
+                                                            {isGenerating ? '生成中...' : (currentAudioUrl ? '重新生成' : '生成音频')}
+                                                        </Button>
+
+                                                        {/* 音频播放器 */}
+                                                        {currentAudioUrl && (
+                                                            <>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => handlePlayAudio(index, currentAudioUrl)}
+                                                                    className="h-7 w-7 text-blue-600 hover:text-blue-700 hover:bg-blue-100"
+                                                                >
+                                                                    {isPlaying ? <Pause size={12} /> : <Play size={12} />}
+                                                                </Button>
+
+                                                                {/* 下载音频按钮 */}
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    onClick={() => {
+                                                                        const link = document.createElement('a');
+                                                                        link.href = currentAudioUrl;
+                                                                        link.download = `${item.角色 || '音频'}_${item.内容?.slice(0, 10) || 'audio'}.mp3`;
+                                                                        document.body.appendChild(link);
+                                                                        link.click();
+                                                                        document.body.removeChild(link);
+                                                                    }}
+                                                                    className="h-7 w-7 text-green-600 hover:text-green-700 hover:bg-green-100"
+                                                                    title="下载音频"
+                                                                >
+                                                                    <Download size={12} />
+                                                                </Button>
+
+                                                                {/* 版本切换 */}
+                                                                {history.length > 1 && (
+                                                                    <Select
+                                                                        value={String(selectedVersionIdx)}
+                                                                        onValueChange={(val) => setSelectedAudioVersion(prev => ({ ...prev, [index]: parseInt(val) }))}
+                                                                    >
+                                                                        <SelectTrigger className="w-[100px] h-7 text-xs bg-white border-blue-100">
+                                                                            <SelectValue placeholder="选择版本" />
+                                                                        </SelectTrigger>
+                                                                        <SelectContent>
+                                                                            {history.map((url, idx) => (
+                                                                                <SelectItem key={idx} value={String(idx)}>
+                                                                                    版本 {idx + 1} {idx === history.length - 1 && '(最新)'}
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                )}
+
+                                                                {/* 音频状态指示 */}
+                                                                {isPlaying && (
+                                                                    <span className="text-xs text-blue-600 animate-pulse">
+                                                                        播放中...
+                                                                    </span>
+                                                                )}
+                                                            </>
+                                                        )}
+
+                                                        {/* 错误提示 */}
+                                                        {item.audio_error && (
+                                                            <span className="text-xs text-red-500">
+                                                                生成失败
+                                                            </span>
                                                         )}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )) : (
+                                            );
+                                        }) : (
                                             <div className="text-sm text-gray-500 italic p-3 bg-gradient-to-br from-white to-blue-50 rounded-lg border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
                                                 {tCommon('none')}
                                             </div>
