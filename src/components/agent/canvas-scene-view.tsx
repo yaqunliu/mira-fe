@@ -1,7 +1,9 @@
 "use client";
 
-import Image from 'next/image';
+import { useState } from 'react';
 import type { ICreation } from '@/types/creation';
+import { ImagePreview } from '@/components/ui/image-preview';
+import { Maximize2 } from 'lucide-react';
 
 interface CanvasSceneViewProps {
   creation: ICreation;
@@ -14,6 +16,7 @@ interface CanvasSceneViewProps {
  * 展示所有场景及其描述、氛围、视觉参考
  */
 export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneViewProps) {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const scenes = creation.scenes || [];
 
   if (scenes.length === 0) {
@@ -31,45 +34,62 @@ export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneVie
   }
 
   return (
-    <div className="space-y-6">
-      {/* 场景统计 */}
-      <div className="flex gap-4">
-        <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-          <div className="text-xs text-purple-600 mb-1">总场景数</div>
-          <div className="text-2xl font-bold text-purple-900">{scenes.length}</div>
-        </div>
-        <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-          <div className="text-xs text-blue-600 mb-1">平均分镜数</div>
-          <div className="text-2xl font-bold text-blue-900">
-            {scenes.length > 0
-              ? Math.round(scenes.reduce((sum, s) => sum + (s.shots?.length || 0), 0) / scenes.length)
-              : 0}
+    <>
+      <div className="space-y-6">
+        {/* 场景统计 */}
+        <div className="flex gap-4">
+          <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+            <div className="text-xs text-purple-600 mb-1">总场景数</div>
+            <div className="text-2xl font-bold text-purple-900">{scenes.length}</div>
           </div>
+          <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+            <div className="text-xs text-blue-600 mb-1">平均分镜数</div>
+            <div className="text-2xl font-bold text-blue-900">
+              {scenes.length > 0
+                ? Math.round(scenes.reduce((sum, s) => sum + (s.shots?.length || 0), 0) / scenes.length)
+                : 0}
+            </div>
+          </div>
+        </div>
+
+        {/* 场景列表 */}
+        <div className="space-y-4">
+          {scenes.map((scene, idx) => (
+            <SceneCard
+              key={scene.scene_id}
+              scene={scene}
+              sceneNumber={idx + 1}
+              isHighlighted={highlightedElement === `scene-${scene.scene_id}`}
+              onImageClick={setPreviewImage}
+            />
+          ))}
         </div>
       </div>
 
-      {/* 场景列表 */}
-      <div className="space-y-4">
-        {scenes.map((scene, idx) => (
-          <SceneCard
-            key={scene.scene_id}
-            scene={scene}
-            sceneNumber={idx + 1}
-            isHighlighted={highlightedElement === `scene-${scene.scene_id}`}
-          />
-        ))}
-      </div>
-    </div>
+      {/* 图片预览 */}
+      <ImagePreview
+        open={!!previewImage}
+        onOpenChange={(open) => !open && setPreviewImage(null)}
+        src={previewImage}
+        alt="场景图片预览"
+      />
+    </>
   );
 }
 
 /**
  * 场景卡片组件
  */
-function SceneCard({ scene, sceneNumber, isHighlighted }: {
+function SceneCard({
+  scene,
+  sceneNumber,
+  isHighlighted,
+  onImageClick,
+}: {
   scene: any;
   sceneNumber: number;
   isHighlighted: boolean;
+  onImageClick: (url: string) => void;
 }) {
   const referenceImage = scene.image_url || scene.reference_image_url;
   const shotCount = scene.shots?.length || 0;
@@ -85,13 +105,21 @@ function SceneCard({ scene, sceneNumber, isHighlighted }: {
       <div className="flex gap-4">
         {/* 左侧：场景图片 */}
         {referenceImage ? (
-          <div className="relative w-48 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
-            <Image
+          <div
+            className="relative w-48 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden group cursor-pointer"
+            onClick={() => onImageClick(referenceImage)}
+          >
+            <img
               src={referenceImage}
               alt={`场景 ${sceneNumber}`}
-              fill
-              className="object-cover"
+              className="w-full h-full object-cover"
             />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+              <Maximize2
+                className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                size={24}
+              />
+            </div>
           </div>
         ) : (
           <div className="w-48 h-32 flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
