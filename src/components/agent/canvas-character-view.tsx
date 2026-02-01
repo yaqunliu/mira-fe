@@ -1,8 +1,10 @@
 "use client";
 
-import Image from 'next/image';
+import { useState } from 'react';
 import type { ICreation } from '@/types/creation';
 import type { ICharacter } from '@/types/character';
+import { ImagePreview } from '@/components/ui/image-preview';
+import { Maximize2 } from 'lucide-react';
 
 interface CanvasCharacterViewProps {
   creation: ICreation;
@@ -149,6 +151,8 @@ function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated
  * 展示所有角色及其候选图、描述、状态
  */
 export function CanvasCharacterView({ creation, highlightedElement }: CanvasCharacterViewProps) {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   // 优先直接使用 creation.characters，如果没有再从分镜提取
   const characters = (creation.characters && creation.characters.length > 0)
     ? creation.characters
@@ -179,45 +183,64 @@ export function CanvasCharacterView({ creation, highlightedElement }: CanvasChar
   );
 
   return (
-    <div className="space-y-6">
-      {/* 角色统计 */}
-      <div className="flex gap-4">
-        <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-          <div className="text-xs text-blue-600 mb-1">总角色数</div>
-          <div className="text-2xl font-bold text-blue-900">{characters.length}</div>
-        </div>
-        <div className="flex-1 bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-          <div className="text-xs text-green-600 mb-1">已生成</div>
-          <div className="text-2xl font-bold text-green-900">
-            {statusCounts.generated}
+    <>
+      <div className="space-y-6">
+        {/* 角色统计 */}
+        <div className="flex gap-4">
+          <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
+            <div className="text-xs text-blue-600 mb-1">总角色数</div>
+            <div className="text-2xl font-bold text-blue-900">{characters.length}</div>
+          </div>
+          <div className="flex-1 bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
+            <div className="text-xs text-green-600 mb-1">已生成</div>
+            <div className="text-2xl font-bold text-green-900">
+              {statusCounts.generated}
+            </div>
+          </div>
+          <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
+            <div className="text-xs text-purple-600 mb-1">未生成</div>
+            <div className="text-2xl font-bold text-purple-900">
+              {statusCounts.pending + statusCounts.generating}
+            </div>
           </div>
         </div>
-        <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-          <div className="text-xs text-purple-600 mb-1">未生成</div>
-          <div className="text-2xl font-bold text-purple-900">
-            {statusCounts.pending + statusCounts.generating}
-          </div>
+
+        {/* 角色网格 */}
+        <div className="grid grid-cols-2 gap-6">
+          {characters.map((character) => (
+            <CharacterCard
+              key={character.uuid || character.character_id}
+              character={character}
+              isHighlighted={highlightedElement === `character-${character.uuid || character.character_id}`}
+              onImageClick={setPreviewImage}
+            />
+          ))}
         </div>
       </div>
 
-      {/* 角色网格 */}
-      <div className="grid grid-cols-2 gap-6">
-        {characters.map((character) => (
-          <CharacterCard
-            key={character.uuid || character.character_id}
-            character={character}
-            isHighlighted={highlightedElement === `character-${character.uuid || character.character_id}`}
-          />
-        ))}
-      </div>
-    </div>
+      {/* 图片预览 */}
+      <ImagePreview
+        open={!!previewImage}
+        onOpenChange={(open) => !open && setPreviewImage(null)}
+        src={previewImage}
+        alt="角色图片预览"
+      />
+    </>
   );
 }
 
 /**
  * 角色卡片组件
  */
-function CharacterCard({ character, isHighlighted }: { character: any; isHighlighted: boolean }) {
+function CharacterCard({
+  character,
+  isHighlighted,
+  onImageClick,
+}: {
+  character: any;
+  isHighlighted: boolean;
+  onImageClick: (url: string) => void;
+}) {
   // 兼容不同字段名
   const imageUrl = character.image_url || character.final_image_url;
   const candidateImages = character.candidate_image_urls || [];
@@ -242,13 +265,21 @@ function CharacterCard({ character, isHighlighted }: { character: any; isHighlig
 
       {/* 角色图片 - 16:9 比例 */}
       {imageUrl ? (
-        <div className="relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden mb-3">
-          <Image
+        <div
+          className="relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden mb-3 group cursor-pointer"
+          onClick={() => onImageClick(imageUrl)}
+        >
+          <img
             src={imageUrl}
             alt={character.name}
-            fill
-            className="object-cover"
+            className="w-full h-full object-cover"
           />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+            <Maximize2
+              className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
+              size={24}
+            />
+          </div>
           {candidateImages.length > 1 && (
             <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded">
               1/{candidateImages.length}
@@ -321,12 +352,12 @@ function CharacterCard({ character, isHighlighted }: { character: any; isHighlig
               <div
                 key={idx}
                 className="relative w-20 h-11 flex-shrink-0 bg-gray-100 rounded overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
+                onClick={() => onImageClick(url)}
               >
-                <Image
+                <img
                   src={url}
                   alt={`候选 ${idx + 1}`}
-                  fill
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
               </div>
             ))}
