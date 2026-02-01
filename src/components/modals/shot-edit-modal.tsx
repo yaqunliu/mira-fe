@@ -253,19 +253,20 @@ export function ShotEditModal({
             );
 
             if (result.success && result.data) {
+                const data = result.data;
                 // 更新 narration 数据
                 setNarration(prev => {
                     const next = [...prev];
                     next[index] = {
                         ...next[index],
-                        audio_url: result.data.audio_url,
-                        audio_historys: result.data.audio_historys || [],
+                        audio_url: data.audio_url,
+                        audio_historys: data.audio_historys || [],
                     };
                     return next;
                 });
 
                 // 自动选择最新版本
-                const newHistory = result.data.audio_historys || [];
+                const newHistory = data.audio_historys || [];
                 setSelectedAudioVersion(prev => ({
                     ...prev,
                     [index]: newHistory.length - 1
