@@ -1,6 +1,7 @@
 "use client";
 
 import type { AgentMessage } from '@/types/agent';
+import ReactMarkdown from 'react-markdown';
 
 interface ChatMessageItemProps {
   message: AgentMessage;
@@ -16,11 +17,10 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
 
   return (
     <div
-      className={`p-3 rounded-lg transition-all ${
-        isUser
+      className={`p-3 rounded-lg transition-all ${isUser
           ? 'bg-gradient-to-r from-blue-100 to-blue-50 ml-8 border border-blue-200'
           : 'bg-gradient-to-r from-gray-100 to-gray-50 mr-8 border border-gray-200'
-      }`}
+        }`}
     >
       <div className="flex items-start gap-2">
         {/* 头像 */}
@@ -30,9 +30,24 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
 
         {/* 内容 */}
         <div className="flex-1 min-w-0">
-          {/* 消息文本 */}
-          <div className="text-sm text-gray-800 whitespace-pre-wrap break-words">
-            {message.content}
+          {/* 消息文本 - AI消息支持Markdown渲染 */}
+          <div className="text-sm text-gray-800 break-words">
+            {isUser ? (
+              <span className="whitespace-pre-wrap">{message.content}</span>
+            ) : (
+              <div className="prose prose-sm prose-gray max-w-none
+                prose-p:my-1 prose-p:leading-relaxed
+                prose-ul:my-1 prose-ul:pl-4
+                prose-ol:my-1 prose-ol:pl-4
+                prose-li:my-0.5
+                prose-headings:my-2
+                prose-strong:text-gray-900
+                prose-code:bg-gray-200 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-xs
+                prose-pre:bg-gray-800 prose-pre:text-gray-100 prose-pre:p-2 prose-pre:rounded-lg prose-pre:overflow-x-auto
+              ">
+                <ReactMarkdown>{message.content || ''}</ReactMarkdown>
+              </div>
+            )}
             {/* 流式输入光标 */}
             {message.status === 'streaming' && (
               <span className="inline-block w-1 h-4 bg-gray-400 animate-pulse ml-1" />
