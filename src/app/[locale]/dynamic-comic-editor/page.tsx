@@ -46,7 +46,6 @@ import { ShotEditModal } from "@/components/modals/shot-edit-modal";
 import { VideoGenerationDialog } from "@/components/modals/video-generation-dialog";
 import { ExportTriggerDialog } from "@/components/timeline/export-trigger-dialog";
 import { ExportPreviewDialog } from "@/components/timeline/export-preview-dialog";
-import { ImageHistoryDialog } from "@/components/timeline/image-history-dialog";
 import { produce } from 'immer';
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -228,7 +227,6 @@ export default function DynamicComicEditor() {
     // Export Dialog State
     const [showExportTriggerDialog, setShowExportTriggerDialog] = useState(false);
     const [showExportPreviewDialog, setShowExportPreviewDialog] = useState(false);
-    const [showImageHistoryDialog, setShowImageHistoryDialog] = useState(false);
     const [showModelSettings, setShowModelSettings] = useState(false);
     const [showTimeline, setShowTimeline] = useState(true);
     const [exportProgress, setExportProgress] = useState<{
@@ -2530,20 +2528,6 @@ export default function DynamicComicEditor() {
                         </button>
                         <button
                             className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
-                            onClick={() => setShowExportPreviewDialog(true)}
-                        >
-                            <History size={14} />
-                            <span>导出历史</span>
-                        </button>
-                        <button
-                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-purple-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-purple-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
-                            onClick={() => setShowImageHistoryDialog(true)}
-                        >
-                            <ImageIcon size={14} className="text-purple-500" />
-                            <span>图片历史</span>
-                        </button>
-                        <button
-                            className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                             onClick={() => setShowTimeline(!showTimeline)}
                         >
                             <Monitor size={14} className={showTimeline ? "text-blue-500" : "text-gray-400"} />
@@ -2787,15 +2771,6 @@ export default function DynamicComicEditor() {
                                                                                     title={t('regenerate')}
                                                                                 >
                                                                                     <RotateCcw size={14} className={(regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating') ? "animate-spin" : ""} />
-                                                                                </Button>
-                                                                                <Button
-                                                                                    variant="ghost"
-                                                                                    size="icon"
-                                                                                    className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
-                                                                                    onClick={() => setShowImageHistoryDialog(true)}
-                                                                                    title="查看历史"
-                                                                                >
-                                                                                    <History size={14} />
                                                                                 </Button>
                                                                             </div>
                                                                         </div>
@@ -3093,18 +3068,6 @@ export default function DynamicComicEditor() {
                                                                         title={t('regenerate')}
                                                                     >
                                                                         <RotateCcw size={12} className={(regeneratingScenes.has(scene.uuid || String(scene.scene_id)) || scene.status === 'generating') ? "animate-spin" : ""} />
-                                                                    </Button>
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="icon"
-                                                                        className="h-6 w-6 text-white hover:text-white hover:bg-white/20 rounded-full"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            setShowImageHistoryDialog(true);
-                                                                        }}
-                                                                        title="查看历史"
-                                                                    >
-                                                                        <History size={12} />
                                                                     </Button>
                                                                 </div>
                                                             </div>
@@ -3515,16 +3478,6 @@ export default function DynamicComicEditor() {
                                                                             </button>
                                                                             <button
                                                                                 className="h-6 w-6 text-purple-500 hover:text-purple-600 hover:bg-purple-100 rounded-full flex items-center justify-center transition-all duration-200"
-                                                                                onClick={(e) => {
-                                                                                    e.stopPropagation();
-                                                                                    setShowImageHistoryDialog(true);
-                                                                                }}
-                                                                                title="查看历史"
-                                                                            >
-                                                                                <History size={12} />
-                                                                            </button>
-                                                                            <button
-                                                                                className="h-6 w-6 text-purple-500 hover:text-purple-600 hover:bg-purple-100 rounded-full flex items-center justify-center transition-all duration-200"
                                                                                 onClick={async (e) => {
                                                                                     e.stopPropagation();
                                                                                     if (!shot.video_url && !shot.audio_url) {
@@ -3656,15 +3609,6 @@ export default function DynamicComicEditor() {
                         creationId={taskId}
                         isOpen={showExportPreviewDialog}
                         onClose={() => setShowExportPreviewDialog(false)}
-                    />
-                )}
-
-                {/* Image History Dialog */}
-                {taskId && (
-                    <ImageHistoryDialog
-                        creationId={taskId}
-                        isOpen={showImageHistoryDialog}
-                        onClose={() => setShowImageHistoryDialog(false)}
                     />
                 )}
 
