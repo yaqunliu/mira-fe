@@ -92,7 +92,8 @@ export function ShotDetailDialog({
 
     const narration = parseNarration(shot.narration);
     const endFrameImageUrl = (shot.extra_data as any)?.end_frame_image_url;
-    const endFrameImagePrompt = (shot.extra_data as any)?.end_frame_image_prompt;
+    // 兼容两种字段名：end_frame_prompt 和 end_frame_image_prompt
+    const endFrameImagePrompt = (shot.extra_data as any)?.end_frame_prompt || (shot.extra_data as any)?.end_frame_image_prompt;
     const videoPrompt = (shot.extra_data as any)?.video_prompt;
 
     // 根据比例决定布局

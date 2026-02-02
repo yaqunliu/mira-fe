@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import type { ICreation } from '@/types/creation';
-import { ImagePreview } from '@/components/ui/image-preview';
-import { Maximize2 } from 'lucide-react';
+import type { IScene } from '@/types/scene';
+import { SceneDetailDialog } from './scene-detail-dialog';
 
 interface CanvasSceneViewProps {
   creation: ICreation;
@@ -16,8 +16,35 @@ interface CanvasSceneViewProps {
  * 展示所有场景及其描述、氛围、视觉参考
  */
 export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneViewProps) {
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedSceneIndex, setSelectedSceneIndex] = useState<number | null>(null);
   const scenes = creation.scenes || [];
+
+  // 当前选中的场景
+  const selectedScene = selectedSceneIndex !== null ? scenes[selectedSceneIndex] : null;
+
+  // 打开场景详情
+  const handleOpenDetail = useCallback((index: number) => {
+    setSelectedSceneIndex(index);
+  }, []);
+
+  // 关闭场景详情
+  const handleCloseDetail = useCallback(() => {
+    setSelectedSceneIndex(null);
+  }, []);
+
+  // 导航到上一个场景
+  const handleNavigatePrevious = useCallback(() => {
+    if (selectedSceneIndex !== null && selectedSceneIndex > 0) {
+      setSelectedSceneIndex(selectedSceneIndex - 1);
+    }
+  }, [selectedSceneIndex]);
+
+  // 导航到下一个场景
+  const handleNavigateNext = useCallback(() => {
+    if (selectedSceneIndex !== null && selectedSceneIndex < scenes.length - 1) {
+      setSelectedSceneIndex(selectedSceneIndex + 1);
+    }
+  }, [selectedSceneIndex, scenes.length]);
 
   if (scenes.length === 0) {
     return (
@@ -60,18 +87,22 @@ export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneVie
               scene={scene}
               sceneNumber={idx + 1}
               isHighlighted={highlightedElement === `scene-${scene.scene_id}`}
-              onImageClick={setPreviewImage}
+              onClick={() => handleOpenDetail(idx)}
             />
           ))}
         </div>
       </div>
 
-      {/* 图片预览 */}
-      <ImagePreview
-        open={!!previewImage}
-        onOpenChange={(open) => !open && setPreviewImage(null)}
-        src={previewImage}
-        alt="场景图片预览"
+      {/* 场景详情对话框 */}
+      <SceneDetailDialog
+        isOpen={selectedSceneIndex !== null}
+        onClose={handleCloseDetail}
+        scene={selectedScene}
+        sceneNumber={selectedSceneIndex !== null ? selectedSceneIndex + 1 : 0}
+        onNavigatePrevious={handleNavigatePrevious}
+        onNavigateNext={handleNavigateNext}
+        hasPrevious={selectedSceneIndex !== null && selectedSceneIndex > 0}
+        hasNext={selectedSceneIndex !== null && selectedSceneIndex < scenes.length - 1}
       />
     </>
   );
@@ -84,12 +115,12 @@ function SceneCard({
   scene,
   sceneNumber,
   isHighlighted,
-  onImageClick,
+  onClick,
 }: {
   scene: any;
   sceneNumber: number;
   isHighlighted: boolean;
-  onImageClick: (url: string) => void;
+  onClick?: () => void;
 }) {
   const referenceImage = scene.image_url || scene.reference_image_url;
   const shotCount = scene.shots?.length || 0;
@@ -97,32 +128,24 @@ function SceneCard({
   return (
     <div
       id={`scene-${scene.scene_id}`}
+      onClick={onClick}
       className={`
-        bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-all
+        bg-white rounded-xl p-5 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer
         ${isHighlighted ? 'ring-2 ring-green-500 animate-pulse' : ''}
       `}
     >
       <div className="flex gap-4">
-        {/* 左侧：场景图片 */}
+        {/* 左侧：场景图片 - 使用 aspect-video 保持 16:9 */}
         {referenceImage ? (
-          <div
-            className="relative w-48 h-32 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden group cursor-pointer"
-            onClick={() => onImageClick(referenceImage)}
-          >
+          <div className="relative w-48 aspect-video flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
             <img
               src={referenceImage}
               alt={`场景 ${sceneNumber}`}
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-              <Maximize2
-                className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                size={24}
-              />
-            </div>
           </div>
         ) : (
-          <div className="w-48 h-32 flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+          <div className="w-48 aspect-video flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
             <div className="text-center">
               <div className="text-3xl mb-1">🎬</div>
               <p className="text-xs text-gray-400">场景 {sceneNumber}</p>

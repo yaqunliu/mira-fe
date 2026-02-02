@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import type { ICreation } from '@/types/creation';
 import type { ICharacter } from '@/types/character';
-import { ImagePreview } from '@/components/ui/image-preview';
-import { Maximize2 } from 'lucide-react';
+import { CharacterDetailDialog } from './character-detail-dialog';
 
 interface CanvasCharacterViewProps {
   creation: ICreation;
@@ -151,12 +150,39 @@ function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated
  * 展示所有角色及其候选图、描述、状态
  */
 export function CanvasCharacterView({ creation, highlightedElement }: CanvasCharacterViewProps) {
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedCharacterIndex, setSelectedCharacterIndex] = useState<number | null>(null);
 
   // 优先直接使用 creation.characters，如果没有再从分镜提取
   const characters = (creation.characters && creation.characters.length > 0)
     ? creation.characters
     : getAllCharactersFromShots(creation);
+
+  // 当前选中的角色
+  const selectedCharacter = selectedCharacterIndex !== null ? characters[selectedCharacterIndex] : null;
+
+  // 打开角色详情
+  const handleOpenDetail = useCallback((index: number) => {
+    setSelectedCharacterIndex(index);
+  }, []);
+
+  // 关闭角色详情
+  const handleCloseDetail = useCallback(() => {
+    setSelectedCharacterIndex(null);
+  }, []);
+
+  // 导航到上一个角色
+  const handleNavigatePrevious = useCallback(() => {
+    if (selectedCharacterIndex !== null && selectedCharacterIndex > 0) {
+      setSelectedCharacterIndex(selectedCharacterIndex - 1);
+    }
+  }, [selectedCharacterIndex]);
+
+  // 导航到下一个角色
+  const handleNavigateNext = useCallback(() => {
+    if (selectedCharacterIndex !== null && selectedCharacterIndex < characters.length - 1) {
+      setSelectedCharacterIndex(selectedCharacterIndex + 1);
+    }
+  }, [selectedCharacterIndex, characters.length]);
 
   if (characters.length === 0) {
     return (
@@ -207,23 +233,27 @@ export function CanvasCharacterView({ creation, highlightedElement }: CanvasChar
 
         {/* 角色网格 */}
         <div className="grid grid-cols-2 gap-6">
-          {characters.map((character) => (
+          {characters.map((character, idx) => (
             <CharacterCard
               key={character.uuid || character.character_id}
               character={character}
               isHighlighted={highlightedElement === `character-${character.uuid || character.character_id}`}
-              onImageClick={setPreviewImage}
+              onClick={() => handleOpenDetail(idx)}
             />
           ))}
         </div>
       </div>
 
-      {/* 图片预览 */}
-      <ImagePreview
-        open={!!previewImage}
-        onOpenChange={(open) => !open && setPreviewImage(null)}
-        src={previewImage}
-        alt="角色图片预览"
+      {/* 角色详情对话框 */}
+      <CharacterDetailDialog
+        isOpen={selectedCharacterIndex !== null}
+        onClose={handleCloseDetail}
+        character={selectedCharacter}
+        characterNumber={selectedCharacterIndex !== null ? selectedCharacterIndex + 1 : 0}
+        onNavigatePrevious={handleNavigatePrevious}
+        onNavigateNext={handleNavigateNext}
+        hasPrevious={selectedCharacterIndex !== null && selectedCharacterIndex > 0}
+        hasNext={selectedCharacterIndex !== null && selectedCharacterIndex < characters.length - 1}
       />
     </>
   );
@@ -235,11 +265,11 @@ export function CanvasCharacterView({ creation, highlightedElement }: CanvasChar
 function CharacterCard({
   character,
   isHighlighted,
-  onImageClick,
+  onClick,
 }: {
   character: any;
   isHighlighted: boolean;
-  onImageClick: (url: string) => void;
+  onClick?: () => void;
 }) {
   // 兼容不同字段名
   const imageUrl = character.image_url || character.final_image_url;
@@ -250,8 +280,9 @@ function CharacterCard({
   return (
     <div
       id={`character-${character.uuid || character.character_id}`}
+      onClick={onClick}
       className={`
-        bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all
+        bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all cursor-pointer
         ${isHighlighted ? 'ring-2 ring-green-500 animate-pulse' : ''}
       `}
     >
@@ -265,21 +296,12 @@ function CharacterCard({
 
       {/* 角色图片 - 16:9 比例 */}
       {imageUrl ? (
-        <div
-          className="relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden mb-3 group cursor-pointer"
-          onClick={() => onImageClick(imageUrl)}
-        >
+        <div className="relative w-full aspect-video bg-gray-100 rounded-lg overflow-hidden mb-3">
           <img
             src={imageUrl}
             alt={character.name}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-            <Maximize2
-              className="text-white opacity-0 group-hover:opacity-100 transition-opacity"
-              size={24}
-            />
-          </div>
           {candidateImages.length > 1 && (
             <div className="absolute top-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded">
               1/{candidateImages.length}
@@ -351,8 +373,7 @@ function CharacterCard({
             {candidateImages.map((url: string, idx: number) => (
               <div
                 key={idx}
-                className="relative w-20 h-11 flex-shrink-0 bg-gray-100 rounded overflow-hidden cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
-                onClick={() => onImageClick(url)}
+                className="relative w-20 h-11 flex-shrink-0 bg-gray-100 rounded overflow-hidden"
               >
                 <img
                   src={url}
