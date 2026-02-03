@@ -5,7 +5,6 @@ import { CanvasScriptView } from './canvas-script-view';
 import { CanvasCharacterView } from './canvas-character-view';
 import { CanvasSceneView } from './canvas-scene-view';
 import { CanvasStoryboardView } from './canvas-storyboard-view';
-import { CanvasTimelineView } from './canvas-timeline-view';
 import { CanvasPreviewView } from './canvas-preview-view';
 import type { ICreation } from '@/types/creation';
 
@@ -21,23 +20,40 @@ interface AgentCanvasProps {
  * - characters: 角色视图
  * - scenes: 场景视图
  * - storyboard: 分镜视图
- * - timeline: 时间线视图
  * - preview: 预览视图
  */
 export function AgentCanvas({ creation }: AgentCanvasProps) {
-  const { currentView, highlightedElement } = useAgentStore();
+  const { currentView, highlightedElement, setBoardView } = useAgentStore();
 
   // 视图组件映射
-  const viewComponents = {
+  const viewComponents: Record<string, React.ComponentType<any>> = {
     script: CanvasScriptView,
     characters: CanvasCharacterView,
     scenes: CanvasSceneView,
     storyboard: CanvasStoryboardView,
-    timeline: CanvasTimelineView,
     preview: CanvasPreviewView,
   };
 
-  const ViewComponent = viewComponents[currentView];
+  // 确保 currentView 是有效的视图
+  const validView = (currentView in viewComponents ? currentView : 'script') as string;
+  
+  // 如果视图无效，自动切换到默认视图
+  if (validView !== currentView) {
+    setBoardView(validView as any);
+  }
+
+  const ViewComponent = viewComponents[validView];
+
+  // 如果组件仍然 undefined，显示空状态
+  if (!ViewComponent) {
+    return (
+      <div className="flex-1 h-full overflow-auto bg-white/5">
+        <div className="p-6">
+          <EmptyState />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 h-full overflow-auto bg-white/5">
@@ -77,7 +93,6 @@ function ViewSwitcher() {
     { id: 'characters' as const, label: '角色', icon: '👥' },
     { id: 'scenes' as const, label: '场景', icon: '🎬' },
     { id: 'storyboard' as const, label: '分镜', icon: '🎞️' },
-    { id: 'timeline' as const, label: '时间线', icon: '⏱️' },
     { id: 'preview' as const, label: '预览', icon: '▶️' },
   ];
 
@@ -131,7 +146,6 @@ function getViewTitle(view: string): string {
     characters: '角色设计',
     scenes: '场景设计',
     storyboard: '分镜设计',
-    timeline: '时间线编排',
     preview: '作品预览',
   };
 

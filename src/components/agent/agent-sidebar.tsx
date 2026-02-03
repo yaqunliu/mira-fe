@@ -38,7 +38,6 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
     { id: 'characters' as const, label: '角色', icon: '👥', count: stats.characters },
     { id: 'scenes' as const, label: '场景', icon: '🎬', count: stats.scenes },
     { id: 'storyboard' as const, label: '分镜', icon: '🎞️', count: stats.shots },
-    { id: 'timeline' as const, label: '时间线', icon: '⏱️', count: null },
     { id: 'preview' as const, label: '预览', icon: '▶️', count: null },
   ];
 
@@ -158,20 +157,20 @@ function calculateProgress(creation: ICreation | null): number {
   let progress = 0;
 
   // 有剧本: +20%
-  if (creation.script || creation.prompt) progress += 20;
+  if (creation.extra_data?.script || creation.extra_data?.prompt) progress += 20;
 
   // 有角色: +20%
   if (creation.characters && creation.characters.length > 0) progress += 20;
 
-  // 有场景: +20%
-  if (creation.scenes && creation.scenes.length > 0) progress += 20;
-
-  // 有分镜: +20%
+  // 有分镜: +20% (分镜本身就在场景中，不需要额外检查场景)
   const hasShots = creation.scenes?.some(s => s.shots && s.shots.length > 0);
   if (hasShots) progress += 20;
 
   // 有视频: +20%
   if (creation.video_url) progress += 20;
+
+  // 有音频: +20%
+  if (creation.audio_url) progress += 20;
 
   return progress;
 }

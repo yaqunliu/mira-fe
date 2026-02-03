@@ -88,7 +88,6 @@ export type BoardViewType =
   | 'characters'  // 角色视图
   | 'scenes'      // 场景视图
   | 'storyboard'  // 分镜视图
-  | 'timeline'    // 时间线视图
   | 'preview';    // 预览视图
 
 // ============ 进度相关 ============
