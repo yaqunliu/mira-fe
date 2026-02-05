@@ -167,9 +167,9 @@ function SceneCard({
               <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-200">
                 {shotCount} 个分镜
               </span>
-              {scene.location && (
+              {scene.title && (
                 <span className="px-2 py-0.5 bg-purple-50 text-purple-600 text-xs rounded border border-purple-200">
-                  📍 {scene.location}
+                  📍 {scene.title}
                 </span>
               )}
             </div>
