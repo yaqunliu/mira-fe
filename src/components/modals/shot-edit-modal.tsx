@@ -273,10 +273,14 @@ export function ShotEditModal({
                 narration,
                 image_prompt: imagePrompt,
                 scene_id: parseInt(sceneId),
-                associated_characters: characterIds,
                 video_duration: typeof videoDuration === 'string' ? parseFloat(videoDuration) || 5 : videoDuration,
                 extra_data: updatedExtraData
             });
+
+            // 单独更新角色关联（使用专门的API）
+            if (characterIds && Array.isArray(characterIds)) {
+                await shotApi.updateShotCharacters(shotUuid, characterIds);
+            }
 
             toast.success(tCommon('save') + " " + tCommon('success'));
             setIsEditing(false);
@@ -479,7 +483,6 @@ export function ShotEditModal({
     };
 
     const toggleCharacter = (id: number) => {
-        if (!isEditing) return;
         setCharacterIds(prev =>
             prev.includes(id)
                 ? prev.filter(cid => cid !== id)
@@ -549,6 +552,16 @@ export function ShotEditModal({
                                     <X size={14} />
                                     <span className="text-sm">{tCommon('close')}</span>
                                 </button>
+                                {!isEditing && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsEditing(true)}
+                                        className="h-9 px-4 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                                    >
+                                        <Edit2 size={14} />
+                                        <span className="text-sm">{tCommon('edit')}</span>
+                                    </button>
+                                )}
                                 <button
                                     type="button"
                                     onClick={handleSave}
@@ -824,7 +837,6 @@ export function ShotEditModal({
                                     <Select
                                       value={item.角色}
                                       onValueChange={(value) => handleUpdateNarration(index, '角色', value)}
-                                      disabled={!isEditing}
                                     >
                                       <SelectTrigger className="h-8 text-xs w-24 bg-white">
                                         <SelectValue />
@@ -838,28 +850,20 @@ export function ShotEditModal({
                                         ))}
                                       </SelectContent>
                                     </Select>
-                                    {isEditing ? (
-                                      <Input
-                                        value={item.内容}
-                                        onChange={(e) => handleUpdateNarration(index, '内容', e.target.value)}
-                                        placeholder="输入对话内容..."
-                                        className="flex-1 h-8 text-xs"
-                                      />
-                                    ) : (
-                                      <div className="flex-1 text-sm text-gray-700 break-words">
-                                        {item.内容 || <span className="text-gray-400 italic">未输入内容</span>}
-                                      </div>
-                                    )}
-                                    {isEditing && (
-                                      <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50"
-                                        onClick={() => handleRemoveNarration(index)}
-                                      >
-                                        <X className="w-4 h-4" />
-                                      </Button>
-                                    )}
+                                    <Input
+                                      value={item.内容}
+                                      onChange={(e) => handleUpdateNarration(index, '内容', e.target.value)}
+                                      placeholder="输入对话内容..."
+                                      className="flex-1 h-8 text-xs"
+                                    />
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50"
+                                      onClick={() => handleRemoveNarration(index)}
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </Button>
                                   </div>
 
                                   {/* 音频操作 */}
@@ -964,159 +968,113 @@ export function ShotEditModal({
                             {/* 场景选择 */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">{t('scene')}</Label>
-                              {isEditing ? (
-                                <Select value={sceneId} onValueChange={setSceneId}>
-                                  <SelectTrigger className="h-9 text-sm bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                                    <SelectValue placeholder={t('scene')} />
-                                  </SelectTrigger>
-                                  <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
-                                    {availableScenes.map((s) => (
-                                      <SelectItem key={s.scene_id} value={String(s.scene_id)} className="text-sm">
-                                        {s.title || s.location || `${t('scene')} ${s.scene_id}`}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              ) : (
-                                <div className="text-sm text-gray-700 bg-gradient-to-br from-white to-blue-50 p-2 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                                  {getSceneName(sceneId)}
-                                </div>
-                              )}
+                              <Select value={sceneId} onValueChange={setSceneId}>
+                                <SelectTrigger className="h-9 text-sm bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+                                  <SelectValue placeholder={t('scene')} />
+                                </SelectTrigger>
+                                <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
+                                  {availableScenes.map((s) => (
+                                    <SelectItem key={s.scene_id} value={String(s.scene_id)} className="text-sm">
+                                      {s.title || s.location || `${t('scene')} ${s.scene_id}`}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </div>
 
                             {/* 时长输入 */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">{t('duration')} ({tCommon('seconds')})</Label>
-                              {isEditing ? (
-                                <input
-                                  type="number"
-                                  min={1}
-                                  max={60}
-                                  step={1}
-                                  value={videoDuration}
-                                  onChange={(e) => setVideoDuration(e.target.value)}
-                                  onWheel={(e) => (e.target as HTMLInputElement).blur()}
-                                  className="w-full h-9 px-3 text-sm rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
-                                />
-                              ) : (
-                                <div className="text-sm text-gray-700 bg-gradient-to-br from-white to-blue-50 p-2 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                                  {videoDuration}s
-                                </div>
-                              )}
+                              <input
+                                type="number"
+                                min={1}
+                                max={60}
+                                step={1}
+                                value={videoDuration}
+                                onChange={(e) => setVideoDuration(e.target.value)}
+                                onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                className="w-full h-9 px-3 text-sm rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                              />
                             </div>
 
                             {/* 角色选择 */}
                             <div className="space-y-2">
                               <Label className="text-sm font-medium text-gray-700">{t('characters')}</Label>
-                              {isEditing ? (
-                                <div className="grid grid-cols-2 gap-2 bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                                  {availableCharacters.map((char) => {
-                                    const isSelected = characterIds.includes(char.character_id!);
-                                    return (
-                                      <div
-                                        key={char.character_id}
-                                        onClick={() => toggleCharacter(char.character_id!)}
-                                        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected
-                                          ? "bg-gradient-to-br from-blue-100 to-blue-50 border-blue-200 text-blue-700"
-                                          : "bg-gradient-to-br from-white to-blue-50 border-blue-100 text-gray-700 hover:border-blue-200"
-                                          }`}
-                                      >
-                                        <div className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)] border border-blue-100 shrink-0">
-                                          {char.image_url ? (
-                                            <img
-                                              src={char.image_url}
-                                              alt={char.name}
-                                              className="w-full h-full object-cover"
-                                            />
-                                          ) : (
-                                            <div className="w-full h-full flex items-center justify-center">
-                                              <ImageIcon size={14} className="opacity-40" />
-                                            </div>
-                                          )}
-                                        </div>
-                                        <span className="text-xs truncate flex-1 font-medium">{char.name}</span>
-                                        {isSelected ? (
-                                          <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center shrink-0 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-1px_-1px_3px_rgba(255,255,255,0.8)]">
-                                            <X size={10} className="text-white" />
-                                          </div>
+                              <div className="grid grid-cols-2 gap-2 bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+                                {availableCharacters.map((char) => {
+                                  const isSelected = characterIds.includes(char.character_id!);
+                                  return (
+                                    <div
+                                      key={char.character_id}
+                                      onClick={() => toggleCharacter(char.character_id!)}
+                                      className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border ${isSelected
+                                        ? "bg-gradient-to-br from-blue-100 to-blue-50 border-blue-200 text-blue-700"
+                                        : "bg-gradient-to-br from-white to-blue-50 border-blue-100 text-gray-700 hover:border-blue-200"
+                                        }`}
+                                    >
+                                      <div className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)] border border-blue-100 shrink-0">
+                                        {char.image_url ? (
+                                          <img
+                                            src={char.image_url}
+                                            alt={char.name}
+                                            className="w-full h-full object-cover"
+                                          />
                                         ) : (
-                                          <Plus size={12} className="opacity-40 shrink-0 text-gray-500" />
+                                          <div className="w-full h-full flex items-center justify-center">
+                                            <ImageIcon size={14} className="opacity-40" />
+                                          </div>
                                         )}
                                       </div>
-                                    );
-                                  })}
-                                  {availableCharacters.length === 0 && (
-                                    <span className="text-xs text-gray-500 italic col-span-full">{t('noCharactersAvailable')}</span>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="flex flex-wrap gap-2">
-                                  {characterIds.filter(id => id !== undefined && id !== null).length > 0 ? characterIds.filter(id => id !== undefined && id !== null).map(id => {
-                                    const char = availableCharacters.find(c => Number(c.character_id) === Number(id));
-                                    return (
-                                      <span key={String(id)} className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-lg px-2 py-1 text-xs font-medium text-gray-700 flex items-center gap-1.5">
-                                        {char?.image_url && (
-                                          <div className="w-4 h-4 rounded-full overflow-hidden bg-gradient-to-br from-white to-blue-50 shadow-[2px_2px_4px_rgba(0,0,0,0.05),-1px_-1px_3px_rgba(255,255,255,0.8)] border border-blue-100 shrink-0">
-                                            <img src={char.image_url} alt={char.name} className="w-full h-full object-cover" />
-                                          </div>
-                                        )}
-                                        {char ? char.name : `ID: ${id}`}
-                                      </span>
-                                    );
-                                  }) : (
-                                    <span className="text-sm text-gray-500 italic">{tCommon('none')}</span>
-                                  )}
-                                </div>
-                              )}
+                                      <span className="text-xs truncate flex-1 font-medium">{char.name}</span>
+                                      {isSelected ? (
+                                        <div className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center shrink-0 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-1px_-1px_3px_rgba(255,255,255,0.8)]">
+                                          <X size={10} className="text-white" />
+                                        </div>
+                                      ) : (
+                                        <Plus size={12} className="opacity-40 shrink-0 text-gray-500" />
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                                {availableCharacters.length === 0 && (
+                                  <span className="text-xs text-gray-500 italic col-span-full">{t('noCharactersAvailable')}</span>
+                                )}
+                              </div>
                             </div>
 
                             {/* 出镜元素 */}
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
                                 <Label className="text-sm font-medium text-gray-700">出镜元素 (手机、包包等道具)</Label>
-                                {isEditing && (
-                                  <button
-                                    onClick={handleAddAppearanceElement}
-                                    className="h-7 text-[10px] text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg px-2 flex items-center gap-1 transition-all duration-200"
-                                  >
-                                    <Plus size={10} />
-                                    {tCommon('add')}
-                                  </button>
+                                <button
+                                  onClick={handleAddAppearanceElement}
+                                  className="h-7 text-[10px] text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg px-2 flex items-center gap-1 transition-all duration-200"
+                                >
+                                  <Plus size={10} />
+                                  {tCommon('add')}
+                                </button>
+                              </div>
+                              <div className="flex flex-wrap gap-2 bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
+                                {Array.isArray(appearanceElements) && appearanceElements.map((element, index) => (
+                                  <div key={index} className="flex items-center gap-1 bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-lg px-2 py-1 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
+                                    <input
+                                      value={element}
+                                      onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
+                                      className="h-6 w-24 bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-200 text-xs"
+                                      placeholder="元素名称"
+                                    />
+                                    <button
+                                      onClick={() => handleRemoveAppearanceElement(index)}
+                                      className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors duration-200"
+                                    >
+                                      <X size={10} />
+                                    </button>
+                                  </div>
+                                ))}
+                                {(!Array.isArray(appearanceElements) || appearanceElements.length === 0) && (
+                                  <span className="text-xs text-gray-500 italic">暂无元素</span>
                                 )}
                               </div>
-                              {isEditing ? (
-                                <div className="flex flex-wrap gap-2 bg-gradient-to-br from-white to-blue-50 p-3 rounded-xl border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                                  {Array.isArray(appearanceElements) && appearanceElements.map((element, index) => (
-                                    <div key={index} className="flex items-center gap-1 bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-lg px-2 py-1 shadow-[2px_2px_6px_rgba(0,0,0,0.05),-2px_-2px_6px_rgba(255,255,255,0.8)]">
-                                      <input
-                                        value={element}
-                                        onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
-                                        className="h-6 w-24 bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-200 text-xs"
-                                        placeholder="元素名称"
-                                      />
-                                      <button
-                                        onClick={() => handleRemoveAppearanceElement(index)}
-                                        className="h-4 w-4 text-gray-500 hover:text-red-500 transition-colors duration-200"
-                                      >
-                                        <X size={10} />
-                                      </button>
-                                    </div>
-                                  ))}
-                                  {(!Array.isArray(appearanceElements) || appearanceElements.length === 0) && (
-                                    <span className="text-xs text-gray-500 italic">暂无元素</span>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="flex flex-wrap gap-2">
-                                  {Array.isArray(appearanceElements) && appearanceElements.length > 0 ? appearanceElements.map((element, index) => (
-                                    <span key={index} className="bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 rounded-lg px-2 py-1 text-xs font-medium text-gray-700">
-                                      {element}
-                                    </span>
-                                  )) : (
-                                    <span className="text-sm text-gray-500 italic">{tCommon('none')}</span>
-                                  )}
-                                </div>
-                              )}
                             </div>
 
                             {/* 描述 */}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useForm, FormProvider } from "react-hook-form";
 import {
     Dialog,
     DialogContent,
@@ -13,12 +14,14 @@ import {
     ChevronRight,
     MapPin,
     Clock,
-    Cloud,
     Palette,
-    Timer,
     Film,
     Image as ImageIcon,
     Info,
+    Save,
+    X,
+    Loader2,
+    Sparkles,
 } from "lucide-react";
 import { IScene } from "@/types/scene";
 import sceneApi from "@/lib/api/scene";
@@ -27,6 +30,11 @@ import { ImagePreview } from "@/components/ui/image-preview";
 import { ImageVersionPreview } from "@/components/ui/image-version-preview";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    FormField,
+    FormControl,
+    FormItem,
+} from "@/components/ui/form";
 
 interface SceneDetailDialogProps {
     isOpen: boolean;
@@ -37,6 +45,7 @@ interface SceneDetailDialogProps {
     onNavigateNext?: () => void;
     hasPrevious?: boolean;
     hasNext?: boolean;
+    onRefresh?: () => void;
 }
 
 /**
@@ -51,12 +60,37 @@ export function SceneDetailDialog({
     onNavigateNext,
     hasPrevious = false,
     hasNext = false,
+    onRefresh,
 }: SceneDetailDialogProps) {
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isRegenerating, setIsRegenerating] = useState(false);
+
+    const form = useForm({
+        defaultValues: {
+            location: scene?.location || "",
+            timeSetting: scene?.time_setting || "",
+            atmosphere: scene?.atmosphere || "",
+            spaceType: scene?.space_type || "",
+            imagePrompt: (scene as any)?.image_prompt || "",
+        },
+    });
+
+    // 当 scene 变化时，重置表单值
+    useEffect(() => {
+        if (scene) {
+            form.reset({
+                location: scene.location || "",
+                timeSetting: scene.time_setting || "",
+                atmosphere: scene.atmosphere || "",
+                spaceType: scene.space_type || "",
+                imagePrompt: (scene as any)?.image_prompt || "",
+            });
+        }
+    }, [scene, form]);
 
     if (!scene) return null;
 
-    // 从 status_detail 中获取图片历史
     const imageHistory = ((scene as any).status_detail?.image_historys || []) as Array<{
         image_url: string;
         image_prompt?: string;
@@ -67,34 +101,71 @@ export function SceneDetailDialog({
     const referenceImage = scene.image_url || (scene as any).reference_image_url;
     const shotCount = scene.shots?.length || 0;
 
-    // 切换版本时加载对应的提示词
     const handleVersionChange = (version: {image_url: string; image_prompt?: string; created_at: string}) => {
-        // Agent模式下只用于显示，不修改实际数据
+        if (version.image_prompt) {
+            form.setValue("imagePrompt", version.image_prompt);
+        }
     };
 
-    // 应用版本作为最终图片
     const handleApplyVersion = async (version: {image_url: string; created_at: string}) => {
         try {
             await sceneApi.updateScene((scene as any).uuid || String(scene.scene_id), {
                 image_url: version.image_url,
             } as any);
             toast.success("已应用新版本");
-            onClose();
+            onRefresh?.();
         } catch (error) {
             console.error("Failed to apply version:", error);
             toast.error("应用失败，请重试");
         }
     };
 
-    // Agent模式下重生成功能不直接支持，给出空实现
-    const handleRegenerate = () => {
-        toast.info("Agent模式下请通过对话生成新图片");
+    const handleSave = async (values: any) => {
+        setIsSaving(true);
+        try {
+            await sceneApi.updateScene((scene as any).uuid || String(scene.scene_id), {
+                scene_setting: {
+                    location: values.location,
+                    time: values.timeSetting,
+                    atmosphere: values.atmosphere,
+                    space: values.spaceType,
+                },
+                image_prompt: values.imagePrompt,
+            } as any);
+            toast.success("保存成功");
+            onRefresh?.();
+        } catch (error) {
+            console.error("Failed to save scene:", error);
+            toast.error("保存失败，请重试");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleRegenerate = async () => {
+        setIsRegenerating(true);
+        try {
+            const sceneUuid = (scene as any).uuid || String(scene.scene_id);
+            await sceneApi.updateScene(sceneUuid, {
+                image_prompt: form.getValues("imagePrompt") || scene.image_prompt,
+            } as any);
+            await sceneApi.regenerateSceneImage(
+                sceneUuid,
+                form.getValues("imagePrompt") || scene.image_prompt || ""
+            );
+            toast.success("正在生成场景图片，请稍候...");
+        } catch (error) {
+            console.error("Failed to regenerate scene image:", error);
+            toast.error("生成失败，请重试");
+        } finally {
+            setIsRegenerating(false);
+        }
     };
 
     return (
         <>
             <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-                <DialogContent className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 shadow-[8px_8px_24px_rgba(173,200,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] sm:max-w-[800px] max-h-[90vh] flex flex-col rounded-2xl p-0 overflow-hidden">
+                <DialogContent showCloseButton={false} className="bg-gradient-to-br from-white to-purple-50 border border-purple-100 shadow-[8px_8px_24px_rgba(173,200,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)] sm:max-w-[800px] max-h-[90vh] flex flex-col rounded-2xl p-0 overflow-hidden">
                     {/* Header */}
                     <DialogHeader className="px-6 pt-5 pb-4 border-b border-purple-100 flex-shrink-0">
                         <div className="flex items-center justify-between">
@@ -104,7 +175,7 @@ export function SceneDetailDialog({
                                 </div>
                                 <div>
                                     <DialogTitle className="text-lg font-semibold" style={{ color: '#111827' }}>
-                                        {scene.title || `场景 ${sceneNumber}`}
+                                        {scene.title || scene.location || `场景 ${sceneNumber}`}
                                     </DialogTitle>
                                     <DialogDescription className="text-sm" style={{ color: '#6b7280' }}>
                                         {shotCount} 个分镜
@@ -112,7 +183,7 @@ export function SceneDetailDialog({
                                 </div>
                             </div>
 
-                            {/* Navigation */}
+                            {/* Action Buttons */}
                             <div className="flex items-center gap-2">
                                 <button
                                     onClick={onNavigatePrevious}
@@ -140,158 +211,185 @@ export function SceneDetailDialog({
                                     下一个
                                     <ChevronRight size={16} />
                                 </button>
+                                <button
+                                    onClick={onClose}
+                                    className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 text-gray-700 font-medium"
+                                >
+                                    <X size={14} />
+                                    <span className="text-sm">关闭</span>
+                                </button>
+                                <button
+                                    onClick={form.handleSubmit(handleSave)}
+                                    disabled={isSaving}
+                                    className={cn(
+                                        "h-9 px-4 rounded-xl bg-gradient-to-br from-purple-400 to-purple-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2",
+                                        isSaving ? "opacity-60 cursor-not-allowed" : ""
+                                    )}
+                                >
+                                    {isSaving && <Loader2 size={14} className="animate-spin" />}
+                                    <Save size={14} />
+                                    <span className="text-sm">保存</span>
+                                </button>
                             </div>
                         </div>
                     </DialogHeader>
 
                     {/* Content with Tabs */}
-                    <Tabs defaultValue="image" className="flex-1 flex flex-col overflow-hidden px-6 py-4">
+                    <FormProvider {...form}>
+                    <Tabs defaultValue="info" className="flex-1 flex flex-col overflow-hidden px-6 py-4">
                       <TabsList className="grid w-full grid-cols-2 mb-4 flex-shrink-0 bg-white/50">
-                        <TabsTrigger value="image" className="flex items-center gap-2">
-                          <ImageIcon className="w-4 h-4" />
-                          场景图片
-                        </TabsTrigger>
                         <TabsTrigger value="info" className="flex items-center gap-2">
                           <Info className="w-4 h-4" />
                           场景信息
                         </TabsTrigger>
+                        <TabsTrigger value="image" className="flex items-center gap-2">
+                          <ImageIcon className="w-4 h-4" />
+                          场景图片
+                        </TabsTrigger>
                       </TabsList>
 
                       <div className="overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-300 flex-1">
-                        <TabsContent value="image" className="mt-0 space-y-6">
-                          {/* 场景图片 */}
-                          <ImageVersionPreview
-                            currentImageUrl={referenceImage}
-                            imageHistory={imageHistory}
-                            onRegenerate={handleRegenerate}
-                            onApplyVersion={handleApplyVersion}
-                            onVersionChange={handleVersionChange}
-                            entityType="scene"
-                            entityName={scene.title}
-                            className="rounded-xl"
-                          />
-
-                          {/* 图片提示词 */}
-                          {scene.image_prompt && (
-                            <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100">
-                              <div className="text-sm font-medium text-purple-700 mb-2">场景提示词</div>
-                              <p className="text-xs text-gray-600 leading-relaxed">
-                                {scene.image_prompt}
-                              </p>
+                        {/* 场景信息 Tab */}
+                        <TabsContent value="info" className="mt-0 space-y-4">
+                          {/* 场景属性 - 改为多行文本 */}
+                          <div className="space-y-3">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200">
+                              <div className="text-xs text-orange-600 mb-2 flex items-center gap-1">
+                                <Clock size={12} />
+                                时间设定
+                              </div>
+                              <FormField
+                                control={form.control}
+                                name="timeSetting"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <textarea
+                                        {...field}
+                                        className="w-full px-2 py-2 rounded border border-orange-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none min-h-[60px]"
+                                        placeholder="例如：清晨、黄昏、深夜..."
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
                             </div>
-                          )}
+
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+                              <div className="text-xs text-blue-600 mb-2 flex items-center gap-1">
+                                <MapPin size={12} />
+                                地点
+                              </div>
+                              <FormField
+                                control={form.control}
+                                name="location"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <textarea
+                                        {...field}
+                                        className="w-full px-2 py-2 rounded border border-blue-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[60px]"
+                                        placeholder="例如：城市街道、咖啡厅、公园..."
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200">
+                              <div className="text-xs text-indigo-600 mb-2 flex items-center gap-1">
+                                <Film size={12} />
+                                空间类型
+                              </div>
+                              <FormField
+                                control={form.control}
+                                name="spaceType"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <textarea
+                                        {...field}
+                                        className="w-full px-2 py-2 rounded border border-indigo-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none min-h-[60px]"
+                                        placeholder="例如：室内、室外、半开放空间..."
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200">
+                              <div className="text-xs text-pink-600 mb-2 flex items-center gap-1">
+                                <Palette size={12} />
+                                氛围
+                              </div>
+                              <FormField
+                                control={form.control}
+                                name="atmosphere"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormControl>
+                                      <textarea
+                                        {...field}
+                                        className="w-full px-2 py-2 rounded border border-pink-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none min-h-[60px]"
+                                        placeholder="例如：温馨、紧张、宁静..."
+                                      />
+                                    </FormControl>
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </div>
                         </TabsContent>
 
-                        <TabsContent value="info" className="mt-0 space-y-6">
-                          {/* 场景描述 */}
-                          {(scene as any).description && (
-                            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                              <div className="text-sm font-medium text-gray-700 mb-2">场景描述</div>
-                              <p className="text-sm text-gray-600 leading-relaxed">
-                                {(scene as any).description}
-                              </p>
+                        {/* 场景图片 Tab */}
+                        <TabsContent value="image" className="mt-0 space-y-6">
+                          {/* 场景图片 | 场景提示词 左右布局 */}
+                          <div className="grid grid-cols-2 gap-6 items-stretch">
+                            {/* 左侧：场景图片 */}
+                            <div className="space-y-3 flex flex-col">
+                              <div className="text-sm font-medium text-gray-700">场景图片</div>
+                              <div className="flex-1">
+                                <ImageVersionPreview
+                                  currentImageUrl={referenceImage}
+                                  imageHistory={imageHistory}
+                                  onRegenerate={handleRegenerate}
+                                  onApplyVersion={handleApplyVersion}
+                                  onVersionChange={handleVersionChange}
+                                  entityType="scene"
+                                  entityName={scene.title}
+                                  className="rounded-xl"
+                                />
+                              </div>
                             </div>
-                          )}
 
-                          {/* 环境描述 */}
-                          {(scene as any).env_description && (
-                            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                              <div className="text-sm font-medium text-gray-700 mb-2">环境描述</div>
-                              <p className="text-sm text-gray-600 leading-relaxed">
-                                {(scene as any).env_description}
-                              </p>
+                            {/* 右侧：场景提示词 */}
+                            <div className="space-y-3 flex flex-col">
+                              <div className="text-sm font-medium text-gray-700">场景图片提示词</div>
+                              <div className="flex-1 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 flex flex-col">
+                                <FormField
+                                  control={form.control}
+                                  name="imagePrompt"
+                                  render={({ field }) => (
+                                    <FormItem className="flex-1 flex flex-col">
+                                      <FormControl>
+                                        <textarea
+                                          {...field}
+                                          className="flex-1 w-full px-3 py-2 rounded-lg bg-white border border-purple-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                          placeholder="输入场景生成提示词..."
+                                        />
+                                      </FormControl>
+                                    </FormItem>
+                                  )}
+                                />
+                              </div>
                             </div>
-                          )}
-
-                          {/* 空间描述 */}
-                          {(scene as any).space_description && (
-                            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                              <div className="text-sm font-medium text-gray-700 mb-2">空间描述</div>
-                              <p className="text-sm text-gray-600 leading-relaxed">
-                                {(scene as any).space_description}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* 场景内容/对白 */}
-                          {(scene as any).content && (
-                            <div className="p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
-                              <div className="text-sm font-medium text-gray-700 mb-2">场景内容</div>
-                              <p className="text-sm text-gray-600 leading-relaxed">
-                                {(scene as any).content}
-                              </p>
-                            </div>
-                          )}
-
-                          {/* 场景属性 */}
-                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                            {scene.location && (
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
-                                <div className="text-xs text-blue-600 mb-1 flex items-center gap-1">
-                                  <MapPin size={12} />
-                                  地点
-                                </div>
-                                <p className="text-sm text-blue-900 font-medium">{scene.location}</p>
-                              </div>
-                            )}
-                            {scene.time_setting && (
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200">
-                                <div className="text-xs text-orange-600 mb-1 flex items-center gap-1">
-                                  <Clock size={12} />
-                                  时间设定
-                                </div>
-                                <p className="text-sm text-orange-900 font-medium">{scene.time_setting}</p>
-                              </div>
-                            )}
-                            {scene.space_type && (
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200">
-                                <div className="text-xs text-indigo-600 mb-1 flex items-center gap-1">
-                                  <Film size={12} />
-                                  空间类型
-                                </div>
-                                <p className="text-sm text-indigo-900 font-medium">{scene.space_type}</p>
-                              </div>
-                            )}
-                            {scene.atmosphere && (
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200">
-                                <div className="text-xs text-pink-600 mb-1 flex items-center gap-1">
-                                  <Palette size={12} />
-                                  氛围
-                                </div>
-                                <p className="text-sm text-pink-900 font-medium">{scene.atmosphere}</p>
-                              </div>
-                            )}
-                            {(scene as any).time_of_day && (
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200">
-                                <div className="text-xs text-amber-600 mb-1 flex items-center gap-1">
-                                  <Clock size={12} />
-                                  时段
-                                </div>
-                                <p className="text-sm text-amber-900 font-medium">{(scene as any).time_of_day}</p>
-                              </div>
-                            )}
-                            {(scene as any).weather && (
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-50 to-cyan-100 border border-cyan-200">
-                                <div className="text-xs text-cyan-600 mb-1 flex items-center gap-1">
-                                  <Cloud size={12} />
-                                  天气
-                                </div>
-                                <p className="text-sm text-cyan-900 font-medium">{(scene as any).weather}</p>
-                              </div>
-                            )}
-                            {scene.duration && (
-                              <div className="p-3 rounded-xl bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
-                                <div className="text-xs text-green-600 mb-1 flex items-center gap-1">
-                                  <Timer size={12} />
-                                  时长
-                                </div>
-                                <p className="text-sm text-green-900 font-medium">{scene.duration}</p>
-                              </div>
-                            )}
                           </div>
                         </TabsContent>
                       </div>
                     </Tabs>
+                    </FormProvider>
                 </DialogContent>
             </Dialog>
 

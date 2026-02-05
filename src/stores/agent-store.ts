@@ -32,6 +32,10 @@ export interface AgentState {
   // ============ 操作请求 ============
   pendingActionRequest: ActionRequest | null;
 
+  // ============ 输入框状态 ============
+  inputText: string;
+  showInput: boolean;
+
   // ============ Actions - 连接管理 ============
   setConnected: (connected: boolean) => void;
   setStreaming: (streaming: boolean) => void;
@@ -55,6 +59,12 @@ export interface AgentState {
 
   // ============ Actions - 操作请求 ============
   setPendingActionRequest: (request: ActionRequest | null) => void;
+
+  // ============ Actions - 输入框操作 ============
+  setInputText: (text: string) => void;
+  appendToInput: (text: string) => void;
+  clearInput: () => void;
+  setShowInput: (show: boolean) => void;
 
   // ============ Actions - 重置 ============
   reset: () => void;
@@ -81,6 +91,10 @@ const initialState = {
 
   // 操作请求
   pendingActionRequest: null,
+
+  // 输入框状态
+  inputText: '',
+  showInput: true,
 };
 
 export const useAgentStore = create<AgentState>((set) => ({
@@ -155,6 +169,13 @@ export const useAgentStore = create<AgentState>((set) => ({
 
   setPendingActionRequest: (request: ActionRequest | null) =>
     set({ pendingActionRequest: request }),
+
+  // ============ 输入框操作 ============
+  setInputText: (text: string) => set({ inputText: text }),
+  appendToInput: (text: string) =>
+    set((state) => ({ inputText: state.inputText + text })),
+  clearInput: () => set({ inputText: '' }),
+  setShowInput: (show: boolean) => set({ showInput: show }),
 
   // ============ 重置 ============
 

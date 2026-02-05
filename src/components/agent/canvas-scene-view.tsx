@@ -103,6 +103,9 @@ export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneVie
         onNavigateNext={handleNavigateNext}
         hasPrevious={selectedSceneIndex !== null && selectedSceneIndex > 0}
         hasNext={selectedSceneIndex !== null && selectedSceneIndex < scenes.length - 1}
+        onRefresh={() => {
+          // 可以在这里触发父组件刷新
+        }}
       />
     </>
   );

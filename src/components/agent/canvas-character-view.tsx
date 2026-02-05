@@ -254,6 +254,9 @@ export function CanvasCharacterView({ creation, highlightedElement }: CanvasChar
         onNavigateNext={handleNavigateNext}
         hasPrevious={selectedCharacterIndex !== null && selectedCharacterIndex > 0}
         hasNext={selectedCharacterIndex !== null && selectedCharacterIndex < characters.length - 1}
+        onRefresh={() => {
+          // 可以在这里触发父组件刷新
+        }}
       />
     </>
   );

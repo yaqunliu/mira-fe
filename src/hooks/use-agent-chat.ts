@@ -10,11 +10,11 @@ import type { SSEEvent, ChatRequest, BoardAction, AgentMessage } from '@/types/a
 /** SSE 连续失败次数阈值，超过后降级到轮询模式 */
 const SSE_FAILURE_THRESHOLD = 3;
 /** 轮询间隔（毫秒） */
-const POLLING_INTERVAL = 2000;
+const POLLING_INTERVAL = 5000;
 /** Agent 模式创作资产轮询间隔（毫秒） */
-const CREATION_POLLING_INTERVAL = 5000;
+const CREATION_POLLING_INTERVAL = 6000;
 /** Agent 模式消息轮询间隔（毫秒） */
-const MESSAGES_POLLING_INTERVAL = 3000;
+const MESSAGES_POLLING_INTERVAL = 6000;
 
 /**
  * Agent 对话管理 Hook

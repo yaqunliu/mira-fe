@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useCallback } from 'react';
 import type { ICreation } from '@/types/creation';
-import type { IShot } from '@/types/scene';
 import { ShotDetailDialog } from './shot-detail-dialog';
 
 interface CanvasStoryboardViewProps {
@@ -24,9 +23,10 @@ export function CanvasStoryboardView({ creation, highlightedElement }: CanvasSto
     (scene.shots || []).map(shot => ({
       ...shot,
       scene_id: scene.scene_id,
-      scene_name: `场景 ${scene.scene_id}`,
+      scene_name: scene.title,
     }))
   ) || [], [creation.scenes]);
+
 
   // 当前选中的分镜
   const selectedShot = selectedShotIndex !== null ? allShots[selectedShotIndex] : null;
@@ -94,7 +94,7 @@ export function CanvasStoryboardView({ creation, highlightedElement }: CanvasSto
         </div>
 
         {/* 分镜网格 */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 gap-4">
           {allShots.map((shot, idx) => (
             <ShotCard
               key={shot.shot_id}
@@ -115,12 +115,16 @@ export function CanvasStoryboardView({ creation, highlightedElement }: CanvasSto
         shot={selectedShot}
         shotNumber={selectedShotIndex !== null ? selectedShotIndex + 1 : 0}
         sceneName={selectedSceneName}
-        allCharacters={creation.characters}
         onNavigatePrevious={handleNavigatePrevious}
         onNavigateNext={handleNavigateNext}
         hasPrevious={selectedShotIndex !== null && selectedShotIndex > 0}
         hasNext={selectedShotIndex !== null && selectedShotIndex < allShots.length - 1}
-        aspectRatio={(creation.extra_data as any)?.aspect_ratio === "9:16" ? "9:16" : "16:9"}
+        associatedCharacters={selectedShot?.characters || []}
+        allScenes={creation.scenes || []}
+        allCharacters={creation.characters || []}
+        onRefresh={() => {
+          // 可以在这里触发父组件刷新
+        }}
       />
     </>
   );
@@ -227,12 +231,6 @@ function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [], onClick
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <span className="text-gray-400 text-xs">尾帧</span>
-            </div>
-          )}
-          {/* 音频标识 */}
-          {hasAudio && (
-            <div className="absolute top-1 right-1 px-1 py-0.5 bg-green-500 text-white text-[10px] rounded">
-              �
             </div>
           )}
         </div>
