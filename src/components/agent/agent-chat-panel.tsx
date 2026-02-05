@@ -24,11 +24,14 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
     messages,
     isConnected,
     isStreaming,
+    isProcessing,
     isThinking,
     thinkingContent,
     currentToolCall,
     pendingActionRequest,
+    pendingInteraction,
     connectionError,
+    setPendingInteraction,
   } = useAgentStore();
 
   const {
@@ -51,6 +54,23 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
     });
   };
 
+  // 处理 Supervisor 交互响应
+  const handleInteractionResponse = async (text: string) => {
+    // 清除待处理的交互请求
+    setPendingInteraction(null);
+    // 将用户选择的文本作为新消息发送
+    await sendMessage(text);
+  };
+
+  // 处理用户直接从输入框发送消息
+  const handleSendMessage = async (message: string, actionResponse?: any) => {
+    // 如果有待处理的交互请求，先清除它
+    if (pendingInteraction) {
+      setPendingInteraction(null);
+    }
+    await sendMessage(message, actionResponse);
+  };
+
   // 处理中断
   const handleInterrupt = async () => {
     await interrupt();
@@ -68,6 +88,9 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
   // 初始状态（没有消息且未连接）时允许发送，断连状态（有消息但未连接）时显示重连
   const isInitialState = !hasMessages && !isConnected && !connectionError;
 
+  // DEBUG: 检查状态值
+  console.log('[ChatPanel] State check:', { isStreaming, isProcessing, showIndicator: isStreaming || isProcessing });
+
   return (
     <div className="w-[400px] h-full border-l border-white/20 bg-white/5 backdrop-blur-sm flex flex-col">
       {/* 头部 */}
@@ -80,10 +103,10 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
           <div className="flex items-center gap-2">
             <div
               className={`w-2 h-2 rounded-full transition-colors ${isConnected
-                  ? 'bg-green-500'
-                  : isInitialState
-                    ? 'bg-blue-400'
-                    : 'bg-gray-400'
+                ? 'bg-green-500'
+                : isInitialState
+                  ? 'bg-blue-400'
+                  : 'bg-gray-400'
                 }`}
             />
             <span className="text-xs text-gray-500">
@@ -129,27 +152,39 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
           thinkingContent={thinkingContent}
           currentToolCall={currentToolCall}
           pendingActionRequest={pendingActionRequest}
+          pendingInteraction={pendingInteraction}
           onActionResponse={handleActionResponse}
+          onInteractionResponse={handleInteractionResponse}
         />
       </div>
 
       {/* 输入区域 */}
       <div className="p-4 border-t border-white/20 bg-white/10">
         <ChatInput
-          onSend={sendMessage}
+          onSend={handleSendMessage}
           disabled={isStreaming}
           placeholder="输入消息..."
         />
-        {isStreaming && (
+        {/* 状态指示器：流式回复中 or 后台处理中 */}
+        {(isStreaming || isProcessing) && (
           <div className="flex items-center justify-center gap-2 mt-2">
-            <p className="text-xs text-gray-500">AI 正在回复中...</p>
-            <button
-              onClick={handleInterrupt}
-              disabled={isInterrupting}
-              className="text-xs text-red-500 hover:text-red-600 disabled:opacity-50"
-            >
-              {isInterrupting ? '中断中...' : '中断'}
-            </button>
+            <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              {isStreaming ? 'AI 正在回复中' : '后台处理中'}
+              <span className="animate-pulse">...</span>
+            </span>
+            {isStreaming && (
+              <button
+                onClick={handleInterrupt}
+                disabled={isInterrupting}
+                className="text-xs text-red-500 hover:text-red-600 disabled:opacity-50"
+              >
+                {isInterrupting ? '中断中...' : '中断'}
+              </button>
+            )}
           </div>
         )}
       </div>

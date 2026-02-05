@@ -54,6 +54,11 @@ function parseSSEChunk(chunk: string): any[] {
     }
   }
 
+  // Debug: log all parsed events
+  if (events.length > 0) {
+    console.log('[SSE Parser] Parsed events:', events.map(e => ({ type: e.type, hasAction: !!e.action })));
+  }
+
   return events;
 }
 

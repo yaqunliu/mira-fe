@@ -14,7 +14,8 @@ interface CanvasScriptViewProps {
  * 展示剧本内容、场景列表、角色对白
  */
 export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptViewProps) {
-  const script = creation.extra_data?.script || creation.extra_data?.prompt;
+  // 优先级：script > script_text > prompt（Agent模式用script_text存储）
+  const script = creation.extra_data?.script || creation.extra_data?.script_text || creation.extra_data?.prompt;
   // 优先使用 creation.characters，如果没有再从分镜提取
   const allCharacters = (creation.characters && creation.characters.length > 0)
     ? creation.characters

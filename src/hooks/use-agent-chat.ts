@@ -45,10 +45,12 @@ export function useAgentChat(creationUuid: string) {
     setMessages,
     setConnected,
     setStreaming,
+    setProcessing,
     setConnectionError,
     setThinking,
     setCurrentToolCall,
     setPendingActionRequest,
+    setPendingInteraction,
     setBoardView,
     highlightElement,
   } = useAgentStore();
@@ -59,6 +61,8 @@ export function useAgentChat(creationUuid: string) {
   const hasCreatedMessageRef = useRef<boolean>(false);
   // 累积流式消息内容（增量模式）
   const streamingContentRef = useRef<string>('');
+  // 后台处理状态超时计时器
+  const processingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   /**
    * 处理 SSE 事件
@@ -91,6 +95,12 @@ export function useAgentChat(creationUuid: string) {
           // 流结束
           console.log('SSE stream done');
           setStreaming(false);
+          setProcessing(false);
+          // 清除处理状态超时计时器
+          if (processingTimeoutRef.current) {
+            clearTimeout(processingTimeoutRef.current);
+            processingTimeoutRef.current = null;
+          }
           break;
 
         // ========== 消息类 ==========
@@ -200,10 +210,69 @@ export function useAgentChat(creationUuid: string) {
         case 'progress.update': // 兼容旧版
           // 进度更新：可用于显示节点处理进度或任务步骤
           console.log('Progress:', event.node || event.stage, event.status || event.message);
+
+          // 设置后台处理状态为 true
+          console.log('[SSE] Setting isProcessing to true');
+          setProcessing(true);
+
+          // 清除之前的超时计时器并设置新的 12 秒超时
+          if (processingTimeoutRef.current) {
+            clearTimeout(processingTimeoutRef.current);
+          }
+          processingTimeoutRef.current = setTimeout(() => {
+            setProcessing(false);
+            processingTimeoutRef.current = null;
+          }, 12000); // 12 秒后自动停止（后端每 10 秒发送一次心跳）
           break;
 
         // ========== 看板操作类 ==========
+        case 'board_action': {
+          // Supervisor 发送的看板操作事件
+          console.log('[SSE] board_action event received:', event);
+          const action = event.action;
+          if (!action) {
+            console.warn('[SSE] board_action event missing action field');
+            break;
+          }
+          console.log('[SSE] Processing action:', action.type, action);
+
+          switch (action.type) {
+            case 'switch_view':
+              setBoardView(action.target as any);
+              break;
+            case 'refresh':
+              queryClient.invalidateQueries({ queryKey: ['creation', creationUuid] });
+              break;
+            case 'highlight':
+              highlightElement(action.target || action.element_id, 3000);
+              break;
+            case 'scroll':
+              setTimeout(() => {
+                const element = document.getElementById(action.target || action.element_id);
+                if (element) {
+                  element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 100);
+              break;
+            case 'approve_reject':
+              setPendingInteraction({
+                type: 'approve_reject',
+                message: action.message || '请确认是否继续',
+              });
+              break;
+            case 'select_options':
+              setPendingInteraction({
+                type: 'select_options',
+                message: action.message || '请选择一个选项',
+                options: action.options || [],
+              });
+              break;
+          }
+          break;
+        }
+
         case 'board.action':
+          // 兼容旧版 board.action 事件格式
           executeBoardActions(event.actions || []);
           break;
 
@@ -230,17 +299,23 @@ export function useAgentChat(creationUuid: string) {
           break;
 
         default:
-          console.warn('Unknown SSE event type:', type);
+          console.warn('Unknown SSE event type:', type, 'Full event:', event);
       }
     },
     [
       addMessage,
       updateMessage,
       setStreaming,
+      setProcessing,
       setConnectionError,
       setThinking,
       setCurrentToolCall,
       setPendingActionRequest,
+      setPendingInteraction,
+      setBoardView,
+      highlightElement,
+      queryClient,
+      creationUuid,
     ]
   );
 

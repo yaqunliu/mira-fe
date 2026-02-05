@@ -5,6 +5,7 @@ import type {
   ActionRequest,
   ToolCall,
   BoardViewType,
+  PendingInteraction,
 } from '@/types/agent';
 
 /**
@@ -14,6 +15,7 @@ export interface AgentState {
   // ============ SSE 连接状态 ============
   isConnected: boolean;
   isStreaming: boolean;
+  isProcessing: boolean;  // 后台正在处理（收到 progress 事件时为 true）
   connectionError: string | null;
 
   // ============ 消息历史 ============
@@ -32,6 +34,9 @@ export interface AgentState {
   // ============ 操作请求 ============
   pendingActionRequest: ActionRequest | null;
 
+  // ============ Supervisor 交互请求 ============
+  pendingInteraction: PendingInteraction | null;
+
   // ============ 输入框状态 ============
   inputText: string;
   showInput: boolean;
@@ -39,6 +44,7 @@ export interface AgentState {
   // ============ Actions - 连接管理 ============
   setConnected: (connected: boolean) => void;
   setStreaming: (streaming: boolean) => void;
+  setProcessing: (processing: boolean) => void;
   setConnectionError: (error: string | null) => void;
 
   // ============ Actions - 消息管理 ============
@@ -60,6 +66,9 @@ export interface AgentState {
   // ============ Actions - 操作请求 ============
   setPendingActionRequest: (request: ActionRequest | null) => void;
 
+  // ============ Actions - Supervisor 交互请求 ============
+  setPendingInteraction: (interaction: PendingInteraction | null) => void;
+
   // ============ Actions - 输入框操作 ============
   setInputText: (text: string) => void;
   appendToInput: (text: string) => void;
@@ -74,6 +83,7 @@ const initialState = {
   // 连接状态
   isConnected: false,
   isStreaming: false,
+  isProcessing: false,
   connectionError: null,
 
   // 消息历史
@@ -92,6 +102,9 @@ const initialState = {
   // 操作请求
   pendingActionRequest: null,
 
+  // Supervisor 交互请求
+  pendingInteraction: null,
+
   // 输入框状态
   inputText: '',
   showInput: true,
@@ -107,6 +120,9 @@ export const useAgentStore = create<AgentState>((set) => ({
 
   setStreaming: (streaming: boolean) =>
     set({ isStreaming: streaming }),
+
+  setProcessing: (processing: boolean) =>
+    set({ isProcessing: processing }),
 
   setConnectionError: (error: string | null) =>
     set({ connectionError: error }),
@@ -169,6 +185,11 @@ export const useAgentStore = create<AgentState>((set) => ({
 
   setPendingActionRequest: (request: ActionRequest | null) =>
     set({ pendingActionRequest: request }),
+
+  // ============ Supervisor 交互请求 ============
+
+  setPendingInteraction: (interaction: PendingInteraction | null) =>
+    set({ pendingInteraction: interaction }),
 
   // ============ 输入框操作 ============
   setInputText: (text: string) => set({ inputText: text }),

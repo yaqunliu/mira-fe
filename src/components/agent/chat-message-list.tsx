@@ -5,7 +5,8 @@ import { ChatMessageItem } from './chat-message-item';
 import { ChatThinking } from './chat-thinking';
 import { ChatToolCall } from './chat-tool-call';
 import { ChatActionButtons } from './chat-action-buttons';
-import type { AgentMessage, ToolCall, ActionRequest } from '@/types/agent';
+import { ChatInteractionCard } from './chat-interaction-card';
+import type { AgentMessage, ToolCall, ActionRequest, PendingInteraction } from '@/types/agent';
 
 interface ChatMessageListProps {
   messages: AgentMessage[];
@@ -13,7 +14,9 @@ interface ChatMessageListProps {
   thinkingContent: string;
   currentToolCall: ToolCall | null;
   pendingActionRequest: ActionRequest | null;
+  pendingInteraction: PendingInteraction | null;
   onActionResponse: (actionId: string) => void;
+  onInteractionResponse: (text: string) => void;
   autoScroll?: boolean;
 }
 
@@ -28,7 +31,9 @@ export function ChatMessageList({
   thinkingContent,
   currentToolCall,
   pendingActionRequest,
+  pendingInteraction,
   onActionResponse,
+  onInteractionResponse,
   autoScroll = true,
 }: ChatMessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -77,6 +82,14 @@ export function ChatMessageList({
         <ChatActionButtons
           request={pendingActionRequest}
           onAction={onActionResponse}
+        />
+      )}
+
+      {/* Supervisor 交互请求 */}
+      {pendingInteraction && (
+        <ChatInteractionCard
+          interaction={pendingInteraction}
+          onResponse={onInteractionResponse}
         />
       )}
 

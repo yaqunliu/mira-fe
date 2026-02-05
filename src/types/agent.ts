@@ -59,6 +59,22 @@ export interface ActionRequest {
   timeoutSeconds?: number;
 }
 
+// ============ Supervisor 交互请求相关 ============
+
+export type PendingInteractionType = 'approve_reject' | 'select_options';
+
+export interface SelectOption {
+  id: string;
+  label: string;
+  value?: string;
+}
+
+export interface PendingInteraction {
+  type: PendingInteractionType;
+  message: string;
+  options?: SelectOption[];  // for select_options
+}
+
 export interface ActionResponse {
   requestId: string;
   actionId: string;
@@ -129,7 +145,8 @@ export type SSEEventType =
   // 进度类
   | 'progress'         // 进度更新
   // 看板操作类
-  | 'board.action'     // 看板UI操作
+  | 'board_action'     // Supervisor 看板操作
+  | 'board.action'     // 看板UI操作（旧版）
   // 其他
   | 'action.request'   // 需要用户确认的操作
   | 'attachment'       // 附件
