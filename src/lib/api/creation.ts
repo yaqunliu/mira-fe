@@ -40,7 +40,7 @@ const creationApi = {
     if (params?.title) {
       queryParams.append('title', params.title)
     }
-    
+
     const queryString = queryParams.toString()
     const url = `/api/v1/creations${queryString ? `?${queryString}` : ''}`
 
@@ -50,8 +50,8 @@ const creationApi = {
     creationId: string,
     excludeTimeline: boolean = false
   ): Promise<{ data: ICreation; message: string }> => {
-    const url = excludeTimeline 
-      ? `/api/v1/creations/${creationId}?exclude_timeline=true` 
+    const url = excludeTimeline
+      ? `/api/v1/creations/${creationId}?exclude_timeline=true`
       : `/api/v1/creations/${creationId}`;
     return apiClient.get<ApiResponse<ICreation>>(
       url
@@ -332,6 +332,15 @@ const creationApi = {
       };
       message: string;
     }>;
+  },
+
+  // 获取章节内容（剧本原文）
+  getChapterContent: async (
+    creationUuid: string
+  ): Promise<{ data: { content: string }; message: string }> => {
+    return apiClient.get(
+      `/api/v1/creations/${creationUuid}/chapter_content`
+    ) as unknown as Promise<{ data: { content: string }; message: string }>;
   },
 };
 
