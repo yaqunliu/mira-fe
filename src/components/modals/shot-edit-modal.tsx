@@ -239,7 +239,7 @@ export function ShotEditModal({
                 setSelectedVersionId(null);
             }
         }
-    }, [isOpen, shot]);
+    }, [isOpen, shot?.shot_id]);
 
     const handleSave = async () => {
         setIsSaving(true);

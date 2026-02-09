@@ -122,7 +122,7 @@ export function ShotDetailDialog({
             const elements = (shot.extra_data as any)?.appearance_elements || [];
             setAppearanceElements(Array.isArray(elements) ? elements : []);
         }
-    }, [shot, form]);
+    }, [shot?.shot_id, form]);
 
     // 清理音频播放
     useEffect(() => {
