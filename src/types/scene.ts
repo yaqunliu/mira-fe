@@ -25,6 +25,41 @@ export interface INarrationItem {
     audio_error?: string;         // 音频生成错误信息
 }
 
+/**
+ * 标准化单个 narration item，兼容 content/role 和 内容/角色 两种格式
+ * 统一输出为 {角色, 内容} 中文键格式
+ */
+export function normalizeNarrationItem(item: any): INarrationItem {
+    if (!item || typeof item !== 'object') {
+        return { 角色: '旁白', 内容: String(item || '') };
+    }
+    return {
+        角色: item.角色 || item.role || '旁白',
+        内容: item.内容 || item.content || '',
+        ...(item.audio_url ? { audio_url: item.audio_url } : {}),
+        ...(item.audio_historys ? { audio_historys: item.audio_historys } : {}),
+        ...(item.audio_error ? { audio_error: item.audio_error } : {}),
+    };
+}
+
+/**
+ * 解析并标准化 narration 数据，兼容多种输入格式
+ */
+export function parseNarration(data: any): INarrationItem[] {
+    if (!data) return [];
+    if (typeof data === 'string' && data.trim()) {
+        try {
+            const parsed = JSON.parse(data);
+            if (Array.isArray(parsed)) return parsed.map(normalizeNarrationItem);
+        } catch (e) {
+            console.error("Failed to parse narration JSON", e);
+            return [];
+        }
+    }
+    if (Array.isArray(data)) return data.map(normalizeNarrationItem);
+    return [];
+}
+
 export interface IShotStatusDetail {
     video_status?: 'generating' | 'completed' | 'failed';
     video_updated_at?: string;

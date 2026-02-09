@@ -100,7 +100,7 @@ export function ShotItem({
               {Array.isArray(currentShot.narration) && currentShot.narration.length > 0 ? (
                 currentShot.narration.map((item, idx) => (
                   <p key={idx} className="text-sm text-gray-600 leading-relaxed italic">
-                    "{typeof item === 'string' ? item : item.内容}"
+                    "{typeof item === 'string' ? item : (item.内容 || item.content || '')}"
                   </p>
                 ))
               ) : (

@@ -29,7 +29,7 @@ import {
     Trash2,
     RefreshCw,
 } from "lucide-react";
-import { IShot, INarrationItem } from "@/types/scene";
+import { IShot, INarrationItem, parseNarration } from "@/types/scene";
 import { ICharacter } from "@/types/character";
 import shotApi from "@/lib/api/shot";
 import { cn } from "@/lib/utils";
@@ -59,19 +59,6 @@ interface ShotDetailDialogProps {
     allCharacters?: ICharacter[];
     onRefresh?: () => void;
 }
-
-const parseNarration = (data: any): INarrationItem[] => {
-    if (Array.isArray(data)) return data;
-    if (typeof data === "string" && data.trim()) {
-        try {
-            const parsed = JSON.parse(data);
-            if (Array.isArray(parsed)) return parsed;
-        } catch (e) {
-            console.error("Failed to parse narration JSON", e);
-        }
-    }
-    return [];
-};
 
 export function ShotDetailDialog({
     isOpen,
@@ -289,7 +276,8 @@ export function ShotDetailDialog({
         try {
             const shotUuid = (shot as any).uuid || String(shot.shot_id);
 
-            let narrationData = values.narration;
+            // 解析 narration 数据
+            let narrationData: INarrationItem[] = [];
             try {
                 const parsed = JSON.parse(values.narration);
                 if (Array.isArray(parsed)) {
@@ -299,11 +287,10 @@ export function ShotDetailDialog({
                 narrationData = parseNarration(shot.narration);
             }
 
-            // 更新分镜基本信息
+            // 更新分镜基本信息（不包含 narration）
             await shotApi.updateShot(shotUuid, {
                 description: values.description,
                 image_prompt: values.imagePrompt,
-                narration: narrationData,
                 video_duration: values.videoDuration,
                 scene_id: values.sceneId,
                 extra_data: {
@@ -313,6 +300,13 @@ export function ShotDetailDialog({
                     appearance_elements: appearanceElements,
                 },
             } as any);
+
+            // 单独更新 narration（确保使用正确格式）
+            if (narrationData && narrationData.length > 0) {
+                await shotApi.updateShot(shotUuid, {
+                    narration: narrationData,
+                } as any);
+            }
 
             // 单独更新角色关联（使用专门的API）
             if (values.characterIds && Array.isArray(values.characterIds)) {

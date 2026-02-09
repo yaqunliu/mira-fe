@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, RotateCcw, Image as ImageIcon, Edit2, Plus, X, Film, Download, Sparkles, ChevronLeft, ChevronRight, Play, Pause, RefreshCw, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { IShot, INarrationItem } from '@/types/scene';
+import { IShot, INarrationItem, parseNarration } from '@/types/scene';
 import { ICharacter } from '@/types/character';
 import { IScene } from '@/types/scene';
 import shotApi from '@/lib/api/shot';
@@ -35,20 +35,6 @@ interface ShotEditModalProps {
 
 import { useTimelineStore } from '@/stores/timeline';
 
-// 辅助函数：安全解析台词数据
-const parseNarration = (data: any): INarrationItem[] => {
-    if (Array.isArray(data)) return data;
-    if (typeof data === 'string' && data.trim()) {
-        try {
-            const parsed = JSON.parse(data);
-            if (Array.isArray(parsed)) return parsed;
-        } catch (e) {
-            console.error("Failed to parse narration JSON", e);
-        }
-    }
-    return [];
-};
-
 export function ShotEditModal({
     isOpen,
     onClose,
@@ -75,7 +61,7 @@ export function ShotEditModal({
     const videoRef = useRef<HTMLVideoElement>(null);
     const audioRef = useRef<HTMLAudioElement>(null);
 
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
     // Form state
@@ -552,16 +538,6 @@ export function ShotEditModal({
                                     <X size={14} />
                                     <span className="text-sm">{tCommon('close')}</span>
                                 </button>
-                                {!isEditing && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsEditing(true)}
-                                        className="h-9 px-4 rounded-xl bg-gradient-to-br from-blue-400 to-blue-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2"
-                                    >
-                                        <Edit2 size={14} />
-                                        <span className="text-sm">{tCommon('edit')}</span>
-                                    </button>
-                                )}
                                 <button
                                     type="button"
                                     onClick={handleSave}
@@ -844,7 +820,7 @@ export function ShotEditModal({
                                       <SelectContent>
                                         <SelectItem value="旁白">旁白</SelectItem>
                                         {(availableCharacters || []).map((char) => (
-                                          <SelectItem key={char.character_id} value={String(char.character_id)}>
+                                          <SelectItem key={char.character_id} value={char.name}>
                                             {char.name}
                                           </SelectItem>
                                         ))}
