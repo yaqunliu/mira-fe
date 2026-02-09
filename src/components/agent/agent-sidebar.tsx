@@ -12,7 +12,6 @@ interface AgentSidebarProps {
  * Agent 侧边栏组件
  *
  * 左侧资产导航栏，展示：
- * - 项目资产统计
  * - 快速导航
  * - 项目进度
  */
@@ -51,19 +50,6 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
         <p className="text-xs text-gray-500">
           {creation?.uuid?.slice(0, 8) || '---'}
         </p>
-      </div>
-
-      {/* 资产统计 */}
-      <div className="mb-6">
-        <div className="text-xs font-medium text-gray-700 mb-3 flex items-center gap-1">
-          <span>📁</span>
-          <span>项目资产</span>
-        </div>
-        <div className="space-y-2">
-          <AssetStat icon="👥" label="角色" count={stats.characters} />
-          <AssetStat icon="🎬" label="场景" count={stats.scenes} />
-          <AssetStat icon="🎞️" label="分镜" count={stats.shots} />
-        </div>
       </div>
 
       {/* 导航菜单 */}
@@ -129,21 +115,6 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-/**
- * 资产统计项组件
- */
-function AssetStat({ icon, label, count }: { icon: string; label: string; count: number }) {
-  return (
-    <div className="flex items-center justify-between text-xs bg-white/50 rounded px-2 py-1.5">
-      <span className="text-gray-600 flex items-center gap-1">
-        <span>{icon}</span>
-        <span>{label}</span>
-      </span>
-      <span className="font-semibold text-gray-800">{count}</span>
     </div>
   );
 }
