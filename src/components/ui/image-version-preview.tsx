@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Download, RefreshCw, Save, ChevronDown } from "lucide-react";
+import { Loader2, Download, RefreshCw, Save, ChevronDown, ZoomIn } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -26,6 +26,7 @@ interface ImageVersionPreviewProps {
   onRegenerate: () => void;
   onApplyVersion: (version: ImageVersion) => void;
   onVersionChange?: (version: ImageVersion) => void; // 切换版本时的回调
+  onImageClick?: (imageUrl: string) => void; // 点击图片放大回调
   isRegenerating?: boolean;
   entityType: "character" | "scene" | "shot";
   entityName?: string;
@@ -39,6 +40,7 @@ export function ImageVersionPreview({
   onRegenerate,
   onApplyVersion,
   onVersionChange,
+  onImageClick,
   isRegenerating = false,
   entityType,
   entityName,
@@ -59,14 +61,14 @@ export function ImageVersionPreview({
   const versions: ImageVersion[] = [
     ...(currentImageUrl
       ? [
-          {
-            image_url: currentImageUrl,
-            created_at: new Date().toISOString(),
-            version_name: entityType === "shot" 
-              ? (frameType === "start" ? "首帧-当前版本" : "尾帧-当前版本")
-              : "当前版本",
-          },
-        ]
+        {
+          image_url: currentImageUrl,
+          created_at: new Date().toISOString(),
+          version_name: entityType === "shot"
+            ? (frameType === "start" ? "首帧-当前版本" : "尾帧-当前版本")
+            : "当前版本",
+        },
+      ]
       : []),
     ...imageHistory.reverse(),
   ];
@@ -76,7 +78,7 @@ export function ImageVersionPreview({
     selectedVersionIndex === 0 ||
     (selectedVersionIndex === 0 && imageHistory.length === 0);
 
-  const frameLabel = entityType === "shot" 
+  const frameLabel = entityType === "shot"
     ? (frameType === "start" ? "首帧" : "尾帧")
     : "图片";
 
@@ -204,21 +206,32 @@ export function ImageVersionPreview({
       {currentVersion?.image_url ? (
         <div
           className={cn(
-            "relative rounded-xl overflow-hidden bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]",
-            entityType === "shot" ? "aspect-video" : "aspect-square"
+            "relative rounded-xl overflow-hidden bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] group",
+            "aspect-video"
           )}
+          onClick={() => onImageClick?.(currentVersion.image_url)}
         >
           <img
             src={currentVersion.image_url}
             alt={`${entityType} ${frameLabel} preview`}
-            className="w-full h-full object-contain cursor-pointer"
+            className={cn(
+              "w-full h-full object-contain",
+              onImageClick ? "cursor-pointer" : ""
+            )}
           />
+          {onImageClick && (
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center pointer-events-none">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/50 rounded-full p-3">
+                <ZoomIn className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div
           className={cn(
             "rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] flex items-center justify-center",
-            entityType === "shot" ? "aspect-video" : "aspect-square"
+            "aspect-video"
           )}
         >
           <div className="text-center text-gray-500">
