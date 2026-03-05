@@ -20,10 +20,11 @@ export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptV
   const [chapterContent, setChapterContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // 获取章节内容
+  // 获取章节内容（chat 类型不需要）
   useEffect(() => {
     const fetchChapterContent = async () => {
-      if (!creation.uuid) return;
+      // chat 类型没有关联章节，跳过获取
+      if (!creation.uuid || creation.creation_type === "chat") return;
       setLoading(true);
       try {
         const response = await creationApi.getChapterContent(creation.uuid);
@@ -37,7 +38,7 @@ export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptV
       }
     };
     fetchChapterContent();
-  }, [creation.uuid]);
+  }, [creation.uuid, creation.creation_type]);
 
   // 优先级：chapterContent > script > script_text > prompt（Agent模式用script_text存储）
   const script = chapterContent || creation.extra_data?.script || creation.extra_data?.script_text || creation.extra_data?.prompt;

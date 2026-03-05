@@ -17,6 +17,12 @@ export interface AgentMessage {
   attachments?: Attachment[];
   toolCalls?: ToolCall[];
   actionRequest?: ActionRequest;
+  boardActions?: BoardAction[]; // 用于恢复卡片
+}
+
+export interface BoardAction {
+  type: string;
+  [key: string]: any;
 }
 
 export interface Attachment {
@@ -61,7 +67,7 @@ export interface ActionRequest {
 
 // ============ Supervisor 交互请求相关 ============
 
-export type PendingInteractionType = 'approve_reject' | 'select_options';
+export type PendingInteractionType = 'approve_reject' | 'select_options' | 'config_card' | 'confirm_generation';
 
 export interface SelectOption {
   id: string;
@@ -69,10 +75,29 @@ export interface SelectOption {
   value?: string;
 }
 
+export interface ConfigField {
+  name: string;
+  label: string;
+  type: 'text' | 'textarea' | 'number' | 'select' | 'tags';
+  placeholder?: string;
+  required?: boolean;
+  default?: any;
+  options?: { value: string | number; label: string }[];
+  min?: number;
+  max?: number;
+}
+
 export interface PendingInteraction {
   type: PendingInteractionType;
   message: string;
   options?: SelectOption[];  // for select_options
+  // for config_card
+  title?: string;
+  description?: string;
+  fields?: ConfigField[];
+  submitText?: string;
+  // for confirm_generation
+  params?: Record<string, any>;
 }
 
 export interface ActionResponse {
@@ -174,7 +199,8 @@ export interface ChatRequest {
     current_stage?: string;
     user_action?: string;
   };
-  action_response?: ActionResponse;
+  action?: string;  // 用户操作: confirm_generation/approve/reject/modify
+  action_data?: Record<string, any>;  // 操作附加数据
   stream?: boolean;
 }
 

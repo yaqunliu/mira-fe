@@ -1,12 +1,19 @@
 "use client";
 
+import { useState } from 'react';
 import { useAgentStore } from '@/stores/agent-store';
 import { useAgentContext } from './agent-provider';
 import { ChatMessageList } from './chat-message-list';
 import { ChatInput } from './chat-input';
+import { VocabConfigCard } from './vocab-config-card';
+import { CreationTypeCard } from './creation-type-card';
+import { ICreation } from '@/types/creation';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 interface AgentChatPanelProps {
   creationUuid?: string; // 可选，因为现在从 Provider 获取
+  creationType?: string; // 创作类型
+  creation?: ICreation; // 创作数据，用于获取 video_url
 }
 
 /**
@@ -19,7 +26,13 @@ interface AgentChatPanelProps {
  * - 操作请求按钮
  * - 输入框
  */
-export function AgentChatPanel(_props: AgentChatPanelProps) {
+export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) {
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
+  
+  // 获取 video_url
+  const videoUrl = creation?.video_url || (creation?.extra_data as any)?.video_url;
+  const hasVideo = !!videoUrl;
+  
   const {
     messages,
     isConnected,
@@ -55,11 +68,11 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
   };
 
   // 处理 Supervisor 交互响应
-  const handleInteractionResponse = async (text: string) => {
+  const handleInteractionResponse = async (text: string, actionResponse?: any) => {
     // 清除待处理的交互请求
     setPendingInteraction(null);
-    // 将用户选择的文本作为新消息发送
-    await sendMessage(text);
+    // 将用户选择的文本作为新消息发送，附带 action_response
+    await sendMessage(text, actionResponse);
   };
 
   // 处理用户直接从输入框发送消息
@@ -92,7 +105,7 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
   console.log('[ChatPanel] State check:', { isStreaming, isProcessing, showIndicator: isStreaming || isProcessing });
 
   return (
-    <div className="w-[400px] h-full border-l border-white/20 bg-white/5 backdrop-blur-sm flex flex-col">
+    <div className={`h-full border-l border-white/20 bg-white/5 backdrop-blur-sm flex flex-col ${creationType === 'chat' ? 'w-full' : 'w-[400px]'}`}>
       {/* 头部 */}
       <div className="px-6 py-4 border-b border-white/20">
         <div className="flex items-center justify-between">
@@ -135,6 +148,16 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
             >
               {isResetting ? '重置中...' : '重置'}
             </button>
+            {/* 生成结果按钮 */}
+            {hasVideo && (
+              <button
+                onClick={() => setShowVideoPreview(true)}
+                className="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded ml-2 font-medium"
+                title="查看生成结果"
+              >
+                生成结果
+              </button>
+            )}
           </div>
         </div>
         {connectionError && (
@@ -146,16 +169,38 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
 
       {/* 消息区域 */}
       <div className="flex-1 overflow-auto p-4">
-        <ChatMessageList
-          messages={messages}
-          isThinking={isThinking}
-          thinkingContent={thinkingContent}
-          currentToolCall={currentToolCall}
-          pendingActionRequest={pendingActionRequest}
-          pendingInteraction={pendingInteraction}
-          onActionResponse={handleActionResponse}
-          onInteractionResponse={handleInteractionResponse}
-        />
+        {/* Chat 类型且没有消息时显示类型选择卡片 */}
+        {creationType === "chat" && messages.length === 0 && !isStreaming && !isProcessing ? (
+          <div className="h-full flex flex-col">
+            <div className="flex-1 flex items-center justify-center">
+              <div className="w-full max-w-sm">
+                <CreationTypeCard
+                  onSelect={(type) => {
+                    const typeNames: Record<string, string> = {
+                      vocab_video: "英文单词视频",
+                      gaoxiao_video: "搞笑短视频",
+                      story_video: "故事动画视频",
+                    };
+                    const message = `我要创作${typeNames[type]}`;
+                    handleSendMessage(message);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ChatMessageList
+            messages={messages}
+            isThinking={isThinking}
+            thinkingContent={thinkingContent}
+            currentToolCall={currentToolCall}
+            pendingActionRequest={pendingActionRequest}
+            pendingInteraction={pendingInteraction}
+            onActionResponse={handleActionResponse}
+            onInteractionResponse={handleInteractionResponse}
+            creationType={creationType}
+          />
+        )}
       </div>
 
       {/* 输入区域 */}
@@ -188,6 +233,50 @@ export function AgentChatPanel(_props: AgentChatPanelProps) {
           </div>
         )}
       </div>
+
+      {/* 视频预览弹窗 */}
+      <Dialog open={showVideoPreview} onOpenChange={setShowVideoPreview}>
+        <DialogContent className="max-w-4xl w-[90vw]">
+          <DialogHeader>
+            <DialogTitle>🎬 视频生成结果</DialogTitle>
+            <DialogDescription>
+              您的视频已生成完成，可以预览和下载
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* 视频播放器 */}
+            <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+              <video
+                src={videoUrl}
+                controls
+                className="w-full h-full"
+                autoPlay={false}
+              >
+                您的浏览器不支持视频播放
+              </video>
+            </div>
+            {/* 下载按钮 */}
+            <div className="flex justify-center gap-4">
+              <a
+                href={videoUrl}
+                download
+                className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                下载视频
+              </a>
+              <button
+                onClick={() => setShowVideoPreview(false)}
+                className="inline-flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                关闭
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

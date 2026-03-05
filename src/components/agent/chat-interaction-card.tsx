@@ -1,6 +1,7 @@
 "use client";
 
 import type { PendingInteraction } from '@/types/agent';
+import { ConfigCard } from './config-card';
 
 interface ChatInteractionCardProps {
     interaction: PendingInteraction;
@@ -10,13 +11,24 @@ interface ChatInteractionCardProps {
 /**
  * Supervisor 交互卡片组件
  * 
- * 用于展示 approve_reject 和 select_options 类型的交互请求
+ * 用于展示 approve_reject、select_options 和 config_card 类型的交互请求
  */
 export function ChatInteractionCard({
     interaction,
     onResponse,
 }: ChatInteractionCardProps) {
-    const { type, message, options } = interaction;
+    const { type, message, options, title, description, fields, submitText, params } = interaction;
+
+    // 处理确认生成 - 需要发送特殊的 action_response
+    const handleConfirmGeneration = async () => {
+        // 构建 action_response，包含 confirm_generation 类型和参数
+        const actionResponse = {
+            action: 'confirm_generation',
+            params: params || {},
+        };
+        // 直接调用 onResponse 并传递 action_response
+        onResponse('确认生成视频', actionResponse);
+    };
 
     // 处理确认/拒绝
     const handleApproveReject = (approved: boolean) => {
@@ -26,6 +38,38 @@ export function ChatInteractionCard({
     // 处理选项选择
     const handleSelectOption = (option: { id: string; label: string; value?: string }) => {
         onResponse(option.value || option.label);
+    };
+
+    // 处理配置卡片提交
+    const handleConfigSubmit = (values: Record<string, any>) => {
+        // 生成用户友好的确认消息
+        const parts: string[] = [];
+        
+        if (fields) {
+            fields.forEach((field) => {
+                const value = values[field.name];
+                if (value === undefined || value === "" || (Array.isArray(value) && value.length === 0)) {
+                    return;
+                }
+                
+                // 获取显示值
+                let displayValue: string;
+                if (Array.isArray(value)) {
+                    displayValue = value.join(", ");
+                } else if (field.options) {
+                    const option = field.options.find((opt) => opt.value === value);
+                    displayValue = option ? option.label.replace(/[🍼📖🎓👩👨🎲🔁]/g, "").trim() : String(value);
+                } else {
+                    displayValue = String(value);
+                }
+                
+                const fieldLabel = field.label.replace(/[📝📚🔁🎙️]/g, "").trim();
+                parts.push(`${fieldLabel}: ${displayValue}`);
+            });
+        }
+        
+        const configText = parts.join("，");
+        onResponse(configText);
     };
 
     return (
@@ -72,6 +116,36 @@ export function ChatInteractionCard({
                                 {option.label}
                             </button>
                         ))}
+                    </div>
+                )}
+
+                {type === 'config_card' && fields && fields.length > 0 && (
+                    <ConfigCard
+                        title={title || '配置参数'}
+                        description={description}
+                        fields={fields}
+                        submitText={submitText || '确认'}
+                        onSubmit={handleConfigSubmit}
+                    />
+                )}
+
+                {type === 'confirm_generation' && (
+                    <div className="flex flex-col gap-3">
+                        <div className="text-sm text-gray-600">
+                            {params && params.words && (
+                                <p>单词: {Array.isArray(params.words) ? params.words.join(', ') : params.words}</p>
+                            )}
+                            {params && params.sentence_level && (
+                                <p>难度: {params.sentence_level}</p>
+                            )}
+                        </div>
+                        <button
+                            onClick={handleConfirmGeneration}
+                            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                        >
+                            <span>🎬</span>
+                            <span>确认生成视频</span>
+                        </button>
                     </div>
                 )}
             </div>

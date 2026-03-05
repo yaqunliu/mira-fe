@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Book, FileText, ChevronRight, Check, ArrowLeft, Loader2, PlayCircle, Plus, Bot, Wrench } from "lucide-react";
+import { Book, FileText, ChevronRight, Check, ArrowLeft, Loader2, PlayCircle, Plus, Bot, Wrench, Sparkles, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { useAuthStore } from "@/stores/auth";
@@ -76,6 +76,11 @@ export default function CreateDynamicComicPage() {
     const [activeTab, setActiveTab] = useState("novel");
     const [style, setStyle] = useState("anime"); // Default style: anime
     const [creationMode, setCreationMode] = useState<"professional" | "agent">("professional"); // Creation mode
+    
+    // Blank/Agent Mode State
+    const [agentMessage, setAgentMessage] = useState("");
+    const [agentMessages, setAgentMessages] = useState<Array<{role: string; content: string; intentResult?: any}>>([]);
+    const [isAgentLoading, setIsAgentLoading] = useState(false);
     const searchParams = useSearchParams();
 
     useEffect(() => {
@@ -288,6 +293,40 @@ export default function CreateDynamicComicPage() {
             toast.error(`${t('creationFailed', { error: e.message })}`);
         } finally {
             setIsCreatingProject(false);
+        }
+    };
+
+    const handleBlankCreate = async () => {
+        setIsAgentLoading(true);
+        
+        try {
+            // 创建空白 chat 类型的 creation
+            const res = await fetch(`${API_BASE_URL}/api/v1/creations/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    title: "自由创作",
+                    creation_type: "chat",
+                    workflow_mode: "agent"
+                })
+            });
+            
+            if (!res.ok) throw new Error("创建失败");
+            
+            const result = await res.json();
+            const creationUuid = result.data?.uuid || result.data?.creation_uuid;
+            
+            toast.success("空白创作已创建");
+            
+            // 直接跳转到 Agent 页面
+            router.push(`/${locale}/create-agent?creationId=${creationUuid}`);
+        } catch (e: any) {
+            toast.error(`创建失败: ${e.message}`);
+        } finally {
+            setIsAgentLoading(false);
         }
     };
 
@@ -592,98 +631,146 @@ export default function CreateDynamicComicPage() {
                                         </div>
                                     </div>
                                 )
+                            },
+                            {
+                                value: "blank",
+                                label: (
+                                    <div className="flex items-center gap-2 py-3 px-4">
+                                        <Sparkles className="h-4 w-4 text-[#22C55E]" />
+                                        <span className="font-medium">从空白开始</span>
+                                    </div>
+                                ),
+                                content: (
+                                    <div className="p-8 bg-gradient-to-br from-white to-[#22C55E]/5 rounded-xl shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)]">
+                                        <div className="text-center space-y-6">
+                                            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] shadow-[4px_4px_16px_rgba(34,197,94,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]">
+                                                <Sparkles className="w-10 h-10 text-white" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-2xl font-semibold text-gray-800 mb-2">从空白开始创作</h3>
+                                                <p className="text-gray-600 max-w-md mx-auto">
+                                                    创建一个空白创作，通过 AI 对话完成所有步骤
+                                                </p>
+                                            </div>
+                                            <Button
+                                                onClick={handleBlankCreate}
+                                                disabled={isAgentLoading}
+                                                className="h-14 px-10 text-lg bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] hover:from-[#16A34A] hover:to-[#87CEEB] text-white font-medium rounded-xl shadow-[4px_4px_16px_rgba(34,197,94,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]"
+                                            >
+                                                {isAgentLoading ? (
+                                                    <>
+                                                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                                        创建中...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Plus className="w-5 h-5 mr-2" />
+                                                        创建空白创作
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )
                             }
                         ]}
                     />
 
-                    {/* Style Selection */}
-                    <div className="px-6 py-6 border-t border-blue-100">
-                        <Label className="text-lg font-medium mb-4 block text-gray-800">{t('styleSelection')}</Label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                            <div
-                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "realism" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
-                                onClick={() => setStyle("realism")}
-                            >
-                                <div className="font-medium text-gray-800 mb-1">{t('realism')}</div>
-                                <div className="text-sm text-gray-600">{t('realismDescription')}</div>
-                            </div>
-                            <div
-                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "cyberpunk" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
-                                onClick={() => setStyle("cyberpunk")}
-                            >
-                                <div className="font-medium text-gray-800 mb-1">{t('cyberpunk')}</div>
-                                <div className="text-sm text-gray-600">{t('cyberpunkDescription')}</div>
-                            </div>
-                            <div
-                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "ukiyoe" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
-                                onClick={() => setStyle("ukiyoe")}
-                            >
-                                <div className="font-medium text-gray-800 mb-1">{t('ukiyoe')}</div>
-                                <div className="text-sm text-gray-600">{t('ukiyoeDescription')}</div>
-                            </div>
-                            <div
-                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "watercolor" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
-                                onClick={() => setStyle("watercolor")}
-                            >
-                                <div className="font-medium text-gray-800 mb-1">{t('watercolor')}</div>
-                                <div className="text-sm text-gray-600">{t('watercolorDescription')}</div>
-                            </div>
-                            <div
-                                className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "anime" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
-                                onClick={() => setStyle("anime")}
-                            >
-                                <div className="font-medium text-gray-800 mb-1">{t('anime')}</div>
-                                <div className="text-sm text-gray-600">{t('animeDescription')}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Creation Mode Selection */}
-                    <div className="px-6 py-6 border-t border-blue-100">
-                        <Label className="text-lg font-medium mb-4 block text-gray-800">创作模式</Label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div
-                                className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${creationMode === "professional" ? "border-[#FDBCB4] bg-gradient-to-br from-[#FDBCB4]/10 to-[#ADD8E6]/10 shadow-[4px_4px_12px_rgba(253,188,180,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-[#FDBCB4] hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
-                                onClick={() => setCreationMode("professional")}
-                            >
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className={`p-2 rounded-lg ${creationMode === "professional" ? "bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6]" : "bg-gray-100"}`}>
-                                        <Wrench className={`w-5 h-5 ${creationMode === "professional" ? "text-white" : "text-gray-600"}`} />
+                    {/* Style Selection - 只在非 blank tab 显示 */}
+                    {activeTab !== "blank" && (
+                        <>
+                            <div className="px-6 py-6 border-t border-blue-100">
+                                <Label className="text-lg font-medium mb-4 block text-gray-800">{t('styleSelection')}</Label>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                                    <div
+                                        className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "realism" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                        onClick={() => setStyle("realism")}
+                                    >
+                                        <div className="font-medium text-gray-800 mb-1">{t('realism')}</div>
+                                        <div className="text-sm text-gray-600">{t('realismDescription')}</div>
                                     </div>
-                                    <div className="font-semibold text-gray-800">专业模式</div>
-                                    {creationMode === "professional" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
-                                </div>
-                                <div className="text-sm text-gray-600 pl-12">
-                                    手动精细控制每一步创作流程，适合专业用户深度定制
-                                </div>
-                            </div>
-                            <div
-                                className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${creationMode === "agent" ? "border-[#22C55E] bg-gradient-to-br from-[#22C55E]/10 to-[#ADD8E6]/10 shadow-[4px_4px_12px_rgba(34,197,94,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-[#22C55E] hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
-                                onClick={() => setCreationMode("agent")}
-                            >
-                                <div className="flex items-center gap-3 mb-2">
-                                    <div className={`p-2 rounded-lg ${creationMode === "agent" ? "bg-gradient-to-r from-[#22C55E] to-[#ADD8E6]" : "bg-gray-100"}`}>
-                                        <Bot className={`w-5 h-5 ${creationMode === "agent" ? "text-white" : "text-gray-600"}`} />
+                                    <div
+                                        className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "cyberpunk" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                        onClick={() => setStyle("cyberpunk")}
+                                    >
+                                        <div className="font-medium text-gray-800 mb-1">{t('cyberpunk')}</div>
+                                        <div className="text-sm text-gray-600">{t('cyberpunkDescription')}</div>
                                     </div>
-                                    <div className="font-semibold text-gray-800">Agent 模式</div>
-                                    {creationMode === "agent" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
-                                </div>
-                                <div className="text-sm text-gray-600 pl-12">
-                                    AI 全自动引导创作，通过对话完成所有步骤，适合快速创作
+                                    <div
+                                        className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "ukiyoe" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                        onClick={() => setStyle("ukiyoe")}
+                                    >
+                                        <div className="font-medium text-gray-800 mb-1">{t('ukiyoe')}</div>
+                                        <div className="text-sm text-gray-600">{t('ukiyoeDescription')}</div>
+                                    </div>
+                                    <div
+                                        className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "watercolor" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                        onClick={() => setStyle("watercolor")}
+                                    >
+                                        <div className="font-medium text-gray-800 mb-1">{t('watercolor')}</div>
+                                        <div className="text-sm text-gray-600">{t('watercolorDescription')}</div>
+                                    </div>
+                                    <div
+                                        className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 ${style === "anime" ? "border-green-500 bg-green-50 shadow-[4px_4px_12px_rgba(34,197,94,0.2),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-green-500 hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                        onClick={() => setStyle("anime")}
+                                    >
+                                        <div className="font-medium text-gray-800 mb-1">{t('anime')}</div>
+                                        <div className="text-sm text-gray-600">{t('animeDescription')}</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div className="px-6 py-4 border-t border-blue-100 flex justify-end">
-                        <Button
-                            onClick={onSubmit}
-                            disabled={isGenerating}
-                            className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-6 rounded-xl hover:translate-y-0.5 transition-all duration-300 border border-green-400/30 shadow-[6px_6px_20px_rgba(34,197,94,0.3),-2px_-2px_12px_rgba(255,255,255,0.9)]"
-                        >
-                            {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('processing')}</> : <><span className="mr-2 font-medium">{t('startCreating')}</span><ChevronRight className="h-4 w-4" /></>}
-                        </Button>
-                    </div>
+                            {/* Creation Mode Selection */}
+                            <div className="px-6 py-6 border-t border-blue-100">
+                                <Label className="text-lg font-medium mb-4 block text-gray-800">创作模式</Label>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div
+                                        className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${creationMode === "professional" ? "border-[#FDBCB4] bg-gradient-to-br from-[#FDBCB4]/10 to-[#ADD8E6]/10 shadow-[4px_4px_12px_rgba(253,188,180,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-[#FDBCB4] hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                        onClick={() => setCreationMode("professional")}
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className={`p-2 rounded-lg ${creationMode === "professional" ? "bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6]" : "bg-gray-100"}`}>
+                                                <Wrench className={`w-5 h-5 ${creationMode === "professional" ? "text-white" : "text-gray-600"}`} />
+                                            </div>
+                                            <div className="font-semibold text-gray-800">专业模式</div>
+                                            {creationMode === "professional" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
+                                        </div>
+                                        <div className="text-sm text-gray-600 pl-12">
+                                            手动精细控制每一步创作流程，适合专业用户深度定制
+                                        </div>
+                                    </div>
+                                    <div
+                                        className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${creationMode === "agent" ? "border-[#22C55E] bg-gradient-to-br from-[#22C55E]/10 to-[#ADD8E6]/10 shadow-[4px_4px_12px_rgba(34,197,94,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-[#22C55E] hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
+                                        onClick={() => setCreationMode("agent")}
+                                    >
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className={`p-2 rounded-lg ${creationMode === "agent" ? "bg-gradient-to-r from-[#22C55E] to-[#ADD8E6]" : "bg-gray-100"}`}>
+                                                <Bot className={`w-5 h-5 ${creationMode === "agent" ? "text-white" : "text-gray-600"}`} />
+                                            </div>
+                                            <div className="font-semibold text-gray-800">Agent 模式</div>
+                                            {creationMode === "agent" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
+                                        </div>
+                                        <div className="text-sm text-gray-600 pl-12">
+                                            AI 全自动引导创作，通过对话完成所有步骤，适合快速创作
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+
+                    {/* 开始创作按钮 - 只在非 blank Tab 显示 */}
+                    {activeTab !== "blank" && (
+                        <div className="px-6 py-4 border-t border-blue-100 flex justify-end">
+                            <Button
+                                onClick={onSubmit}
+                                disabled={isGenerating}
+                                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-6 rounded-xl hover:translate-y-0.5 transition-all duration-300 border border-green-400/30 shadow-[6px_6px_20px_rgba(34,197,94,0.3),-2px_-2px_12px_rgba(255,255,255,0.9)]"
+                            >
+                                {isGenerating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('processing')}</> : <><span className="mr-2 font-medium">{t('startCreating')}</span><ChevronRight className="h-4 w-4" /></>}
+                            </Button>
+                        </div>
+                    )}
                 </Card>
             </div>
         </div>

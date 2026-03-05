@@ -386,7 +386,7 @@ export default function DynamicComicEditor() {
 
             const state = useTimelineStore.getState();
             const newProject = produce(state.project, draft => {
-                let targetTrackType: 'video' | 'audio' = isAudio ? 'audio' : 'video';
+                const targetTrackType: 'video' | 'audio' = isAudio ? 'audio' : 'video';
                 let clipFound = false;
 
                 draft.tracks.forEach(track => {
@@ -1448,8 +1448,8 @@ export default function DynamicComicEditor() {
         };
 
         // 确保至少有一条视频轨道和一条音频轨道
-        let videoTracks = tracks.filter(t => t.type === 'video');
-        let audioTracks = tracks.filter(t => t.type === 'audio');
+        const videoTracks = tracks.filter(t => t.type === 'video');
+        const audioTracks = tracks.filter(t => t.type === 'audio');
 
         if (videoTracks.length === 0) {
             addTrack('video', t('videoTrack'));
@@ -2185,7 +2185,7 @@ export default function DynamicComicEditor() {
                 try {
                     const response = await taskApi.queryTaskStatus(taskId);
                     const apiResponse = response?.data as any;
-                    let rawTask = apiResponse?.data || (apiResponse?.task_id ? apiResponse : null);
+                    const rawTask = apiResponse?.data || (apiResponse?.task_id ? apiResponse : null);
 
                     if (rawTask) {
                         if (rawTask.status === TaskStatus.SUCCESS) {
@@ -2226,7 +2226,7 @@ export default function DynamicComicEditor() {
                 try {
                     const response = await taskApi.queryTaskStatus(taskId);
                     const apiResponse = response?.data as any;
-                    let rawTask = apiResponse?.data || (apiResponse?.task_id ? apiResponse : null);
+                    const rawTask = apiResponse?.data || (apiResponse?.task_id ? apiResponse : null);
 
                     if (rawTask) {
                         if (rawTask.status === TaskStatus.SUCCESS) {
@@ -2273,7 +2273,7 @@ export default function DynamicComicEditor() {
                 try {
                     const response = await taskApi.queryTaskStatus(taskId);
                     const apiResponse = response?.data as any;
-                    let rawTask = apiResponse?.data || (apiResponse?.task_id ? apiResponse : null);
+                    const rawTask = apiResponse?.data || (apiResponse?.task_id ? apiResponse : null);
 
                     if (rawTask) {
                         if (rawTask.status === TaskStatus.SUCCESS) {

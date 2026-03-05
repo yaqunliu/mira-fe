@@ -62,4 +62,6 @@ export interface ICreation {
   characters: ICharacter[];
   scenes: IScene[];
   character_ids?: number[];  // 关联的角色ID列表
+  workflow_mode?: "traditional" | "agent";  // 工作流模式
+  creation_type?: "chapter" | "script" | "chat";  // 创作类型
 }

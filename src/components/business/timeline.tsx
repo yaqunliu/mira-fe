@@ -1046,7 +1046,7 @@ export const Timeline: React.FC = () => {
           if (rect) {
             const scrollLeft = timelineRef.current?.scrollLeft || 0;
             const clickX = e.clientX - rect.left + scrollLeft - 160;
-            let newTime = Math.max(0, getTimeFromPixel(clickX));
+            const newTime = Math.max(0, getTimeFromPixel(clickX));
 
             // 保存当前时间（不应用吸附）
             playheadDragSnappedTimeRef.current = newTime;

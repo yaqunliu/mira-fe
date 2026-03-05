@@ -267,6 +267,22 @@ export function useAgentChat(creationUuid: string) {
                 options: action.options || [],
               });
               break;
+            case 'show_config_card':
+              setPendingInteraction({
+                type: 'config_card',
+                title: action.title || '配置参数',
+                description: action.description,
+                fields: action.fields || [],
+                submitText: action.submit_text || '确认',
+              });
+              break;
+            case 'confirm_generation':
+              setPendingInteraction({
+                type: 'confirm_generation',
+                message: action.message || '确认生成视频？',
+                params: action.params || {},
+              });
+              break;
           }
           break;
         }
@@ -686,9 +702,14 @@ export function useAgentChat(creationUuid: string) {
       }
 
       // 构建请求
+      // 转换 action_response 为 action 和 action_data
+      const action = actionResponse?.action;
+      const action_data = actionResponse?.params || actionResponse?.data;
+      
       const request: ChatRequest = {
         message,
-        action_response: actionResponse,
+        action,
+        action_data,
         attachments,
         stream: !isPollingMode,
       };

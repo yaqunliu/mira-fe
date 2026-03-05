@@ -373,7 +373,7 @@ export function ShotEditModal({
         if (!item.内容) return;
 
         // Find a text track or create one if it doesn't exist
-        let textTrack = tracks.find(t => t.type === 'text');
+        const textTrack = tracks.find(t => t.type === 'text');
 
         if (!textTrack) {
             toast.error(tCommon('noTextTrackFound'));
