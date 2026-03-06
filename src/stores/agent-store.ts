@@ -1,0 +1,204 @@
+import { create } from 'zustand';
+import { produce } from 'immer';
+import type {
+  AgentMessage,
+  ActionRequest,
+  ToolCall,
+  BoardViewType,
+  PendingInteraction,
+} from '@/types/agent';
+
+/**
+ * Agent 模式状态管理
+ */
+export interface AgentState {
+  // ============ SSE 连接状态 ============
+  isConnected: boolean;
+  isStreaming: boolean;
+  isProcessing: boolean;  // 后台正在处理（收到 progress 事件时为 true）
+  connectionError: string | null;
+
+  // ============ 消息历史 ============
+  messages: AgentMessage[];
+  currentMessageId: string | null;
+
+  // ============ 当前 Agent 状态 ============
+  isThinking: boolean;
+  thinkingContent: string;
+  currentToolCall: ToolCall | null;
+
+  // ============ 看板状态 ============
+  currentView: BoardViewType;
+  highlightedElement: string | null;
+
+  // ============ 操作请求 ============
+  pendingActionRequest: ActionRequest | null;
+
+  // ============ Supervisor 交互请求 ============
+  pendingInteraction: PendingInteraction | null;
+
+  // ============ 输入框状态 ============
+  inputText: string;
+  showInput: boolean;
+
+  // ============ Actions - 连接管理 ============
+  setConnected: (connected: boolean) => void;
+  setStreaming: (streaming: boolean) => void;
+  setProcessing: (processing: boolean) => void;
+  setConnectionError: (error: string | null) => void;
+
+  // ============ Actions - 消息管理 ============
+  addMessage: (message: AgentMessage) => void;
+  updateMessage: (id: string, updates: Partial<AgentMessage>) => void;
+  setMessages: (messages: AgentMessage[]) => void;
+  clearMessages: () => void;
+  setCurrentMessageId: (id: string | null) => void;
+
+  // ============ Actions - Agent 状态 ============
+  setThinking: (isThinking: boolean, content?: string) => void;
+  setCurrentToolCall: (toolCall: ToolCall | null) => void;
+
+  // ============ Actions - 看板操作 ============
+  setBoardView: (view: BoardViewType) => void;
+  setHighlightedElement: (elementId: string | null) => void;
+  highlightElement: (elementId: string, duration?: number) => void;
+
+  // ============ Actions - 操作请求 ============
+  setPendingActionRequest: (request: ActionRequest | null) => void;
+
+  // ============ Actions - Supervisor 交互请求 ============
+  setPendingInteraction: (interaction: PendingInteraction | null) => void;
+
+  // ============ Actions - 输入框操作 ============
+  setInputText: (text: string) => void;
+  appendToInput: (text: string) => void;
+  clearInput: () => void;
+  setShowInput: (show: boolean) => void;
+
+  // ============ Actions - 重置 ============
+  reset: () => void;
+}
+
+const initialState = {
+  // 连接状态
+  isConnected: false,
+  isStreaming: false,
+  isProcessing: false,
+  connectionError: null,
+
+  // 消息历史
+  messages: [],
+  currentMessageId: null,
+
+  // Agent 状态
+  isThinking: false,
+  thinkingContent: '',
+  currentToolCall: null,
+
+  // 看板状态
+  currentView: 'script' as BoardViewType,
+  highlightedElement: null,
+
+  // 操作请求
+  pendingActionRequest: null,
+
+  // Supervisor 交互请求
+  pendingInteraction: null,
+
+  // 输入框状态
+  inputText: '',
+  showInput: true,
+};
+
+export const useAgentStore = create<AgentState>((set) => ({
+  ...initialState,
+
+  // ============ 连接管理 ============
+
+  setConnected: (connected: boolean) =>
+    set({ isConnected: connected }),
+
+  setStreaming: (streaming: boolean) =>
+    set({ isStreaming: streaming }),
+
+  setProcessing: (processing: boolean) =>
+    set({ isProcessing: processing }),
+
+  setConnectionError: (error: string | null) =>
+    set({ connectionError: error }),
+
+  // ============ 消息管理 ============
+
+  addMessage: (message: AgentMessage) =>
+    set(
+      produce((state: AgentState) => {
+        state.messages.push(message);
+      })
+    ),
+
+  updateMessage: (id: string, updates: Partial<AgentMessage>) =>
+    set(
+      produce((state: AgentState) => {
+        const message = state.messages.find((m) => m.id === id);
+        if (message) {
+          Object.assign(message, updates);
+        }
+      })
+    ),
+
+  clearMessages: () =>
+    set({ messages: [] }),
+
+  setMessages: (messages: AgentMessage[]) =>
+    set({ messages }),
+
+  setCurrentMessageId: (id: string | null) =>
+    set({ currentMessageId: id }),
+
+  // ============ Agent 状态 ============
+
+  setThinking: (isThinking: boolean, content?: string) =>
+    set({
+      isThinking,
+      thinkingContent: content || '',
+    }),
+
+  setCurrentToolCall: (toolCall: ToolCall | null) =>
+    set({ currentToolCall: toolCall }),
+
+  // ============ 看板操作 ============
+
+  setBoardView: (view: BoardViewType) =>
+    set({ currentView: view }),
+
+  setHighlightedElement: (elementId: string | null) =>
+    set({ highlightedElement: elementId }),
+
+  highlightElement: (elementId: string, duration: number = 3000) => {
+    set({ highlightedElement: elementId });
+    setTimeout(() => {
+      set({ highlightedElement: null });
+    }, duration);
+  },
+
+  // ============ 操作请求 ============
+
+  setPendingActionRequest: (request: ActionRequest | null) =>
+    set({ pendingActionRequest: request }),
+
+  // ============ Supervisor 交互请求 ============
+
+  setPendingInteraction: (interaction: PendingInteraction | null) =>
+    set({ pendingInteraction: interaction }),
+
+  // ============ 输入框操作 ============
+  setInputText: (text: string) => set({ inputText: text }),
+  appendToInput: (text: string) =>
+    set((state) => ({ inputText: state.inputText + text })),
+  clearInput: () => set({ inputText: '' }),
+  setShowInput: (show: boolean) => set({ showInput: show }),
+
+  // ============ 重置 ============
+
+  reset: () => set(initialState),
+}));

@@ -215,7 +215,14 @@ export default function CreationsPage() {
 
   const handleCreationClick = (creation: ICreation) => {
     const creationUuid = creation.uuid;
-    window.open(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+    
+    // chat 类型或 agent 模式都跳转到 /create-agent
+    if (creation.creation_type === "chat" || creation.workflow_mode === "agent") {
+      window.open(`/${locale}/create-agent?creationId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+    } else {
+      // 传统模式跳转到 /dynamic-comic-editor
+      window.open(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const handleDelete = (creationId: string) => {

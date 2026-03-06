@@ -51,7 +51,7 @@ export function NarrationEditBottomSheet({
 
   const getNarrationString = (narration: NarrationItem[]) => {
     if (Array.isArray(narration)) {
-      return narration.map(item => item.内容).join("\n");
+      return narration.map(item => item.内容 || (item as any).content || '').join("\n");
     }
     return "";
   };

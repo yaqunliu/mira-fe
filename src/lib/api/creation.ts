@@ -40,7 +40,7 @@ const creationApi = {
     if (params?.title) {
       queryParams.append('title', params.title)
     }
-    
+
     const queryString = queryParams.toString()
     const url = `/api/v1/creations${queryString ? `?${queryString}` : ''}`
 
@@ -50,8 +50,8 @@ const creationApi = {
     creationId: string,
     excludeTimeline: boolean = false
   ): Promise<{ data: ICreation; message: string }> => {
-    const url = excludeTimeline 
-      ? `/api/v1/creations/${creationId}?exclude_timeline=true` 
+    const url = excludeTimeline
+      ? `/api/v1/creations/${creationId}?exclude_timeline=true`
       : `/api/v1/creations/${creationId}`;
     return apiClient.get<ApiResponse<ICreation>>(
       url
@@ -275,138 +275,72 @@ const creationApi = {
     }>;
   },
 
-  // 获取图片生成历史
-  getImageHistory: async (
-    creationUuid: string,
-    imageType?: 'character' | 'scene' | 'shot'
+  // 获取创作所属小说的所有角色
+  getNovelCharacters: async (
+    creationUuid: string
   ): Promise<{
     data: {
       creation_uuid: string;
+      novel_id: number;
       characters: Array<{
         character_id: number;
-        character_name: string;
-        image_url: string;
-        image_prompt: string;
-        model_name: string;
-        visual_style: string;
-        generated_at: string;
-        success: boolean;
-        file_size?: number;
-        duration_sec?: number;
+        uuid: string;
+        name: string;
+        status: string;
+        basic_info?: string;
+        appearance?: string;
+        body?: string;
+        hair?: string;
+        clothing?: string;
+        tags?: string[];
+        image_prompt?: string;
+        visual_style?: string;
+        image_url?: string;
+        creation_id?: number;
+        novel_id?: number;
+        created_at?: string;
+        updated_at?: string;
       }>;
-      scenes: Array<{
-        scene_id: number;
-        scene_title: string;
-        image_url: string;
-        image_prompt: string;
-        model_name: string;
-        visual_style: string;
-        generated_at: string;
-        success: boolean;
-        file_size?: number;
-        duration_sec?: number;
-      }>;
-      shots: Array<{
-        shot_id: number;
-        shot_title: string;
-        scene_id: number;
-        image_url: string;
-        end_frame_image_url?: string;
-        image_prompt: string;
-        model_name: string;
-        visual_style: string;
-        generated_at: string;
-        success: boolean;
-        file_size?: number;
-        duration_sec?: number;
-        character_refs?: number;
-      }>;
-      total: number;
     };
     message: string;
   }> => {
-    const queryParam = imageType ? `?image_type=${imageType}` : '';
     return apiClient.get(
-      `/api/v1/creations/${creationUuid}/image-history${queryParam}`
+      `/api/v1/creations/${creationUuid}/novel-characters`
     ) as unknown as Promise<{
       data: {
         creation_uuid: string;
+        novel_id: number;
         characters: Array<{
           character_id: number;
-          character_name: string;
-          image_url: string;
-          image_prompt: string;
-          model_name: string;
-          visual_style: string;
-          generated_at: string;
-          success: boolean;
-          file_size?: number;
-          duration_sec?: number;
+          uuid: string;
+          name: string;
+          status: string;
+          basic_info?: string;
+          appearance?: string;
+          body?: string;
+          hair?: string;
+          clothing?: string;
+          tags?: string[];
+          image_prompt?: string;
+          visual_style?: string;
+          image_url?: string;
+          creation_id?: number;
+          novel_id?: number;
+          created_at?: string;
+          updated_at?: string;
         }>;
-        scenes: Array<{
-          scene_id: number;
-          scene_title: string;
-          image_url: string;
-          image_prompt: string;
-          model_name: string;
-          visual_style: string;
-          generated_at: string;
-          success: boolean;
-          file_size?: number;
-          duration_sec?: number;
-        }>;
-        shots: Array<{
-          shot_id: number;
-          shot_title: string;
-          scene_id: number;
-          image_url: string;
-          end_frame_image_url?: string;
-          image_prompt: string;
-          model_name: string;
-          visual_style: string;
-          generated_at: string;
-          success: boolean;
-          file_size?: number;
-          duration_sec?: number;
-          character_refs?: number;
-        }>;
-        total: number;
       };
       message: string;
     }>;
   },
 
-  // 更新图片为历史版本
-  updateImageVersion: async (
-    creationUuid: string,
-    imageType: 'character' | 'scene' | 'shot',
-    itemId: number,
-    historyIndex: number
-  ): Promise<{
-    data: {
-      updated: boolean;
-      image_type: string;
-      item_id: number;
-      image_url: string;
-    };
-    message: string;
-  }> => {
-    return apiClient.post(
-      `/api/v1/creations/${creationUuid}/update-image-version`,
-      {
-        image_type: imageType,
-        item_id: itemId,
-        history_index: historyIndex
-      }
-    ) as unknown as Promise<{
-      data: {
-        updated: boolean;
-        image_type: string;
-        item_id: number;
-        image_url: string;
-      };
-      message: string;
-    }>;
+  // 获取章节内容（剧本原文）
+  getChapterContent: async (
+    creationUuid: string
+  ): Promise<{ data: { content: string }; message: string }> => {
+    return apiClient.get(
+      `/api/v1/creations/${creationUuid}/chapter_content`
+    ) as unknown as Promise<{ data: { content: string }; message: string }>;
   },
 };
 

@@ -45,7 +45,16 @@ function VideoCard({ creation }: { creation: ICreation }) {
 
   const handleCreationClick = (creation: ICreation) => {
     const creationId = (creation as any).uuid || creation.creation_id;
-    router.push(`/${locale}/dynamic-comic-editor?taskId=${creationId}`);
+    const creationType = (creation as any).creation_type || creation.creation_type;
+    
+    // 根据 creation_type 决定跳转页面
+    if (creationType === 'chat') {
+      // Chat 类型跳转到 create-agent 页面
+      router.push(`/${locale}/create-agent?creationId=${creationId}`);
+    } else {
+      // 其他类型跳转到 dynamic-comic-editor 页面
+      router.push(`/${locale}/dynamic-comic-editor?taskId=${creationId}`);
+    }
   };
   // 兼容两种字段名格式
   const creationId = (creation as any).creation_id || creation.creation_id || (creation as any).uuid || "";

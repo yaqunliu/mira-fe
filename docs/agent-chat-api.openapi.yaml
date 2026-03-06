@@ -1,0 +1,960 @@
+openapi: 3.1.0
+
+info:
+  title: 漫剧 Agent 对话 API
+  version: 1.0.0
+  description: |
+    漫剧 Agent 对话 API 基于 Server-Sent Events (SSE) 协议，提供实时的 AI Agent 交互能力。
+
+    **核心功能**:
+    - 基于创作 UUID 的会话管理
+    - SSE 流式响应，实时返回思考过程
+    - 工具调用和执行结果追踪
+    - 进度更新和看板操作指令
+    - 用户交互请求和确认
+
+  contact:
+    name: API Support
+    email: api-support@example.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.example.com/v1
+    description: 生产环境
+  - url: https://api-staging.example.com/v1
+    description: 测试环境
+
+security:
+  - BearerAuth: []
+
+paths:
+  /creations/{creation_uuid}/agent/chat:
+    post:
+      summary: 发起 Agent 对话
+      description: |
+        向 Agent 发送用户消息，建立 SSE 连接接收流式响应。
+
+        响应为持续的 SSE 事件流，包括：
+        - 消息内容流式输出
+        - Agent 思考过程
+        - 工具调用和执行结果
+        - 进度更新
+        - 看板操作指令
+        - 用户交互请求
+
+      operationId: chatWithAgent
+      tags:
+        - Agent Chat
+
+      parameters:
+        - name: creation_uuid
+          in: path
+          required: true
+          description: 创作项目的唯一标识符
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              simpleMessage:
+                summary: 简单文本消息
+                value:
+                  message: "小明的眼镜改成圆框的"
+                  stream: true
+
+              uploadScript:
+                summary: 上传剧本
+                value:
+                  message: "这是一个咖啡店相遇的爱情故事..."
+                  attachments:
+                    - type: file
+                      name: "剧本.txt"
+                      url: "https://storage.example.com/files/script.txt"
+                      mime_type: "text/plain"
+                  context:
+                    current_stage: "script_analysis"
+                  stream: true
+
+              userAction:
+                summary: 用户操作响应
+                value:
+                  message: "确认，开始生成资产"
+                  context:
+                    current_stage: "script_confirmed"
+                    user_action: "confirm_script"
+                  stream: true
+
+      responses:
+        '200':
+          description: SSE 事件流
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/event-stream
+            Cache-Control:
+              schema:
+                type: string
+                example: no-cache
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/SSEEventStream'
+              examples:
+                messageFlow:
+                  summary: 完整消息流示例
+                  value: |
+                    event: message.start
+                    data: {"type":"message.start","message_id":"msg_001","timestamp":"2025-01-27T10:30:00Z"}
+
+                    event: message.content
+                    data: {"type":"message.content","message_id":"msg_001","content":"收到！","delta":"收到！","timestamp":"2025-01-27T10:30:00.100Z"}
+
+                    event: thinking.start
+                    data: {"type":"thinking.start","message_id":"msg_001","timestamp":"2025-01-27T10:30:00.300Z"}
+
+                    event: tool.call
+                    data: {"type":"tool.call","message_id":"msg_001","tool_call_id":"tc_001","tool_name":"parse_script","arguments":{"script_url":"..."},"timestamp":"2025-01-27T10:30:02Z"}
+
+                    event: progress.update
+                    data: {"type":"progress.update","message_id":"msg_001","task_id":"parse_script","progress":{"percentage":50},"timestamp":"2025-01-27T10:30:05Z"}
+
+                    event: tool.output
+                    data: {"type":"tool.output","message_id":"msg_001","tool_call_id":"tc_001","status":"success","output":{...},"timestamp":"2025-01-27T10:30:08Z"}
+
+                    event: board.action
+                    data: {"type":"board.action","message_id":"msg_001","actions":[{"action":"switch_view","target":"script"}],"timestamp":"2025-01-27T10:30:10Z"}
+
+                    event: action.request
+                    data: {"type":"action.request","message_id":"msg_001","request_id":"req_001","prompt":"请确认","actions":[...],"timestamp":"2025-01-27T10:30:12Z"}
+
+                    event: message.end
+                    data: {"type":"message.end","message_id":"msg_001","finish_reason":"completed","timestamp":"2025-01-27T10:30:12Z"}
+
+        '400':
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '401':
+          description: 未授权
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '404':
+          description: 创作项目不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+        '429':
+          description: 请求频率超限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /creations/{creation_uuid}/agent/messages:
+    get:
+      summary: 获取会话历史
+      description: 获取当前创作会话的历史对话记录
+      operationId: getMessages
+      tags:
+        - Agent Chat
+
+      parameters:
+        - name: creation_uuid
+          in: path
+          required: true
+          description: 创作项目的唯一标识符
+          schema:
+            type: string
+            format: uuid
+
+        - name: limit
+          in: query
+          description: 返回消息数量
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+
+        - name: before
+          in: query
+          description: 返回此消息 ID 之前的消息（用于分页）
+          schema:
+            type: string
+
+        - name: after
+          in: query
+          description: 返回此消息 ID 之后的消息（用于分页）
+          schema:
+            type: string
+
+      responses:
+        '200':
+          description: 消息列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageHistory'
+
+        '404':
+          description: 创作项目不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /creations/{creation_uuid}/agent/interrupt:
+    post:
+      summary: 中断对话
+      description: 中断当前正在进行的 Agent 响应
+      operationId: interruptChat
+      tags:
+        - Agent Chat
+
+      parameters:
+        - name: creation_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message_id:
+                  type: string
+                  description: 要中断的消息 ID
+                  example: "msg_abc123"
+                reason:
+                  type: string
+                  description: 中断原因
+                  enum:
+                    - user_stopped
+                    - timeout
+                    - error
+                  example: "user_stopped"
+              required:
+                - message_id
+
+      responses:
+        '200':
+          description: 中断成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "对话已中断"
+
+  /creations/{creation_uuid}/agent/reset:
+    post:
+      summary: 重置会话
+      description: 清空当前会话的对话历史，重新开始
+      operationId: resetChat
+      tags:
+        - Agent Chat
+
+      parameters:
+        - name: creation_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keep_assets:
+                  type: boolean
+                  description: 是否保留已生成的资产
+                  default: true
+
+      responses:
+        '200':
+          description: 重置成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  creation_uuid:
+                    type: string
+                    example: "creation_123"
+                  message:
+                    type: string
+                    example: "会话已重置"
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 使用 JWT Token 进行身份验证
+
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: 用户输入的文本消息
+          example: "这是一个咖啡店相遇的爱情故事..."
+
+        attachments:
+          type: array
+          description: 附件列表（剧本、图片等）
+          items:
+            $ref: '#/components/schemas/Attachment'
+
+        context:
+          type: object
+          description: 上下文信息
+          properties:
+            current_stage:
+              type: string
+              description: 当前所处阶段
+              enum:
+                - initial
+                - script_analysis
+                - script_confirmed
+                - asset_generation
+                - asset_confirmation
+                - storyboard_generation
+                - audio_processing
+                - video_composition
+                - preview
+                - export
+              example: "script_analysis"
+
+            user_action:
+              type: string
+              description: 用户操作类型
+              example: "confirm_script"
+
+        stream:
+          type: boolean
+          description: 是否使用流式响应
+          default: true
+
+    Attachment:
+      type: object
+      required:
+        - type
+        - name
+        - url
+      properties:
+        type:
+          type: string
+          enum:
+            - file
+            - image
+            - url
+          example: "file"
+
+        name:
+          type: string
+          example: "剧本.txt"
+
+        url:
+          type: string
+          format: uri
+          example: "https://storage.example.com/files/script.txt"
+
+        mime_type:
+          type: string
+          example: "text/plain"
+
+    SSEEventStream:
+      description: |
+        SSE 事件流，由多个事件组成，每个事件包含 event 和 data 字段。
+
+        事件类型：
+        - message.start: 消息开始
+        - message.content: 消息内容流式输出
+        - thinking.start: 思考开始
+        - thinking.content: 思考内容
+        - thinking.end: 思考结束
+        - tool.call: 工具调用
+        - tool.output: 工具执行结果
+        - progress.update: 进度更新
+        - board.action: 看板操作指令
+        - action.request: 请求用户操作
+        - attachment: 附件/预览
+        - message.end: 消息结束
+        - error: 错误事件
+
+      oneOf:
+        - $ref: '#/components/schemas/MessageStartEvent'
+        - $ref: '#/components/schemas/MessageContentEvent'
+        - $ref: '#/components/schemas/ThinkingStartEvent'
+        - $ref: '#/components/schemas/ThinkingContentEvent'
+        - $ref: '#/components/schemas/ThinkingEndEvent'
+        - $ref: '#/components/schemas/ToolCallEvent'
+        - $ref: '#/components/schemas/ToolOutputEvent'
+        - $ref: '#/components/schemas/ProgressUpdateEvent'
+        - $ref: '#/components/schemas/BoardActionEvent'
+        - $ref: '#/components/schemas/ActionRequestEvent'
+        - $ref: '#/components/schemas/AttachmentEvent'
+        - $ref: '#/components/schemas/MessageEndEvent'
+        - $ref: '#/components/schemas/ErrorEvent'
+
+    MessageStartEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [message.start]
+        message_id:
+          type: string
+          example: "msg_abc123"
+        timestamp:
+          type: string
+          format: date-time
+
+    MessageContentEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - content
+        - delta
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [message.content]
+        message_id:
+          type: string
+        content:
+          type: string
+          description: 当前累积的完整内容
+        delta:
+          type: string
+          description: 本次新增的内容片段
+        timestamp:
+          type: string
+          format: date-time
+
+    ThinkingStartEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [thinking.start]
+        message_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    ThinkingContentEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - content
+        - delta
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [thinking.content]
+        message_id:
+          type: string
+        content:
+          type: string
+          description: 当前累积的思考内容
+        delta:
+          type: string
+          description: 本次新增的思考片段
+        timestamp:
+          type: string
+          format: date-time
+
+    ThinkingEndEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [thinking.end]
+        message_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    ToolCallEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - tool_call_id
+        - tool_name
+        - arguments
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [tool.call]
+        message_id:
+          type: string
+        tool_call_id:
+          type: string
+          example: "tc_xyz789"
+        tool_name:
+          type: string
+          description: 工具名称
+          enum:
+            - parse_script
+            - generate_character
+            - generate_scene
+            - generate_storyboard
+            - generate_audio
+            - compose_video
+          example: "parse_script"
+        arguments:
+          type: object
+          description: 工具调用参数
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+    ToolOutputEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - tool_call_id
+        - tool_name
+        - status
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [tool.output]
+        message_id:
+          type: string
+        tool_call_id:
+          type: string
+        tool_name:
+          type: string
+        status:
+          type: string
+          enum:
+            - success
+            - error
+            - running
+        output:
+          type: object
+          description: 工具返回的结果数据
+          additionalProperties: true
+        error:
+          type: string
+          description: 错误信息（status 为 error 时）
+        timestamp:
+          type: string
+          format: date-time
+
+    ProgressUpdateEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - task_id
+        - task_name
+        - progress
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [progress.update]
+        message_id:
+          type: string
+        task_id:
+          type: string
+          example: "task_generate_chars"
+        task_name:
+          type: string
+          example: "生成角色形象"
+        progress:
+          type: object
+          required:
+            - current
+            - total
+            - percentage
+            - status
+          properties:
+            current:
+              type: integer
+              example: 3
+            total:
+              type: integer
+              example: 5
+            percentage:
+              type: integer
+              minimum: 0
+              maximum: 100
+              example: 60
+            status:
+              type: string
+              enum:
+                - pending
+                - running
+                - completed
+                - error
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  item:
+                    type: string
+                  status:
+                    type: string
+                  progress:
+                    type: integer
+                  result_url:
+                    type: string
+            estimated_seconds_remaining:
+              type: integer
+              example: 120
+        timestamp:
+          type: string
+          format: date-time
+
+    BoardActionEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - actions
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [board.action]
+        message_id:
+          type: string
+        actions:
+          type: array
+          items:
+            type: object
+            required:
+              - action
+              - target
+            properties:
+              action:
+                type: string
+                enum:
+                  - switch_view
+                  - highlight
+                  - scroll
+                  - update
+                  - add
+                  - remove
+              target:
+                type: string
+                description: 目标元素标识
+              data:
+                type: object
+                description: 操作相关数据
+                additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+    ActionRequestEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - request_id
+        - prompt
+        - actions
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [action.request]
+        message_id:
+          type: string
+        request_id:
+          type: string
+          example: "req_confirm_assets"
+        prompt:
+          type: string
+          description: 提示用户的文本
+          example: "请确认角色形象"
+        actions:
+          type: array
+          description: 可选操作列表
+          items:
+            type: object
+            required:
+              - id
+              - label
+              - type
+            properties:
+              id:
+                type: string
+                example: "confirm_all"
+              label:
+                type: string
+                example: "全部满意，锁定资产"
+              type:
+                type: string
+                enum:
+                  - primary
+                  - secondary
+                  - danger
+              style:
+                type: string
+                enum:
+                  - default
+                  - success
+                  - warning
+                  - danger
+        timeout_seconds:
+          type: integer
+          description: 超时时间（秒）
+          example: 300
+        timestamp:
+          type: string
+          format: date-time
+
+    AttachmentEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - attachments
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [attachment]
+        message_id:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+                example: "storyboard_preview"
+              title:
+                type: string
+              items:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+    MessageEndEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - finish_reason
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [message.end]
+        message_id:
+          type: string
+        finish_reason:
+          type: string
+          enum:
+            - completed
+            - interrupted
+            - error
+            - timeout
+        metadata:
+          type: object
+          properties:
+            total_tokens:
+              type: integer
+            tools_called:
+              type: integer
+            duration_ms:
+              type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorEvent:
+      type: object
+      required:
+        - type
+        - message_id
+        - error
+        - timestamp
+      properties:
+        type:
+          type: string
+          enum: [error]
+        message_id:
+          type: string
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              example: "GENERATION_FAILED"
+            message:
+              type: string
+              example: "分镜3的视频生成失败"
+            details:
+              type: string
+              example: "画面内容可能触发了安全审核"
+            suggestions:
+              type: array
+              items:
+                type: string
+              example:
+                - "修改分镜描述，避免敏感内容"
+                - "使用静态图片替代视频"
+            recoverable:
+              type: boolean
+              description: 是否可恢复
+        timestamp:
+          type: string
+          format: date-time
+
+    MessageHistory:
+      type: object
+      required:
+        - creation_uuid
+        - messages
+        - has_more
+        - total_count
+      properties:
+        creation_uuid:
+          type: string
+          format: uuid
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              role:
+                type: string
+                enum:
+                  - user
+                  - assistant
+                  - system
+              content:
+                type: string
+              attachments:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+              actions:
+                type: array
+                items:
+                  type: object
+              timestamp:
+                type: string
+                format: date-time
+        has_more:
+          type: boolean
+        total_count:
+          type: integer
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - CREATION_NOT_FOUND
+                - INVALID_MESSAGE
+                - RATE_LIMIT_EXCEEDED
+                - GENERATION_FAILED
+                - TOOL_EXECUTION_ERROR
+                - CONTENT_MODERATION_FAILED
+                - INSUFFICIENT_CREDITS
+                - UNAUTHORIZED
+            message:
+              type: string
+            details:
+              type: string
+
+tags:
+  - name: Agent Chat
+    description: Agent 对话相关接口

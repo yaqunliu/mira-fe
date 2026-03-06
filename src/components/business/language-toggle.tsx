@@ -29,7 +29,7 @@ export function LanguageToggle() {
   const handleLanguageChange = (locale: string) => {
     // 构建新的路径，替换当前语言代码
     const segments = pathname?.split('/') || [];
-    let newSegments = [...segments];
+    const newSegments = [...segments];
     
     // 检查路径是否已经包含语言代码
     if (newSegments.length > 1 && routing.locales.includes(newSegments[1] as any)) {
