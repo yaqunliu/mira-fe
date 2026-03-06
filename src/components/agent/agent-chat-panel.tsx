@@ -9,6 +9,7 @@ import { VocabConfigCard } from './vocab-config-card';
 import { CreationTypeCard } from './creation-type-card';
 import { ICreation } from '@/types/creation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useQuery } from '@tanstack/react-query';
 
 interface AgentChatPanelProps {
   creationUuid?: string; // 可选，因为现在从 Provider 获取
@@ -32,6 +33,15 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
   // 获取 video_url
   const videoUrl = creation?.video_url || (creation?.extra_data as any)?.video_url;
   const hasVideo = !!videoUrl;
+  
+  
+  const currentStatus = (creation?.status || '') as string;
+  const extraData = creation?.extra_data as any;
+  const progress = extraData?.progress || 0;
+  const currentStep = extraData?.current_step || '';
+  
+  // 是否在生成中
+  const isGenerating = currentStatus === 'generating' || currentStatus === 'processing' || currentStatus === 'exporting' || currentStatus === 'pending';
   
   const {
     messages,
@@ -202,6 +212,32 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
           />
         )}
       </div>
+
+      {/* 生成进度浮窗卡片 - 固定在页面左侧 */}
+      {isGenerating && (
+        <div className="fixed top-1/3 left-4 w-64 bg-black rounded-xl shadow-2xl border border-gray-600 p-4 z-50">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
+              <span className="text-sm font-medium text-white">生成中</span>
+            </div>
+            <span className="text-xs text-gray-300 uppercase">{currentStatus}</span>
+          </div>
+          
+          {/* 进度条 */}
+          <div className="w-full bg-gray-600 rounded-full h-2 mb-3">
+            <div 
+              className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-300">{currentStep}</span>
+            <span className="text-blue-400 font-medium">{progress}%</span>
+          </div>
+        </div>
+      )}
 
       {/* 输入区域 */}
       <div className="p-4 border-t border-white/20 bg-white/10">
