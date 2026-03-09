@@ -12,11 +12,10 @@ import { AgentProvider } from "@/components/agent/agent-provider";
 import { EditorToolbar } from "@/components/shared/editor-toolbar";
 
 export default function CreateAgentPage() {
-  const t = useTranslations();
+  const t = useTranslations("createAgent");
   const searchParams = useSearchParams();
   const creationId = searchParams?.get("creationId");
 
-  // 查询创作数据
   const { data: creationResponse, isLoading } = useQuery({
     queryKey: ["creation", creationId],
     queryFn: () => creationApi.queryCreationById(creationId!),
@@ -30,8 +29,8 @@ export default function CreateAgentPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <div className="text-6xl">⚠️</div>
-          <h2 className="text-xl font-bold text-gray-800">无效的创作ID</h2>
-          <p className="text-gray-600">请提供有效的 creationId 参数</p>
+          <h2 className="text-xl font-bold text-gray-800">{t("invalidId")}</h2>
+          <p className="text-gray-600">{t("invalidIdDesc")}</p>
         </div>
       </div>
     );
@@ -42,7 +41,7 @@ export default function CreateAgentPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <div className="text-6xl">⏳</div>
-          <h2 className="text-xl font-bold text-gray-800">加载中...</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t("loading")}</h2>
         </div>
       </div>
     );

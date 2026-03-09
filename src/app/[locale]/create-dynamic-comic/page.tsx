@@ -38,6 +38,7 @@ interface Chapter {
 
 export default function CreateDynamicComicPage() {
     const t = useTranslations('createDynamicComic');
+    const tAgent = useTranslations('agentCreation');
     const router = useRouter();
     const params = useParams();
     const locale = params?.locale as string;
@@ -300,7 +301,6 @@ export default function CreateDynamicComicPage() {
         setIsAgentLoading(true);
         
         try {
-            // 创建空白 chat 类型的 creation
             const res = await fetch(`${API_BASE_URL}/api/v1/creations/create`, {
                 method: 'POST',
                 headers: {
@@ -314,17 +314,16 @@ export default function CreateDynamicComicPage() {
                 })
             });
             
-            if (!res.ok) throw new Error("创建失败");
+            if (!res.ok) throw new Error(tAgent('createFailed'));
             
             const result = await res.json();
             const creationUuid = result.data?.uuid || result.data?.creation_uuid;
             
-            toast.success("空白创作已创建");
+            toast.success(tAgent('createSuccess'));
             
-            // 直接跳转到 Agent 页面
             router.push(`/${locale}/create-agent?creationId=${creationUuid}`);
         } catch (e: any) {
-            toast.error(`创建失败: ${e.message}`);
+            toast.error(`${tAgent('createFailed')}: ${e.message}`);
         } finally {
             setIsAgentLoading(false);
         }
@@ -637,7 +636,7 @@ export default function CreateDynamicComicPage() {
                                 label: (
                                     <div className="flex items-center gap-2 py-3 px-4">
                                         <Sparkles className="h-4 w-4 text-[#22C55E]" />
-                                        <span className="font-medium">从空白开始</span>
+                                        <span className="font-medium">{tAgent('tabLabel')}</span>
                                     </div>
                                 ),
                                 content: (
@@ -647,11 +646,30 @@ export default function CreateDynamicComicPage() {
                                                 <Sparkles className="w-10 h-10 text-white" />
                                             </div>
                                             <div>
-                                                <h3 className="text-2xl font-semibold text-gray-800 mb-2">从空白开始创作</h3>
-                                                <p className="text-gray-600 max-w-md mx-auto">
-                                                    创建一个空白创作，通过 AI 对话完成所有步骤
+                                                <h3 className="text-2xl font-semibold text-gray-800 mb-2">{tAgent('title')}</h3>
+                                                <p className="text-gray-600 max-w-lg mx-auto">
+                                                    {tAgent('description')}
                                                 </p>
                                             </div>
+                                            
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto mt-6">
+                                                <div className="p-4 rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-white hover:shadow-md transition-all">
+                                                    <div className="text-2xl mb-2">📚</div>
+                                                    <div className="font-medium text-gray-800 mb-1">{tAgent('features.vocabVideo.title')}</div>
+                                                    <div className="text-sm text-gray-500">{tAgent('features.vocabVideo.description')}</div>
+                                                </div>
+                                                <div className="p-4 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50 to-white hover:shadow-md transition-all">
+                                                    <div className="text-2xl mb-2">😂</div>
+                                                    <div className="font-medium text-gray-800 mb-1">{tAgent('features.gaoxiaoVideo.title')}</div>
+                                                    <div className="text-sm text-gray-500">{tAgent('features.gaoxiaoVideo.description')}</div>
+                                                </div>
+                                                <div className="p-4 rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white hover:shadow-md transition-all">
+                                                    <div className="text-2xl mb-2">📖</div>
+                                                    <div className="font-medium text-gray-800 mb-1">{tAgent('features.storyVideo.title')}</div>
+                                                    <div className="text-sm text-gray-500">{tAgent('features.storyVideo.description')}</div>
+                                                </div>
+                                            </div>
+                                            
                                             <Button
                                                 onClick={handleBlankCreate}
                                                 disabled={isAgentLoading}
@@ -660,12 +678,12 @@ export default function CreateDynamicComicPage() {
                                                 {isAgentLoading ? (
                                                     <>
                                                         <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                                        创建中...
+                                                        {tAgent('creating')}
                                                     </>
                                                 ) : (
                                                     <>
                                                         <Plus className="w-5 h-5 mr-2" />
-                                                        创建空白创作
+                                                        {tAgent('startButton')}
                                                     </>
                                                 )}
                                             </Button>
@@ -722,7 +740,7 @@ export default function CreateDynamicComicPage() {
 
                             {/* Creation Mode Selection */}
                             <div className="px-6 py-6 border-t border-blue-100">
-                                <Label className="text-lg font-medium mb-4 block text-gray-800">创作模式</Label>
+                                <Label className="text-lg font-medium mb-4 block text-gray-800">{tAgent('creationMode.title')}</Label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div
                                         className={`p-5 rounded-xl border cursor-pointer transition-all duration-300 ${creationMode === "professional" ? "border-[#FDBCB4] bg-gradient-to-br from-[#FDBCB4]/10 to-[#ADD8E6]/10 shadow-[4px_4px_12px_rgba(253,188,180,0.3),-2px_-2px_8px_rgba(255,255,255,0.9)]" : "border-gray-200 hover:border-[#FDBCB4] hover:bg-white hover:shadow-[4px_4px_12px_rgba(0,0,0,0.1),-2px_-2px_8px_rgba(255,255,255,0.9)]"}`}
@@ -732,11 +750,11 @@ export default function CreateDynamicComicPage() {
                                             <div className={`p-2 rounded-lg ${creationMode === "professional" ? "bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6]" : "bg-gray-100"}`}>
                                                 <Wrench className={`w-5 h-5 ${creationMode === "professional" ? "text-white" : "text-gray-600"}`} />
                                             </div>
-                                            <div className="font-semibold text-gray-800">专业模式</div>
+                                            <div className="font-semibold text-gray-800">{tAgent('creationMode.professional.title')}</div>
                                             {creationMode === "professional" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
                                         </div>
                                         <div className="text-sm text-gray-600 pl-12">
-                                            手动精细控制每一步创作流程，适合专业用户深度定制
+                                            {tAgent('creationMode.professional.description')}
                                         </div>
                                     </div>
                                     <div
@@ -747,11 +765,11 @@ export default function CreateDynamicComicPage() {
                                             <div className={`p-2 rounded-lg ${creationMode === "agent" ? "bg-gradient-to-r from-[#22C55E] to-[#ADD8E6]" : "bg-gray-100"}`}>
                                                 <Bot className={`w-5 h-5 ${creationMode === "agent" ? "text-white" : "text-gray-600"}`} />
                                             </div>
-                                            <div className="font-semibold text-gray-800">Agent 模式</div>
+                                            <div className="font-semibold text-gray-800">{tAgent('creationMode.agent.title')}</div>
                                             {creationMode === "agent" && <Check className="w-5 h-5 text-green-500 ml-auto" />}
                                         </div>
                                         <div className="text-sm text-gray-600 pl-12">
-                                            AI 全自动引导创作，通过对话完成所有步骤，适合快速创作
+                                            {tAgent('creationMode.agent.description')}
                                         </div>
                                     </div>
                                 </div>

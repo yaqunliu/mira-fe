@@ -959,5 +959,116 @@
     "watercolorDescription": "Soft and delicate watercolor painting style",
     "anime": "Anime",
     "animeDescription": "Classic Japanese anime style"
+  },
+  "agentCreation": {
+    "tabLabel": "AI Smart Creation",
+    "title": "AI Smart Creation",
+    "description": "Tell AI your creative ideas and let it help you create short videos",
+    "startButton": "Start AI Creation",
+    "creating": "Creating...",
+    "createSuccess": "Blank creation created",
+    "createFailed": "Creation failed",
+    "features": {
+      "vocabVideo": {
+        "title": "Vocabulary Video",
+        "description": "Enter words to auto-generate teaching videos"
+      },
+      "gaoxiaoVideo": {
+        "title": "Funny Short Video",
+        "description": "Provide a topic to generate fun content"
+      },
+      "storyVideo": {
+        "title": "Story Animation",
+        "description": "Tell a story to generate animated narration"
+      }
+    },
+    "creationMode": {
+      "title": "Creation Mode",
+      "professional": {
+        "title": "Professional Mode",
+        "description": "Manually control every step of the creation process, suitable for professional users"
+      },
+      "agent": {
+        "title": "Agent Mode",
+        "description": "AI guides the entire creation process through conversation, perfect for quick creation"
+      }
+    }
+  },
+  "createAgent": {
+    "invalidId": "Invalid creation ID",
+    "invalidIdDesc": "Please provide a valid creationId parameter",
+    "loading": "Loading...",
+    "aiDirectorAssistant": "AI Director Assistant",
+    "pollingMode": "Polling Mode",
+    "connected": "Connected",
+    "standby": "Standby",
+    "disconnected": "Disconnected",
+    "reconnect": "Reconnect",
+    "resetSession": "Reset Session",
+    "resetting": "Resetting...",
+    "reset": "Reset",
+    "resetConfirm": "Are you sure you want to reset the session? This will clear all conversation history.",
+    "viewResult": "View Result",
+    "generationResult": "Generation Result",
+    "connectionError": "Connection Error",
+    "selectCreationType": "Select Creation Type",
+    "vocabVideo": "Vocabulary Video",
+    "gaoxiaoVideo": "Funny Short Video",
+    "storyVideo": "Story Animation",
+    "generating": "Generating",
+    "inputPlaceholder": "Type a message...",
+    "aiResponding": "AI is responding",
+    "backgroundProcessing": "Processing in background",
+    "interrupting": "Interrupting...",
+    "interrupt": "Interrupt",
+    "videoResultTitle": "🎬 Video Generation Result",
+    "videoResultDesc": "Your video has been generated, you can preview and download it",
+    "browserNotSupport": "Your browser does not support video playback",
+    "downloadVideo": "Download Video",
+    "close": "Close",
+    "creationType": {
+      "title": "Select Creation Type",
+      "suggestedDesc": "Based on your description, we recommend:",
+      "selectDesc": "Please select the video type you want to create:",
+      "confirmSelect": "Confirm Selection",
+      "pleaseSelect": "Please select a creation type",
+      "vocabVideo": {
+        "title": "Vocabulary Video",
+        "description": "Create beautiful vocabulary teaching videos with pronunciation, examples and illustrations"
+      },
+      "gaoxiaoVideo": {
+        "title": "Funny Short Video",
+        "description": "Create funny short videos for entertainment"
+      },
+      "storyVideo": {
+        "title": "Story Animation",
+        "description": "Tell a story and generate animated narration"
+      }
+    },
+    "chat": {
+      "startVocabVideo": "Start Vocabulary Video Creation",
+      "startChat": "Start Chat with AI Assistant",
+      "messageFailed": "⚠️ Message failed to send"
+    },
+    "input": {
+      "send": "Send",
+      "sending": "Sending...",
+      "enterToSend": "Press Enter to send, Shift + Enter for new line"
+    },
+    "vocabConfig": {
+      "title": "Vocabulary Video Creation",
+      "subtitle": "Configure your vocabulary learning video",
+      "addWord": "Add Word",
+      "pressEnter": "(Press Enter to add)",
+      "wordPlaceholder": "Enter a word, e.g.: apple",
+      "difficultyLevel": "Difficulty Level",
+      "difficulty": {
+        "easy": "Easy",
+        "medium": "Medium",
+        "hard": "Hard"
+      },
+      "repetitions": "Repetitions",
+      "startCreate": "Start Creating"
+    }
   }
 }

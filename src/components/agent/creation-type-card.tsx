@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Smile, BookText, Check } from "lucide-react";
 
@@ -9,35 +10,36 @@ interface CreationTypeCardProps {
   suggestedTypes?: string[];
 }
 
-const creationTypes = [
-  {
-    id: "vocab_video" as const,
-    title: "英文单词视频",
-    description: "制作精美的单词教学视频，包含发音、例句和配图",
-    icon: BookOpen,
-    color: "from-[#22C55E] to-[#ADD8E6]",
-    features: ["单词展示", "发音教学", "例句演示"],
-  },
-  {
-    id: "gaoxiao_video" as const,
-    title: "搞笑短视频",
-    description: "创作有趣的搞笑短视频，轻松娱乐",
-    icon: Smile,
-    color: "from-[#F59E0B] to-[#EF4444]",
-    features: ["段子创作", "搞笑配音", "趣味动画"],
-  },
-  {
-    id: "story_video" as const,
-    title: "故事动画视频",
-    description: "将故事变成生动的动画视频",
-    icon: BookText,
-    color: "from-[#8B5CF6] to-[#EC4899]",
-    features: ["绘本故事", "寓言动画", "儿童故事"],
-  },
-];
-
 export function CreationTypeCard({ onSelect, suggestedTypes }: CreationTypeCardProps) {
+  const t = useTranslations("createAgent");
   const [selectedType, setSelectedType] = useState<string | null>(null);
+
+  const creationTypes = [
+    {
+      id: "vocab_video" as const,
+      title: t("creationType.vocabVideo.title"),
+      description: t("creationType.vocabVideo.description"),
+      icon: BookOpen,
+      color: "from-[#22C55E] to-[#ADD8E6]",
+      features: [t("vocabVideo")],
+    },
+    {
+      id: "gaoxiao_video" as const,
+      title: t("creationType.gaoxiaoVideo.title"),
+      description: t("creationType.gaoxiaoVideo.description"),
+      icon: Smile,
+      color: "from-[#F59E0B] to-[#EF4444]",
+      features: [t("gaoxiaoVideo")],
+    },
+    {
+      id: "story_video" as const,
+      title: t("creationType.storyVideo.title"),
+      description: t("creationType.storyVideo.description"),
+      icon: BookText,
+      color: "from-[#8B5CF6] to-[#EC4899]",
+      features: [t("storyVideo")],
+    },
+  ];
 
   const handleConfirm = () => {
     if (selectedType) {
@@ -47,17 +49,15 @@ export function CreationTypeCard({ onSelect, suggestedTypes }: CreationTypeCardP
 
   return (
     <div className="bg-white rounded-xl shadow-[4px_4px_16px_rgba(0,0,0,0.1),-4px_-4px_16px_rgba(255,255,255,0.95)] p-6 space-y-6 max-w-md mx-auto">
-      {/* 标题 */}
       <div className="text-center space-y-2">
-        <h3 className="text-xl font-bold text-gray-800">选择创作类型</h3>
+        <h3 className="text-xl font-bold text-gray-800">{t("creationType.title")}</h3>
         <p className="text-sm text-gray-500">
           {suggestedTypes && suggestedTypes.length > 0
-            ? "根据你的描述，推荐以下创作类型："
-            : "请选择你想要创作的视频类型："}
+            ? t("creationType.suggestedDesc")
+            : t("creationType.selectDesc")}
         </p>
       </div>
 
-      {/* 类型选项 */}
       <div className="space-y-3">
         {creationTypes.map((type) => {
           const Icon = type.icon;
@@ -87,7 +87,7 @@ export function CreationTypeCard({ onSelect, suggestedTypes }: CreationTypeCardP
                     <h4 className="font-semibold">{type.title}</h4>
                     {isSuggested && !isSelected && (
                       <span className="px-2 py-0.5 bg-[#22C55E]/10 text-[#22C55E] text-xs rounded-full">
-                        推荐
+                        ✓
                       </span>
                     )}
                     {isSelected && <Check className="w-5 h-5" />}
@@ -114,19 +114,13 @@ export function CreationTypeCard({ onSelect, suggestedTypes }: CreationTypeCardP
         })}
       </div>
 
-      {/* 确认按钮 */}
       <Button
         onClick={handleConfirm}
         disabled={!selectedType}
         className="w-full h-12 bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] hover:from-[#16A34A] hover:to-[#87CEEB] text-white font-medium rounded-xl disabled:opacity-50"
       >
-        {selectedType ? "确认选择" : "请选择创作类型"}
+        {selectedType ? t("creationType.confirmSelect") : t("creationType.pleaseSelect")}
       </Button>
-
-      {/* 提示 */}
-      <p className="text-xs text-gray-400 text-center">
-        💡 选择后类型将锁定，如需创作其他类型请新建项目
-      </p>
     </div>
   );
 }

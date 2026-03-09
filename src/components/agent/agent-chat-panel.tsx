@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAgentStore } from '@/stores/agent-store';
 import { useAgentContext } from './agent-provider';
 import { ChatMessageList } from './chat-message-list';
@@ -28,6 +29,7 @@ interface AgentChatPanelProps {
  * - 输入框
  */
 export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) {
+  const t = useTranslations("createAgent");
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   
   // 获取 video_url
@@ -101,7 +103,7 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
 
   // 处理重置
   const handleReset = async () => {
-    if (window.confirm('确定要重置会话吗？这将清除所有对话记录。')) {
+    if (window.confirm(t("resetConfirm"))) {
       await reset(true);
     }
   };
@@ -121,7 +123,7 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-lg">🤖</span>
-            <span className="font-semibold text-gray-800">AI导演助手</span>
+            <span className="font-semibold text-gray-800">{t("aiDirectorAssistant")}</span>
           </div>
           <div className="flex items-center gap-2">
             <div
@@ -135,44 +137,42 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
             <span className="text-xs text-gray-500">
               {isConnected
                 ? isPollingMode
-                  ? '轮询模式'
-                  : '已连接'
+                  ? t("pollingMode")
+                  : t("connected")
                 : isInitialState
-                  ? '待命'
-                  : '未连接'}
+                  ? t("standby")
+                  : t("disconnected")}
             </span>
             {!isConnected && connectionError && (
               <button
                 onClick={reconnect}
                 className="text-xs text-blue-500 hover:text-blue-600 ml-2"
               >
-                重连
+                {t("reconnect")}
               </button>
             )}
-            {/* 重置按钮 */}
             <button
               onClick={handleReset}
               disabled={isResetting}
               className="text-xs text-gray-500 hover:text-gray-700 ml-2 disabled:opacity-50"
-              title="重置会话"
+              title={t("resetSession")}
             >
-              {isResetting ? '重置中...' : '重置'}
+              {isResetting ? t("resetting") : t("reset")}
             </button>
-            {/* 生成结果按钮 */}
             {hasVideo && (
               <button
                 onClick={() => setShowVideoPreview(true)}
                 className="text-xs bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded ml-2 font-medium"
-                title="查看生成结果"
+                title={t("viewResult")}
               >
-                生成结果
+                {t("generationResult")}
               </button>
             )}
           </div>
         </div>
         {connectionError && (
           <div className="mt-2 text-xs text-red-500">
-            连接错误: {connectionError}
+            {t("connectionError")}: {connectionError}
           </div>
         )}
       </div>
@@ -187,11 +187,11 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
                 <CreationTypeCard
                   onSelect={(type) => {
                     const typeNames: Record<string, string> = {
-                      vocab_video: "英文单词视频",
-                      gaoxiao_video: "搞笑短视频",
-                      story_video: "故事动画视频",
+                      vocab_video: t("vocabVideo"),
+                      gaoxiao_video: t("gaoxiaoVideo"),
+                      story_video: t("storyVideo"),
                     };
-                    const message = `我要创作${typeNames[type]}`;
+                    const message = `${t("chat.startVocabVideo").replace("英文单词视频", typeNames[type])}`;
                     handleSendMessage(message);
                   }}
                 />
@@ -219,12 +219,11 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-sm font-medium text-white">生成中</span>
+              <span className="text-sm font-medium text-white">{t("generating")}</span>
             </div>
             <span className="text-xs text-gray-300 uppercase">{currentStatus}</span>
           </div>
           
-          {/* 进度条 */}
           <div className="w-full bg-gray-600 rounded-full h-2 mb-3">
             <div 
               className="bg-blue-500 h-2 rounded-full transition-all duration-500"
@@ -244,9 +243,8 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
         <ChatInput
           onSend={handleSendMessage}
           disabled={isStreaming}
-          placeholder="输入消息..."
+          placeholder={t("inputPlaceholder")}
         />
-        {/* 状态指示器：流式回复中 or 后台处理中 */}
         {(isStreaming || isProcessing) && (
           <div className="flex items-center justify-center gap-2 mt-2">
             <span className="inline-flex items-center gap-1.5 text-xs text-gray-500">
@@ -254,7 +252,7 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
               </span>
-              {isStreaming ? 'AI 正在回复中' : '后台处理中'}
+              {isStreaming ? t("aiResponding") : t("backgroundProcessing")}
               <span className="animate-pulse">...</span>
             </span>
             {isStreaming && (
@@ -263,7 +261,7 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
                 disabled={isInterrupting}
                 className="text-xs text-red-500 hover:text-red-600 disabled:opacity-50"
               >
-                {isInterrupting ? '中断中...' : '中断'}
+                {isInterrupting ? t("interrupting") : t("interrupt")}
               </button>
             )}
           </div>
@@ -274,13 +272,12 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
       <Dialog open={showVideoPreview} onOpenChange={setShowVideoPreview}>
         <DialogContent className="max-w-4xl w-[90vw]">
           <DialogHeader>
-            <DialogTitle>🎬 视频生成结果</DialogTitle>
+            <DialogTitle>{t("videoResultTitle")}</DialogTitle>
             <DialogDescription>
-              您的视频已生成完成，可以预览和下载
+              {t("videoResultDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* 视频播放器 */}
             <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
               <video
                 src={videoUrl}
@@ -288,10 +285,9 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
                 className="w-full h-full"
                 autoPlay={false}
               >
-                您的浏览器不支持视频播放
+                {t("browserNotSupport")}
               </video>
             </div>
-            {/* 下载按钮 */}
             <div className="flex justify-center gap-4">
               <a
                 href={videoUrl}
@@ -301,13 +297,13 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                下载视频
+                {t("downloadVideo")}
               </a>
               <button
                 onClick={() => setShowVideoPreview(false)}
                 className="inline-flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
               >
-                关闭
+                {t("close")}
               </button>
             </div>
           </div>
