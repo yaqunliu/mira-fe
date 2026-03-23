@@ -349,6 +349,9 @@
     "createCreation": "开始创作",
     "creationList": "创作列表",
     "searchCreation": "搜索创作...",
+    "filterAll": "全部",
+    "filterAnime": "AI动漫创作",
+    "filterAI": "AI智能创作",
     "deleteConfirm": "确定要删除这个创作吗？删除后无法恢复。",
     "deleteSuccess": "删除成功",
     "deleteFailed": "删除失败",
@@ -1087,6 +1090,17 @@
       },
       "repetitions": "重复次数",
       "startCreate": "开始创作"
+    },
+    "draggableCard": {
+      "dragToMove": "拖动移动"
+    },
+    "retryActions": {
+      "title": "生成失败",
+      "message": "部分分镜生成失败，请选择操作：",
+      "retryImage": "重试失败的图片",
+      "retryVideo": "重试失败的视频",
+      "continue": "继续生成",
+      "checkStatus": "查看分镜状态"
     }
   }
 }

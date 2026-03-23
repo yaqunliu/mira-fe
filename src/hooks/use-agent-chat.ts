@@ -634,15 +634,21 @@ export function useAgentChat(creationUuid: string) {
     setMessages([]);
     // 重置连接状态 - 确保页面刷新后不显示错误的连接状态
     setStreaming(false);
+    setProcessing(false);
     setThinking(false);
     setCurrentToolCall(null);
+    // 清除处理状态超时计时器
+    if (processingTimeoutRef.current) {
+      clearTimeout(processingTimeoutRef.current);
+      processingTimeoutRef.current = null;
+    }
     // 重置其他相关的 refs
     lastMessageIdRef.current = null;
     lastRequestRef.current = null;
     currentStreamMessageIdRef.current = null;
     hasCreatedMessageRef.current = false;
     streamingContentRef.current = '';
-  }, [creationUuid, setMessages, setStreaming, setThinking, setCurrentToolCall]);
+  }, [creationUuid, setMessages, setStreaming, setProcessing, setThinking, setCurrentToolCall]);
 
   /**
    * 初次进入时加载历史消息

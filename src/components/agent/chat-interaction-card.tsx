@@ -129,6 +129,31 @@ export function ChatInteractionCard({
                     />
                 )}
 
+                {type === 'retry_actions' && (
+                    <div className="flex flex-col gap-3">
+                        <p className="text-sm text-gray-600">{message}</p>
+                        <div className="flex flex-wrap gap-2 justify-center">
+                            {options?.map((option) => (
+                                <button
+                                    key={option.id}
+                                    onClick={() => handleSelectOption(option)}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all shadow-sm hover:shadow-md transform hover:-translate-y-0.5 ${
+                                        option.id === 'retry_image'
+                                            ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700'
+                                            : option.id === 'retry_video'
+                                            ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white hover:from-purple-600 hover:to-purple-700'
+                                            : option.id === 'continue'
+                                            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:from-green-600 hover:to-emerald-600'
+                                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {type === 'confirm_generation' && (
                     <div className="flex flex-col gap-3">
                         <div className="text-sm text-gray-600">

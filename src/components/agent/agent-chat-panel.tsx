@@ -8,6 +8,7 @@ import { ChatMessageList } from './chat-message-list';
 import { ChatInput } from './chat-input';
 import { VocabConfigCard } from './vocab-config-card';
 import { CreationTypeCard } from './creation-type-card';
+import { DraggableProgressCard } from './draggable-progress-card';
 import { ICreation } from '@/types/creation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useQuery } from '@tanstack/react-query';
@@ -213,29 +214,12 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
         )}
       </div>
 
-      {/* 生成进度浮窗卡片 - 固定在页面左侧 */}
       {isGenerating && (
-        <div className="fixed top-1/3 left-4 w-64 bg-black rounded-xl shadow-2xl border border-gray-600 p-4 z-50">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-sm font-medium text-white">{t("generating")}</span>
-            </div>
-            <span className="text-xs text-gray-300 uppercase">{currentStatus}</span>
-          </div>
-          
-          <div className="w-full bg-gray-600 rounded-full h-2 mb-3">
-            <div 
-              className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-300">{currentStep}</span>
-            <span className="text-blue-400 font-medium">{progress}%</span>
-          </div>
-        </div>
+        <DraggableProgressCard
+          status={currentStatus}
+          progress={progress}
+          currentStep={currentStep}
+        />
       )}
 
       {/* 输入区域 */}

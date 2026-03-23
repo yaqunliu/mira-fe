@@ -67,7 +67,7 @@ export interface ActionRequest {
 
 // ============ Supervisor 交互请求相关 ============
 
-export type PendingInteractionType = 'approve_reject' | 'select_options' | 'config_card' | 'confirm_generation';
+export type PendingInteractionType = 'approve_reject' | 'select_options' | 'config_card' | 'confirm_generation' | 'retry_actions';
 
 export interface SelectOption {
   id: string;

@@ -28,7 +28,7 @@ const creationApi = {
       ...(extraData && { extra_data: extraData }),
     });
   },
-  queryCreations: async (params?: PaginationParams): Promise<ICreation[]> => {
+  queryCreations: async (params?: PaginationParams & { creation_type?: string }): Promise<ICreation[]> => {
     // 构建查询参数
     const queryParams = new URLSearchParams()
     if (params?.page) {
@@ -39,6 +39,9 @@ const creationApi = {
     }
     if (params?.title) {
       queryParams.append('title', params.title)
+    }
+    if (params?.creation_type) {
+      queryParams.append('creation_type', params.creation_type)
     }
 
     const queryString = queryParams.toString()

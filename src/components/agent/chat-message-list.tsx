@@ -111,6 +111,8 @@ export function ChatMessageList({
           return { type: "config_card" as const, ...baseInteraction };
         } else if (action.type === "confirm_generation") {
           return { type: "confirm_generation" as const, ...baseInteraction };
+        } else if (action.type === "retry_actions") {
+          return { type: "retry_actions" as const, ...baseInteraction };
         } else {
           return { type: "select_options" as const, ...baseInteraction };
         }

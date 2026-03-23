@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Play, Plus, ChevronLeft, ChevronRight, Trash2, Search, Sparkles, Film, ImageOff } from "lucide-react";
+import { Play, Plus, ChevronLeft, ChevronRight, Trash2, Search, Sparkles, Film, ImageOff, Clapperboard, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
@@ -134,6 +134,7 @@ export default function CreationsPage() {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [creationTypeFilter, setCreationTypeFilter] = useState<string>("all");
   const pageSize = 12;
   const t = useTranslations();
   const { confirm, ConfirmDialog: ConfirmDialogComponent } = useConfirm();
@@ -158,12 +159,13 @@ export default function CreationsPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["creations", currentPage, pageSize, debouncedSearchTerm],
+    queryKey: ["creations", currentPage, pageSize, debouncedSearchTerm, creationTypeFilter],
     queryFn: async () => {
       const result = await creationApi.queryCreations({
         page: currentPage,
         page_size: pageSize,
         title: debouncedSearchTerm || undefined,
+        creation_type: creationTypeFilter !== "all" ? creationTypeFilter : undefined,
       });
       return result;
     },
@@ -252,17 +254,70 @@ export default function CreationsPage() {
       {/* 内容区域 */}
       <PullToRefresh onRefresh={handleRefresh} className="flex-1 px-4 pb-8">
         <div className="container mx-auto space-y-6">
-          {/* 搜索和新建 - 现代化设计 */}
+          {/* 搜索和筛选 - 现代化设计 */}
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ADD8E6]" />
-              <Input
-                placeholder={t("creation.searchCreation")}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-11 h-12 rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-0.5 transition-all duration-200"
-              />
+            <div className="flex flex-1 gap-3 max-w-2xl">
+              {/* 搜索框 */}
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ADD8E6]" />
+                <Input
+                  placeholder={t("creation.searchCreation")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-11 h-12 rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] hover:-translate-y-0.5 transition-all duration-200"
+                />
+              </div>
+              
+              {/* 类型筛选 */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    setCreationTypeFilter("all");
+                    setCurrentPage(1);
+                  }}
+                  className={cn(
+                    "h-12 px-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-2",
+                    creationTypeFilter === "all"
+                      ? "bg-gradient-to-r from-[#ADD8E6] to-[#87CEEB] text-white shadow-[4px_4px_8px_rgba(173,221,230,0.3)]"
+                      : "bg-white text-gray-600 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3)]"
+                  )}
+                >
+                  <Film className="w-4 h-4" />
+                  <span className="hidden sm:inline">{t("creation.filterAll")}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCreationTypeFilter("chapter");
+                    setCurrentPage(1);
+                  }}
+                  className={cn(
+                    "h-12 px-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-2",
+                    creationTypeFilter === "chapter"
+                      ? "bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.3)]"
+                      : "bg-white text-gray-600 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3)]"
+                  )}
+                >
+                  <Clapperboard className="w-4 h-4" />
+                  <span className="hidden sm:inline">{t("creation.filterAnime")}</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setCreationTypeFilter("chat");
+                    setCurrentPage(1);
+                  }}
+                  className={cn(
+                    "h-12 px-4 rounded-xl font-medium transition-all duration-200 flex items-center gap-2",
+                    creationTypeFilter === "chat"
+                      ? "bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white shadow-[4px_4px_8px_rgba(34,197,94,0.3)]"
+                      : "bg-white text-gray-600 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.3)]"
+                  )}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="hidden sm:inline">{t("creation.filterAI")}</span>
+                </button>
+              </div>
             </div>
+            
             <Link href={`/${locale}/create-dynamic-comic`}>
               <Button
                 className="h-12 px-6 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(253,188,180,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"

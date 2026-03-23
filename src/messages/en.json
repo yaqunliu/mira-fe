@@ -336,6 +336,9 @@
     "createCreation": "Start Creating",
     "creationList": "Creation List",
     "searchCreation": "Search creations...",
+    "filterAll": "All",
+    "filterAnime": "AI Anime",
+    "filterAI": "AI Smart Creation",
     "deleteConfirm": "Are you sure you want to delete this creation? This action cannot be undone.",
     "deleteSuccess": "Deleted successfully",
     "deleteFailed": "Delete failed",
@@ -1069,6 +1072,17 @@
       },
       "repetitions": "Repetitions",
       "startCreate": "Start Creating"
+    },
+    "draggableCard": {
+      "dragToMove": "Drag to move"
+    },
+    "retryActions": {
+      "title": "Generation Failed",
+      "message": "Some shots failed to generate. Please choose an action:",
+      "retryImage": "Retry Failed Images",
+      "retryVideo": "Retry Failed Videos",
+      "continue": "Continue Generation",
+      "checkStatus": "Check Shot Status"
     }
   }
 }
