@@ -175,7 +175,14 @@ cp .env.docker.example .env.docker
 ```env
 PORT=8001
 NEXT_PUBLIC_API_URL=https://api-creator.mira-studio.ai
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=replace-with-your-supabase-anon-key
 ```
+
+其中这两个值必须填写真实值，否则前端会在启动后报错：
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
 #### 2. 构建并启动前端容器
 
