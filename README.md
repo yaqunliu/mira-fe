@@ -156,6 +156,61 @@ pnpm build
 pnpm start
 ```
 
+### Docker 部署前端
+
+这套方式适合你现在的线上结构：
+
+- 前端容器只负责运行 `mira-fe`
+- 前端对外开放服务器端口 `8001`
+- 前端通过正式后端域名 `https://api-creator.mira-studio.ai` 访问接口
+
+#### 1. 准备 Docker 环境变量
+
+```bash
+cp .env.docker.example .env.docker
+```
+
+如果你要改端口，可以编辑 `.env.docker`：
+
+```env
+PORT=8001
+NEXT_PUBLIC_API_URL=https://api-creator.mira-studio.ai
+```
+
+#### 2. 构建并启动前端容器
+
+```bash
+docker compose --env-file .env.docker up -d --build
+```
+
+启动后，前端会监听服务器端口 `8001`。
+
+#### 3. 常用运维命令
+
+查看容器状态：
+
+```bash
+docker compose --env-file .env.docker ps
+```
+
+查看前端日志：
+
+```bash
+docker compose --env-file .env.docker logs -f mira-fe
+```
+
+重启前端：
+
+```bash
+docker compose --env-file .env.docker restart mira-fe
+```
+
+停止前端：
+
+```bash
+docker compose --env-file .env.docker down
+```
+
 ### 部署到服务器
 
 **详细的部署指南请查看 [DEPLOYMENT.md](./DEPLOYMENT.md)**
