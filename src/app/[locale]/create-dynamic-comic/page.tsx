@@ -16,7 +16,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { useAuthStore } from "@/stores/auth";
 
 // API BASE URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// 留空时走同源相对路径，由 next.config.js 的 rewrites 代理到后端。
+// 不要回落到 http://localhost:8000 —— 那在用户浏览器里指向用户自己的机器。
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 interface Novel {
     novel_id: number;

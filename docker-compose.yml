@@ -5,16 +5,45 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api-creator.mira-studio.ai}
-        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        # 方案 B（Next 同源代理）：这里必须留空。
+        # 浏览器只与本容器通信，/api/v1/* 由 Next 服务端代理到后端，
+        # 因此不产生跨域，后端也不必暴露到公网。
+        #
+        # 原来的默认值 https://api-creator.mira-studio.ai 已确认不解析（NXDOMAIN），
+        # 且 ${VAR:-default} 形式在变量为空字符串时仍会回落到默认值，
+        # 所以这里直接写死空串，不再从环境变量取。
+        NEXT_PUBLIC_API_URL: ""
+
+        # 同源代理的转发目标 = 后端容器在共享网络 mira-net 上的别名。
+        #
+        # ⚠️ 必须是 build arg：Next 的 rewrites() 在 next build 时求值并固化进
+        #    .next/routes-manifest.json，运行时设置无效。
+        # 好处：该地址是容器内部地址，将来接域名时无需重新构建前端。
+        BACKEND_URL: ${BACKEND_URL:-http://mira-api:8100}
+
+        # 缺失时构建直接失败，避免把 undefined 烘进产物导致页面运行时崩溃
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?NEXT_PUBLIC_SUPABASE_URL 未设置}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?NEXT_PUBLIC_SUPABASE_ANON_KEY 未设置}
     environment:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
-      PORT: ${PORT:-8001}
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api-creator.mira-studio.ai}
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      # 容器内固定监听 8001，不跟随 PORT 变量。
+      # 原写法 PORT: ${PORT:-8001} 配合 ports "${PORT}:8001" 有错配隐患：
+      # 一旦 PORT 设成 9000，容器会监听 9000，而端口映射的目标仍是 8001。
+      PORT: "8001"
+      NEXT_PUBLIC_API_URL: ""
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?NEXT_PUBLIC_SUPABASE_URL 未设置}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?NEXT_PUBLIC_SUPABASE_ANON_KEY 未设置}
     ports:
+      # PORT 只控制宿主机端口；这是唯一对公网开放的入口
       - "${PORT:-8001}:8001"
+    networks:
+      # 与后端共享的外部网络，需先创建：docker network create mira-net
+      # 后端 api 服务在该网络上的别名为 mira-api
+      - mira_shared
     restart: unless-stopped
+
+networks:
+  mira_shared:
+    external: true
+    name: mira-net

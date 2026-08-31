@@ -54,7 +54,9 @@ import { cn, downloadFile } from "@/lib/utils";
 // 移除服务器端函数导入，因为不能在客户端组件中使用
 
 // API BASE URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// 留空时走同源相对路径，由 next.config.js 的 rewrites 代理到后端。
+// 不要回落到 http://localhost:8000 —— 那在用户浏览器里指向用户自己的机器。
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 // 创建一个简单的消息对象作为 fallback
 const fallbackMessages = {

@@ -10,8 +10,8 @@ export async function waitForSupabaseToken(
 ): Promise<boolean> {
   return new Promise((resolve) => {
     const startTime = Date.now()
-    const supabaseUrl = 'https://niybedmvebmymaiivtjl.supabase.co'
-    const tokenEndpoint = `${supabaseUrl}/auth/v1/token`
+    // 从环境变量读取，避免硬编码某个具体的 Supabase 项目地址
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
 
     // 检查是否已经有 session
     const checkSession = async () => {
@@ -41,8 +41,9 @@ export async function waitForSupabaseToken(
         if (typeof window !== 'undefined' && window.performance) {
           const entries = window.performance.getEntriesByType('resource') as PerformanceResourceTiming[]
           const tokenRequest = entries.find((entry) => {
-            return entry.name.includes('/auth/v1/token') || 
-                   (entry.name.includes(supabaseUrl) && entry.name.includes('token'))
+            return entry.name.includes('/auth/v1/token') ||
+                   // supabaseUrl 为空时不能用 includes('') —— 那会匹配到任意请求
+                   (!!supabaseUrl && entry.name.includes(supabaseUrl) && entry.name.includes('token'))
           })
 
           if (tokenRequest) {
