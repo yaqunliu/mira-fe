@@ -163,7 +163,10 @@
     "landscape": "Landscape (16:9)",
     "portrait": "Portrait (9:16)",
     "landscapeDesc": "Suitable for computer and TV playback",
-    "portraitDesc": "Suitable for mobile short video playback"
+    "portraitDesc": "Suitable for mobile short video playback",
+    "selectProject": "Select Project",
+    "createProject": "Create New Project",
+    "addChapter": "Add New Script"
   },
   "scene": {
     "sceneDisplay": "Scene Display",
@@ -259,7 +262,15 @@
     "deleteChapter": "Delete Chapter",
     "deleteChapterConfirm": "Are you sure you want to delete chapter \"{title}\"? Deleting this chapter will also delete all related creations. This action cannot be undone.",
     "deleteChapterSuccess": "Chapter deleted successfully",
-    "deleteChapterFailed": "Failed to delete chapter"
+    "deleteChapterFailed": "Failed to delete chapter",
+    "editTitle": "Edit Title",
+    "save": "Save",
+    "cancel": "Cancel",
+    "editNovelTitle": "Edit Novel Title",
+    "editChapterTitle": "Edit Chapter Title",
+    "updateSuccess": "Updated successfully",
+    "updateFailed": "Update failed",
+    "preview": "Preview"
   },
   "novel": {
     "title": "Novel",
@@ -328,7 +339,11 @@
       "upload": "Upload",
       "backToList": "Back to List",
       "viewNovel": "View Novel"
-    }
+    },
+    "typeAll": "All",
+    "typeNovel": "Novel",
+    "typeScript": "Script",
+    "searchPlaceholder": "Search title or author..."
   },
   "creation": {
     "title": "Creation",
@@ -752,7 +767,6 @@
     "addToSubtitleTrack": "Add to subtitle track",
     "shotDetail": "Shot Details",
     "editShot": "Edit Shot",
-    "edit": "Edit",
     "analyzeShots": "Analyze Shots",
     "analyzeShotsBtn": "Analyze Shots",
     "analyzingShots": "Analyzing Shots...",
@@ -768,7 +782,6 @@
     "shotAnalysisCompleted": "Shot analysis completed",
     "shotAnalysisFailed": "Shot analysis failed",
     "shotImagesGenerated": "Shot images generated",
-    "noDescription": "No description",
     "describeShot": "Describe what is seen in the shot...",
     "enterDialogue": "Dialogue or voiceover text...",
     "enterPrompt": "Stable Diffusion prompt...",
@@ -776,8 +789,6 @@
     "generatingVideos": "Generating Videos",
     "videoPreview": "Video Preview",
     "videoPrompt": "Video Prompt",
-    "regenerateVideo": "Regenerate Video",
-    "generateVideo": "Generate Video",
     "downloadVideo": "Download Video",
     "noVideoYet": "No video yet",
     "needImageFirst": "Need to generate image first",
@@ -809,7 +820,6 @@
     "importedClips": "Imported",
     "createdTracks": "Created Tracks",
     "shots": "shots",
-    "addToTracks": "Add to Tracks",
     "addedAssetsToTracks": "Added {count} assets to the beginning of tracks",
     "noAssetsAvailable": "No assets available for this shot",
     "videoAlreadyGenerating": "Video is already generating, please wait (retry after 1 hour)",
@@ -852,7 +862,12 @@
     "landscape": "Landscape (16:9)",
     "portrait": "Portrait (9:16)",
     "selectVersion": "Select Version",
-    "version": "Version"
+    "version": "Version",
+    "generate": "Generate",
+    "generationStarted": "Generation task started",
+    "regenerating": "Regenerating...",
+    "previousShot": "Previous Shot",
+    "nextShot": "Next Shot"
   },
   "Timeline": {
     "videoTrack": "Video Track",
@@ -948,7 +963,6 @@
     "scriptTitleRequired": "Script title cannot be empty",
     "scriptContentRequired": "Script content cannot be empty",
     "projectNameRequired": "Project name cannot be empty",
-    "selectNovelChapter": "Please select novel and chapter",
     "selectProjectScript": "Please select project and script",
     "creatingTask": "Creating generation task...",
     "styleSelection": "Style Selection",
@@ -961,7 +975,8 @@
     "watercolor": "Watercolor",
     "watercolorDescription": "Soft and delicate watercolor painting style",
     "anime": "Anime",
-    "animeDescription": "Classic Japanese anime style"
+    "animeDescription": "Classic Japanese anime style",
+    "selectNovelChapterRequired": "Please select novel and chapter"
   },
   "agentCreation": {
     "tabLabel": "AI Smart Creation",

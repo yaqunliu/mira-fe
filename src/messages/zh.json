@@ -341,7 +341,9 @@
     "typeAll": "全部",
     "typeNovel": "小说",
     "typeScript": "文案",
-    "searchPlaceholder": "搜索标题或作者..."
+    "searchPlaceholder": "搜索标题或作者...",
+    "noNovelsDescription": "上传小说，开始视频创作",
+    "totalNovels": "共 {total} 部小说"
   },
   "creation": {
     "title": "创作",
@@ -609,7 +611,8 @@
     "subscriptions": "我的订阅",
     "subscriptionsShort": "订阅",
     "login": "登录",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "novels": "小说"
   },
   "subscriptions": {
     "title": "我的订阅",
@@ -768,14 +771,12 @@
     "narration": "旁白",
     "dialogue": "台词",
     "imagePrompt": "画面提示词",
-    "regenerate": "重新生成",
     "regenerateImageSuccess": "图片重新生成成功！",
     "noCharactersAvailable": "暂无可用角色",
     "dialoguePlaceholder": "请输入台词内容...",
     "addToSubtitleTrack": "添加到字幕轨道",
     "shotDetail": "分镜详情",
     "editShot": "编辑分镜",
-    "edit": "编辑",
     "analyzeShots": "解析分镜",
     "analyzeShotsBtn": "解析分镜",
     "analyzingShots": "正在解析分镜...",
@@ -790,7 +791,6 @@
     "shotAnalysisCompleted": "分镜解析完成",
     "shotAnalysisFailed": "分镜解析失败",
     "shotImagesGenerated": "分镜图片生成完成",
-    "noDescription": "暂无描述",
     "describeShot": "描述画面中看到的内容...",
     "enterDialogue": "输入台词或旁白...",
     "enterPrompt": "输入Stable Diffusion提示词...",
@@ -798,8 +798,6 @@
     "generatingVideos": "正在生成视频",
     "videoPreview": "视频预览",
     "videoPrompt": "视频提示词",
-    "regenerateVideo": "重新生成视频",
-    "generateVideo": "生成视频",
     "downloadVideo": "下载视频",
     "previousShot": "上一分镜",
     "nextShot": "下一分镜",
@@ -832,7 +830,6 @@
     "failedToCreateTracks": "创建轨道失败",
     "importedClips": "已导入",
     "createdTracks": "创建轨道",
-    "addToTracks": "添加到轨道",
     "addedAssetsToTracks": "已添加 {count} 个素材到轨道开头",
     "noAssetsAvailable": "该分镜没有可用的素材",
     "videoAlreadyGenerating": "视频正在生成中，请稍候（1小时后可重试）",
@@ -966,7 +963,6 @@
     "scriptTitleRequired": "文案标题不能为空",
     "scriptContentRequired": "文案内容不能为空",
     "projectNameRequired": "项目名称不能为空",
-    "selectNovelChapter": "请选择小说和章节",
     "selectProjectScript": "请选择项目和文案",
     "creatingTask": "正在创建生成任务...",
     "styleSelection": "风格选择",
@@ -979,7 +975,8 @@
     "watercolor": "水彩画风格",
     "watercolorDescription": "柔和细腻的水彩画风格",
     "anime": "日漫风格",
-    "animeDescription": "经典日本动漫风格"
+    "animeDescription": "经典日本动漫风格",
+    "selectNovelChapterRequired": "请选择小说和章节"
   },
   "agentCreation": {
     "tabLabel": "AI 智能创作",

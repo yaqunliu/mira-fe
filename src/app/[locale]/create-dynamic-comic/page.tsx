@@ -337,7 +337,7 @@ export default function CreateDynamicComicPage() {
         if (activeTab === "novel") {
             // Logic for Novel + Chapter
             if (!selectedNovel || !selectedChapterUuid) {
-                toast.error(t('selectNovelChapter'));
+                toast.error(t('selectNovelChapterRequired'));
                 return;
             }
             const novel = novels.find(n => n.uuid === selectedNovel);
