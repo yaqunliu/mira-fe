@@ -31,6 +31,14 @@ const nextConfig = {
         source: '/api/v1/:path*',
         destination: `${backendUrl}/api/v1/:path*`,
       },
+      // 本地存储的媒体文件（US3 未开通时的降级方案）。
+      // 后端把这些文件挂在 /uploads 下，但 api 容器只监听 127.0.0.1，
+      // 浏览器直接访问不到，必须由前端同源代理过去，否则图片全是 404。
+      // 路径需与后端 LOCAL_STORAGE_URL_PREFIX 保持一致。
+      {
+        source: '/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
+      },
     ];
   },
 }
