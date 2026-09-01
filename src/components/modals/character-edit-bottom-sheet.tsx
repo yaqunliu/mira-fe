@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,13 +21,13 @@ import { toast } from "sonner";
 import { ICharacter } from "@/types/character";
 
 const editCharacterSchema = z.object({
-  name: z.string().min(1, "姓名不能为空"),
-  basicInfo: z.string().min(1, "基础信息不能为空"),
-  appearance: z.string().min(1, "容貌特征不能为空"),
-  body: z.string().min(1, "身材特征不能为空"),
-  hair: z.string().min(1, "头发不能为空"),
-  clothing: z.string().min(1, "服装不能为空"),
-  tags: z.array(z.string()).min(1, "特征标签不能为空"),
+  name: z.string().min(1, t("姓名不能为空", { default: "Name cannot be empty" })),
+  basicInfo: z.string().min(1, t("基础信息不能为空", { default: "Basic info cannot be empty" })),
+  appearance: z.string().min(1, t("容貌特征不能为空", { default: "Appearance cannot be empty" })),
+  body: z.string().min(1, t("身材特征不能为空", { default: "Body cannot be empty" })),
+  hair: z.string().min(1, t("头发不能为空", { default: "Hair cannot be empty" })),
+  clothing: z.string().min(1, t("服装不能为空", { default: "Clothing cannot be empty" })),
+  tags: z.array(z.string()).min(1, t("特征标签不能为空", { default: "Feature tags cannot be empty" })),
 });
 
 type EditCharacterFormData = z.infer<typeof editCharacterSchema>;
@@ -44,6 +45,7 @@ interface CharacterEditBottomSheetProps {
  * 使用非常简单，只需传入标题、操作按钮和内容
  */
 export function CharacterEditBottomSheet({
+  const t = useTranslations('character')
   isOpen,
   onClose,
   character,
@@ -73,10 +75,10 @@ export function CharacterEditBottomSheet({
       };
       
       onSave(updatedCharacter);
-      toast.success("角色信息修改成功");
+      toast.success(t("characterUpdated"));
       onClose();
     } catch (error) {
-      toast.error("保存失败，请重试");
+      toast.error(t("saveFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -91,11 +93,11 @@ export function CharacterEditBottomSheet({
     <BottomSheet
       open={isOpen}
       onOpenChange={onClose}
-      title="编辑角色信息"
-      description="修改角色的详细信息"
+      title=t("editCharacterInfo")
+      description=t("editCharacterDescription")
       actions={[
         {
-          label: "取消",
+          label: t("cancel"),
           onClick: handleCancel,
           variant: "secondary",
           icon: <X className="h-4 w-4" />,
@@ -103,7 +105,7 @@ export function CharacterEditBottomSheet({
           className: "rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
         },
         {
-          label: "保存",
+          label: t("save"),
           onClick: form.handleSubmit(handleSave),
           variant: "default",
           icon: <Save className="h-4 w-4" />,
@@ -122,11 +124,11 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  姓名
+                  {t("name")}
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="输入角色姓名..."
+                    placeholder=t("namePlaceholder")
                     className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -143,11 +145,11 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  基础信息
+                  {t("basicInfo")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="输入角色的基础信息..."
+                    placeholder=t("basicInfoPlaceholder")
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -164,11 +166,11 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  容貌特征
+                  {t("appearance")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="描述角色的容貌特征..."
+                    placeholder=t("appearancePlaceholder")
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -185,11 +187,11 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  身材特征
+                  {t("body")}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="描述角色的身材特征..."
+                    placeholder=t("bodyPlaceholder")
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -206,11 +208,11 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  头发
+                  {t("hair", { default: "Hair" })}
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="描述角色的头发..."
+                    placeholder=t("hairPlaceholder")
                     className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -227,11 +229,11 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  服装
+                  {t("clothing", { default: "Clothing" })}
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="描述角色的服装..."
+                    placeholder=t("clothingPlaceholder")
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -248,11 +250,11 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  特征标签
+                  {t("tags")}
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="输入角色的特征标签..."
+                    placeholder=t("tagsPlaceholder")
                     className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />

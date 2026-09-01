@@ -107,10 +107,10 @@ export function SceneEditModal({
                 },
                 image_prompt: imagePrompt
             });
-            toast.success("自动保存成功");
+            toast.success(t("autoSaveSuccess"));
         } catch (error: any) {
             console.error("自动保存失败", error);
-            toast.error("自动保存失败，请手动保存后重试");
+            toast.error(t("autoSaveFailed"));
             return;
         }
 
@@ -124,11 +124,11 @@ export function SceneEditModal({
             await sceneApi.updateScene(sceneUuid, {
                 image_url: version.image_url,
             } as any);
-            toast.success("已应用新版本");
+            toast.success(t("versionApplied"));
             onSuccess();
         } catch (error) {
             console.error("Failed to apply version:", error);
-            toast.error("应用失败，请重试");
+            toast.error(t("applyFailed"));
         }
     };
 
@@ -169,11 +169,11 @@ export function SceneEditModal({
                       <TabsList className="grid w-full grid-cols-2 mb-4 flex-shrink-0">
                         <TabsTrigger value="image" className="flex items-center gap-2">
                           <ImageIcon className="w-4 h-4" />
-                          场景图片
+                          {t("sceneImage")}
                         </TabsTrigger>
                         <TabsTrigger value="info" className="flex items-center gap-2">
                           <Edit2 className="w-4 h-4" />
-                          基本信息
+                          {t("basicInfoTab")}
                         </TabsTrigger>
                       </TabsList>
 
@@ -194,12 +194,12 @@ export function SceneEditModal({
                             <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-orange-100 space-y-2">
                               <Label className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3" />
-                                {t('imagePrompt') || "生图提示词"}
+                                {t('imagePrompt') || t("imagePromptLabel")}
                               </Label>
                               <textarea
                                 value={imagePrompt}
                                 onChange={(e) => setImagePrompt(e.target.value)}
-                                placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
+                                placeholder={t('imagePromptPlaceholder') || t("imagePromptPlaceholder2")}
                                 className="w-full text-sm resize-none bg-gradient-to-br from-white to-orange-50 border border-orange-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all duration-200 rounded-lg p-3 h-[calc(100%-28px)]"
                               />
                             </div>

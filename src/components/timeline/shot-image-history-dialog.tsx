@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -43,6 +44,7 @@ interface ImageHistoryItem {
 }
 
 export function ShotImageHistoryDialog({
+  const t = useTranslations('Timeline')
   isOpen,
   onClose,
   shotUuid,
@@ -78,17 +80,17 @@ export function ShotImageHistoryDialog({
       );
     },
     onSuccess: () => {
-      toast.success("已成功应用历史版本");
+      toast.success(t("applyVersionSuccess"));
       onSuccess();
       onClose();
     },
     onError: (error: any) => {
-      toast.error(error.message || "应用版本失败");
+      toast.error(error.message || t("applyVersionFailed"));
     },
   });
 
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return "未知大小";
+    if (!bytes) return t("unknownSize");
     const mb = bytes / (1024 * 1024);
     if (mb >= 1024) {
       return `${(mb / 1024).toFixed(2)} GB`;
@@ -104,10 +106,10 @@ export function ShotImageHistoryDialog({
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "刚刚";
-    if (diffMins < 60) return `${diffMins} 分钟前`;
-    if (diffHours < 24) return `${diffHours} 小时前`;
-    if (diffDays < 7) return `${diffDays} 天前`;
+    if (diffMins < 1) return t("justNow");
+    if (diffMins < 60) return t("minutesAgo", { n: diffMins });
+    if (diffHours < 24) return t("hoursAgo", { n: diffHours });
+    if (diffDays < 7) return t("daysAgo", { n: diffDays });
 
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -129,7 +131,7 @@ export function ShotImageHistoryDialog({
 
   const handleDownload = (url: string) => {
     window.open(url, "_blank");
-    toast.success("开始下载图片");
+    toast.success(t("startDownload"));
   };
 
   const handleApplyVersion = (item: ImageHistoryItem) => {
@@ -158,12 +160,12 @@ export function ShotImageHistoryDialog({
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-500">
                 <History className="h-4 w-4 text-white" />
               </div>
-              分镜图片历史
+              {t("shotImageHistory")}
             </DialogTitle>
           </DialogHeader>
           <div className="py-12 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-3 border-gray-200 border-t-purple-500"></div>
-            <p className="text-sm text-gray-500 mt-4">加载中...</p>
+            <p className="text-sm text-gray-500 mt-4">{t("loading", { default: "Loading..." })}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -179,7 +181,7 @@ export function ShotImageHistoryDialog({
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400 to-purple-500">
                 <History className="h-4 w-4 text-white" />
               </div>
-              分镜图片历史
+              {t("shotImageHistory")}
             </DialogTitle>
             <DialogDescription>
               查看分镜图片的生成历史并选择版本应用为最终效果
@@ -243,7 +245,7 @@ export function ShotImageHistoryDialog({
                               {item.is_current && (
                                 <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-blue-50 border border-blue-100">
                                   <CheckCircle2 className="h-3 w-3 text-blue-500" />
-                                  <span className="text-[10px] text-blue-600 font-medium">当前版本</span>
+                                  <span className="text-[10px] text-blue-600 font-medium">{t("currentVersion")}</span>
                                 </div>
                               )}
                             </div>

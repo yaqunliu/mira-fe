@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,12 +34,12 @@ import shotApi from "@/lib/api/shot";
 import { ImagePreview } from "@/components/ui/image-preview";
 
 const editStoryboardSchema = z.object({
-  title: z.string().min(1, "标题不能为空"),
-  narration: z.string().min(1, "旁白不能为空"),
+  title: z.string().min(1, t("titleRequired")),
+  narration: z.string().min(1, t("narrationRequired")),
   video_duration: z.any().transform((val) => {
     const parsed = parseFloat(val);
     return isNaN(parsed) ? 0 : parsed;
-  }).pipe(z.number().min(1, "时长不能小于1秒").max(60, "时长不能超过60秒")),
+  }).pipe(z.number().min(1, t("durationMin")).max(60, t("durationMax"))),
 });
 
 type EditStoryboardFormData = z.infer<typeof editStoryboardSchema>;
@@ -58,12 +59,13 @@ export function StoryboardEditModal({
   onSave,
   availableCharacters = [],
 }: StoryboardEditModalProps) {
+  const t = useTranslations('Editor')
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCharacters, setSelectedCharacters] = useState<number[]>(
     (shot.characters || []).map((c: any) => Number(c.character_id)).filter(Boolean)
   );
   const [appearanceElements, setAppearanceElements] = useState<string[]>(
-    shot.extra_data?.appearance_elements || shot.extra_data?.ai_output?.["出镜元素"] || []
+    shot.extra_data?.appearance_elements || shot.extra_data?.ai_output?.[t("cameraElement")] || []
   );
   const [previewImage, setPreviewImage] = useState<{src: string | null, alt: string} | null>(null);
 
@@ -99,7 +101,7 @@ export function StoryboardEditModal({
       }
 
       setSelectedCharacters(characterIds);
-      setAppearanceElements(shot.extra_data?.appearance_elements || shot.extra_data?.ai_output?.["出镜元素"] || []);
+      setAppearanceElements(shot.extra_data?.appearance_elements || shot.extra_data?.ai_output?.[t("cameraElement")] || []);
       form.reset({
         title: shot.title || "",
         narration: getNarrationString(shot.narration),
@@ -123,7 +125,7 @@ export function StoryboardEditModal({
       // 检查是否是UUID格式（简单检查：长度和格式）
       if (uuidString.length < 30 || /^\d+$/.test(uuidString)) {
         console.error("分镜ID不是有效的UUID格式:", uuidString);
-        toast.error(`分镜ID格式错误：${uuidString}，应该是UUID格式`);
+        toast.error(t("shotIdFormatError", { id: uuidString }));
         return;
       }
 
@@ -131,7 +133,7 @@ export function StoryboardEditModal({
         .split("\n")
         .filter((s) => s.trim() !== "")
         .map((content) => ({
-          角色: "旁白",
+          角色: t("narration"),
           内容: content,
         }));
 
@@ -386,7 +388,7 @@ export function StoryboardEditModal({
                 name="narration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-800 mb-1">旁白</FormLabel>
+                    <FormLabel className="text-gray-800 mb-1">{t("narration")}</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="输入这个分镜的旁白内容..."

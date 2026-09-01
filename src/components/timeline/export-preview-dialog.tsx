@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -26,7 +27,8 @@ interface ExportPreviewDialogProps {
   onClose: () => void;
 }
 
-export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPreviewDialogProps) {
+export function ExportPreviewDialog({
+  creationId, isOpen, onClose }: ExportPreviewDialogProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // 获取导出历史
@@ -40,7 +42,7 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
   });
 
   const formatFileSize = (bytes?: number) => {
-    if (!bytes) return "未知大小";
+    if (!bytes) return t("unknownSize");
     const mb = bytes / (1024 * 1024);
     if (mb >= 1024) {
       return `${(mb / 1024).toFixed(2)} GB`;
@@ -56,10 +58,10 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 1) return "刚刚";
-    if (diffMins < 60) return `${diffMins} 分钟前`;
-    if (diffHours < 24) return `${diffHours} 小时前`;
-    if (diffDays < 7) return `${diffDays} 天前`;
+    if (diffMins < 1) return t("justNow");
+    if (diffMins < 60) return t("minutesAgo", { n: diffMins });
+    if (diffHours < 24) return t("hoursAgo", { n: diffHours });
+    if (diffDays < 7) return t("daysAgo", { n: diffDays });
 
     return date.toLocaleDateString("en-US", {
       year: "numeric",
@@ -72,7 +74,7 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
 
   const handleDownload = (url: string) => {
     window.open(url, "_blank");
-    toast.success("开始下载视频");
+    toast.success(t("startVideoDownload"));
   };
 
   const handlePreview = (url: string) => {
@@ -92,12 +94,12 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#FDBCB4] to-[#F9A899] shadow-lg shadow-[#FDBCB4]/30">
                 <History className="h-5 w-5 text-white" />
               </div>
-              导出历史
+              {t("exportHistory")}
             </DialogTitle>
           </DialogHeader>
           <div className="py-12 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-[#22C55E]"></div>
-            <p className="text-sm text-gray-500 mt-4">加载中...</p>
+            <p className="text-sm text-gray-500 mt-4">{t("loading", { default: "Loading..." })}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -113,7 +115,7 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#FDBCB4] to-[#F9A899] shadow-lg shadow-[#FDBCB4]/30">
                 <History className="h-5 w-5 text-white" />
               </div>
-              导出历史
+              {t("exportHistory")}
             </DialogTitle>
           </DialogHeader>
 
@@ -125,7 +127,7 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
                     <FileVideo className="h-10 w-10 text-[#ADD8E6]" />
                   </div>
                 </div>
-                <h3 className="text-lg font-medium text-gray-800 mb-2">暂无导出记录</h3>
+                <h3 className="text-lg font-medium text-gray-800 mb-2">{t("noExportHistory")}</h3>
                 <p className="text-sm text-gray-500">
                   导出视频后将在此处显示历史记录
                 </p>

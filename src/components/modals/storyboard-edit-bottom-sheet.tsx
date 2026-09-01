@@ -142,10 +142,10 @@ export function StoryboardEditBottomSheet({
           {/* 关联角色 */}
           <div className="space-y-4 p-5 rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
             <div className="text-base font-semibold text-gray-800">
-              关联角色
+              {t("noRelatedCharacters")}
             </div>
             {availableCharacters.length === 0 ? (
-              <p className="text-sm text-gray-600">暂无可选角色</p>
+              <p className="text-sm text-gray-600">{t("noCharactersAvailable")}</p>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {availableCharacters.map((character) => {
@@ -176,7 +176,7 @@ export function StoryboardEditBottomSheet({
                         />
                       ) : (
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 flex items-center justify-center text-xs text-white border-2 border-blue-100 shadow-[4px_4px_8px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.8)]">
-                          无图
+                          {t("noImage")}
                         </div>
                       )}
                       <input

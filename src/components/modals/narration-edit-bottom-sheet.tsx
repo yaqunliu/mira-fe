@@ -80,7 +80,7 @@ export function NarrationEditBottomSheet({
       const narrationArray: NarrationItem[] = data.narration
         .split("\n")
         .filter((s: string) => s.trim() !== "")
-        .map(s => ({ 角色: "旁白", 内容: s.trim() }));
+        .map(s => ({ 角色: t("narration"), 内容: s.trim() }));
         
       await onSave(image.image_id, narrationArray);
       toast.success(t("common.success"));

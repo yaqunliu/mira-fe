@@ -135,10 +135,10 @@ export function ShotEditModal({
         // 生成前先自动保存
         try {
             await autoSave();
-            toast.success("自动保存成功");
+            toast.success(t("autoSaveSuccess"));
         } catch (error: any) {
             console.error("自动保存失败", error);
-            toast.error("自动保存失败，请手动保存后重试");
+            toast.error(t("autoSaveFailed"));
             return;
         }
 
@@ -150,10 +150,10 @@ export function ShotEditModal({
         // 生成前先自动保存
         try {
             await autoSave();
-            toast.success("自动保存成功");
+            toast.success(t("autoSaveSuccess"));
         } catch (error: any) {
             console.error("自动保存失败", error);
-            toast.error("自动保存失败，请手动保存后重试");
+            toast.error(t("autoSaveFailed"));
             return;
         }
 
@@ -167,11 +167,11 @@ export function ShotEditModal({
             await shotApi.updateShot(shotUuid, {
                 image_url: version.image_url,
             } as any);
-            toast.success("已应用新版本");
+            toast.success(t("versionApplied"));
             onSuccess();
         } catch (error) {
             console.error("Failed to apply version:", error);
-            toast.error("应用失败，请重试");
+            toast.error(t("applyFailed"));
         }
     };
 
@@ -184,11 +184,11 @@ export function ShotEditModal({
                     end_frame_image_url: version.image_url,
                 },
             } as any);
-            toast.success("已应用尾帧新版本");
+            toast.success(t("tailFrameVersionApplied"));
             onSuccess();
         } catch (error) {
             console.error("Failed to apply end frame version:", error);
-            toast.error("应用失败，请重试");
+            toast.error(t("applyFailed"));
         }
     };
 
@@ -226,7 +226,7 @@ export function ShotEditModal({
 
             // Try to get appearance_elements from root extra_data, fallback to ai_output
             const extra = shot.extra_data as any;
-            const elements = extra?.appearance_elements || extra?.ai_output?.['出镜元素'] || [];
+            const elements = extra?.appearance_elements || extra?.ai_output?.[t('cameraElement')] || [];
             setAppearanceElements(elements);
 
             setVideoDuration(shot.video_duration || 5);
@@ -310,11 +310,11 @@ export function ShotEditModal({
             const audio = new Audio(audioUrl);
             audio.onended = () => setPlayingAudioIndex(null);
             audio.onerror = () => {
-                toast.error('音频播放失败');
+                toast.error(t('audioPlayFailed'));
                 setPlayingAudioIndex(null);
             };
             audio.play().catch(() => {
-                toast.error('音频播放失败');
+                toast.error(t('audioPlayFailed'));
                 setPlayingAudioIndex(null);
             });
             narrationAudioRef.current = audio;
@@ -405,10 +405,10 @@ export function ShotEditModal({
         // 生成前先自动保存
         try {
             await autoSave();
-            toast.success("自动保存成功");
+            toast.success(t("autoSaveSuccess"));
         } catch (error: any) {
             console.error("自动保存失败", error);
-            toast.error("自动保存失败，请手动保存后重试");
+            toast.error(t("autoSaveFailed"));
             return;
         }
 
@@ -571,7 +571,7 @@ export function ShotEditModal({
                         </TabsTrigger>
                         <TabsTrigger value="info" className="flex items-center gap-2">
                           <Edit2 className="w-4 h-4" />
-                          基本信息
+                          {t("basicInfoTab")}
                         </TabsTrigger>
                       </TabsList>
 
@@ -818,7 +818,7 @@ export function ShotEditModal({
                                         <SelectValue />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="旁白">旁白</SelectItem>
+                                        <SelectItem value="旁白">{t("narration")}</SelectItem>
                                         {(availableCharacters || []).map((char) => (
                                           <SelectItem key={char.character_id} value={char.name}>
                                             {char.name}

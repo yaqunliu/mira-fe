@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState } from "react";
 import { NovelUpload } from "../business/novel-upload";
 import { BottomSheet } from "../ui/bottom-sheet";
@@ -15,6 +16,7 @@ export function NovelUploadModal({
   onOpenChange,
   onComplete,
 }: NovelUploadModalProps) {
+  const t = useTranslations('Editor')
   const [isUploading, setIsUploading] = useState(false);
 
   const handleClose = () => {
@@ -32,7 +34,7 @@ export function NovelUploadModal({
     <BottomSheet
       open={open}
       onOpenChange={handleClose}
-      title="上传小说"
+      title={t("uploadNovel")}
       style={{ height: "fit-content", paddingBottom: "40px" }}
       contentClassName="p-6"
     >

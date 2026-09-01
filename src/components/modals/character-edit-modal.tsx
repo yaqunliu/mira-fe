@@ -89,7 +89,7 @@ function CharacterFormFields({
       try {
         await onSave();
       } catch (error) {
-        toast.error("自动保存失败，请手动保存后重试");
+        toast.error(t("autoSaveFailed"));
         return;
       }
     }
@@ -101,10 +101,10 @@ function CharacterFormFields({
         character.visual_style || "",
         character.novel_id as string
       );
-      toast.success("正在生成角色图片，请稍候...");
+      toast.success(t("characterImageGenerating"));
     } catch (error) {
       console.error("Failed to regenerate character image:", error);
-      toast.error("生成失败，请重试");
+      toast.error(t("characterImageFailed"));
     } finally {
       setIsRegenerating(false);
     }
@@ -115,10 +115,10 @@ function CharacterFormFields({
       await characterApi.updateCharacter(character.uuid || String(character.character_id), {
         image_url: version.image_url,
       });
-      toast.success("已应用新版本");
+      toast.success(t("versionApplied"));
     } catch (error) {
       console.error("Failed to apply version:", error);
-      toast.error("应用失败，请重试");
+      toast.error(t("applyFailed"));
     }
   };
 
@@ -127,15 +127,15 @@ function CharacterFormFields({
       <TabsList className="grid w-full grid-cols-3 mb-4">
         <TabsTrigger value="image" className="flex items-center gap-2">
           <ImageIcon className="w-4 h-4" />
-          角色形象
+          {t("portrait")}
         </TabsTrigger>
         <TabsTrigger value="info" className="flex items-center gap-2">
           <Sparkles className="w-4 h-4" />
-          基本信息
+          {t("basicInfo")}
         </TabsTrigger>
         <TabsTrigger value="voice" className="flex items-center gap-2">
           <Volume2 className="w-4 h-4" />
-          音色选择
+          {t("voiceColor")}
         </TabsTrigger>
       </TabsList>
 
@@ -172,7 +172,7 @@ function CharacterFormFields({
                   </FormLabel>
                   <FormControl className="flex-1">
                     <textarea
-                      placeholder={t("imagePromptPlaceholder") || "输入自定义生图提示词..."}
+                      placeholder={t("imagePromptPlaceholder") || t("imagePromptPlaceholder")}
                       className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-orange-50 border border-orange-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all duration-200 text-sm resize-none h-[calc(100%-28px)]"
                       {...field}
                     />
@@ -189,7 +189,7 @@ function CharacterFormFields({
         <div className="p-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100">
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-blue-500" />
-            基本信息
+            {t("basicInfo")}
           </h3>
           
           <div className="space-y-3">
@@ -258,10 +258,10 @@ function CharacterFormFields({
                 name="voiceDescription"
                 render={({ field }) => (
                   <FormItem className="space-y-1">
-                    <FormLabel className="text-xs font-semibold text-gray-700">音色描述</FormLabel>
+                    <FormLabel className="text-xs font-semibold text-gray-700">{t("voiceDesc")}</FormLabel>
                     <FormControl>
                       <textarea
-                        placeholder="描述角色的音色..."
+                        placeholder={t("voicePlaceholder")}
                         className="w-full px-3 py-2 rounded-lg bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 text-sm resize-none"
                         rows={4}
                         {...field}
@@ -279,7 +279,7 @@ function CharacterFormFields({
           <div className="p-4 rounded-xl bg-gradient-to-br from-white to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-pink-100">
             <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-pink-500" />
-              详细设定
+              {t("detailSettings")}
             </h3>
             
             <div className="space-y-3">
@@ -368,7 +368,7 @@ function CharacterFormFields({
         <div className="p-4 rounded-xl bg-gradient-to-br from-white to-purple-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-purple-100 h-full">
           <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-purple-500" />
-            音色选择
+            {t("voiceColor")}
           </h3>
           
           <VoiceSelector
@@ -604,10 +604,10 @@ export function CharacterEditModal({
                       };
                       const characterUuid = (character as any).uuid || (character as any).UUID;
                       if (!characterUuid) {
-                        throw new Error("角色数据错误：缺少UUID字段");
+                        throw new Error(t("missingId"));
                       }
                       await characterApi.updateCharacter(String(characterUuid), updatedCharacter);
-                      toast.success("自动保存成功");
+                      toast.success(t("autoSaveSuccess"));
                     }}
                   />
                 </div>
@@ -675,10 +675,10 @@ export function CharacterEditModal({
                   };
                   const characterUuid = (character as any).uuid || (character as any).UUID;
                   if (!characterUuid) {
-                    throw new Error("角色数据错误：缺少UUID字段");
+                    throw new Error(t("missingId"));
                   }
                   await characterApi.updateCharacter(String(characterUuid), updatedCharacter);
-                  toast.success("自动保存成功");
+                  toast.success(t("autoSaveSuccess"));
                 }}
               />
             </div>

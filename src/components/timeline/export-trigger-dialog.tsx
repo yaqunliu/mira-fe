@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,7 +16,8 @@ interface ExportTriggerDialogProps {
   onClose: () => void;
 }
 
-export function ExportTriggerDialog({ creationId, isOpen, onClose }: ExportTriggerDialogProps) {
+export function ExportTriggerDialog({
+  creationId, isOpen, onClose }: ExportTriggerDialogProps) {
   const [exportedVideoUrl, setExportedVideoUrl] = useState<string | null>(null);
   const [isExportStarted, setIsExportStarted] = useState(false);
 
@@ -44,11 +46,11 @@ export function ExportTriggerDialog({ creationId, isOpen, onClose }: ExportTrigg
       if (exportStep.status === "success") {
         if (exportStep.result?.video_url) {
           setExportedVideoUrl(exportStep.result.video_url);
-          toast.success("视频导出成功");
+          toast.success(t("exportSuccess"));
         }
         return false;
       } else if (exportStep.status === "failed") {
-        toast.error(exportStep.error || "视频导出失败");
+        toast.error(exportStep.error || t("exportFailed"));
         return false;
       }
 
@@ -69,7 +71,7 @@ export function ExportTriggerDialog({ creationId, isOpen, onClose }: ExportTrigg
 
       const response = await creationApi.exportVideo(creationId);
 
-      toast.info("视频导出任务已启动");
+      toast.info(t("exportStarted"));
 
       // 设置标志开始显示进度
       setIsExportStarted(true);
@@ -77,7 +79,7 @@ export function ExportTriggerDialog({ creationId, isOpen, onClose }: ExportTrigg
       // 开始轮询
       refetch();
     } catch (error: any) {
-      toast.error(error?.response?.data?.detail || error?.message || "启动导出任务失败");
+      toast.error(error?.response?.data?.detail || error?.message || t("exportStartFailed"));
     }
   };
 
@@ -102,7 +104,7 @@ export function ExportTriggerDialog({ creationId, isOpen, onClose }: ExportTrigg
   };
 
   const getStatusText = () => {
-    if (!exportStep?.progress) return "准备中...";
+    if (!exportStep?.progress) return t("preparing");
     return exportStep.progress.status || "处理中...";
   };
 
@@ -118,10 +120,10 @@ export function ExportTriggerDialog({ creationId, isOpen, onClose }: ExportTrigg
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#ADD8E6] to-[#93C5FD] shadow-lg shadow-[#ADD8E6]/30">
               <Download className="h-5 w-5 text-white" />
             </div>
-            导出视频
+            {t("exportVideoTitle")}
           </DialogTitle>
           <DialogDescription className="text-gray-500">
-            将时间轴编辑结果导出为最终视频文件
+            {t("exportVideoDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -139,9 +141,9 @@ export function ExportTriggerDialog({ creationId, isOpen, onClose }: ExportTrigg
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">准备导出您的作品</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{t("prepareExport")}</h3>
                   <p className="text-sm text-gray-500">
-                    点击下方按钮开始渲染最终视频
+                    {t("clickToRender")}
                   </p>
                 </div>
               </div>
