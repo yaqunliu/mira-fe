@@ -12,6 +12,7 @@ import videoApi from "@/lib/api/video";
 import shotApi from "@/lib/api/shot";
 import sceneApi from "@/lib/api/scene";
 import taskApi from "@/lib/api/task";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Loader2, Video, AlertCircle, CheckCircle2, RefreshCw, Play, Pause, Mic, Download, Volume2, FolderDown, RotateCcw, Pencil, Clapperboard, Plus } from "lucide-react";
 import { TimelineProject, TimelineTrack, TimelineTrackClip, TaskStatus } from "@/types";
@@ -25,6 +26,7 @@ interface FlattenedShot extends IShot {
 }
 
 export function VideoGeneration() {
+  const t = useTranslations();
   const { creation, updateShot, updateScene } = useCreationV2Store();
   const { importProject, currentTime, isPlaying, seek, play: playTimeline, pause: pauseTimeline } = useTimelineStore();
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -118,14 +120,14 @@ export function VideoGeneration() {
     const videoTrack: TimelineTrack = {
       id: 'video-track-main',
       type: 'video',
-      name: '主视频轨道',
+      name: t('Timeline.mainVideoTrack'),
       clips: []
     };
 
     const audioTrack: TimelineTrack = {
       id: 'audio-track-main',
       type: 'audio',
-      name: '配音轨道',
+      name: t('Timeline.voiceoverTrack'),
       clips: []
     };
 
@@ -178,7 +180,7 @@ export function VideoGeneration() {
     };
 
     importProject(project);
-  }, [creation, importProject]);
+  }, [creation, importProject, t]);
 
   // Initialize state based on creation data
   useEffect(() => {
@@ -220,12 +222,12 @@ export function VideoGeneration() {
             setHasGenerated(true);
             // Assuming results contain video_url or we get it from creation update
             setVideoUrl(data.results?.video_url || null);
-            toast.success("视频生成完成！");
+            toast.success(t("video.videoGenerationSuccess"));
             populateTimeline();
           } else if (data.status === 'failed') {
             setIsGenerating(false);
-            setError("视频生成失败");
-            toast.error("视频生成失败");
+            setError(t("video.videoGenerationFailed"));
+            toast.error(t("video.videoGenerationFailed"));
           }
         } catch (err) {
           console.error("Failed to poll progress:", err);
@@ -236,7 +238,7 @@ export function VideoGeneration() {
     return () => {
       if (pollInterval) clearInterval(pollInterval);
     };
-  }, [isGenerating, creation?.uuid, populateTimeline]);
+  }, [isGenerating, creation?.uuid, populateTimeline, t]);
 
   // Poll individual shot video regeneration tasks
   useEffect(() => {
@@ -259,13 +261,13 @@ export function VideoGeneration() {
             
             if (resultVideoUrl) {
                 updateShot(shotId, { video_url: resultVideoUrl });
-                toast.success("分镜视频重新生成完成");
+                toast.success(t("video.shotVideoRegenerated"));
                 // Refresh timeline
                 populateTimeline();
             } else {
                 // If URL is not in task result, we might need to reload the creation or shot
                 // But let's hope update is enough. If not, trigger a reload.
-                 toast.success("分镜视频重新生成完成 (请刷新查看)");
+                 toast.success(t("video.shotVideoRegeneratedRefresh"));
             }
 
           } else if (status === 'failed' || status === TaskStatus.FAILURE) {
@@ -274,7 +276,7 @@ export function VideoGeneration() {
               newMap.delete(shotId);
               return newMap;
             });
-            toast.error("分镜视频生成失败");
+            toast.error(t("video.shotVideoFailed"));
           }
         } catch (e) {
           console.error(e);
@@ -284,7 +286,7 @@ export function VideoGeneration() {
 
     const interval = setInterval(pollTasks, 3000);
     return () => clearInterval(interval);
-  }, [regeneratingShotVideos, updateShot, populateTimeline]);
+  }, [regeneratingShotVideos, updateShot, populateTimeline, t]);
 
   // Poll shot audio regeneration tasks
   useEffect(() => {
@@ -305,10 +307,10 @@ export function VideoGeneration() {
             
             if (resultAudioUrl) {
                 updateShot(shotId, { audio_url: resultAudioUrl });
-                toast.success("分镜音频重新生成完成");
+                toast.success(t("video.shotAudioRegenerated"));
                 populateTimeline();
             } else {
-                 toast.success("分镜音频重新生成完成 (请刷新查看)");
+                 toast.success(t("video.shotAudioRegeneratedRefresh"));
             }
 
           } else if (status === 'failed' || status === TaskStatus.FAILURE) {
@@ -317,7 +319,7 @@ export function VideoGeneration() {
               newMap.delete(shotId);
               return newMap;
             });
-            toast.error("分镜音频生成失败");
+            toast.error(t("video.shotAudioFailed"));
           }
         } catch (e) {
           console.error(e);
@@ -327,7 +329,7 @@ export function VideoGeneration() {
 
     const interval = setInterval(pollTasks, 3000);
     return () => clearInterval(interval);
-  }, [regeneratingShotAudios, updateShot, populateTimeline]);
+  }, [regeneratingShotAudios, updateShot, populateTimeline, t]);
 
   // Poll scene video regeneration tasks
   useEffect(() => {
@@ -343,7 +345,7 @@ export function VideoGeneration() {
               return newMap;
             });
             
-            toast.success("场景视频重新生成完成");
+            toast.success(t("video.sceneVideoRegenerated"));
             
             // Refresh scene data
             const scene = creation?.scenes?.find((s: IScene) => s.scene_id === sceneId);
@@ -365,7 +367,7 @@ export function VideoGeneration() {
               newMap.delete(sceneId);
               return newMap;
             });
-            toast.error("场景视频生成失败");
+            toast.error(t("video.sceneVideoFailed"));
           }
         } catch (e) {
           console.error(e);
@@ -375,7 +377,7 @@ export function VideoGeneration() {
 
     const interval = setInterval(pollTasks, 3000);
     return () => clearInterval(interval);
-  }, [regeneratingSceneVideos, creation?.scenes, updateScene, populateTimeline]);
+  }, [regeneratingSceneVideos, creation?.scenes, updateScene, populateTimeline, t]);
 
   const handleRegenerateShotVideo = async (shot: IShot) => {
     if (!shot.uuid) return;
@@ -383,10 +385,10 @@ export function VideoGeneration() {
       const res = await shotApi.regenerateShotVideo(shot.uuid);
       if (res.data.task_id) {
         setRegeneratingShotVideos(prev => new Map(prev).set(shot.shot_id, res.data.task_id));
-        toast.success("分镜视频生成任务已提交");
+        toast.success(t("video.shotVideoTaskSubmitted"));
       }
     } catch (error) {
-      toast.error("提交失败");
+      toast.error(t("common.submitFailed"));
     }
   };
 
@@ -396,10 +398,10 @@ export function VideoGeneration() {
       const res = await shotApi.generateShotAudio(shot.uuid);
       if (res.data.task_id) {
         setRegeneratingShotAudios(prev => new Map(prev).set(shot.shot_id, res.data.task_id));
-        toast.success("分镜音频生成任务已提交");
+        toast.success(t("video.shotAudioTaskSubmitted"));
       }
     } catch (error) {
-      toast.error("提交失败");
+      toast.error(t("common.submitFailed"));
     }
   };
 
@@ -410,10 +412,10 @@ export function VideoGeneration() {
       const res = await sceneApi.regenerateSceneVideos(scene.uuid);
       if (res.data.task_id) {
         setRegeneratingSceneVideos(prev => new Map(prev).set(scene.scene_id, res.data.task_id));
-        toast.success("场景视频生成任务已提交");
+        toast.success(t("video.sceneVideoTaskSubmitted"));
       }
     } catch (error) {
-      toast.error("提交失败");
+      toast.error(t("common.submitFailed"));
     }
   };
 
@@ -451,15 +453,15 @@ export function VideoGeneration() {
     }
   };
 
-  const getStatusMessage = (status: string) => {
+  const getStatusMessage = useCallback((status: string) => {
     switch (status) {
-      case 'pending': return "等待处理...";
-      case 'processing': return "正在生成视频...";
-      case 'completed': return "生成完成";
-      case 'failed': return "生成失败";
-      default: return "处理中...";
+      case 'pending': return t("video.statusPending");
+      case 'processing': return t("video.statusProcessing");
+      case 'completed': return t("video.statusCompleted");
+      case 'failed': return t("video.generationFailed");
+      default: return t("common.processing");
     }
-  };
+  }, [t]);
 
   const handleVoiceSelect = (voiceId: string) => {
     setSelectedVoiceId(voiceId);
@@ -468,7 +470,7 @@ export function VideoGeneration() {
   const handleGenerate = async () => {
     if (!creation?.uuid) return;
     if (!selectedVoiceId) {
-      toast.error("请先选择一个配音");
+      toast.error(t("video.selectVoiceFirst"));
       return;
     }
 
@@ -476,19 +478,19 @@ export function VideoGeneration() {
       setIsGenerating(true);
       setError(null);
       setProgress(0);
-      setStatusMessage("提交任务中...");
+      setStatusMessage(t("video.submittingTask"));
 
       await videoApi.selectVoiceAndGenerate(creation.uuid, {
         voice_id: selectedVoiceId,
         force_regenerate: true
       });
 
-      toast.success("视频生成任务已开始");
+      toast.success(t("video.generationTaskStarted"));
     } catch (err) {
       console.error("Failed to start generation:", err);
       setIsGenerating(false);
-      setError("启动生成任务失败");
-      toast.error("启动生成任务失败");
+      setError(t("video.startTaskFailed"));
+      toast.error(t("video.startTaskFailed"));
     }
   };
 
@@ -498,8 +500,8 @@ export function VideoGeneration() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">视频生成</h2>
-          <p className="text-gray-600">选择配音并生成最终视频</p>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">{t("createVideo.videoGeneration")}</h2>
+          <p className="text-gray-600">{t("createVideo.videoGenerationDesc")}</p>
         </div>
       </div>
 
@@ -508,9 +510,9 @@ export function VideoGeneration() {
           <CardHeader>
             <CardTitle className="bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent flex items-center gap-2">
               <Mic className="w-5 h-5 text-[#ADD8E6]" />
-              选择配音
+              {t("video.selectVoice")}
             </CardTitle>
-            <CardDescription className="text-gray-600">为您的视频选择一个合适的旁白配音</CardDescription>
+            <CardDescription className="text-gray-600">{t("video.selectVoiceDesc")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="h-[400px] overflow-y-auto border border-blue-100 rounded-xl p-4 bg-gradient-to-br from-white to-blue-50/80 shadow-[inset_4px_4px_8px_rgba(0,0,0,0.05),inset_-4px_-4px_8px_rgba(255,255,255,0.8)]">
@@ -528,7 +530,7 @@ export function VideoGeneration() {
                 className="w-full sm:w-auto bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] hover:from-[#F9A899] hover:to-[#93C5FD] text-gray-800 shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
               >
                 <Video className="w-4 h-4 mr-2" />
-                开始生成视频
+                {t("video.startVideoGeneration")}
               </Button>
             </div>
           </CardContent>
@@ -550,7 +552,7 @@ export function VideoGeneration() {
                     <h3 className="text-lg font-medium text-gray-800">{statusMessage}</h3>
                     <Progress value={progress} className="h-2 bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 rounded-full" />
                     <p className="text-sm text-gray-600">
-                      正在处理视频生成任务，这可能需要几分钟时间...
+                      {t("video.processingHint")}
                     </p>
                   </div>
                 </div>
@@ -562,12 +564,12 @@ export function VideoGeneration() {
             <div className="bg-gradient-to-br from-[#FDBCB4]/20 to-white border border-[#FDBCB4]/30 text-[#F9A899] px-4 py-3 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] relative" role="alert">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 text-[#FDBCB4]" />
-                <span className="font-bold text-[#F9A899]">生成失败</span>
+                <span className="font-bold text-[#F9A899]">{t("video.generationFailed")}</span>
               </div>
               <p className="mt-1 text-sm text-gray-700">{error}</p>
               <div className="mt-2">
                 <Button variant="outline" size="sm" onClick={() => setIsGenerating(false)} className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] rounded-xl">
-                  返回重试
+                  {t("video.backAndRetry")}
                 </Button>
               </div>
             </div>
@@ -578,33 +580,33 @@ export function VideoGeneration() {
               <div className="bg-gradient-to-br from-[#22C55E]/20 to-white border border-[#22C55E]/30 text-[#22C55E] px-4 py-3 rounded-xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] relative flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#22C55E]" />
-                  <span className="font-bold text-[#22C55E]">生成完成</span>
-                  <span className="text-sm text-gray-700">您的视频已成功生成，您可以在下方预览和调整。</span>
+                  <span className="font-bold text-[#22C55E]">{t("video.statusCompleted")}</span>
+                  <span className="text-sm text-gray-700">{t("video.generatedHint")}</span>
                 </div>
                 <Button 
                   variant="outline" 
                   className="px-4 py-2 bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
                   onClick={() => setIsGenerating(false)}
                 >
-                  重新生成
+                  {t("common.regenerate")}
                 </Button>
               </div>
 
               <div className="space-y-4">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-medium bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">预览</h3>
+                  <h3 className="text-lg font-medium bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">{t("common.preview")}</h3>
                   {videoUrl && (
                     <Button 
                       size="sm" 
                       variant="outline" 
                       onClick={async () => {
-                        toast.info("正在准备下载完整视频...");
+                        toast.info(t("video.preparingFullDownload"));
                         await downloadFile(videoUrl, `creation_${creation.uuid}_final.mp4`);
                       }}
                       className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl"
                     >
                       <Download className="w-4 h-4 mr-2 text-[#ADD8E6]" />
-                      下载完整视频
+                      {t("video.downloadFullVideo")}
                     </Button>
                   )}
                 </div>
@@ -621,7 +623,7 @@ export function VideoGeneration() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <p>视频生成中...</p>
+                      <p>{t("video.statusProcessing")}</p>
                     </div>
                   )}
                   {/* Overlay play button */}
@@ -643,7 +645,7 @@ export function VideoGeneration() {
 
                 {/* Shot List for Individual Regeneration */}
                 <div className="border border-blue-100 rounded-xl p-4 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                  <h3 className="text-lg font-medium mb-4 bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">分镜视频列表</h3>
+                  <h3 className="text-lg font-medium mb-4 bg-gradient-to-r from-[#FDBCB4] to-[#ADD8E6] bg-clip-text text-transparent">{t("video.shotVideoList")}</h3>
                   <div className="space-y-4">
                     {/* Flatten and sort all shots by shot_number */}
                     {creation.scenes
@@ -679,7 +681,7 @@ export function VideoGeneration() {
                               </>
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
-                                无视频
+                                {t("video.noVideo")}
                               </div>
                             )}
                           </div>
@@ -688,7 +690,7 @@ export function VideoGeneration() {
                             <div className="flex items-center gap-3 mb-2">
                               <span className="text-sm font-medium text-gray-600 shrink-0">#{shot.shot_number}</span>
                               <div className="flex items-center gap-2 overflow-hidden flex-wrap">
-                                <span className="text-sm font-medium truncate text-gray-800">{shot.sceneTitle || "场景"}</span>
+                                <span className="text-sm font-medium truncate text-gray-800">{shot.sceneTitle || t("scene.sceneLabel")}</span>
                                 <Badge variant="secondary" className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 text-gray-700 border-none h-5 px-1.5 text-[10px] shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                                   8s
                                 </Badge>
@@ -696,18 +698,18 @@ export function VideoGeneration() {
                                   {shot.video_url && (
                                     <Badge variant="secondary" className="bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/40 text-gray-700 border-none gap-1 h-5 px-2 text-[10px] shadow-[2px_2px_4px_rgba(173,221,230,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                                       <Video className="w-3 h-3 text-[#ADD8E6]" />
-                                      视频
+                                      {t("Timeline.video")}
                                     </Badge>
                                   )}
                                   {shot.audio_url && (
                                     <Badge variant="secondary" className="bg-gradient-to-r from-[#FDBCB4]/20 to-[#FDBCB4]/40 text-gray-700 border-none gap-1 h-5 px-2 text-[10px] shadow-[2px_2px_4px_rgba(253,188,180,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                                       <Mic className="w-3 h-3 text-[#FDBCB4]" />
-                                      音频
+                                      {t("Timeline.audio")}
                                     </Badge>
                                   )}
                                   <Badge variant="secondary" className="bg-gradient-to-r from-[#22C55E]/20 to-[#22C55E]/40 text-gray-700 border-none gap-1 h-5 px-2 text-[10px] shadow-[2px_2px_4px_rgba(34,197,94,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                                       <CheckCircle2 className="w-3 h-3 text-[#22C55E]" />
-                                      字幕
+                                      {t("Timeline.subtitle")}
                                     </Badge>
                                 </div>
                               </div>
@@ -722,7 +724,7 @@ export function VideoGeneration() {
                             <button
                               type="button"
                               className="h-8 w-8 flex items-center justify-center text-[#FDBCB4] hover:text-[#F9A899] hover:bg-white/50 rounded-full transition-colors"
-                              title="重新生成图片"
+                              title={t("storyboard.regenerateImage")}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // 重置逻辑
@@ -733,7 +735,7 @@ export function VideoGeneration() {
                             <button
                               type="button"
                               className="h-8 w-8 flex items-center justify-center text-[#ADD8E6] hover:text-[#93C5FD] hover:bg-white/50 rounded-full transition-colors"
-                              title="编辑"
+                              title={t("common.edit")}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // 编辑逻辑
@@ -749,14 +751,14 @@ export function VideoGeneration() {
                                 e.stopPropagation();
                                 handleRegenerateShotVideo(shot);
                               }}
-                              title="生成视频"
+                              title={t("storyboard.generateVideo")}
                             >
                               <Clapperboard className={`w-4 h-4 ${regeneratingShotVideos.has(shot.shot_id) ? 'animate-spin' : ''}`} />
                             </button>
                             <button
                               type="button"
                               className="h-8 w-8 flex items-center justify-center text-[#ADD8E6] hover:text-[#93C5FD] hover:bg-white/50 rounded-full transition-colors"
-                              title="添加到轨道"
+                              title={t("video.addToTrack")}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // 添加逻辑
@@ -767,14 +769,14 @@ export function VideoGeneration() {
                             <button
                               type="button"
                               className="h-8 w-8 flex items-center justify-center text-[#FDBCB4] hover:text-[#F9A899] hover:bg-white/50 rounded-full transition-colors"
-                              title="一键下载"
+                              title={t("video.downloadAll")}
                               onClick={async (e) => {
                                 e.stopPropagation();
                                 if (!shot.video_url && !shot.audio_url) {
-                                  toast.error("暂无可下载的资源");
+                                  toast.error(t("video.noDownloadableAssets"));
                                   return;
                                 }
-                                toast.info(shot.audio_url ? "正在准备下载视频和音频..." : "正在准备下载视频...");
+                                toast.info(shot.audio_url ? t("video.preparingVideoAudioDownload") : t("video.preparingVideoDownload"));
                                 const formattedNumber = String(shot.shot_number || 0).padStart(4, '0');
                                 if (shot.video_url) await downloadFile(shot.video_url, `${formattedNumber}_video.mp4`);
                                 if (shot.audio_url) await downloadFile(shot.audio_url, `${formattedNumber}_audio.mp3`);

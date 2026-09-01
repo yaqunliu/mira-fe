@@ -73,7 +73,8 @@
     "prev": "Previous",
     "done": "Done",
     "next_step": "Next",
-    "checkedIn": "Checked In"
+    "checkedIn": "Checked In",
+    "submitFailed": "Submission failed"
   },
   "auth": {
     "login": "Login",
@@ -293,7 +294,12 @@
     "portraitDesc": "Suitable for mobile short video playback",
     "selectProject": "Select Project",
     "createProject": "Create New Project",
-    "addChapter": "Add New Script"
+    "addChapter": "Add New Script",
+    "visualGeneration": "Visual Generation",
+    "visualGenerationDesc": "Review and refine the generated scene and shot images",
+    "nextStepVideoGeneration": "Next: Video Generation",
+    "videoGeneration": "Video Generation",
+    "videoGenerationDesc": "Select a voice and generate the final video"
   },
   "scene": {
     "sceneDisplay": "Scene Display",
@@ -308,7 +314,12 @@
     "backgroundElements": "Background Elements",
     "character": "Character",
     "shotDescription": "Shot Description",
-    "generatePrompt": "Generate Prompt"
+    "generatePrompt": "Generate Prompt",
+    "sceneLabel": "Scene",
+    "sceneNumber": "Scene {number}",
+    "regenerateSuccess": "Scene regenerated successfully",
+    "imageGenerationFailed": "Scene image generation failed",
+    "generationTaskSubmitted": "Scene generation task submitted"
   },
   "character": {
     "characterSettings": "Character Settings",
@@ -646,7 +657,40 @@
     "audioPreview": "Audio Preview",
     "videoPreview": "Video Preview",
     "browserNotSupportVideo": "Your browser does not support video playback.",
-    "loadingData": "Loading video and audio data..."
+    "loadingData": "Loading video and audio data...",
+    "videoGenerationFailed": "Video generation failed",
+    "shotVideoRegenerated": "Shot video regenerated",
+    "shotVideoRegeneratedRefresh": "Shot video regenerated (refresh to view)",
+    "shotVideoFailed": "Shot video generation failed",
+    "shotAudioRegenerated": "Shot audio regenerated",
+    "shotAudioRegeneratedRefresh": "Shot audio regenerated (refresh to view)",
+    "shotAudioFailed": "Shot audio generation failed",
+    "sceneVideoRegenerated": "Scene videos regenerated",
+    "sceneVideoFailed": "Scene video generation failed",
+    "shotVideoTaskSubmitted": "Shot video generation task submitted",
+    "shotAudioTaskSubmitted": "Shot audio generation task submitted",
+    "sceneVideoTaskSubmitted": "Scene video generation task submitted",
+    "statusPending": "Waiting to be processed...",
+    "statusProcessing": "Generating video...",
+    "statusCompleted": "Generation completed",
+    "selectVoiceFirst": "Please select a voice first",
+    "submittingTask": "Submitting task...",
+    "generationTaskStarted": "Video generation task started",
+    "startTaskFailed": "Failed to start the generation task",
+    "selectVoiceDesc": "Choose a narration voice for your video",
+    "startVideoGeneration": "Start Generating Video",
+    "processingHint": "Processing the video generation task, this may take a few minutes...",
+    "backAndRetry": "Back and Retry",
+    "generatedHint": "Your video has been generated. You can preview and adjust it below.",
+    "preparingFullDownload": "Preparing the full video download...",
+    "downloadFullVideo": "Download Full Video",
+    "shotVideoList": "Shot Video List",
+    "noVideo": "No video",
+    "addToTrack": "Add to Track",
+    "downloadAll": "Download All",
+    "noDownloadableAssets": "No downloadable assets",
+    "preparingVideoAudioDownload": "Preparing video and audio download...",
+    "preparingVideoDownload": "Preparing video download..."
   },
   "storyboard": {
     "title": "Storyboard",
@@ -712,7 +756,10 @@
     "aspectRatioConfig": "Aspect Ratio",
     "landscapeCompat": "Suitable for computer and TV playback",
     "portraitCompat": "Suitable for mobile short video playback",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "regenerateShotSuccess": "Shot regenerated successfully",
+    "shotImageGenerationFailed": "Shot image generation failed",
+    "generationTaskSubmitted": "Shot generation task submitted"
   },
   "navigation": {
     "home": "Home",
@@ -1287,7 +1334,9 @@
     "versionDate": "Version Date",
     "applyVersion": "Apply Version",
     "downloadImage": "Download Image",
-    "currentVersion": "Current Version"
+    "currentVersion": "Current Version",
+    "mainVideoTrack": "Main Video Track",
+    "voiceoverTrack": "Voiceover Track"
   },
   "createDynamicComic": {
     "title": "Create High-Quality Dynamic Comic",

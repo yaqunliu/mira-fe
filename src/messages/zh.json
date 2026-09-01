@@ -73,7 +73,8 @@
     "prev": "上一步",
     "done": "完成",
     "next_step": "下一步",
-    "checkedIn": "已签到"
+    "checkedIn": "已签到",
+    "submitFailed": "提交失败"
   },
   "auth": {
     "login": "登录",
@@ -293,7 +294,12 @@
     "landscape": "横版 (16:9)",
     "portrait": "竖版 (9:16)",
     "landscapeDesc": "适合电脑和电视播放",
-    "portraitDesc": "适合手机短视频播放"
+    "portraitDesc": "适合手机短视频播放",
+    "visualGeneration": "视觉生成",
+    "visualGenerationDesc": "检查并优化生成的场景与分镜图片",
+    "nextStepVideoGeneration": "下一步：视频生成",
+    "videoGeneration": "视频生成",
+    "videoGenerationDesc": "选择配音并生成最终视频"
   },
   "scene": {
     "sceneDisplay": "场景展示",
@@ -308,7 +314,12 @@
     "backgroundElements": "背景元素",
     "character": "角色",
     "shotDescription": "分镜描述",
-    "generatePrompt": "生成提示词"
+    "generatePrompt": "生成提示词",
+    "sceneLabel": "场景",
+    "sceneNumber": "场景 {number}",
+    "regenerateSuccess": "场景重新生成完成",
+    "imageGenerationFailed": "场景图片生成失败",
+    "generationTaskSubmitted": "场景生成任务已提交"
   },
   "character": {
     "characterSettings": "角色设定",
@@ -646,7 +657,40 @@
     "audioPreview": "音频预览",
     "videoPreview": "视频预览",
     "browserNotSupportVideo": "您的浏览器不支持视频播放。",
-    "loadingData": "视频和音频数据加载中..."
+    "loadingData": "视频和音频数据加载中...",
+    "videoGenerationFailed": "视频生成失败",
+    "shotVideoRegenerated": "分镜视频重新生成完成",
+    "shotVideoRegeneratedRefresh": "分镜视频重新生成完成（请刷新查看）",
+    "shotVideoFailed": "分镜视频生成失败",
+    "shotAudioRegenerated": "分镜音频重新生成完成",
+    "shotAudioRegeneratedRefresh": "分镜音频重新生成完成（请刷新查看）",
+    "shotAudioFailed": "分镜音频生成失败",
+    "sceneVideoRegenerated": "场景视频重新生成完成",
+    "sceneVideoFailed": "场景视频生成失败",
+    "shotVideoTaskSubmitted": "分镜视频生成任务已提交",
+    "shotAudioTaskSubmitted": "分镜音频生成任务已提交",
+    "sceneVideoTaskSubmitted": "场景视频生成任务已提交",
+    "statusPending": "等待处理...",
+    "statusProcessing": "正在生成视频...",
+    "statusCompleted": "生成完成",
+    "selectVoiceFirst": "请先选择一个配音",
+    "submittingTask": "提交任务中...",
+    "generationTaskStarted": "视频生成任务已开始",
+    "startTaskFailed": "启动生成任务失败",
+    "selectVoiceDesc": "为您的视频选择一个合适的旁白配音",
+    "startVideoGeneration": "开始生成视频",
+    "processingHint": "正在处理视频生成任务，这可能需要几分钟时间...",
+    "backAndRetry": "返回重试",
+    "generatedHint": "您的视频已成功生成，您可以在下方预览和调整。",
+    "preparingFullDownload": "正在准备下载完整视频...",
+    "downloadFullVideo": "下载完整视频",
+    "shotVideoList": "分镜视频列表",
+    "noVideo": "无视频",
+    "addToTrack": "添加到轨道",
+    "downloadAll": "一键下载",
+    "noDownloadableAssets": "暂无可下载的资源",
+    "preparingVideoAudioDownload": "正在准备下载视频和音频...",
+    "preparingVideoDownload": "正在准备下载视频..."
   },
   "storyboard": {
     "title": "分镜",
@@ -712,7 +756,10 @@
     "aspectRatioConfig": "创作比例",
     "landscapeCompat": "适合电脑和电视播放",
     "portraitCompat": "适合手机短视频播放",
-    "confirm": "确认"
+    "confirm": "确认",
+    "regenerateShotSuccess": "分镜重新生成完成",
+    "shotImageGenerationFailed": "分镜图片生成失败",
+    "generationTaskSubmitted": "分镜生成任务已提交"
   },
   "navigation": {
     "home": "首页",
@@ -1287,7 +1334,9 @@
     "versionDate": "版本日期",
     "applyVersion": "应用此版本",
     "downloadImage": "下载图片",
-    "currentVersion": "当前版本"
+    "currentVersion": "当前版本",
+    "mainVideoTrack": "主视频轨道",
+    "voiceoverTrack": "配音轨道"
   },
   "createDynamicComic": {
     "title": "创建高品质动态漫",
