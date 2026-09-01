@@ -1,7 +1,8 @@
 'use client';
 
+import { usePathname } from '@/i18n/navigation';
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Timeline } from '@/components/business/timeline';
 import { VideoPreview } from '@/components/business/video-preview';
 import { AssetManager } from '@/components/business/asset-manager';
@@ -2560,8 +2561,7 @@ export default function DynamicComicEditor() {
                         {/* 切换到 Agent 模式按钮 */}
                         <button
                             onClick={() => {
-                                const locale = pathname.split('/')[1] || 'zh';
-                                router.push(`/${locale}/create-agent?creationId=${taskId}`);
+                                router.push(`/create-agent?creationId=${taskId}`);
                             }}
                             className="h-9 px-4 rounded-xl bg-gradient-to-br from-[#22C55E]/20 to-[#ADD8E6]/30 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-[#22C55E]/50 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                         >
@@ -3705,7 +3705,6 @@ export default function DynamicComicEditor() {
                         </DialogHeader>
 
                         <div className="space-y-6 py-6">
-
 
                             {/* Video Model */}
                             <div className="space-y-3">

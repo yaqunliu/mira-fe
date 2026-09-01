@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCreationV2Store } from '@/stores/creation-v2';
+import { usePathname } from '@/i18n/navigation';
 
 interface ModeSwitcherProps {
   creationId: string;
@@ -22,13 +23,11 @@ export function ModeSwitcher({ creationId, currentMode, className = '' }: ModeSw
   const { setMode } = useCreationV2Store();
 
   const handleSwitch = async (toAgentMode: boolean) => {
-    // 提取 locale
-    const locale = pathname.split('/')[1] || 'zh';
 
     // 目标路径 - 专业模式使用 dynamic-comic-editor，参数名为 taskId
     const targetPath = toAgentMode
-      ? `/${locale}/create-agent?creationId=${creationId}`
-      : `/${locale}/dynamic-comic-editor?taskId=${creationId}`;
+      ? `/create-agent?creationId=${creationId}`
+      : `/dynamic-comic-editor?taskId=${creationId}`;
 
     // 更新状态
     setMode(toAgentMode ? 'agent' : 'professional');
@@ -98,13 +97,12 @@ export function CompactModeSwitcher({ creationId, currentMode }: Omit<ModeSwitch
   const { setMode } = useCreationV2Store();
 
   const handleSwitch = async () => {
-    const locale = pathname.split('/')[1] || 'zh';
     const toAgentMode = currentMode === 'professional';
 
     // 专业模式使用 dynamic-comic-editor，参数名为 taskId
     const targetPath = toAgentMode
-      ? `/${locale}/create-agent?creationId=${creationId}`
-      : `/${locale}/dynamic-comic-editor?taskId=${creationId}`;
+      ? `/create-agent?creationId=${creationId}`
+      : `/dynamic-comic-editor?taskId=${creationId}`;
 
     setMode(toAgentMode ? 'agent' : 'professional');
     await queryClient.invalidateQueries({ queryKey: ['creation', creationId] });

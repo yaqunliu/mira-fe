@@ -53,7 +53,7 @@ export function PointsBalance() {
   }
 
   const handleClick = () => {
-    router.push(`/${locale}/points`)
+    router.push('/points')
   }
 
   // 检查是否有临时积分（expires_at 不为 null 的积分）

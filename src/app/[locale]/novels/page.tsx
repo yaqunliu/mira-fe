@@ -9,7 +9,7 @@ export default function NovelsPage() {
   const locale = params?.locale as string;
 
   useEffect(() => {
-    router.replace(`/${locale}/scripts`);
+    router.replace('/scripts');
   }, [locale, router]);
 
   return null;

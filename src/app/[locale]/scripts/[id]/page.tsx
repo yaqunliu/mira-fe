@@ -166,7 +166,7 @@ export default function ScriptDetailPage() {
         const contentType = script?.type || 'script';
 
         if (!itemUuid) {
-            router.push(`/${locale}/create-dynamic-comic?novel=${scriptId}&type=${contentType}`);
+            router.push(`/create-dynamic-comic?novel=${scriptId}&type=${contentType}`);
             return;
         }
 
@@ -175,13 +175,13 @@ export default function ScriptDetailPage() {
             if (creationResponse?.data) {
                 const creationUuid = (creationResponse.data as any).uuid || (creationResponse.data as any).creation_id;
                 if (creationUuid) {
-                    router.push(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
+                    router.push(`/dynamic-comic-editor?taskId=${creationUuid}`);
                     return;
                 }
             }
         } catch (error) { }
 
-        router.push(`/${locale}/create-dynamic-comic?novel=${scriptId}&chapter=${itemUuid}&type=${contentType}`);
+        router.push(`/create-dynamic-comic?novel=${scriptId}&chapter=${itemUuid}&type=${contentType}`);
     };
 
     const handleStartEditScriptTitle = () => {
@@ -283,7 +283,7 @@ export default function ScriptDetailPage() {
                     <FileText className="h-10 w-10 text-[#ADD8E6]" />
                 </div>
                 <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">文案未找到</h2>
-                <Button onClick={() => router.push(`/${locale}/scripts`)} variant="outline" className="mt-2 border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+                <Button onClick={() => router.push('/scripts')} variant="outline" className="mt-2 border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                     返回列表
                 </Button>
             </div>
@@ -490,7 +490,7 @@ export default function ScriptDetailPage() {
                 <div className="max-w-5xl mx-auto space-y-10">
                     {/* Header Navigation */}
                     <div className="flex items-center justify-between">
-                        <Button variant="ghost" size="sm" onClick={() => router.push(`/${locale}/scripts`)} className="hover:bg-[#ADD8E6]/10 -ml-2 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-white rounded-xl">
+                        <Button variant="ghost" size="sm" onClick={() => router.push('/scripts')} className="hover:bg-[#ADD8E6]/10 -ml-2 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-white rounded-xl">
                             <ChevronLeft className="h-4 w-4 mr-1" />返回列表
                         </Button>
                     </div>

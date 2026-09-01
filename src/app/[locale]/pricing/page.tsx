@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { productsApi, type Product } from '@/lib/api/products'
 import { ordersApi } from '@/lib/api/orders'
 import { subscriptionsApi, type Subscription } from '@/lib/api/subscriptions'
@@ -134,15 +134,13 @@ function PriceCard({
 
 export default function PricingPage() {
   const t = useTranslations()
-  const params = useParams()
-  const locale = (params?.locale as string) || 'zh'
   const router = useRouter()
   const [tab, setTab] = useState<'onetime' | 'recurring'>('recurring')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { isAuthenticated } = useAuthStore()
 
-  // 根据locale确定语言：zh=中文（微信支付），其他=英文（Creem支付）
-  const language = locale === 'zh' ? 'zh' : 'en'
+  // 海外交付：商品目录固定取英文分区（对应 Creem 支付）。
+  const language = 'en'
   
   const { data: onetimeData, isLoading: loadingOnetime, error: onetimeError } = useQuery({
     queryKey: ['products', 'onetime', language],
@@ -200,13 +198,13 @@ export default function PricingPage() {
       const order = await ordersApi.create({
         product_uuid: product.uuid,
         order_type: product.billing_type === 'onetime' ? 'onetime' : 'subscription',
-        success_url: `${window.location.origin}/${locale}/payment/success`,
-        cancel_url: `${window.location.origin}/${locale}/payment/cancel`,
+        success_url: `${window.location.origin}/payment/success`,
+        cancel_url: `${window.location.origin}/payment/cancel`,
         metadata: {},
       })
       
       // 更新success_url，添加order_uuid参数
-      const successUrlWithOrder = `${window.location.origin}/${locale}/payment/success?order_uuid=${order.uuid}`
+      const successUrlWithOrder = `${window.location.origin}/payment/success?order_uuid=${order.uuid}`
       
       // 根据支付方式处理
       if (order.payment_method === 'creem' && order.payment_info?.checkout_url) {
@@ -216,7 +214,7 @@ export default function PricingPage() {
         // 微信支付：显示二维码
         // TODO: 打开二维码弹窗或跳转到二维码页面
         // 临时方案：跳转到支付页面
-        router.push(`/${locale}/payment/wechat?code_url=${encodeURIComponent(order.payment_info.code_url)}&order_uuid=${order.uuid}`)
+        router.push(`/payment/wechat?code_url=${encodeURIComponent(order.payment_info.code_url)}&order_uuid=${order.uuid}`)
       } else {
         toast.error(t('pricing.errorNoCheckoutUrl', { default: '未获取到支付链接' }))
       }

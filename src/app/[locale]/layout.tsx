@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
@@ -11,6 +12,22 @@ import { SidebarWrapper } from '@/components/business/sidebar-wrapper';
 import '../globals.css';
 
 import { TooltipProvider } from "@/components/ui/tooltip";
+
+export const metadata: Metadata = {
+  title: {
+    default: 'AI Animation Short Drama Creation Platform',
+    template: '%s · AI Animation Short Drama',
+  },
+  description:
+    'Transform novels into amazing animated short dramas using AI technology.',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    title: 'AI Animation Short Drama Creation Platform',
+    description:
+      'Transform novels into amazing animated short dramas using AI technology.',
+  },
+};
 
 export default async function LocaleLayout({
   children,
@@ -32,9 +49,9 @@ export default async function LocaleLayout({
         <ThemeProvider>
           <QueryProvider>
             <AuthProvider>
-              <NextIntlClientProvider messages={messages}>
+              <NextIntlClientProvider locale={locale} messages={messages}>
                 <TooltipProvider delayDuration={100}>
-                  <SidebarWrapper locale={locale}>
+                  <SidebarWrapper>
                     {children}
                   </SidebarWrapper>
                   <Toaster position="top-right" visibleToasts={2} richColors closeButton />

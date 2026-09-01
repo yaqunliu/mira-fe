@@ -48,10 +48,10 @@ export default function ConfirmPage() {
           setTimeout(() => {
             if (type === 'recovery') {
               // 密码重置跳转到重置密码页面
-              router.push(`/${locale}/auth/reset-password`)
+              router.push('/auth/reset-password')
             } else {
               // 其他类型跳转到登录页面
-              router.push(`/${locale}/auth/login`)
+              router.push('/auth/login')
             }
           }, 3000)
         }
@@ -68,9 +68,9 @@ export default function ConfirmPage() {
   const handleGoToLogin = () => {
     const type = searchParams.get('type')
     if (type === 'recovery') {
-      router.push(`/${locale}/auth/reset-password`)
+      router.push('/auth/reset-password')
     } else {
-      router.push(`/${locale}/auth/login`)
+      router.push('/auth/login')
     }
   }
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useRef } from "react";
 import { FileVideoCamera, BookOpenText, Sparkles, FileText } from "lucide-react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { CheckinButton } from "@/components/business/checkin-button";
 import { useAuthStore } from "@/stores/auth";
 import { useSupabaseAuth } from "@/hooks/use-supabase-auth";
+import { usePathname } from '@/i18n/navigation';
 
 export default function WorkspacePage() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function WorkspacePage() {
 
     if (!hasAuth && !hasToken) {
       // 如果既没有认证状态也没有 token，才跳转到登录页
-      router.push(`/${locale}/auth/login`);
+      router.push('/auth/login');
     }
   }, [router, locale, isAuthenticated, user?.id, authLoading, token]);
 
@@ -60,7 +61,7 @@ export default function WorkspacePage() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const workspacePath = `/${locale}/workspace`;
+    const workspacePath = '/workspace';
     const isWorkspacePage = pathname === workspacePath;
 
     // 首次加载时，prevPathnameRef.current 为 null；从其他页面返回时，prevPathnameRef.current 不等于当前路径
@@ -79,7 +80,7 @@ export default function WorkspacePage() {
   // 监听页面可见性变化，当从其他标签页返回时刷新数据
   useEffect(() => {
     if (!isAuthenticated) return;
-    const workspacePath = `/${locale}/workspace`;
+    const workspacePath = '/workspace';
 
     const handleVisibilityChange = () => {
       // 当页面从隐藏变为可见时，刷新数据
@@ -128,7 +129,7 @@ export default function WorkspacePage() {
           <div className="mb-8">
             <div
               className="group relative overflow-hidden cursor-pointer rounded-3xl shadow-[8px_8px_16px_rgba(173,221,230,0.3),-6px_-6px_12px_rgba(255,255,255,0.7)] hover:shadow-[10px_10px_20px_rgba(173,221,230,0.4),-8px_-8px_16px_rgba(255,255,255,0.8)] transition-all duration-300"
-              onClick={() => router.push(`/${locale}/create-dynamic-comic`)}
+              onClick={() => router.push('/create-dynamic-comic')}
             >
               {/* 背景渐变和模糊效果 - 使用柔和的颜色 */}
               <div className="absolute inset-0 bg-gradient-to-br from-[#22C55E]/95 via-[#ADD8E6]/90 to-[#FDBCB4]/80 opacity-95 group-hover:opacity-100 transition-opacity duration-300" />

@@ -35,11 +35,11 @@ export function UserAvatar() {
     // 清空 auth store 和其他 store 的数据
     logout()
     // 跳转到登录页
-    router.push(`/${locale}/auth/login`)
+    router.push('/auth/login')
   }
 
   const handlePointsClick = () => {
-    router.push(`/${locale}/points`)
+    router.push('/points')
   }
 
   if (!isAuthenticated || !user) {

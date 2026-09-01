@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useSearchParams, useRouter, useParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
 import { ordersApi } from '@/lib/api/orders'
@@ -16,10 +16,8 @@ import { useSupabaseAuth } from '@/hooks/use-supabase-auth'
 
 export default function PaymentSuccessPage() {
   const t = useTranslations()
-  const params = useParams()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const locale = (params?.locale as string) || 'zh'
   const queryClient = useQueryClient()
   const { setBalance } = usePointsStore()
   const { loading: authLoading } = useSupabaseAuth()
@@ -182,12 +180,12 @@ export default function PaymentSuccessPage() {
                   asChild
                   className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
-                  <Link href={`/${locale}/points`}>
+                  <Link href={'/points'}>
                     {t('payment.viewPoints', { default: '查看积分' })}
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
-                  <Link href={`/${locale}/workspace`}>
+                  <Link href={'/workspace'}>
                     {t('payment.backToWorkspace', { default: '返回工作台' })}
                   </Link>
                 </Button>
@@ -199,12 +197,12 @@ export default function PaymentSuccessPage() {
                   asChild
                   className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
-                  <Link href={`/${locale}/pricing`}>
+                  <Link href={'/pricing'}>
                     {t('payment.retryPayment', { default: '重新支付' })}
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
-                  <Link href={`/${locale}/workspace`}>
+                  <Link href={'/workspace'}>
                     {t('payment.backToWorkspace', { default: '返回工作台' })}
                   </Link>
                 </Button>
@@ -212,7 +210,7 @@ export default function PaymentSuccessPage() {
             )}
             {(orderStatus === 'loading' || orderStatus === 'pending') && (
               <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
-                <Link href={`/${locale}/workspace`}>
+                <Link href={'/workspace'}>
                   {t('payment.backToWorkspace', { default: '返回工作台' })}
                 </Link>
               </Button>

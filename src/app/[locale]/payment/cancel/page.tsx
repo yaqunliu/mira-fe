@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -9,9 +9,7 @@ import Link from 'next/link'
 
 export default function PaymentCancelPage() {
   const t = useTranslations()
-  const params = useParams()
   const router = useRouter()
-  const locale = (params?.locale as string) || 'zh'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80 flex items-center justify-center p-4">
@@ -32,12 +30,12 @@ export default function PaymentCancelPage() {
               asChild
               className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
             >
-              <Link href={`/${locale}/pricing`}>
+              <Link href={'/pricing'}>
                 {t('payment.backToPricing', { default: '返回套餐页面' })}
               </Link>
             </Button>
             <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
-              <Link href={`/${locale}/workspace`}>
+              <Link href={'/workspace'}>
                 {t('payment.backToWorkspace', { default: '返回工作台' })}
               </Link>
             </Button>

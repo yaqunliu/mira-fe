@@ -203,7 +203,7 @@ export default function NovelDetailPage() {
   const handleCreateVideo = async (chapterUuid?: string) => {
     if (!chapterUuid) {
       // 如果没有指定章节，跳转到创建页面，只传递小说UUID
-      router.push(`/${locale}/create-dynamic-comic?novel=${novelId}`);
+      router.push(`/create-dynamic-comic?novel=${novelId}`);
       return;
     }
 
@@ -218,7 +218,7 @@ export default function NovelDetailPage() {
       // 如果已有创作，跳转到已存在的创作
       const creationUuid = (existingCreation as any).uuid || (existingCreation as any).creation_id || existingCreation.creationId;
       if (creationUuid) {
-        router.push(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
+        router.push(`/dynamic-comic-editor?taskId=${creationUuid}`);
         return;
       }
     }
@@ -230,7 +230,7 @@ export default function NovelDetailPage() {
         // 如果已有创作，跳转到已存在的创作
         const creationUuid = (creationResponse.data as any).uuid || (creationResponse.data as any).creation_id;
         if (creationUuid) {
-          router.push(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
+          router.push(`/dynamic-comic-editor?taskId=${creationUuid}`);
           return;
         }
       }
@@ -240,7 +240,7 @@ export default function NovelDetailPage() {
     }
 
     // 如果没有创作，跳转到创建页面，传递小说UUID和章节UUID
-    router.push(`/${locale}/create-dynamic-comic?novel=${novelId}&chapter=${chapterUuid}`);
+    router.push(`/create-dynamic-comic?novel=${novelId}&chapter=${chapterUuid}`);
   };
 
   // 开始编辑小说标题
@@ -354,7 +354,7 @@ export default function NovelDetailPage() {
               <Button size="sm" onClick={() => handleCreateVideo()}>
                 {t("novelDetail.goToCreate")}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => router.push(`/${locale}/novels/upload`)}>
+              <Button size="sm" variant="outline" onClick={() => router.push('/novels/upload')}>
                 上传小说
               </Button>
             </div>
@@ -652,7 +652,7 @@ export default function NovelDetailPage() {
             <p className="text-sm bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
               {error instanceof Error ? error.message : '加载失败'}
             </p>
-            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+            <Button onClick={() => router.push('/novels')} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               {t("novelDetail.back")}
             </Button>
           </div>
@@ -675,7 +675,7 @@ export default function NovelDetailPage() {
             <p className="text-sm bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
               小说ID: {novelId}
             </p>
-            <Button onClick={() => router.push(`/${locale}/novels`)} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
+            <Button onClick={() => router.push('/novels')} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               {t("novelDetail.back")}
             </Button>
           </div>

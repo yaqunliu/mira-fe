@@ -11,11 +11,7 @@ import { clearUserDataCache } from '@/lib/utils/clear-user-data'
 import { authApi } from '@/lib/api/auth'
 import type { User } from '@/types'
 
-interface GoogleSignInProps {
-  locale?: string
-}
-
-export function GoogleSignIn({ locale = 'zh' }: GoogleSignInProps) {
+export function GoogleSignIn() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
@@ -50,7 +46,7 @@ export function GoogleSignIn({ locale = 'zh' }: GoogleSignInProps) {
         options: {
           // v2.83 使用 implicit flow,直接重定向到 home 页面
           // Supabase 会自动检测 URL 中的 token 并设置 session
-          redirectTo: `${window.location.origin}/${locale}/home`,
+          redirectTo: `${window.location.origin}/home`,
         },
       })
       if (error) throw error

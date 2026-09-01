@@ -1,8 +1,9 @@
 "use client";
 
+import { usePathname } from '@/i18n/navigation';
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { useParams, useSearchParams, usePathname } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   ProgressWrapper,
@@ -293,7 +294,6 @@ export default function CreateCreation() {
     return task;
   }, [taskResponse]);
 
-
   // 使用流程导航 Hook 来管理步骤跳转
   const {
     currentStep,
@@ -316,10 +316,9 @@ export default function CreateCreation() {
     debug: process.env.NODE_ENV === 'development',
   });
 
-
   // 监听路由变化，刷新创作数据
   useEffect(() => {
-    const createPath = `/${locale}/create`;
+    const createPath = '/create';
     const isCreatePage = pathname === createPath;
 
     if (!isCreatePage) {
@@ -359,7 +358,7 @@ export default function CreateCreation() {
     if (!creationId) return;
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible" && pathname === `/${locale}/create`) {
+      if (document.visibilityState === "visible" && pathname === '/create') {
         queryClient.invalidateQueries({ queryKey: ["creation", creationId] });
       }
     };
@@ -511,7 +510,6 @@ export default function CreateCreation() {
 
   // 计算综合的 loading 状态（包括所有可能的 loading 情况）
   const isAnyLoading = isFlowLoading || isResubmitting || isGeneratingShots;
-
 
   const { steps, nextStep } = useProgressSteps(initialSteps, {
     currentStep,

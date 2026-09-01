@@ -1,13 +1,10 @@
 'use client'
 
-import { useParams } from 'next/navigation'
 import { Card, CardContent } from '@/components/ui/card'
 import { ForgotPassword } from '@/components/auth/forgot-password'
 import { Sparkles } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
-  const params = useParams()
-  const locale = params?.locale as string
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -41,7 +38,7 @@ export default function ForgotPasswordPage() {
         {/* 忘记密码卡片 - 玻璃拟态风格 */}
         <Card className="border-none shadow-2xl backdrop-blur-xl bg-white/70 dark:bg-gray-900/70">
           <CardContent className="pt-6">
-            <ForgotPassword locale={locale} />
+            <ForgotPassword />
           </CardContent>
         </Card>
 

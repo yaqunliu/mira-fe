@@ -140,7 +140,7 @@ export function useSupabaseAuth() {
     await supabase.auth.signOut()
     logoutStore()
     clearUserDataCache(queryClient)
-    router.push('/zh')
+    router.push('/')
   }
 
   return {

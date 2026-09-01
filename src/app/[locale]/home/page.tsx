@@ -145,22 +145,22 @@ export default function HomePage() {
 
   const handleStartCreating = () => {
     if (!isAuthenticated) {
-      router.push(`/${locale}/auth/login`)
+      router.push('/auth/login')
     } else {
-      router.push(`/${locale}/create-dynamic-comic`)
+      router.push('/create-dynamic-comic')
     }
   }
 
   const handleBrowseCreations = () => {
     if (!isAuthenticated) {
-      router.push(`/${locale}/auth/login`)
+      router.push('/auth/login')
     } else {
-      router.push(`/${locale}/creations`)
+      router.push('/creations')
     }
   }
 
   const handleLogin = () => {
-    router.push(`/${locale}/auth/login`)
+    router.push('/auth/login')
   }
 
   return (
@@ -174,7 +174,7 @@ export default function HomePage() {
         <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push(`/${locale}/home`)}
+              onClick={() => router.push('/home')}
               className="flex items-center gap-3 group cursor-pointer"
             >
               <Image

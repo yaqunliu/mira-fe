@@ -33,9 +33,9 @@ export default function CreateScriptPage() {
             toast.success(t("common.success") || "创建成功");
             queryClient.invalidateQueries({ queryKey: ["scripts"] });
             if (scriptUuid) {
-                router.push(`/${locale}/scripts/${scriptUuid}`);
+                router.push(`/scripts/${scriptUuid}`);
             } else {
-                router.push(`/${locale}/scripts`);
+                router.push('/scripts');
             }
         },
         onError: (error) => {

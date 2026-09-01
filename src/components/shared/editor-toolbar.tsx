@@ -1,7 +1,8 @@
 "use client";
 
+import { usePathname } from '@/i18n/navigation';
 import React, { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -201,11 +202,10 @@ export function EditorToolbar({
 
   // 模式切换
   const handleModeSwitch = async () => {
-    const locale = pathname.split("/")[1] || "zh";
     const targetPath =
       mode === "agent"
-        ? `/${locale}/dynamic-comic-editor?taskId=${creationId}`
-        : `/${locale}/create-agent?creationId=${creationId}`;
+        ? `/dynamic-comic-editor?taskId=${creationId}`
+        : `/create-agent?creationId=${creationId}`;
 
     await queryClient.invalidateQueries({ queryKey: ["creation", creationId] });
     router.push(targetPath);

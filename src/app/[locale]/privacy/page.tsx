@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
     <div className="min-h-screen bg-gradient-to-br from-white to-gray-50/80 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <Button variant="outline" asChild className="mb-8 border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm">
-          <Link href={`/${locale}/auth/login`}>
+          <Link href={'/auth/login'}>
             <ChevronLeft className="mr-2 h-4 w-4" />
             {t('login')}
           </Link>

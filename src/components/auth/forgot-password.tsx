@@ -18,11 +18,7 @@ const forgotPasswordSchema = z.object({
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
 
-interface ForgotPasswordProps {
-  locale?: string
-}
-
-export function ForgotPassword({ locale = 'zh' }: ForgotPasswordProps) {
+export function ForgotPassword() {
   const [emailSent, setEmailSent] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState('')
   const supabase = createClient()
@@ -39,7 +35,7 @@ export function ForgotPassword({ locale = 'zh' }: ForgotPasswordProps) {
       // Supabase 会自动处理邮件链接并重定向到这个 URL
       // URL 格式: /auth/reset-password#access_token=xxx&refresh_token=xxx&type=recovery
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${window.location.origin}/${locale}/auth/reset-password`,
+        redirectTo: `${window.location.origin}/auth/reset-password`,
       })
 
       if (error) throw error
@@ -89,7 +85,7 @@ export function ForgotPassword({ locale = 'zh' }: ForgotPasswordProps) {
             重新发送
           </button>
 
-          <Link href={`/${locale}/auth/login`} className="block">
+          <Link href={'/auth/login'} className="block">
             <button
               type="button"
               className="w-full py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-800 font-medium flex items-center justify-center gap-2"
@@ -143,7 +139,7 @@ export function ForgotPassword({ locale = 'zh' }: ForgotPasswordProps) {
             {form.formState.isSubmitting ? '发送中...' : '发送重置链接'}
           </button>
 
-          <Link href={`/${locale}/auth/login`} className="block">
+          <Link href={'/auth/login'} className="block">
             <button
               type="button"
               className="w-full py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-800 font-medium flex items-center justify-center gap-2"

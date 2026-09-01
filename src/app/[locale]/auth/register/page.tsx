@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTranslations } from 'next-intl'
@@ -13,8 +13,6 @@ import { UserPlus } from 'lucide-react'
 
 function RegisterContent() {
   const router = useRouter()
-  const params = useParams()
-  const locale = params?.locale as string
   const t = useTranslations('auth')
 
   return (
@@ -46,9 +44,8 @@ function RegisterContent() {
             <div className="space-y-6">
               {/* 邮箱注册 */}
               <EmailRegister
-                locale={locale}
                 onSuccess={() => {
-                  router.push(`/${locale}/auth/login?message=${encodeURIComponent('请检查您的邮箱以验证账户')}`)
+                  router.push(`/auth/login?message=${encodeURIComponent('请检查您的邮箱以验证账户')}`)
                 }}
               />
 
@@ -65,14 +62,14 @@ function RegisterContent() {
               </div>
 
               {/* Google 注册 */}
-              <GoogleSignIn locale={locale} />
+              <GoogleSignIn />
             </div>
 
             {/* 登录链接 */}
             <div className="mt-8 text-center text-sm">
               <span className="text-gray-600">{t('hasAccount')}</span>
               <Link
-                href={`/${locale}/auth/login`}
+                href={'/auth/login'}
                 className="ml-1 font-medium text-[#22C55E] hover:text-[#22C55E]/80 transition-colors"
               >
                 {t('login')}
@@ -84,11 +81,11 @@ function RegisterContent() {
         {/* 底部装饰文字 */}
         <div className="text-center text-xs text-gray-500">
           {t('agreementPrefix')}
-          <Link href={`/${locale}/privacy`} className="underline hover:text-[#22C55E] transition-colors">
+          <Link href={'/privacy'} className="underline hover:text-[#22C55E] transition-colors">
             {t('privacyPolicy')}
           </Link>
           {t('and')}
-          <Link href={`/${locale}/terms`} className="underline hover:text-[#22C55E] transition-colors">
+          <Link href={'/terms'} className="underline hover:text-[#22C55E] transition-colors">
             {t('termsOfService')}
           </Link>
         </div>

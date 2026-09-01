@@ -24,11 +24,10 @@ const emailRegisterSchema = z.object({
 type EmailRegisterFormData = z.infer<typeof emailRegisterSchema>
 
 interface EmailRegisterProps {
-  locale?: string
   onSuccess?: () => void
 }
 
-export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) {
+export function EmailRegister({ onSuccess }: EmailRegisterProps) {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -72,7 +71,7 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
         email: data.email,
         password: data.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/${locale}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
         },
       })
 
@@ -85,7 +84,7 @@ export function EmailRegister({ locale = 'zh', onSuccess }: EmailRegisterProps) 
           onSuccess()
         } else {
           // 跳转到登录页面，提示用户验证邮箱
-          router.push(`/${locale}/auth/login?message=${encodeURIComponent('请检查您的邮箱以验证账户')}`)
+          router.push(`/auth/login?message=${encodeURIComponent('请检查您的邮箱以验证账户')}`)
         }
       }
     } catch (error: any) {

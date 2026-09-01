@@ -4,7 +4,7 @@ import React, { useState, useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { pointsApi } from '@/lib/api/points'
 import { useTranslations } from 'next-intl'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Coins, TrendingUp, TrendingDown, Calendar, Sparkles, Award, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -32,8 +32,6 @@ import type { RecordType, OperationType } from '@/types/points'
 export default function PointsPage() {
   const t = useTranslations('points')
   const router = useRouter()
-  const params = useParams()
-  const locale = (params?.locale as string) || 'zh'
   const queryClient = useQueryClient()
 
   const [page, setPage] = useState(1)
@@ -186,7 +184,6 @@ export default function PointsPage() {
               </div>
             </div>
           </div>
-
 
           {/* 筛选和记录列表 - Claymorphism 设计 */}
           <div className="space-y-4">

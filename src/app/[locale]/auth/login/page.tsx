@@ -1,6 +1,6 @@
 'use client'
 
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTranslations } from 'next-intl'
@@ -11,8 +11,6 @@ import { Sparkles } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
-  const params = useParams()
-  const locale = params?.locale as string
   const t = useTranslations('auth')
 
   return (
@@ -44,9 +42,8 @@ export default function LoginPage() {
             <div className="space-y-6">
               {/* 邮箱登录 */}
               <EmailSignIn
-                locale={locale}
                 onSuccess={() => {
-                  router.push(`/${locale}/home`)
+                  router.push('/home')
                 }}
               />
 
@@ -63,14 +60,14 @@ export default function LoginPage() {
               </div>
 
               {/* Google 登录 */}
-              <GoogleSignIn locale={locale} />
+              <GoogleSignIn />
             </div>
 
             {/* 注册链接 */}
             <div className="mt-8 text-center text-sm">
               <span className="text-gray-600">{t('noAccount')}</span>
               <Link
-                href={`/${locale}/auth/register`}
+                href={'/auth/register'}
                 className="ml-1 font-medium text-[#22C55E] hover:text-[#22C55E]/80 transition-colors"
               >
                 {t('register')}
@@ -82,11 +79,11 @@ export default function LoginPage() {
         {/* 底部装饰文字 */}
         <div className="text-center text-xs text-gray-500">
           {t('agreementPrefix')}
-          <Link href={`/${locale}/privacy`} className="underline hover:text-[#22C55E] transition-colors">
+          <Link href={'/privacy'} className="underline hover:text-[#22C55E] transition-colors">
             {t('privacyPolicy')}
           </Link>
           {t('and')}
-          <Link href={`/${locale}/terms`} className="underline hover:text-[#22C55E] transition-colors">
+          <Link href={'/terms'} className="underline hover:text-[#22C55E] transition-colors">
             {t('termsOfService')}
           </Link>
         </div>

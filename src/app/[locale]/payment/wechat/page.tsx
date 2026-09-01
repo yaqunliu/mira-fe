@@ -60,7 +60,7 @@ export default function WechatPaymentPage() {
           }
           // 跳转到成功页面
           setTimeout(() => {
-            router.push(`/${locale}/payment/success?order_uuid=${orderUuid}`)
+            router.push(`/payment/success?order_uuid=${orderUuid}`)
           }, 2000)
         } else if (orderData.status === 'failed' || orderData.status === 'cancelled' || orderData.status === 'refunded') {
           setOrderStatus('failed')
@@ -304,7 +304,7 @@ export default function WechatPaymentPage() {
               {/* Back Button */}
               <Button
                 variant="outline"
-                onClick={() => router.push(`/${locale}/pricing`)}
+                onClick={() => router.push('/pricing')}
                 className="mt-4 border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300 bg-white shadow-sm hover:shadow-md transition-all duration-300"
               >
                 返回产品页面

@@ -50,11 +50,11 @@ export function NovelOverview() {
   const displayNovels = novels.slice(0, 5); // 显示前5本小说
 
   const handleViewMore = () => {
-    router.push(`/${locale}/scripts`);
+    router.push('/scripts');
   };
 
   const handleNovelClick = (novelUuid: string) => {
-    window.open(`/${locale}/scripts/${novelUuid}`, '_blank', 'noopener,noreferrer');
+    window.open(`/scripts/${novelUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleUploadClick = () => {
@@ -66,7 +66,7 @@ export function NovelOverview() {
     refetchNovels();
     // 如果有 novelUuid，可以跳转到小说详情
     if (novelUuid) {
-      router.push(`/${locale}/novels/${novelUuid}`);
+      router.push(`/novels/${novelUuid}`);
     }
   };
 

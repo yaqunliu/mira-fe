@@ -196,9 +196,9 @@ export function StorySetting() {
         toast.success(t("creation.characterAnalysisStart") || "开始分析章节内容...");
         // 根据创作模式跳转到不同页面
         if (creationMode === "agent") {
-          router.replace(`/${locale}/create-agent?creationId=${creationIdToUse}`);
+          router.replace(`/create-agent?creationId=${creationIdToUse}`);
         } else {
-          router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationIdToUse}`);
+          router.replace(`/dynamic-comic-editor?taskId=${creationIdToUse}`);
         }
       } else {
         throw new Error(t("creation.taskIdNotFound") || "未获取到创作ID");
@@ -232,9 +232,9 @@ export function StorySetting() {
         // 如果已有创作，根据选择的模式跳转
         const creationUuid = (existingCreation.data as any).uuid || existingCreation.data.creation_id;
         if (creationMode === "agent") {
-          router.replace(`/${locale}/create-agent?creationId=${creationUuid}`);
+          router.replace(`/create-agent?creationId=${creationUuid}`);
         } else {
-          router.replace(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`);
+          router.replace(`/dynamic-comic-editor?taskId=${creationUuid}`);
         }
         return; // 直接返回，不创建新创作
       }

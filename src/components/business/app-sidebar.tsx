@@ -1,8 +1,9 @@
 'use client'
 
+import { usePathname } from '@/i18n/navigation';
 import { useState, useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
-import { useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+
 import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
@@ -32,7 +33,6 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
-import { LanguageToggle } from '@/components/business/language-toggle'
 import { CheckinButton } from '@/components/business/checkin-button'
 import {
   Tooltip,
@@ -51,8 +51,6 @@ export function AppSidebar() {
   const t = useTranslations('sidebar')
   const pathname = usePathname()
   const router = useRouter()
-  const params = useParams()
-  const locale = (params?.locale as string) || 'zh'
   const { user, isAuthenticated, logout } = useAuthStore()
   const { sidebarOpen, setSidebarOpen } = useUIStore()
   const { balance, setBalance } = usePointsStore()
@@ -90,25 +88,25 @@ export function AppSidebar() {
     {
       label: t('workspace', { default: '工作台' }),
       icon: LayoutDashboard,
-      href: `/${locale}/workspace`,
+      href: '/workspace',
       translationKey: 'workspace',
     },
     {
       label: t('create', { default: '创作' }),
       icon: Wand2,
-      href: `/${locale}/create-dynamic-comic`,
+      href: '/create-dynamic-comic',
       translationKey: 'create',
     },
     {
       label: t('creations', { default: '创作记录' }),
       icon: History,
-      href: `/${locale}/creations`,
+      href: '/creations',
       translationKey: 'creations',
     },
     {
       label: t('scripts', { default: '文案列表' }),
       icon: FileText,
-      href: `/${locale}/scripts`,
+      href: '/scripts',
       translationKey: 'scripts',
     },
   ]
@@ -133,15 +131,15 @@ export function AppSidebar() {
     logout()
 
     // 跳转到登录页
-    router.push(`/${locale}/auth/login`)
+    router.push('/auth/login')
     if (window.innerWidth < 1024) {
       setSidebarOpen(false)
     }
   }
 
   const isActive = (href: string) => {
-    if (href === `/${locale}/home` || href === `/${locale}`) {
-      return pathname === `/${locale}/home` || pathname === `/${locale}` || pathname === `/${locale}/`
+    if (href === '/home' || href === '/') {
+      return pathname === '/home' || pathname === '/'
     }
     return pathname === href || pathname?.startsWith(href + '/')
   }
@@ -243,7 +241,7 @@ export function AppSidebar() {
             isCollapsed ? 'justify-center p-3' : 'justify-between p-4'
           )}>
             <button
-              onClick={() => handleNavClick(`/${locale}/home`)}
+              onClick={() => handleNavClick('/home')}
               className="flex items-center gap-3 transition-transform hover:scale-105"
             >
               <div className="relative w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-[4px_4px_12px_rgba(0,0,0,0.15),-2px_-2px_8px_rgba(255,255,255,0.8)] bg-gradient-to-br from-white to-blue-50 border border-white/50">
@@ -343,7 +341,7 @@ export function AppSidebar() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
-                        onClick={() => handleNavClick(`/${locale}/points`)}
+                        onClick={() => handleNavClick('/points')}
                         className="rounded-lg transition-all duration-300 relative group overflow-hidden w-11 h-11 flex items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500 shadow-md hover:shadow-lg hover:scale-105"
                       >
                         <Coins className="h-4.5 w-4.5 text-white" />
@@ -356,7 +354,7 @@ export function AppSidebar() {
                   </Tooltip>
                 ) : (
                   <button
-                    onClick={() => handleNavClick(`/${locale}/points`)}
+                    onClick={() => handleNavClick('/points')}
                     className="w-full p-3 bg-gradient-to-br from-white to-blue-50 rounded-xl transition-all duration-300 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.18),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-white/50"
                   >
                     <div className="flex items-center gap-3 w-full">
@@ -387,7 +385,7 @@ export function AppSidebar() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
-                          onClick={() => window.open(`/${locale}/pricing`, '_blank', 'noopener,noreferrer')}
+                          onClick={() => window.open('/pricing', '_blank', 'noopener,noreferrer')}
                           className="rounded-lg transition-all duration-300 flex items-center justify-center w-11 h-11 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 text-blue-600 dark:text-blue-400"
                         >
                           <Sparkles className="h-4 w-4 flex-shrink-0" />
@@ -399,7 +397,7 @@ export function AppSidebar() {
                     </Tooltip>
                   ) : (
                     <button
-                      onClick={() => window.open(`/${locale}/pricing`, '_blank', 'noopener,noreferrer')}
+                      onClick={() => window.open('/pricing', '_blank', 'noopener,noreferrer')}
                       className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-3 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-[4px_4px_16px_rgba(59,130,246,0.3),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(59,130,246,0.4),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-blue-400/30"
                     >
                       <Sparkles className="h-4 w-4 flex-shrink-0" />
@@ -412,7 +410,7 @@ export function AppSidebar() {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
-                          onClick={() => window.open(`/${locale}/subscriptions`, '_blank', 'noopener,noreferrer')}
+                          onClick={() => window.open('/subscriptions', '_blank', 'noopener,noreferrer')}
                           className="rounded-lg transition-all duration-300 flex items-center justify-center w-11 h-11 bg-white dark:bg-slate-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 text-emerald-600 dark:text-emerald-400"
                         >
                           <Repeat className="h-4 w-4 flex-shrink-0" />
@@ -424,7 +422,7 @@ export function AppSidebar() {
                     </Tooltip>
                   ) : (
                     <button
-                      onClick={() => window.open(`/${locale}/subscriptions`, '_blank', 'noopener,noreferrer')}
+                      onClick={() => window.open('/subscriptions', '_blank', 'noopener,noreferrer')}
                       className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-3 px-3 bg-gradient-to-br from-white to-blue-50 text-gray-900 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.18),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-white/50"
                     >
                       <Repeat className="h-4 w-4 flex-shrink-0" />
@@ -481,7 +479,7 @@ export function AppSidebar() {
               </div>
             ) : (
               <button
-                onClick={() => handleNavClick(`/${locale}/auth/login`)}
+                onClick={() => handleNavClick('/auth/login')}
                 className={cn(
                   'w-full flex items-center rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white text-sm font-semibold transition-all duration-300 shadow-[4px_4px_16px_rgba(34,197,94,0.3),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(34,197,94,0.4),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-green-400/30',
                   isCollapsed ? 'justify-center px-2 py-3' : 'justify-center gap-2 px-3 py-3'
@@ -493,16 +491,6 @@ export function AppSidebar() {
                 )}
               </button>
             )}
-
-            {/* 语言切换 */}
-            <div className="pt-2">
-              <div className={cn(
-                'flex items-center',
-                isCollapsed ? 'justify-center' : 'justify-start'
-              )}>
-                <LanguageToggle />
-              </div>
-            </div>
           </div>
         </div>
       </aside >

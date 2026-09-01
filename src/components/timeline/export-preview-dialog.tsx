@@ -61,7 +61,7 @@ export function ExportPreviewDialog({ creationId, isOpen, onClose }: ExportPrevi
     if (diffHours < 24) return `${diffHours} 小时前`;
     if (diffDays < 7) return `${diffDays} 天前`;
 
-    return date.toLocaleDateString("zh-CN", {
+    return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",

@@ -1,11 +1,11 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
 import { AppSidebar } from './app-sidebar'
+import { usePathname } from '@/i18n/navigation';
 
-export function SidebarWrapper({ children, locale }: { children: React.ReactNode; locale: string }) {
+export function SidebarWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isHomePage = pathname === `/${locale}/home` || pathname === `/${locale}` || pathname === `/${locale}/`
+  const isHomePage = pathname === '/home' || pathname === '/'
   
   if (isHomePage) {
     return (

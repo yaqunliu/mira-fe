@@ -32,11 +32,10 @@ type EmailFormData = z.infer<typeof emailSchema>
 type EmailSignInFormData = z.infer<typeof passwordSchema>
 
 interface EmailSignInProps {
-  locale?: string
   onSuccess?: () => void
 }
 
-export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
+export function EmailSignIn({ onSuccess }: EmailSignInProps) {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [emailValidated, setEmailValidated] = useState(false)
@@ -129,7 +128,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
               onSuccess()
             } else {
               // 跳转到 home 页面
-              router.push(`/${locale}/home`)
+              router.push('/home')
             }
           }
         } catch (syncError) {
@@ -165,7 +164,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
             onSuccess()
           } else {
             // 跳转到 home 页面
-            router.push(`/${locale}/home`)
+            router.push('/home')
           }
         }
       }
@@ -246,7 +245,7 @@ export function EmailSignIn({ locale = 'zh', onSuccess }: EmailSignInProps) {
                   <div className="flex items-center justify-between mb-2">
                     <FormLabel className="text-gray-700 font-medium">密码</FormLabel>
                     <Link
-                      href={`/${locale}/auth/forgot-password`}
+                      href={'/auth/forgot-password'}
                       className="text-xs text-vibrant-green hover:text-green-600 transition-colors"
                     >
                       忘记密码？

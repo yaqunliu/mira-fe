@@ -50,10 +50,10 @@ function VideoCard({ creation }: { creation: ICreation }) {
     // 根据 creation_type 决定跳转页面
     if (creationType === 'chat') {
       // Chat 类型跳转到 create-agent 页面
-      router.push(`/${locale}/create-agent?creationId=${creationId}`);
+      router.push(`/create-agent?creationId=${creationId}`);
     } else {
       // 其他类型跳转到 dynamic-comic-editor 页面
-      router.push(`/${locale}/dynamic-comic-editor?taskId=${creationId}`);
+      router.push(`/dynamic-comic-editor?taskId=${creationId}`);
     }
   };
   // 兼容两种字段名格式

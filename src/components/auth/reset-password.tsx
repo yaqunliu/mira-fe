@@ -23,11 +23,7 @@ const resetPasswordSchema = z.object({
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
 
-interface ResetPasswordProps {
-  locale?: string
-}
-
-export function ResetPassword({ locale = 'zh' }: ResetPasswordProps) {
+export function ResetPassword() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -83,7 +79,7 @@ export function ResetPassword({ locale = 'zh' }: ResetPasswordProps) {
 
       // 3秒后跳转到登录页
       setTimeout(() => {
-        router.push(`/${locale}/auth/login`)
+        router.push('/auth/login')
       }, 3000)
     } catch (error: any) {
       toast.error(error.message || '密码重置失败，请重试')
@@ -125,7 +121,7 @@ export function ResetPassword({ locale = 'zh' }: ResetPasswordProps) {
         </div>
 
         <div className="space-y-4">
-          <Link href={`/${locale}/auth/forgot-password`} className="block">
+          <Link href={'/auth/forgot-password'} className="block">
             <button
               type="button"
               className="w-full py-3 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
@@ -134,7 +130,7 @@ export function ResetPassword({ locale = 'zh' }: ResetPasswordProps) {
             </button>
           </Link>
 
-          <Link href={`/${locale}/auth/login`} className="block">
+          <Link href={'/auth/login'} className="block">
             <button
               type="button"
               className="w-full py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-800 font-medium"
@@ -172,7 +168,7 @@ export function ResetPassword({ locale = 'zh' }: ResetPasswordProps) {
           </p>
         </div>
 
-        <Link href={`/${locale}/auth/login`} className="block">
+        <Link href={'/auth/login'} className="block">
           <button
             type="button"
             className="w-full py-3 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"

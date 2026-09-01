@@ -33,7 +33,7 @@ function formatDateTime(dateString: string): string {
     if (!dateString) return "-";
     try {
         const date = new Date(dateString);
-        return date.toLocaleDateString("zh-CN", {
+        return date.toLocaleDateString("en-US", {
             year: "numeric",
             month: "2-digit",
             day: "2-digit",
@@ -240,7 +240,7 @@ export default function ScriptsPage() {
 
     const handleScriptClick = (script: ScriptGroup & { type?: string }) => {
         if (script.uuid) {
-            window.open(`/${locale}/scripts/${script.uuid}`, '_blank', 'noopener,noreferrer');
+            window.open(`/scripts/${script.uuid}`, '_blank', 'noopener,noreferrer');
         }
     };
 
@@ -284,7 +284,7 @@ export default function ScriptsPage() {
                             </div>
                             <div className="flex gap-3">
                                 <Button
-                                    onClick={() => router.push(`/${locale}/novels/upload`)}
+                                    onClick={() => router.push('/novels/upload')}
                                     variant="outline"
                                     className="h-12 px-6 rounded-xl border-2 border-[#22C55E]/50 hover:border-[#22C55E] hover:bg-[#22C55E]/10 text-[#22C55E] shadow-[3px_3px_6px_rgba(34,197,94,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)] hover:shadow-[4px_4px_8px_rgba(34,197,94,0.3),-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"
                                 >
@@ -292,7 +292,7 @@ export default function ScriptsPage() {
                                     {t("novel.uploadNovel")}
                                 </Button>
                                 <Button
-                                    onClick={() => router.push(`/${locale}/scripts/create`)}
+                                    onClick={() => router.push('/scripts/create')}
                                     className="h-12 px-6 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[3px_3px_6px_rgba(253,188,180,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)] hover:shadow-[4px_4px_8px_rgba(253,188,180,0.3),-2px_-2px_4px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"
                                 >
                                     <Plus className="h-5 w-5 mr-2" />
@@ -355,7 +355,7 @@ export default function ScriptsPage() {
                                         <p className="text-gray-600">开始您的创作之旅吧</p>
                                         <div className="flex gap-4 justify-center">
                                             <Button
-                                                onClick={() => router.push(`/${locale}/novels/upload`)}
+                                                onClick={() => router.push('/novels/upload')}
                                                 variant="outline"
                                                 className="h-12 px-8 rounded-xl border-2 border-[#22C55E]/50 hover:border-[#22C55E] hover:bg-[#22C55E]/10 text-[#22C55E] shadow-[3px_3px_6px_rgba(34,197,94,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)]"
                                             >
@@ -363,7 +363,7 @@ export default function ScriptsPage() {
                                                 {t("novel.uploadNovel")}
                                             </Button>
                                             <Button
-                                                onClick={() => router.push(`/${locale}/scripts/create`)}
+                                                onClick={() => router.push('/scripts/create')}
                                                 className="h-12 px-8 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[3px_3px_6px_rgba(253,188,180,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)]"
                                             >
                                                 <Plus className="h-5 w-5 mr-2" />

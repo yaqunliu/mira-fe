@@ -35,13 +35,13 @@ export function CreationOverview() {
   const displayCreations = creations.slice(0, 3); // 只显示前3个
 
   const handleViewMore = () => {
-    router.push(`/${locale}/creations`);
+    router.push('/creations');
   };
 
   // 所有创作都可以点击进入详情
   const handleCreationClick = (creation: ICreation) => {
     const creationUuid = creation.uuid;
-    window.open(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+    window.open(`/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
@@ -88,7 +88,7 @@ export function CreationOverview() {
         <Button
           size="sm"
           onClick={() => {
-            router.push(`/${locale}/create-dynamic-comic`);
+            router.push('/create-dynamic-comic');
           }}
           className="text-xs"
         >

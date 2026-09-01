@@ -323,7 +323,7 @@ export default function CreateDynamicComicPage() {
             
             toast.success(tAgent('createSuccess'));
             
-            router.push(`/${locale}/create-agent?creationId=${creationUuid}`);
+            router.push(`/create-agent?creationId=${creationUuid}`);
         } catch (e: any) {
             toast.error(`${tAgent('createFailed')}: ${e.message}`);
         } finally {
@@ -391,9 +391,9 @@ export default function CreateDynamicComicPage() {
             toast.success(t('creationSuccess'));
             // 根据创作模式跳转到不同页面
             if (creationMode === "agent") {
-                router.push(`/${locale}/create-agent?creationId=${taskId}`);
+                router.push(`/create-agent?creationId=${taskId}`);
             } else {
-                router.push(`/${locale}/dynamic-comic-editor?taskId=${taskId}`);
+                router.push(`/dynamic-comic-editor?taskId=${taskId}`);
             }
 
         } catch (error: any) {

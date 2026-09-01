@@ -1,35 +1,22 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 interface UIState {
   sidebarOpen: boolean
-  language: 'en' | 'zh'
   setSidebarOpen: (open: boolean) => void
   toggleSidebar: () => void
-  setLanguage: (language: 'en' | 'zh') => void
 }
 
-export const useUIStore = create<UIState>()(
-  persist(
-    (set) => ({
-      sidebarOpen: false,
-      language: 'en',
-      
-      setSidebarOpen: (open: boolean) => {
-        set({ sidebarOpen: open })
-      },
-      
-      toggleSidebar: () => {
-        set((state) => ({ sidebarOpen: !state.sidebarOpen }))
-      },
-      
-      setLanguage: (language: 'en' | 'zh') => {
-        set({ language })
-      },
-    }),
-    {
-      name: 'ui-storage',
-      partialize: (state) => ({ language: state.language }),
-    }
-  )
-)
+// 原本用 persist 中间件持久化 language 字段，但该字段全仓无读取方（语言由
+// next-intl 的路由决定，见 src/i18n/routing.ts）。移除 language 后 persist
+// 已无可持久化内容，故一并去掉；sidebarOpen 本来就是不持久化的。
+export const useUIStore = create<UIState>()((set) => ({
+  sidebarOpen: false,
+
+  setSidebarOpen: (open: boolean) => {
+    set({ sidebarOpen: open })
+  },
+
+  toggleSidebar: () => {
+    set((state) => ({ sidebarOpen: !state.sidebarOpen }))
+  },
+}))

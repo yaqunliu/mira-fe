@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
-import { useParams } from 'next/navigation'
+
 import { subscriptionsApi, type Subscription } from '@/lib/api/subscriptions'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -25,7 +25,7 @@ function formatDate(dateString: string | undefined): string {
   if (!dateString) return '-'
   try {
     const date = new Date(dateString)
-    return date.toLocaleDateString('zh-CN', {
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -180,8 +180,6 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
 
 export default function SubscriptionsPage() {
   const t = useTranslations()
-  const params = useParams()
-  const locale = (params?.locale as string) || 'zh'
   const { isAuthenticated } = useAuthStore()
   const queryClient = useQueryClient()
 
@@ -261,7 +259,7 @@ export default function SubscriptionsPage() {
               <Sparkles className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 mb-4">{t('subscriptions.noSubscriptions', { default: '您还没有任何订阅' })}</p>
               <Button
-                onClick={() => (window.location.href = `/${locale}/pricing`)}
+                onClick={() => (window.location.href = '/pricing')}
                 className="bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white"
               >
                 {t('subscriptions.browsePlans', { default: '浏览套餐' })}

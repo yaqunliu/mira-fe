@@ -220,10 +220,10 @@ export default function CreationsPage() {
     
     // chat 类型或 agent 模式都跳转到 /create-agent
     if (creation.creation_type === "chat" || creation.workflow_mode === "agent") {
-      window.open(`/${locale}/create-agent?creationId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+      window.open(`/create-agent?creationId=${creationUuid}`, '_blank', 'noopener,noreferrer');
     } else {
       // 传统模式跳转到 /dynamic-comic-editor
-      window.open(`/${locale}/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
+      window.open(`/dynamic-comic-editor?taskId=${creationUuid}`, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -318,7 +318,7 @@ export default function CreationsPage() {
               </div>
             </div>
             
-            <Link href={`/${locale}/create-dynamic-comic`}>
+            <Link href={'/create-dynamic-comic'}>
               <Button
                 className="h-12 px-6 rounded-xl bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(253,188,180,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"
               >
@@ -381,7 +381,7 @@ export default function CreationsPage() {
                     <p className="text-gray-600 dark:text-gray-400">
                       {t("creation.noCreationsDescription")}
                     </p>
-                    <Link href={`/${locale}/create-dynamic-comic`}>
+                    <Link href={'/create-dynamic-comic'}>
                       <Button className="h-12 px-8 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/40 transition-all duration-200 hover:scale-105">
                         <Plus className="h-5 w-5 mr-2" />
                         {t("creation.createCreation")}

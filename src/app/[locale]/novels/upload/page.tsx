@@ -13,7 +13,7 @@ export default function NovelUploadPage() {
 
   const handleComplete = (novelId: string) => {
     // 上传完成后跳转到小说列表页面
-    router.push(`/${locale}/scripts`)
+    router.push('/scripts')
   }
 
   return (
