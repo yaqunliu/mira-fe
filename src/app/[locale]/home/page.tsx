@@ -21,6 +21,7 @@ import {
   Clapperboard,
   ShieldCheck,
   ArrowRight,
+  Mail,
   MousePointerClick,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -396,8 +397,24 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        <footer className="flex flex-col gap-6 border-t border-gray-200/80 pt-10 sm:flex-row sm:items-center sm:justify-between">
+          <div className="max-w-2xl space-y-2">
+            <p className="text-sm font-medium text-[#22C55E]">{t('homePage.contactEyebrow')}</p>
+            <h4 className="text-2xl font-bold text-gray-900">{t('homePage.contactTitle')}</h4>
+            <p className="text-gray-600">{t('homePage.contactDescription')}</p>
+          </div>
+          <Button
+            size="lg"
+            onClick={() => router.push('/contact')}
+            className="w-full gap-2 rounded-lg px-8 sm:w-auto"
+          >
+            <Mail className="h-5 w-5" />
+            {t('homePage.contactButton')}
+            <ArrowRight className="h-5 w-5" />
+          </Button>
+        </footer>
       </div>
     </div>
   )
 }
-

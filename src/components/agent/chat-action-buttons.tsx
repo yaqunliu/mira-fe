@@ -19,6 +19,7 @@ export function ChatActionButtons({
   onAction,
   disabled = false,
 }: ChatActionButtonsProps) {
+  const t = useTranslations('agent')
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
 
   const handleClick = (actionId: string) => {

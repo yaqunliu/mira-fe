@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import type { PendingInteraction } from '@/types/agent';
 import { ConfigCard } from './config-card';
 
@@ -17,6 +18,7 @@ export function ChatInteractionCard({
     interaction,
     onResponse,
 }: ChatInteractionCardProps) {
+  const t = useTranslations('agent')
     const { type, message, options, title, description, fields, submitText, params } = interaction;
 
     // 处理确认生成 - 需要发送特殊的 action_response
@@ -93,14 +95,14 @@ export function ChatInteractionCard({
                             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
                             <span>✓</span>
-                            <span>确认</span>
+                            <span>{t("confirm")}</span>
                         </button>
                         <button
                             onClick={() => handleApproveReject(false)}
                             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg font-medium hover:from-gray-500 hover:to-gray-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
                             <span>✗</span>
-                            <span>拒绝</span>
+                            <span>{t("reject")}</span>
                         </button>
                     </div>
                 )}

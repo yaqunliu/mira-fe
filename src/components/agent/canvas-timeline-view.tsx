@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useMemo } from 'react';
 import type { ICreation } from '@/types/creation';
 
@@ -13,7 +14,8 @@ interface CanvasTimelineViewProps {
  *
  * 展示所有场景和分镜的时间线排列
  */
-export function CanvasTimelineView({ creation, highlightedElement }: CanvasTimelineViewProps) {
+export function CanvasTimelineView({
+  const t = useTranslations('agent') creation, highlightedElement }: CanvasTimelineViewProps) {
   const scenes = creation.scenes || [];
 
   // 计算总时长
@@ -29,9 +31,9 @@ export function CanvasTimelineView({ creation, highlightedElement }: CanvasTimel
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center space-y-4">
           <div className="text-6xl">⏱️</div>
-          <h3 className="text-xl font-bold text-gray-700">暂无时间线</h3>
+          <h3 className="text-xl font-bold text-gray-700">{t("noTimeline")}</h3>
           <p className="text-gray-500 text-sm">
-            请先完成分镜制作，即可查看时间线
+            {t("completeShotsFirst")}
           </p>
         </div>
       </div>
@@ -43,17 +45,17 @@ export function CanvasTimelineView({ creation, highlightedElement }: CanvasTimel
       {/* 时间线统计 */}
       <div className="flex gap-4">
         <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-          <div className="text-xs text-blue-600 mb-1">总时长</div>
+          <div className="text-xs text-blue-600 mb-1">{t("totalDuration")}</div>
           <div className="text-2xl font-bold text-blue-900">
             {formatDuration(totalDuration)}
           </div>
         </div>
         <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-          <div className="text-xs text-purple-600 mb-1">场景数</div>
+          <div className="text-xs text-purple-600 mb-1">{t("sceneCount")}</div>
           <div className="text-2xl font-bold text-purple-900">{scenes.length}</div>
         </div>
         <div className="flex-1 bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-          <div className="text-xs text-green-600 mb-1">分镜数</div>
+          <div className="text-xs text-green-600 mb-1">{t("shotCount")}</div>
           <div className="text-2xl font-bold text-green-900">
             {scenes.reduce((sum, s) => sum + (s.shots?.length || 0), 0)}
           </div>
@@ -64,7 +66,7 @@ export function CanvasTimelineView({ creation, highlightedElement }: CanvasTimel
       <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
         <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
           <span>⏱️</span>
-          <span>时间线视图</span>
+          <span>{t("timelineView")}</span>
         </h3>
 
         <div className="space-y-6">
@@ -110,7 +112,7 @@ export function CanvasTimelineView({ creation, highlightedElement }: CanvasTimel
                             <div
                               className="h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded flex items-center px-3 text-white text-xs font-medium hover:shadow-md transition-shadow cursor-pointer"
                               style={{ width: `${Math.max(widthPercent, 15)}%` }}
-                              title={shot.prompt || `分镜 ${shotIdx + 1}`}
+                              title={shot.prompt || t("shotLabel", { n: shotIdx + 1 })}
                             >
                               <span className="truncate">
                                 分镜 {shotIdx + 1}

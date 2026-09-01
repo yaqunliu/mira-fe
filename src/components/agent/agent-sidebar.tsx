@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useAgentStore } from '@/stores/agent-store';
 import type { ICreation } from '@/types/creation';
 import { getAllCharactersFromShots } from './canvas-character-view';
@@ -16,6 +17,7 @@ interface AgentSidebarProps {
  * - 项目进度
  */
 export function AgentSidebar({ creation }: AgentSidebarProps) {
+  const t = useTranslations('agent')
   const { setBoardView, currentView } = useAgentStore();
 
   // 计算资产数量 - 优先使用 creation.characters，如果没有再从分镜提取
@@ -56,7 +58,7 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
       <div className="mb-6 flex-1">
         <div className="text-xs font-medium text-gray-700 mb-3 flex items-center gap-1">
           <span>🧭</span>
-          <span>快速导航</span>
+          <span>{t("navLabel")}</span>
         </div>
         <div className="space-y-1">
           {navItems.map((item) => (
@@ -93,7 +95,7 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
       <div className="mt-auto">
         <div className="text-xs font-medium text-gray-700 mb-2 flex items-center gap-1">
           <span>📊</span>
-          <span>项目进度</span>
+          <span>{t("progressLabel")}</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
           <div

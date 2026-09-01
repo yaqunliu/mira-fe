@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useEffect, useRef, useState } from 'react';
 import { ChatMessageItem } from './chat-message-item';
 import { ChatThinking } from './chat-thinking';
@@ -58,20 +59,20 @@ export function ChatMessageList({
         <div className="text-center space-y-3">
           <div className="text-4xl">{isChat ? "📚" : "💬"}</div>
           <p className="text-gray-600 font-medium">
-            {isChat ? "开始英文单词视频创作" : "开始与 AI 助手对话"}
+            {isChat ? t("startVocabVideo") : t("startChat")}
           </p>
           <p className="text-xs text-gray-500">
             {isChat 
-              ? "告诉我你想学习哪些单词，我来帮你制作教学视频" 
-              : "上传剧本或描述你的故事"}
+              ? t("vocabVideoHint") 
+              : t("uploadScriptHint2")}
           </p>
           {isChat && (
             <div className="mt-4 p-3 bg-[#22C55E]/10 rounded-lg text-left max-w-xs mx-auto">
-              <p className="text-xs text-gray-600 mb-2">💡 你可以这样开始：</p>
+              <p className="text-xs text-gray-600 mb-2">{t("youCanStartWith")}</p>
               <ul className="text-xs text-gray-500 space-y-1">
-                <li>• "创建 apple banana 的单词视频"</li>
-                <li>• "添加 cat dog，简单难度"</li>
-                <li>• "你能帮我做什么？"</li>
+                <li>• t("example1")</li>
+                <li>• t("example2")</li>
+                <li>• t("example3")</li>
               </ul>
             </div>
           )}

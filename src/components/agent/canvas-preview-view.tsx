@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { ICreation } from '@/types/creation';
 import type { IShot } from '@/types/scene';
@@ -18,7 +19,8 @@ interface PlaybackState {
   isAutoPlaying: boolean;
 }
 
-export function CanvasPreviewView({ creation, highlightedElement }: CanvasPreviewViewProps) {
+export function CanvasPreviewView({
+  creation, highlightedElement }: CanvasPreviewViewProps) {
   const [playbackState, setPlaybackState] = useState<PlaybackState>({
     isPlaying: false,
     currentShotIndex: 0,
@@ -55,7 +57,7 @@ export function CanvasPreviewView({ creation, highlightedElement }: CanvasPrevie
         scene.shots.forEach(shot => {
           shots.push({
             ...shot,
-            title: shot.title || `分镜 ${shot.shot_number}`,
+            title: shot.title || t("shotLabel", { n: shot.shot_number }),
           });
         });
       }
@@ -382,8 +384,8 @@ export function CanvasPreviewView({ creation, highlightedElement }: CanvasPrevie
           <div className="aspect-video flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl">
             <div className="text-center text-white">
               <div className="text-6xl mb-4">🎬</div>
-              <h3 className="text-xl font-bold mb-2">暂无分镜</h3>
-              <p className="text-sm text-gray-400">请先创建分镜内容</p>
+              <h3 className="text-xl font-bold mb-2">{t("noShotsHint")}</h3>
+              <p className="text-sm text-gray-400">{t("createShotsHint")}</p>
             </div>
           </div>
         ) : (
@@ -399,7 +401,7 @@ export function CanvasPreviewView({ creation, highlightedElement }: CanvasPrevie
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50">
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span className="text-white text-sm">加载中...</span>
+                      <span className="text-white text-sm">{t("loading")}</span>
                     </div>
                   </div>
                 )}
@@ -436,7 +438,7 @@ export function CanvasPreviewView({ creation, highlightedElement }: CanvasPrevie
                           <div className="text-white font-medium text-sm mb-1">
                             {currentShot?.title || '未命名分镜'}
                           </div>
-                          <div className="text-white/60 text-xs">图片预览模式</div>
+                          <div className="text-white/60 text-xs">{t("imagePreviewMode")}</div>
                         </div>
                       </div>
                     </div>
@@ -445,7 +447,7 @@ export function CanvasPreviewView({ creation, highlightedElement }: CanvasPrevie
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
                     <div className="text-center text-white">
                       <div className="text-6xl mb-4 animate-pulse">🎵</div>
-                      <h3 className="text-lg font-bold mb-2">音频预览</h3>
+                      <h3 className="text-lg font-bold mb-2">{t("audioPreview")}</h3>
                       <p className="text-sm text-gray-400">{currentShot.title}</p>
                     </div>
                   </div>
@@ -453,7 +455,7 @@ export function CanvasPreviewView({ creation, highlightedElement }: CanvasPrevie
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900">
                     <div className="text-center text-white">
                       <div className="text-6xl mb-4">⏭️</div>
-                      <h3 className="text-lg font-bold mb-2">跳过此分镜</h3>
+                      <h3 className="text-lg font-bold mb-2">{t("skipShot")}</h3>
                       <p className="text-sm text-gray-400">{currentShot?.title}</p>
                       <button
                         onClick={() => {

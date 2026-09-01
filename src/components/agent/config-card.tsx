@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,9 @@ interface ConfigCardProps {
   onSubmit: (values: Record<string, any>) => void;
 }
 
-export function ConfigCard({ title, description, fields, submitText, onSubmit }: ConfigCardProps) {
+export function ConfigCard({
+  title, description, fields, submitText, onSubmit }: ConfigCardProps) {
+  const t = useTranslations('agent')
   const [values, setValues] = useState<Record<string, any>>(() => {
     const initial: Record<string, any> = {};
     fields.forEach((field) => {
@@ -78,9 +81,9 @@ export function ConfigCard({ title, description, fields, submitText, onSubmit }:
 
   // 获取字段图标
   const getFieldIcon = (label: string) => {
-    if (label.includes("单词")) return <BookOpen className="w-4 h-4 text-[#22C55E]" />;
-    if (label.includes("配音")) return <Volume2 className="w-4 h-4 text-[#8B5CF6]" />;
-    if (label.includes("重复")) return <Repeat className="w-4 h-4 text-[#F59E0B]" />;
+    if (label.includes(t("word"))) return <BookOpen className="w-4 h-4 text-[#22C55E]" />;
+    if (label.includes(t("voice"))) return <Volume2 className="w-4 h-4 text-[#8B5CF6]" />;
+    if (label.includes(t("repeat"))) return <Repeat className="w-4 h-4 text-[#F59E0B]" />;
     return null;
   };
 

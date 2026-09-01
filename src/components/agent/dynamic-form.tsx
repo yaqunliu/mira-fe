@@ -4,6 +4,7 @@
  * 根据表单配置动态渲染表单字段
  */
 
+import { useTranslations } from 'next-intl'
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -50,7 +51,7 @@ function generateZodSchema(config: FormConfig): z.ZodObject<any> {
       case "text":
         fieldSchema = z.string();
         if (field.required) {
-          fieldSchema = fieldSchema.min(1, `${field.label}不能为空`);
+          fieldSchema = fieldSchema.min(1, t("fieldRequired", { field: field.label }));
         } else {
           fieldSchema = fieldSchema.optional();
         }
@@ -155,7 +156,7 @@ function renderFormField(field: FormField, form: any) {
               <Select onValueChange={formField.onChange} defaultValue={formField.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={`请选择${field.label}`} />
+                    <SelectValue placeholder={t("selectField", { field: field.label })} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -241,7 +242,7 @@ export function DynamicForm({
                   disabled={isLoading}
                   className="flex-1"
                 >
-                  取消
+                  {t("cancel", { default: "Cancel" })}
                 </Button>
               )}
               <Button
@@ -249,7 +250,7 @@ export function DynamicForm({
                 disabled={isLoading}
                 className="flex-1 bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] hover:from-[#16A34A] hover:to-[#87CEEB]"
               >
-                {isLoading ? "创建中..." : "确认开始"}
+                {isLoading ? t("creating") : t("confirmStart")}
               </Button>
             </div>
           </form>

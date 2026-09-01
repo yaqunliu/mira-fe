@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCreationV2Store } from '@/stores/creation-v2';
@@ -16,7 +17,8 @@ interface ModeSwitcherProps {
  *
  * 在 Agent 模式和专业模式之间切换
  */
-export function ModeSwitcher({ creationId, currentMode, className = '' }: ModeSwitcherProps) {
+export function ModeSwitcher({
+  const t = useTranslations('agent') creationId, currentMode, className = '' }: ModeSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -44,7 +46,7 @@ export function ModeSwitcher({ creationId, currentMode, className = '' }: ModeSw
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       {/* 标签 */}
-      <span className="text-sm text-gray-600">创作模式</span>
+      <span className="text-sm text-gray-600">{t("creationMode")}</span>
 
       {/* 切换器 */}
       <div className="relative inline-flex items-center">
@@ -66,7 +68,7 @@ export function ModeSwitcher({ creationId, currentMode, className = '' }: ModeSw
                 !isAgentMode ? 'text-white' : 'text-gray-600'
               }`}
             >
-              专业
+              {t("proMode")}
             </span>
             <span
               className={`text-xs font-medium transition-colors duration-300 ${

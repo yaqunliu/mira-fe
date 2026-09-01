@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import type { ToolCall } from '@/types/agent';
 
 interface ChatToolCallProps {
@@ -12,6 +13,7 @@ interface ChatToolCallProps {
  * 显示工具调用的名称、状态、输出
  */
 export function ChatToolCall({ toolCall }: ChatToolCallProps) {
+  const t = useTranslations('agent')
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mr-8 animate-fadeIn">
       {/* 头部：工具名称 + 状态 */}
@@ -25,7 +27,7 @@ export function ChatToolCall({ toolCall }: ChatToolCallProps) {
       {/* 参数（如果有且在执行中） */}
       {toolCall.status === 'calling' && Object.keys(toolCall.arguments).length > 0 && (
         <div className="text-xs text-blue-600 mb-2 bg-blue-100 rounded p-2">
-          <div className="font-medium mb-1">参数：</div>
+          <div className="font-medium mb-1">{t("toolParams")}</div>
           <pre className="whitespace-pre-wrap overflow-auto">
             {JSON.stringify(toolCall.arguments, null, 2)}
           </pre>
@@ -35,7 +37,7 @@ export function ChatToolCall({ toolCall }: ChatToolCallProps) {
       {/* 输出结果 */}
       {toolCall.output && (
         <div className="text-xs text-blue-600 mt-2 bg-white rounded p-2 border border-blue-100">
-          <div className="font-medium mb-1 text-blue-700">结果：</div>
+          <div className="font-medium mb-1 text-blue-700">{t("toolResult")}</div>
           <div className="whitespace-pre-wrap overflow-auto max-h-40">
             {typeof toolCall.output === 'string'
               ? toolCall.output
@@ -47,7 +49,7 @@ export function ChatToolCall({ toolCall }: ChatToolCallProps) {
       {/* 错误信息 */}
       {toolCall.error && (
         <div className="text-xs text-red-600 mt-2 bg-red-50 rounded p-2 border border-red-200">
-          <div className="font-medium mb-1">错误：</div>
+          <div className="font-medium mb-1">{t("toolError")}</div>
           <div>{toolCall.error}</div>
         </div>
       )}

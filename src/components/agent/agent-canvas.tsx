@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useAgentStore } from '@/stores/agent-store';
 import { CanvasScriptView } from './canvas-script-view';
 import { CanvasCharacterView } from './canvas-character-view';
@@ -23,6 +24,7 @@ interface AgentCanvasProps {
  * - preview: 预览视图
  */
 export function AgentCanvas({ creation }: AgentCanvasProps) {
+  const t = useTranslations('agent')
   const { currentView, highlightedElement, setBoardView } = useAgentStore();
 
   // 视图组件映射
@@ -127,10 +129,10 @@ function EmptyState() {
       <div className="text-center space-y-4">
         <div className="text-6xl">🎬</div>
         <h3 className="text-xl font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">
-          准备开始创作
+          {t("readyToCreate")}
         </h3>
         <p className="text-gray-600">
-          在右侧对话区与 AI 助手交流，开始你的创作之旅
+          {t("chatWithAI")}
         </p>
       </div>
     </div>

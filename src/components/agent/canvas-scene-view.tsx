@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useCallback } from 'react';
 import type { ICreation } from '@/types/creation';
 import type { IScene } from '@/types/scene';
@@ -15,7 +16,8 @@ interface CanvasSceneViewProps {
  *
  * 展示所有场景及其描述、氛围、视觉参考
  */
-export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneViewProps) {
+export function CanvasSceneView({
+  creation, highlightedElement }: CanvasSceneViewProps) {
   const [selectedSceneIndex, setSelectedSceneIndex] = useState<number | null>(null);
   const scenes = creation.scenes || [];
 
@@ -51,9 +53,9 @@ export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneVie
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center space-y-4">
           <div className="text-6xl">🎬</div>
-          <h3 className="text-xl font-bold text-gray-700">暂无场景</h3>
+          <h3 className="text-xl font-bold text-gray-700">{t("noScenes")}</h3>
           <p className="text-gray-500 text-sm">
-            请先上传剧本，AI 将自动拆解场景
+            {t("uploadScriptForScenes")}
           </p>
         </div>
       </div>
@@ -66,11 +68,11 @@ export function CanvasSceneView({ creation, highlightedElement }: CanvasSceneVie
         {/* 场景统计 */}
         <div className="flex gap-4">
           <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-            <div className="text-xs text-purple-600 mb-1">总场景数</div>
+            <div className="text-xs text-purple-600 mb-1">{t("totalScenes")}</div>
             <div className="text-2xl font-bold text-purple-900">{scenes.length}</div>
           </div>
           <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-            <div className="text-xs text-blue-600 mb-1">平均分镜数</div>
+            <div className="text-xs text-blue-600 mb-1">{t("avgShotsPerScene")}</div>
             <div className="text-2xl font-bold text-blue-900">
               {scenes.length > 0
                 ? Math.round(scenes.reduce((sum, s) => sum + (s.shots?.length || 0), 0) / scenes.length)
@@ -143,7 +145,7 @@ function SceneCard({
           <div className="relative w-48 aspect-video flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
             <img
               src={referenceImage}
-              alt={`场景 ${sceneNumber}`}
+              alt={t("sceneLabel", { n: sceneNumber })}
               className="w-full h-full object-cover"
             />
           </div>

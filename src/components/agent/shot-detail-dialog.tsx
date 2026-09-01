@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import {
@@ -75,6 +76,7 @@ export function ShotDetailDialog({
   allCharacters = [],
   onRefresh,
 }: ShotDetailDialogProps) {
+  const t = useTranslations('agent')
   const [isSaving, setIsSaving] = useState(false);
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -178,7 +180,7 @@ export function ShotDetailDialog({
   // 生成单条台词音频
   const handleGenerateNarrationAudio = async (idx: number, item: INarrationItem) => {
     if (!item.内容) {
-      toast.error("请先输入台词内容");
+      toast.error(t("enterDialogueFirst"));
       return;
     }
     setGeneratingAudioIdx(idx);
@@ -186,21 +188,21 @@ export function ShotDetailDialog({
       const result = await shotApi.generateNarrationAudio(
         shot.shot_id,
         idx,
-        item.角色 || "旁白",
+        item.角色 || t("narration"),
         item.内容
       );
       if (result.success && result.data?.audio_url) {
         const updated = [...editingNarration];
         updated[idx] = { ...updated[idx], audio_url: result.data.audio_url };
         setEditingNarration(updated);
-        toast.success("音频生成成功");
+        toast.success(t("audioSuccess"));
         onRefresh?.();
       } else {
-        toast.error(result.error || "生成失败，请重试");
+        toast.error(result.error || t("audioFailed"));
       }
     } catch (error) {
       console.error("Failed to generate narration audio:", error);
-      toast.error("生成失败，请重试");
+      toast.error(t("audioFailed"));
     } finally {
       setGeneratingAudioIdx(null);
     }
@@ -247,11 +249,11 @@ export function ShotDetailDialog({
       await shotApi.updateShot((shot as any).uuid || String(shot.shot_id), {
         image_url: version.image_url,
       } as any);
-      toast.success("已应用首帧新版本");
+      toast.success(t("versionApplied"));
       onRefresh?.();
     } catch (error) {
       console.error("Failed to apply version:", error);
-      toast.error("应用失败，请重试");
+      toast.error(t("applyFailed"));
     }
   };
 
@@ -263,11 +265,11 @@ export function ShotDetailDialog({
           end_frame_image_url: version.image_url,
         },
       } as any);
-      toast.success("已应用尾帧新版本");
+      toast.success(t("tailFrameVersionApplied"));
       onRefresh?.();
     } catch (error) {
       console.error("Failed to apply end frame version:", error);
-      toast.error("应用失败，请重试");
+      toast.error(t("applyFailed"));
     }
   };
 
@@ -313,11 +315,11 @@ export function ShotDetailDialog({
         await shotApi.updateShotCharacters(shotUuid, values.characterIds);
       }
 
-      toast.success("保存成功");
+      toast.success(t("saveSuccess"));
       onRefresh?.();
     } catch (error) {
       console.error("Failed to save shot:", error);
-      toast.error("保存失败，请重试");
+      toast.error(t("saveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -329,10 +331,10 @@ export function ShotDetailDialog({
         (shot as any).uuid || String(shot.shot_id),
         form.getValues("imagePrompt") || shot.image_prompt || ""
       );
-      toast.success("正在生成分镜图片，请稍候...");
+      toast.success(t("generatingImage"));
     } catch (error) {
       console.error("Failed to regenerate shot image:", error);
-      toast.error("生成失败，请重试");
+      toast.error(t("audioFailed"));
     }
   };
 
@@ -379,7 +381,7 @@ export function ShotDetailDialog({
                 </div>
                 <div>
                   <div className="text-lg font-semibold text-gray-900">
-                    {shot.title || `分镜 ${shotNumber}`}
+                    {shot.title || t("shotLabel", { n: shotNumber })}
                   </div>
                   <div className="text-sm text-gray-500">
                     {sceneName}
@@ -399,7 +401,7 @@ export function ShotDetailDialog({
                   )}
                 >
                   <ChevronLeft size={16} />
-                  上一个
+                  {t("prev")}
                 </button>
                 <button
                   type="button"
@@ -412,7 +414,7 @@ export function ShotDetailDialog({
                       : "text-gray-300 cursor-not-allowed"
                   )}
                 >
-                  下一个
+                  {t("next_step")}
                   <ChevronRight size={16} />
                 </button>
                 <button
@@ -421,7 +423,7 @@ export function ShotDetailDialog({
                   className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 text-gray-700 font-medium"
                 >
                   <X size={14} />
-                  <span className="text-sm">关闭</span>
+                  <span className="text-sm">{t("close")}</span>
                 </button>
                 <button
                   type="button"
@@ -434,12 +436,12 @@ export function ShotDetailDialog({
                 >
                   {isSaving && <Loader2 size={14} className="animate-spin" />}
                   <Save size={14} />
-                  <span className="text-sm">保存</span>
+                  <span className="text-sm">{t("save")}</span>
                 </button>
               </div>
             </DialogTitle>
             <DialogDescription className="sr-only">
-              分镜详情
+              {t("shotDetails")}
             </DialogDescription>
           </DialogHeader>
 
@@ -448,19 +450,19 @@ export function ShotDetailDialog({
               <TabsList className="grid w-full grid-cols-4 mb-4 flex-shrink-0 bg-white/50">
                 <TabsTrigger value="image" className="flex items-center gap-2">
                   <ImageIcon className="w-4 h-4" />
-                  首尾帧图片
+                  {t("startEndFrames")}
                 </TabsTrigger>
                 <TabsTrigger value="info" className="flex items-center gap-2">
                   <Info className="w-4 h-4" />
-                  基本信息
+                  {t("basicInfoTab")}
                 </TabsTrigger>
                 <TabsTrigger value="video" className="flex items-center gap-2">
                   <Film className="w-4 h-4" />
-                  视频预览
+                  {t("videoPreview")}
                 </TabsTrigger>
                 <TabsTrigger value="dialogue" className="flex items-center gap-2">
                   <FileText className="w-4 h-4" />
-                  台词/旁白
+                  {t("dialogueNarration")}
                 </TabsTrigger>
               </TabsList>
 
@@ -472,7 +474,7 @@ export function ShotDetailDialog({
                     <div className="space-y-3 flex flex-col">
                       <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                        分镜首帧
+                        {t("shotStartFrame")}
                       </div>
                       <div className="flex-1">
                         <ImageVersionPreview
@@ -483,7 +485,7 @@ export function ShotDetailDialog({
                           onVersionChange={handleStartFrameVersionChange}
                           onImageClick={(url) => setPreviewImage(url)}
                           entityType="shot"
-                          entityName={`分镜 ${shotNumber}`}
+                          entityName={t("shotLabel", { n: shotNumber })}
                           frameType="start"
                         />
                       </div>
@@ -491,7 +493,7 @@ export function ShotDetailDialog({
                     <div className="space-y-3 flex flex-col">
                       <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Sparkles size={14} className="text-orange-500" />
-                        分镜首帧提示词
+                        {t("shotStartFramePrompt")}
                       </div>
                       <div className="flex-1 p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-100 flex flex-col">
                         <FormField
@@ -505,7 +507,7 @@ export function ShotDetailDialog({
                                   value={field.value || ""}
                                   onChange={(e) => field.onChange(e.target.value || "")}
                                   className="flex-1 w-full px-3 py-2 rounded-lg bg-white border border-orange-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-orange-500"
-                                  placeholder="输入首帧生成提示词..."
+                                  placeholder={t("startFramePromptPlaceholder")}
                                 />
                               </FormControl>
                             </FormItem>
@@ -520,7 +522,7 @@ export function ShotDetailDialog({
                     <div className="space-y-3 flex flex-col">
                       <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                        分镜尾帧
+                        {t("shotEndFrame")}
                       </div>
                       <div className="flex-1">
                         <ImageVersionPreview
@@ -531,7 +533,7 @@ export function ShotDetailDialog({
                           onVersionChange={handleEndFrameVersionChange}
                           onImageClick={(url) => setPreviewImage(url)}
                           entityType="shot"
-                          entityName={`分镜 ${shotNumber}`}
+                          entityName={t("shotLabel", { n: shotNumber })}
                           frameType="end"
                         />
                       </div>
@@ -539,7 +541,7 @@ export function ShotDetailDialog({
                     <div className="space-y-3 flex flex-col">
                       <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Sparkles size={14} className="text-purple-500" />
-                        分镜尾帧提示词
+                        {t("shotEndFramePrompt")}
                       </div>
                       <div className="flex-1 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 flex flex-col">
                         <FormField
@@ -553,7 +555,7 @@ export function ShotDetailDialog({
                                   value={field.value || ""}
                                   onChange={(e) => field.onChange(e.target.value || "")}
                                   className="flex-1 w-full px-3 py-2 rounded-lg bg-white border border-purple-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                  placeholder="输入尾帧生成提示词..."
+                                  placeholder={t("endFramePromptPlaceholder")}
                                 />
                               </FormControl>
                             </FormItem>
@@ -570,7 +572,7 @@ export function ShotDetailDialog({
                   <div className="p-4 rounded-xl bg-gradient-to-br from-white to-purple-50 border border-purple-100">
                     <div className="flex items-center gap-2 mb-2">
                       <Film className="w-4 h-4 text-purple-600" />
-                      <label className="text-sm font-medium text-purple-700">关联场景</label>
+                      <label className="text-sm font-medium text-purple-700">{t("linkedScene")}</label>
                     </div>
                     <FormField
                       control={form.control}
@@ -583,12 +585,12 @@ export function ShotDetailDialog({
                               onValueChange={(value) => field.onChange(value ? Number(value) : null)}
                             >
                               <SelectTrigger className="w-full bg-white border-purple-200">
-                                <SelectValue placeholder="选择关联场景" />
+                                <SelectValue placeholder={t("selectScene")} />
                               </SelectTrigger>
                               <SelectContent>
                                 {allScenes.map((scene, idx) => (
                                   <SelectItem key={scene.scene_id} value={String(scene.scene_id)}>
-                                    场景 {idx + 1}: {scene.title || scene.location || `场景 ${scene.scene_id}`}
+                                    场景 {idx + 1}: {scene.title || scene.location || t("sceneLabel", { n: scene.scene_id })}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -602,7 +604,7 @@ export function ShotDetailDialog({
                   {/* 关联角色选择 */}
                   <div className="p-4 rounded-xl bg-gradient-to-br from-white to-green-50 border border-green-100">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium text-green-700">关联角色</span>
+                      <span className="text-sm font-medium text-green-700">{t("linkedCharacter")}</span>
                     </div>
                     <FormField
                       control={form.control}
@@ -659,7 +661,7 @@ export function ShotDetailDialog({
                           <div className="flex items-center gap-2 mb-2">
                             <FileText className="w-4 h-4 text-blue-600" />
                             <label className="text-sm font-medium text-blue-700">
-                              分镜描述
+                              {t("shotDescription")}
                             </label>
                           </div>
                           <FormControl>
@@ -668,7 +670,7 @@ export function ShotDetailDialog({
                               value={field.value || ""}
                               onChange={(e) => field.onChange(e.target.value || "")}
                               className="w-full min-h-[100px] p-3 rounded-xl bg-white border border-blue-200 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                              placeholder="输入分镜描述..."
+                              placeholder={t("shotDescPlaceholder")}
                             />
                           </FormControl>
                         </div>
@@ -686,7 +688,7 @@ export function ShotDetailDialog({
                         className="h-7 text-[10px] text-orange-600 hover:text-orange-700 hover:bg-orange-100 rounded-lg px-2 flex items-center gap-1 transition-all duration-200"
                       >
                         <Plus size={10} />
-                        添加
+                        {t("add")}
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-2">
@@ -696,7 +698,7 @@ export function ShotDetailDialog({
                             value={element}
                             onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
                             className="h-6 w-24 bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-orange-300 text-xs"
-                            placeholder="元素名称"
+                            placeholder={t("elementName")}
                           />
                           <button
                             type="button"
@@ -708,7 +710,7 @@ export function ShotDetailDialog({
                         </div>
                       ))}
                       {(!Array.isArray(appearanceElements) || appearanceElements.length === 0) && (
-                        <span className="text-xs text-gray-500 italic">暂无元素，点击"添加"按钮添加</span>
+                        <span className="text-xs text-gray-500 italic">暂无元素，点击t("add")按钮添加</span>
                       )}
                     </div>
                   </div>
@@ -722,7 +724,7 @@ export function ShotDetailDialog({
                     <div className="space-y-3 flex flex-col">
                       <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Film size={14} className="text-blue-500" />
-                        分镜视频
+                        {t("shotVideo")}
                       </div>
                       <div className={cn("rounded-xl overflow-hidden border border-gray-200 flex-1", imageAspectClass)}>
                         {shot.video_url ? (
@@ -736,7 +738,7 @@ export function ShotDetailDialog({
                           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 min-h-[200px]">
                             <div className="text-center">
                               <Film size={48} className="mx-auto mb-3 text-gray-400" />
-                              <p className="text-gray-500 text-sm">暂无视频</p>
+                              <p className="text-gray-500 text-sm">{t("noVideo")}</p>
                             </div>
                           </div>
                         )}
@@ -747,7 +749,7 @@ export function ShotDetailDialog({
                           className="w-full h-10 rounded-lg bg-gradient-to-br from-blue-400 to-blue-500 text-white font-medium shadow-sm hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                         >
                           <Play size={16} />
-                          播放预览
+                          {t("playPreview")}
                         </button>
                       )}
                     </div>
@@ -756,7 +758,7 @@ export function ShotDetailDialog({
                     <div className="space-y-3 flex flex-col">
                       <div className="text-sm font-medium text-gray-700 flex items-center gap-2">
                         <Sparkles size={14} className="text-purple-500" />
-                        分镜视频提示词
+                        {t("shotVideoPrompt")}
                       </div>
                       <div className="flex-1 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 flex flex-col gap-3">
                         <FormField
@@ -809,14 +811,14 @@ export function ShotDetailDialog({
                 <TabsContent value="dialogue" className="mt-0 space-y-4">
                   {/* 标题和添加按钮 */}
                   <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-gray-700">台词/旁白</div>
+                    <div className="text-sm font-medium text-gray-700">{t("dialogueNarration")}</div>
                     <button
                       type="button"
                       onClick={handleAddNarration}
                       className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                     >
                       <Plus size={14} />
-                      添加
+                      {t("add")}
                     </button>
                   </div>
 
@@ -837,16 +839,16 @@ export function ShotDetailDialog({
                                   type="text"
                                   value={item.角色 || ""}
                                   onChange={(e) => handleNarrationChange(idx, "角色", e.target.value)}
-                                  placeholder="旁白"
+                                  placeholder={t("narration")}
                                   className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                               </div>
                               <div className="flex-1">
-                                <label className="text-xs text-gray-500 mb-1 block">台词内容</label>
+                                <label className="text-xs text-gray-500 mb-1 block">{t("dialogueContent")}</label>
                                 <textarea
                                   value={item.内容 || ""}
                                   onChange={(e) => handleNarrationChange(idx, "内容", e.target.value)}
-                                  placeholder="输入台词内容..."
+                                  placeholder={t("dialoguePlaceholder")}
                                   className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg resize-none h-16 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                               </div>
@@ -870,12 +872,12 @@ export function ShotDetailDialog({
                                   {isGenerating ? (
                                     <>
                                       <Loader2 size={12} className="animate-spin" />
-                                      生成中...
+                                      {t("generating")}
                                     </>
                                   ) : (
                                     <>
                                       <RefreshCw size={12} />
-                                      生成音频
+                                      {t("generateAudio")}
                                     </>
                                   )}
                                 </button>
@@ -895,12 +897,12 @@ export function ShotDetailDialog({
                                     {isPlaying ? (
                                       <>
                                         <Pause size={12} />
-                                        暂停
+                                        {t("pause")}
                                       </>
                                     ) : (
                                       <>
                                         <Play size={12} />
-                                        播放
+                                        {t("play")}
                                       </>
                                     )}
                                   </button>
@@ -914,7 +916,7 @@ export function ShotDetailDialog({
                                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-all"
                                   >
                                     <Download size={12} />
-                                    下载
+                                    {t("download")}
                                   </button>
                                 )}
                               </div>
@@ -926,7 +928,7 @@ export function ShotDetailDialog({
                                 className="flex items-center gap-1 px-2 py-1.5 text-xs text-red-500 hover:bg-red-50 rounded-lg transition-all"
                               >
                                 <Trash2 size={12} />
-                                删除
+                                {t("delete")}
                               </button>
                             </div>
                           </div>
@@ -936,14 +938,14 @@ export function ShotDetailDialog({
                   ) : (
                     <div className="rounded-xl bg-gray-50 border-2 border-dashed border-gray-200 p-8 text-center">
                       <div className="text-4xl mb-3">💬</div>
-                      <p className="text-gray-500 text-sm mb-3">暂无台词/旁白</p>
+                      <p className="text-gray-500 text-sm mb-3">{t("noDialogue")}</p>
                       <button
                         type="button"
                         onClick={handleAddNarration}
                         className="inline-flex items-center gap-1.5 px-4 py-2 text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                       >
                         <Plus size={14} />
-                        添加台词
+                        {t("addDialogue")}
                       </button>
                     </div>
                   )}
@@ -958,7 +960,7 @@ export function ShotDetailDialog({
         open={!!previewImage}
         onOpenChange={(open) => !open && setPreviewImage(null)}
         src={previewImage}
-        alt="图片预览"
+        alt={t("imagePreview")}
       />
     </>
   );

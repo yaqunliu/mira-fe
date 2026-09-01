@@ -13,6 +13,7 @@ interface ChatProgressProps {
  * 显示任务进度（如生成角色、分镜等）
  */
 export function ChatProgress({
+  const t = useTranslations('agent')
   label,
   progress,
   status = 'in_progress',

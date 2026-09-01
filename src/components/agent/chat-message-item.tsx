@@ -1,6 +1,7 @@
 "use client";
 
 import type { AgentMessage } from '@/types/agent';
+import { useTranslations } from 'next-intl'
 import ReactMarkdown from 'react-markdown';
 
 interface ChatMessageItemProps {
@@ -12,7 +13,8 @@ interface ChatMessageItemProps {
  *
  * 展示单条消息（用户或 AI）
  */
-export function ChatMessageItem({ message }: ChatMessageItemProps) {
+export function ChatMessageItem({
+  const t = useTranslations('agent') message }: ChatMessageItemProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -64,7 +66,7 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
                 >
                   <span>📎</span>
                   <span className="truncate">
-                    {attachment.filename || `附件 ${idx + 1}`}
+                    {attachment.filename || t("attachmentLabel", { n: idx + 1 })}
                   </span>
                   {attachment.size && (
                     <span className="text-gray-400 text-xs">
@@ -92,13 +94,13 @@ export function ChatMessageItem({ message }: ChatMessageItemProps) {
 
           {/* 时间戳 */}
           <div className="mt-1 text-xs text-gray-400">
-            {formatTimestamp(message.timestamp)}
+            {formatTimestamp(message.timestamp, t)}
           </div>
 
           {/* 错误状态 */}
           {message.status === 'error' && (
             <div className="mt-2 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
-              ⚠️ 消息发送失败
+              {t("sendFailed")}
             </div>
           )}
         </div>
@@ -119,17 +121,17 @@ function formatFileSize(bytes: number): string {
 /**
  * 格式化时间戳
  */
-function formatTimestamp(timestamp: string): string {
+function formatTimestamp(timestamp: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
   // 处理空值或无效时间戳
   if (!timestamp) {
-    return '刚刚';
+    return t('justNow');
   }
 
   const date = new Date(timestamp);
 
   // 检查是否为有效日期
   if (isNaN(date.getTime())) {
-    return '刚刚';
+    return t('justNow');
   }
 
   const now = new Date();
@@ -137,10 +139,10 @@ function formatTimestamp(timestamp: string): string {
   const diffMins = Math.floor(diffMs / 60000);
 
   // 1分钟内
-  if (diffMins < 1) return '刚刚';
+  if (diffMins < 1) return t('justNow');
 
   // 1小时内
-  if (diffMins < 60) return `${diffMins} 分钟前`;
+  if (diffMins < 60) return t('minutesAgo', { n: diffMins });
 
   // 今天
   if (date.toDateString() === now.toDateString()) {

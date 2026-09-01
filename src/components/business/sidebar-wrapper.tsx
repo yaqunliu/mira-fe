@@ -5,9 +5,9 @@ import { usePathname } from '@/i18n/navigation';
 
 export function SidebarWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const isHomePage = pathname === '/home' || pathname === '/'
+  const isPublicPage = pathname === '/home' || pathname === '/' || pathname === '/contact'
   
-  if (isHomePage) {
+  if (isPublicPage) {
     return (
       <div className="min-h-screen h-screen overflow-y-auto">
         {children}
@@ -27,4 +27,3 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-

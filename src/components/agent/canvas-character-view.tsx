@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useCallback } from 'react';
 import type { ICreation } from '@/types/creation';
 import type { ICharacter } from '@/types/character';
@@ -149,7 +150,8 @@ function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated
  *
  * 展示所有角色及其候选图、描述、状态
  */
-export function CanvasCharacterView({ creation, highlightedElement }: CanvasCharacterViewProps) {
+export function CanvasCharacterView({
+  creation, highlightedElement }: CanvasCharacterViewProps) {
   const [selectedCharacterIndex, setSelectedCharacterIndex] = useState<number | null>(null);
 
   // 优先直接使用 creation.characters，如果没有再从分镜提取
@@ -189,9 +191,9 @@ export function CanvasCharacterView({ creation, highlightedElement }: CanvasChar
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center space-y-4">
           <div className="text-6xl">👥</div>
-          <h3 className="text-xl font-bold text-gray-700">暂无角色</h3>
+          <h3 className="text-xl font-bold text-gray-700">{t("noCharacters")}</h3>
           <p className="text-gray-500 text-sm">
-            请先上传剧本，AI 将自动提取角色信息
+            {t("uploadScriptHint")}
           </p>
         </div>
       </div>
@@ -214,11 +216,11 @@ export function CanvasCharacterView({ creation, highlightedElement }: CanvasChar
         {/* 角色统计 */}
         <div className="flex gap-4">
           <div className="flex-1 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-            <div className="text-xs text-blue-600 mb-1">总角色数</div>
+            <div className="text-xs text-blue-600 mb-1">{t("totalCharacters")}</div>
             <div className="text-2xl font-bold text-blue-900">{characters.length}</div>
           </div>
           <div className="flex-1 bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-            <div className="text-xs text-green-600 mb-1">已生成</div>
+            <div className="text-xs text-green-600 mb-1">{t("generated")}</div>
             <div className="text-2xl font-bold text-green-900">
               {statusCounts.generated}
             </div>

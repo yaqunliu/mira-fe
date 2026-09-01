@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import {
@@ -62,6 +63,7 @@ export function SceneDetailDialog({
   hasNext = false,
   onRefresh,
 }: SceneDetailDialogProps) {
+  const t = useTranslations('agent')
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -112,11 +114,11 @@ export function SceneDetailDialog({
       await sceneApi.updateScene((scene as any).uuid || String(scene.scene_id), {
         image_url: version.image_url,
       } as any);
-      toast.success("已应用新版本");
+      toast.success(t("versionApplied"));
       onRefresh?.();
     } catch (error) {
       console.error("Failed to apply version:", error);
-      toast.error("应用失败，请重试");
+      toast.error(t("applyFailed"));
     }
   };
 
@@ -132,11 +134,11 @@ export function SceneDetailDialog({
         },
         image_prompt: values.imagePrompt,
       } as any);
-      toast.success("保存成功");
+      toast.success(t("saveSuccess"));
       onRefresh?.();
     } catch (error) {
       console.error("Failed to save scene:", error);
-      toast.error("保存失败，请重试");
+      toast.error(t("saveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -153,10 +155,10 @@ export function SceneDetailDialog({
         sceneUuid,
         form.getValues("imagePrompt") || scene.image_prompt || ""
       );
-      toast.success("正在生成场景图片，请稍候...");
+      toast.success(t("generatingSceneImage"));
     } catch (error) {
       console.error("Failed to regenerate scene image:", error);
-      toast.error("生成失败，请重试");
+      toast.error(t("generationFailed"));
     } finally {
       setIsRegenerating(false);
     }
@@ -175,7 +177,7 @@ export function SceneDetailDialog({
                 </div>
                 <div>
                   <DialogTitle className="text-lg font-semibold" style={{ color: '#111827' }}>
-                    {scene.title || scene.location || `场景 ${sceneNumber}`}
+                    {scene.title || scene.location || t("sceneLabel", { n: sceneNumber })}
                   </DialogTitle>
                   <DialogDescription className="text-sm" style={{ color: '#6b7280' }}>
                     {shotCount} 个分镜
@@ -240,7 +242,7 @@ export function SceneDetailDialog({
               <TabsList className="grid w-full grid-cols-2 mb-4 flex-shrink-0 bg-white/50">
                 <TabsTrigger value="image" className="flex items-center gap-2">
                   <ImageIcon className="w-4 h-4" />
-                  场景图片
+                  {t("sceneImage")}
                 </TabsTrigger>
                 <TabsTrigger value="info" className="flex items-center gap-2">
                   <Info className="w-4 h-4" />
@@ -255,7 +257,7 @@ export function SceneDetailDialog({
                   <div className="grid grid-cols-2 gap-6 items-stretch">
                     {/* 左侧：场景图片 */}
                     <div className="space-y-3 flex flex-col">
-                      <div className="text-sm font-medium text-gray-700">场景图片</div>
+                      <div className="text-sm font-medium text-gray-700">{t("sceneImage")}</div>
                       <div className="flex-1">
                         <ImageVersionPreview
                           currentImageUrl={referenceImage}

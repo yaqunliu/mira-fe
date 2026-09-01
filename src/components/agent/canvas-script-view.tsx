@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react';
 import type { ICreation } from '@/types/creation';
 import { getAllCharactersFromShots } from './canvas-character-view';
@@ -15,7 +16,8 @@ interface CanvasScriptViewProps {
  *
  * 展示剧本内容、场景列表、角色对白
  */
-export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptViewProps) {
+export function CanvasScriptView({
+  creation, highlightedElement }: CanvasScriptViewProps) {
   // 章节内容状态
   const [chapterContent, setChapterContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,19 +54,19 @@ export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptV
       {/* 剧本元信息 */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 border border-blue-200">
-          <div className="text-xs text-blue-600 mb-1">剧本标题</div>
+          <div className="text-xs text-blue-600 mb-1">{t("scriptTitle")}</div>
           <div className="text-sm font-semibold text-blue-900">
             {creation.title || '未命名剧本'}
           </div>
         </div>
         <div className="bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-          <div className="text-xs text-purple-600 mb-1">场景数量</div>
+          <div className="text-xs text-purple-600 mb-1">{t("sceneCount2")}</div>
           <div className="text-sm font-semibold text-purple-900">
             {creation.scenes?.length || 0} 个场景
           </div>
         </div>
         <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-lg p-4 border border-green-200">
-          <div className="text-xs text-green-600 mb-1">角色数量</div>
+          <div className="text-xs text-green-600 mb-1">{t("characterCount")}</div>
           <div className="text-sm font-semibold text-green-900">
             {allCharacters.length} 个角色
           </div>
@@ -81,7 +83,7 @@ export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptV
       >
         <h3 className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
           <span>📜</span>
-          <span>剧本内容</span>
+          <span>{t("scriptBody")}</span>
         </h3>
 
         {script ? (
@@ -93,7 +95,7 @@ export function CanvasScriptView({ creation, highlightedElement }: CanvasScriptV
         ) : (
           <div className="text-center py-12 text-gray-400">
             <div className="text-4xl mb-2">📝</div>
-            <p>暂无剧本内容</p>
+            <p>{t("noScriptContent")}</p>
             <p className="text-xs mt-1">请在对话中上传或描述剧本</p>
           </div>
         )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
@@ -75,15 +76,15 @@ function getGenerationStatus(character: any): 'pending' | 'generating' | 'genera
 function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated' }) {
   const config = {
     pending: {
-      label: '⏳ 未生成',
+      label: t('statusNotGenerated'),
       className: 'bg-gray-100 text-gray-600 border-gray-300',
     },
     generating: {
-      label: '🔄 生成中',
+      label: t('statusGenerating'),
       className: 'bg-blue-100 text-blue-700 border-blue-300 animate-pulse',
     },
     generated: {
-      label: '✅ 已生成',
+      label: t('statusGenerated'),
       className: 'bg-green-100 text-green-700 border-green-300',
     },
   };
@@ -218,11 +219,11 @@ export function CharacterDetailDialog({
       await characterApi.updateCharacter((character as any).uuid || String(character.character_id), {
         image_url: version.image_url,
       } as any);
-      toast.success("已应用新版本");
+      toast.success(t("versionApplied"));
       onRefresh?.();
     } catch (error) {
       console.error("Failed to apply version:", error);
-      toast.error("应用失败，请重试");
+      toast.error(t("applyFailed"));
     }
   };
 
@@ -236,11 +237,11 @@ export function CharacterDetailDialog({
         image_prompt: values.imagePrompt,
         voice_id: values.voiceId,
       } as any);
-      toast.success("保存成功");
+      toast.success(t("saveSuccess"));
       onRefresh?.();
     } catch (error) {
       console.error("Failed to save character:", error);
-      toast.error("保存失败，请重试");
+      toast.error(t("saveFailed"));
     } finally {
       setIsSaving(false);
     }
@@ -254,10 +255,10 @@ export function CharacterDetailDialog({
         character.visual_style || "",
         String(character.novel_id)
       );
-      toast.success("正在生成角色图片，请稍候...");
+      toast.success(t("generatingCharacterImage"));
     } catch (error) {
       console.error("Failed to regenerate character image:", error);
-      toast.error("生成失败，请重试");
+      toast.error(t("generationFailed"));
     } finally {
       setIsRegenerating(false);
     }
@@ -347,11 +348,11 @@ export function CharacterDetailDialog({
                 </TabsTrigger>
                 <TabsTrigger value="info" className="flex items-center gap-2">
                   <Info className="w-4 h-4" />
-                  基本信息
+                  {t("basicInfoTab")}
                 </TabsTrigger>
                 <TabsTrigger value="voice" className="flex items-center gap-2">
                   <Volume2 className="w-4 h-4" />
-                  音色选择
+                  {t("voiceColor")}
                 </TabsTrigger>
               </TabsList>
 
