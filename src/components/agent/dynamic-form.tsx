@@ -40,7 +40,11 @@ interface DynamicFormProps {
 /**
  * 根据表单配置生成 Zod Schema
  */
-function generateZodSchema(config: FormConfig, t: (k: string, v?: any) => string): z.ZodObject<any> {
+function generateZodSchema(
+  config: FormConfig,
+  t: (k: string, v?: any) => string,
+  tf: (k: string, v?: any) => string
+): z.ZodObject<any> {
   const schemaMap: Record<string, z.ZodTypeAny> = {};
 
   config.fields.forEach((field) => {
@@ -51,7 +55,7 @@ function generateZodSchema(config: FormConfig, t: (k: string, v?: any) => string
       case "text":
         fieldSchema = z.string();
         if (field.required) {
-          fieldSchema = fieldSchema.min(1, t("fieldRequired", { field: field.label }));
+          fieldSchema = fieldSchema.min(1, t("fieldRequired", { field: tf(field.labelKey) }));
         } else {
           fieldSchema = fieldSchema.optional();
         }
@@ -90,7 +94,12 @@ function generateZodSchema(config: FormConfig, t: (k: string, v?: any) => string
 /**
  * 渲染单个表单字段
  */
-function renderFormField(field: FormField, form: any, t: (k: string, v?: any) => string) {
+function renderFormField(
+  field: FormField,
+  form: any,
+  t: (k: string, v?: any) => string,
+  tf: (k: string, v?: any) => string
+) {
   switch (field.type) {
     case "textarea":
       return (
@@ -100,12 +109,12 @@ function renderFormField(field: FormField, form: any, t: (k: string, v?: any) =>
           render={({ field: formField }) => (
             <FormItem>
               <FormLabel>
-                {field.label}
+                {tf(field.labelKey)}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder={field.placeholder}
+                  placeholder={field.placeholderKey ? tf(field.placeholderKey) : undefined}
                   className="min-h-[100px]"
                   {...formField}
                 />
@@ -124,7 +133,7 @@ function renderFormField(field: FormField, form: any, t: (k: string, v?: any) =>
           render={({ field: formField }) => (
             <FormItem>
               <FormLabel>
-                {field.label}
+                {tf(field.labelKey)}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </FormLabel>
               <FormControl>
@@ -150,19 +159,19 @@ function renderFormField(field: FormField, form: any, t: (k: string, v?: any) =>
           render={({ field: formField }) => (
             <FormItem>
               <FormLabel>
-                {field.label}
+                {tf(field.labelKey)}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </FormLabel>
               <Select onValueChange={formField.onChange} defaultValue={formField.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder={t("selectField", { field: field.label })} />
+                    <SelectValue placeholder={t("selectField", { field: tf(field.labelKey) })} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {field.options?.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {tf(option.labelKey)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -182,11 +191,11 @@ function renderFormField(field: FormField, form: any, t: (k: string, v?: any) =>
           render={({ field: formField }) => (
             <FormItem>
               <FormLabel>
-                {field.label}
+                {tf(field.labelKey)}
                 {field.required && <span className="text-red-500 ml-1">*</span>}
               </FormLabel>
               <FormControl>
-                <Input placeholder={field.placeholder} {...formField} />
+                <Input placeholder={field.placeholderKey ? tf(field.placeholderKey) : undefined} {...formField} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -204,7 +213,9 @@ export function DynamicForm({
   isLoading = false,
 }: DynamicFormProps) {
   const t = useTranslations('agent');
-  const schema = generateZodSchema(config, t);
+  // form-configs.ts 里存的是 key，不是文案 —— 用 agentForm 命名空间翻译
+  const tf = useTranslations('agentForm');
+  const schema = generateZodSchema(config, t, tf);
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -222,16 +233,16 @@ export function DynamicForm({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-lg">{config.title}</CardTitle>
-        {config.description && (
-          <CardDescription>{config.description}</CardDescription>
+        <CardTitle className="text-lg">{tf(config.titleKey)}</CardTitle>
+        {config.descriptionKey && (
+          <CardDescription>{tf(config.descriptionKey)}</CardDescription>
         )}
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {config.fields.map((field) => (
-              <div key={field.name}>{renderFormField(field, form, t)}</div>
+              <div key={field.name}>{renderFormField(field, form, t, tf)}</div>
             ))}
 
             <div className="flex gap-3 pt-4">

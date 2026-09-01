@@ -122,8 +122,20 @@ function scanSource(src) {
   return hits;
 }
 
+/**
+ * 文件级豁免：文件顶部（前 30 行）出现 `i18n-ignore-file` 即整个文件跳过。
+ * 只用于三类文件，加注释时必须写明属于哪一类：
+ *   1. 数据契约——后端 LLM 输出的中文 JSON 字段名，翻译会破坏契约
+ *   2. 诊断字符串——只进日志/调试，不渲染给用户
+ *   3. mock / fixture 数据
+ */
+function isFileExempt(src) {
+  return /i18n-ignore-file/.test(src.split('\n').slice(0, 30).join('\n'));
+}
+
 /** console.* 与 i18n-ignore 豁免：按行文本判断，覆盖绝大多数单行写法。 */
 function filterExempt(hits, src) {
+  if (isFileExempt(src)) return [];
   const lines = src.split('\n');
   return hits.filter((h) => {
     const cur = lines[h.line - 1] ?? '';

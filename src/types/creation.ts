@@ -15,29 +15,33 @@ export enum CreationStatus {
   FAILED = "failed",
 }
 
+/**
+ * 状态徽标映射。这里存 i18n key 而非文案本身——本模块不是 React 组件，
+ * 拿不到 useTranslations；由渲染方（creation-overview.tsx）调 t(labelKey)。
+ */
 export const CreationStatusMap: Record<
   CreationStatus,
-  { label: string; color: string }
+  { labelKey: string; color: string }
 > = {
-  [CreationStatus.CREATED]: { label: "进行中", color: "bg-blue-500" },
+  [CreationStatus.CREATED]: { labelKey: "creation.statusInProgress", color: "bg-blue-500" },
   [CreationStatus.CHARACTER_ANALYZED]: {
-    label: "进行中",
+    labelKey: "creation.statusInProgress",
     color: "bg-blue-500",
   },
   [CreationStatus.PLAYBOOK_GENERATED]: {
-    label: "进行中",
+    labelKey: "creation.statusInProgress",
     color: "bg-blue-500",
   },
   [CreationStatus.CHARACTER_GENERATED]: {
-    label: "进行中",
+    labelKey: "creation.statusInProgress",
     color: "bg-blue-500",
   },
-  [CreationStatus.SCENE_GENERATED]: { label: "进行中", color: "bg-blue-500" },
-  [CreationStatus.VOICE_SELECTED]: { label: "进行中", color: "bg-blue-500" },
-  [CreationStatus.AUDIO_GENERATED]: { label: "进行中", color: "bg-blue-500" },
-  [CreationStatus.VIDEO_GENERATED]: { label: "进行中", color: "bg-blue-500" },
-  [CreationStatus.COMPLETED]: { label: "已完成", color: "bg-green-500" },
-  [CreationStatus.FAILED]: { label: "出错了", color: "bg-red-500" },
+  [CreationStatus.SCENE_GENERATED]: { labelKey: "creation.statusInProgress", color: "bg-blue-500" },
+  [CreationStatus.VOICE_SELECTED]: { labelKey: "creation.statusInProgress", color: "bg-blue-500" },
+  [CreationStatus.AUDIO_GENERATED]: { labelKey: "creation.statusInProgress", color: "bg-blue-500" },
+  [CreationStatus.VIDEO_GENERATED]: { labelKey: "creation.statusInProgress", color: "bg-blue-500" },
+  [CreationStatus.COMPLETED]: { labelKey: "creation.statusCompleted", color: "bg-green-500" },
+  [CreationStatus.FAILED]: { labelKey: "creation.statusFailed", color: "bg-red-500" },
 } as const;
 
 export interface ICreation {

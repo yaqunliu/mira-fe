@@ -45,10 +45,10 @@ export function CreationOverview() {
   };
 
   const getStatusBadge = (status: ICreation["status"]) => {
-    const statusInfo = CreationStatusMap[status as keyof typeof CreationStatusMap] || { label: t("common.unknown"), color: "bg-gray-500" };
+    const statusInfo = CreationStatusMap[status as keyof typeof CreationStatusMap];
 
-    let displayLabel = statusInfo.label;
-    let bgColor = statusInfo.color;
+    let displayLabel = statusInfo ? t(statusInfo.labelKey) : t("common.unknown");
+    let bgColor = statusInfo?.color ?? "bg-gray-500";
 
     if (status === CreationStatus.COMPLETED) {
       displayLabel = t("common.completed");

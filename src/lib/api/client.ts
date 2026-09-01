@@ -3,6 +3,14 @@ import { useAuthStore } from '@/stores/auth'
 import type { ApiResponse } from '@/types'
 import { createClient } from '@/lib/supabase/client'
 
+// 本模块是 axios 拦截器，不是 React 组件，拿不到 useTranslations——
+// 这两条前端自产的兜底文案直接用英文常量。
+//
+// ⚠️ 注意 errorMessage 仍会优先透出后端的 `message` 原文（可能是中文）。
+// 把后端原文限制在开发环境、生产只用前端英文兜底，是 en-plan.md Phase 4 的工作，本轮不做。
+const AUTH_EXPIRED_MESSAGE = 'Your session has expired, please sign in again'
+const GENERIC_ERROR_MESSAGE = 'Service error'
+
 class ApiClient {
   private client: AxiosInstance
   private isRefreshing = false
@@ -110,19 +118,19 @@ class ApiClient {
               // 刷新失败，登出用户
               console.error('[ApiClient] Token refresh failed:', refreshError)
               useAuthStore.getState().logout()
-              return Promise.reject(new Error('认证已过期，请重新登录'))
+              return Promise.reject(new Error(AUTH_EXPIRED_MESSAGE))
             }
           } catch (refreshError) {
             console.error('[ApiClient] Token refresh error:', refreshError)
             useAuthStore.getState().logout()
-            return Promise.reject(new Error('认证已过期，请重新登录'))
+            return Promise.reject(new Error(AUTH_EXPIRED_MESSAGE))
           } finally {
             this.isRefreshing = false
           }
         }
 
         // 其他错误正常处理
-        const errorMessage = error.response?.data?.message || error.message || '服务异常'
+        const errorMessage = error.response?.data?.message || error.message || GENERIC_ERROR_MESSAGE
         return Promise.reject(new Error(errorMessage))
       }
     )

@@ -660,7 +660,11 @@
     "shotImageTitle": "{title} - 分镜图片 {index}",
     "loadDataFailed": "加载创作数据失败",
     "invalidId": "无效的创作ID",
-    "newVideoCreation": "新建视频创作"
+    "newVideoCreation": "新建视频创作",
+    "stepCharacterAnalysis": "角色分析",
+    "stepSceneBreakdown": "分镜拆解",
+    "stepVisualGeneration": "视觉生成",
+    "stepVideoGeneration": "视频生成"
   },
   "video": {
     "title": "视频",
@@ -1615,7 +1619,11 @@
     "reload": "重新加载",
     "selectedLabel": "已选择:",
     "usageLabel": "次使用",
-    "speedLabel": "语速:"
+    "speedLabel": "语速:",
+    "tagAll": "全部",
+    "tagMale": "男声",
+    "tagFemale": "女声",
+    "tagCartoon": "卡通"
   },
   "agent": {
     "statusNotGenerated": "⏳ 未生成",
@@ -1779,7 +1787,26 @@
     "selectedVoiceLabel": "已选择:",
     "portrait": "角色形象",
     "newProject": "新建项目",
-    "cameraElement": "出镜元素"
+    "cameraElement": "出镜元素",
+    "progressPercent": "进度: {percent}%",
+    "confirmContinue": "请确认是否继续",
+    "selectAnOption": "请选择一个选项",
+    "realtimeFailedPolling": "实时连接失败，已切换到轮询模式",
+    "realtimeRestored": "已恢复实时连接",
+    "sendMessageFailed": "发送消息失败",
+    "noMessageToInterrupt": "没有可中断的消息",
+    "conversationInterrupted": "已中断当前对话",
+    "interruptFailed": "中断失败",
+    "sessionResetKeepAssets": "会话已重置（保留资产）",
+    "sessionResetFull": "会话已完全重置",
+    "resetFailed": "重置失败",
+    "opRegenerateCharacter": "重新生成角色：{target}",
+    "opLockCharacter": "锁定角色：{target}",
+    "opRegenerateShot": "重新生成分镜 #{target}",
+    "opDeleteShot": "删除分镜 #{target}",
+    "opReorderShots": "调整分镜顺序",
+    "opUpdateScene": "更新场景 #{target}",
+    "opGeneric": "[用户操作] {type}"
   },
   "scripts": {
     "listTitle": "文案列表",
@@ -1839,5 +1866,23 @@
     "subtitle": "告诉我你想创作什么，我会帮你完成",
     "goToCreationPage": "前往创作页面",
     "inputPlaceholder": "输入你想创作的内容..."
+  },
+  "agentForm": {
+    "vocabTitle": "单词视频配置",
+    "vocabDescription": "请提供要学习的单词和相关配置",
+    "wordList": "单词列表",
+    "wordListPlaceholder": "每行一个单词，或逗号分隔\n例如：apple, banana, cat",
+    "difficulty": "难度级别",
+    "difficultyEasy": "简单 (小学)",
+    "difficultyMedium": "中等 (初中)",
+    "difficultyHard": "困难 (高中)",
+    "sentenceLevel": "句子复杂度",
+    "sentenceSimple": "简单句",
+    "sentenceComplex": "复杂句",
+    "repetitions": "重复次数",
+    "videoStyle": "视频风格",
+    "styleAnime": "动漫风格",
+    "styleRealism": "写实风格",
+    "styleDisney": "迪士尼/皮克斯"
   }
 }

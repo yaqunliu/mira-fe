@@ -7,26 +7,32 @@
 export type FormFieldType = "text" | "textarea" | "select" | "number" | "array";
 
 export interface FormFieldOption {
-  label: string;
+  /** i18n key（agentForm 命名空间），不是文案本身 */
+  labelKey: string;
   value: string;
 }
 
 export interface FormField {
   name: string;
   type: FormFieldType;
-  label: string;
+  /** i18n key（agentForm 命名空间），不是文案本身 */
+  labelKey: string;
   required: boolean;
-  placeholder?: string;
+  /** i18n key（agentForm 命名空间） */
+  placeholderKey?: string;
   options?: FormFieldOption[];
   min?: number;
   max?: number;
   defaultValue?: any;
 }
 
+// 本模块非组件，存 i18n key 而非文案；由渲染方 dynamic-form.tsx 调 t() 翻译。
 export interface FormConfig {
   intent: string;
-  title: string;
-  description?: string;
+  /** i18n key（agentForm 命名空间） */
+  titleKey: string;
+  /** i18n key（agentForm 命名空间） */
+  descriptionKey?: string;
   fields: FormField[];
 }
 
@@ -35,43 +41,43 @@ export interface FormConfig {
  */
 export const vocabFormConfig: FormConfig = {
   intent: "create_vocab_video",
-  title: "单词视频配置",
-  description: "请提供要学习的单词和相关配置",
+  titleKey: "vocabTitle",
+  descriptionKey: "vocabDescription",
   fields: [
     {
       name: "words",
       type: "textarea",
-      label: "单词列表",
+      labelKey: "wordList",
       required: true,
-      placeholder: "每行一个单词，或逗号分隔\n例如：apple, banana, cat",
+      placeholderKey: "wordListPlaceholder",
     },
     {
       name: "difficulty",
       type: "select",
-      label: "难度级别",
+      labelKey: "difficulty",
       required: false,
       defaultValue: "easy",
       options: [
-        { label: "简单 (小学)", value: "easy" },
-        { label: "中等 (初中)", value: "medium" },
-        { label: "困难 (高中)", value: "hard" },
+        { labelKey: "difficultyEasy", value: "easy" },
+        { labelKey: "difficultyMedium", value: "medium" },
+        { labelKey: "difficultyHard", value: "hard" },
       ],
     },
     {
       name: "sentence_level",
       type: "select",
-      label: "句子复杂度",
+      labelKey: "sentenceLevel",
       required: false,
       defaultValue: "simple",
       options: [
-        { label: "简单句", value: "simple" },
-        { label: "复杂句", value: "complex" },
+        { labelKey: "sentenceSimple", value: "simple" },
+        { labelKey: "sentenceComplex", value: "complex" },
       ],
     },
     {
       name: "repetitions",
       type: "number",
-      label: "重复次数",
+      labelKey: "repetitions",
       required: false,
       min: 1,
       max: 5,
@@ -80,13 +86,13 @@ export const vocabFormConfig: FormConfig = {
     {
       name: "style",
       type: "select",
-      label: "视频风格",
+      labelKey: "videoStyle",
       required: false,
       defaultValue: "anime",
       options: [
-        { label: "动漫风格", value: "anime" },
-        { label: "写实风格", value: "realism" },
-        { label: "迪士尼/皮克斯", value: "disney" },
+        { labelKey: "styleAnime", value: "anime" },
+        { labelKey: "styleRealism", value: "realism" },
+        { labelKey: "styleDisney", value: "disney" },
       ],
     },
   ],

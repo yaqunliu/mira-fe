@@ -1,3 +1,4 @@
+// i18n-ignore-file：mock / fixture 数据，非用户可见文案（且当前全仓无引用）。
 import type { Video } from '@/types'
 
 export const mockVideos: Video[] = [

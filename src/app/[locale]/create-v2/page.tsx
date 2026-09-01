@@ -55,11 +55,11 @@ export default function CreateV2Page() {
   const uiSteps: Step[] = useMemo(() => {
     return steps.map((step, index) => ({
       id: step.id,
-      title: step.label,
+      title: t(step.labelKey),
       status: index < currentStep ? "completed" : index === currentStep ? "current" : "upcoming",
       disabled: false // Can be adjusted based on logic
     }));
-  }, [steps, currentStep]);
+  }, [steps, currentStep, t]);
 
   // Render current step component
   const renderStepContent = () => {

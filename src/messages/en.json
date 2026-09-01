@@ -660,7 +660,11 @@
     "shotImageTitle": "{title} - Shot Image {index}",
     "loadDataFailed": "Failed to load creation data",
     "invalidId": "Invalid creation ID",
-    "newVideoCreation": "New Video Creation"
+    "newVideoCreation": "New Video Creation",
+    "stepCharacterAnalysis": "Character Analysis",
+    "stepSceneBreakdown": "Scene Breakdown",
+    "stepVisualGeneration": "Visual Generation",
+    "stepVideoGeneration": "Video Generation"
   },
   "video": {
     "title": "Video",
@@ -1615,7 +1619,11 @@
     "reload": "Reload",
     "selectedLabel": "Selected:",
     "usageLabel": "Usage:",
-    "speedLabel": "Speed:"
+    "speedLabel": "Speed:",
+    "tagAll": "All",
+    "tagMale": "Male",
+    "tagFemale": "Female",
+    "tagCartoon": "Cartoon"
   },
   "agent": {
     "statusNotGenerated": "⏳ Not generated",
@@ -1779,7 +1787,26 @@
     "selectedVoiceLabel": "Selected:",
     "portrait": "Character Portrait",
     "newProject": "New Project",
-    "cameraElement": "On-screen Elements"
+    "cameraElement": "On-screen Elements",
+    "progressPercent": "Progress: {percent}%",
+    "confirmContinue": "Please confirm whether to continue",
+    "selectAnOption": "Please select an option",
+    "realtimeFailedPolling": "Realtime connection failed, switched to polling mode",
+    "realtimeRestored": "Realtime connection restored",
+    "sendMessageFailed": "Failed to send the message",
+    "noMessageToInterrupt": "No message to interrupt",
+    "conversationInterrupted": "Conversation interrupted",
+    "interruptFailed": "Failed to interrupt",
+    "sessionResetKeepAssets": "Session reset (assets kept)",
+    "sessionResetFull": "Session fully reset",
+    "resetFailed": "Failed to reset",
+    "opRegenerateCharacter": "Regenerate character: {target}",
+    "opLockCharacter": "Lock character: {target}",
+    "opRegenerateShot": "Regenerate shot #{target}",
+    "opDeleteShot": "Delete shot #{target}",
+    "opReorderShots": "Reorder shots",
+    "opUpdateScene": "Update scene #{target}",
+    "opGeneric": "[User action] {type}"
   },
   "scripts": {
     "listTitle": "Script List",
@@ -1839,5 +1866,23 @@
     "subtitle": "Tell me what you want to create and I'll help you finish it",
     "goToCreationPage": "Go to Creation Page",
     "inputPlaceholder": "Type what you want to create..."
+  },
+  "agentForm": {
+    "vocabTitle": "Vocabulary Video Settings",
+    "vocabDescription": "Provide the words you want to learn and related settings",
+    "wordList": "Word List",
+    "wordListPlaceholder": "One word per line, or comma-separated\ne.g. apple, banana, cat",
+    "difficulty": "Difficulty",
+    "difficultyEasy": "Easy (Primary)",
+    "difficultyMedium": "Medium (Middle school)",
+    "difficultyHard": "Hard (High school)",
+    "sentenceLevel": "Sentence Complexity",
+    "sentenceSimple": "Simple sentences",
+    "sentenceComplex": "Complex sentences",
+    "repetitions": "Repetitions",
+    "videoStyle": "Video Style",
+    "styleAnime": "Anime",
+    "styleRealism": "Realistic",
+    "styleDisney": "Disney / Pixar"
   }
 }

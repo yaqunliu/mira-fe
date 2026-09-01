@@ -1,3 +1,7 @@
+// i18n-ignore-file：本文件含后端 LLM 输出的中文 JSON 字段名（角色 / 内容）与
+// 约定的默认值（旁白）。它们是数据契约的一部分，翻译会直接破坏与后端的对接，
+// 必须等后端把契约改成 role / content / narrator 后再同步修改。
+// 见 en-plan.md Phase 0 白名单与「已知遗留 · 后端待办 5」。
 // 用户相关类型
 export interface User {
   id: string;

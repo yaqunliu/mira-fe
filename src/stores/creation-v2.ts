@@ -10,7 +10,8 @@ export type V2Step =
 
 export interface V2StepConfig {
   id: V2Step;
-  label: string;
+  /** i18n key，不是文案本身；由渲染方调 t(labelKey) */
+  labelKey: string;
   status: 'pending' | 'in_progress' | 'completed' | 'error';
   progress?: number;
 }
@@ -62,11 +63,12 @@ export interface CreationV2State {
   selectShot: (id: number | null) => void;
 }
 
+// 存 i18n key 而非文案：store 非组件，由渲染方（create-v2/page.tsx）调 t(labelKey)。
 const initialSteps: V2StepConfig[] = [
-  { id: 'character_analysis', label: '角色分析', status: 'pending' },
-  { id: 'scene_breakdown', label: '分镜拆解', status: 'pending' },
-  { id: 'visual_generation', label: '视觉生成', status: 'pending' },
-  { id: 'video_generation', label: '视频生成', status: 'pending' },
+  { id: 'character_analysis', labelKey: 'creation.stepCharacterAnalysis', status: 'pending' },
+  { id: 'scene_breakdown', labelKey: 'creation.stepSceneBreakdown', status: 'pending' },
+  { id: 'visual_generation', labelKey: 'creation.stepVisualGeneration', status: 'pending' },
+  { id: 'video_generation', labelKey: 'creation.stepVideoGeneration', status: 'pending' },
 ];
 
 export const useCreationV2Store = create<CreationV2State>((set) => ({

@@ -5,19 +5,21 @@ import { TimelineState, TimelineProject, TimelineTrack, TimelineTrackClip } from
 // 创建初始项目数据
 const createInitialProject = (): TimelineProject => ({
   projectId: 'project-1',
+  // 默认轨道名是 store 初始状态里的数据值（用户可重命名），不是可翻译的界面文案，
+  // 且 store 拿不到 useTranslations——直接用英文字面量。
   duration: 120,
   fps: 30,
   tracks: [
     {
       id: 'track-1',
       type: 'video',
-      name: '视频轨道 1',
+      name: 'Video Track 1',
       clips: [],
     },
     {
       id: 'track-2',
       type: 'audio',
-      name: '音频轨道 1',
+      name: 'Audio Track 1',
       clips: [],
     },
   ],

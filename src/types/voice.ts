@@ -56,10 +56,11 @@ export interface VoiceQueryParams {
 // 语音标签选项
 export type VoiceTag = 'male' | 'female' | 'cartoon';
 
-export const VOICE_TAG_OPTIONS: { value: VoiceTag | 'all'; label: string }[] = [
-  { value: 'all', label: '全部' },
-  { value: 'male', label: '男声' },
-  { value: 'female', label: '女声' },
-  { value: 'cartoon', label: '卡通' },
+// 存 i18n key 而非文案：本模块非组件，由渲染方（voice-selector.tsx）调 t(labelKey)。
+export const VOICE_TAG_OPTIONS: { value: VoiceTag | 'all'; labelKey: string }[] = [
+  { value: 'all', labelKey: 'voice.tagAll' },
+  { value: 'male', labelKey: 'voice.tagMale' },
+  { value: 'female', labelKey: 'voice.tagFemale' },
+  { value: 'cartoon', labelKey: 'voice.tagCartoon' },
 ];
 

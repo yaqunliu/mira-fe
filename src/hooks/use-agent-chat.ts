@@ -3,6 +3,7 @@ import { useAgentStore } from '@/stores/agent-store';
 import { useSSEConnection } from './use-sse-connection';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import agentApi from '@/lib/api/agent-api';
 import creationApi from '@/lib/api/creation';
 import type { SSEEvent, ChatRequest, BoardAction, AgentMessage } from '@/types/agent';
@@ -22,6 +23,7 @@ const MESSAGES_POLLING_INTERVAL = 6000;
  * 封装 SSE 连接和事件处理逻辑，支持降级轮询
  */
 export function useAgentChat(creationUuid: string) {
+  const t = useTranslations('agent');
   const queryClient = useQueryClient();
   const lastRequestRef = useRef<ChatRequest | null>(null);
   const lastMessageIdRef = useRef<string | null>(null);
@@ -188,7 +190,7 @@ export function useAgentChat(creationUuid: string) {
             name: event.tool_name || '',
             arguments: {},
             status: 'calling',
-            output: `进度: ${event.progress || 0}%`,
+            output: t('progressPercent', { percent: event.progress || 0 }),
           });
           break;
 
@@ -257,29 +259,29 @@ export function useAgentChat(creationUuid: string) {
             case 'approve_reject':
               setPendingInteraction({
                 type: 'approve_reject',
-                message: action.message || '请确认是否继续',
+                message: action.message || t('confirmContinue'),
               });
               break;
             case 'select_options':
               setPendingInteraction({
                 type: 'select_options',
-                message: action.message || '请选择一个选项',
+                message: action.message || t('selectAnOption'),
                 options: action.options || [],
               });
               break;
             case 'show_config_card':
               setPendingInteraction({
                 type: 'config_card',
-                title: action.title || '配置参数',
+                title: action.title || t('configParams'),
                 description: action.description,
                 fields: action.fields || [],
-                submitText: action.submit_text || '确认',
+                submitText: action.submit_text || t('confirm'),
               });
               break;
             case 'confirm_generation':
               setPendingInteraction({
                 type: 'confirm_generation',
-                message: action.message || '确认生成视频？',
+                message: action.message || t('confirmGenerateVideo'),
                 params: action.params || {},
               });
               break;
@@ -517,7 +519,7 @@ export function useAgentChat(creationUuid: string) {
     if (pollingIntervalRef.current) return;
 
     setIsPollingMode(true);
-    toast.warning('实时连接失败，已切换到轮询模式');
+    toast.warning(t('realtimeFailedPolling'));
 
     pollingIntervalRef.current = setInterval(async () => {
       try {
@@ -572,7 +574,7 @@ export function useAgentChat(creationUuid: string) {
       if (isPollingMode) {
         stopPolling();
         setIsPollingMode(false);
-        toast.success('已恢复实时连接');
+        toast.success(t('realtimeRestored'));
       }
     },
     onDisconnected: () => {
@@ -728,7 +730,7 @@ export function useAgentChat(creationUuid: string) {
           await agentApi.chat(creationUuid, request);
         } catch (err) {
           console.error('Chat API error:', err);
-          toast.error('发送消息失败');
+          toast.error(t('sendMessageFailed'));
         }
         return;
       }
@@ -764,7 +766,7 @@ export function useAgentChat(creationUuid: string) {
       try {
         const targetMessageId = messageId || lastMessageIdRef.current;
         if (!targetMessageId) {
-          toast.error('没有可中断的消息');
+          toast.error(t('noMessageToInterrupt'));
           return;
         }
 
@@ -773,10 +775,10 @@ export function useAgentChat(creationUuid: string) {
         // 断开 SSE 连接
         sseDisconnect();
         setStreaming(false);
-        toast.success('已中断当前对话');
+        toast.success(t('conversationInterrupted'));
       } catch (err: any) {
         console.error('Interrupt error:', err);
-        toast.error(err.message || '中断失败');
+        toast.error(err.message || t('interruptFailed'));
       } finally {
         setIsInterrupting(false);
       }
@@ -806,10 +808,10 @@ export function useAgentChat(creationUuid: string) {
         // 刷新 creation 数据
         queryClient.invalidateQueries({ queryKey: ['creation', creationUuid] });
 
-        toast.success(keepAssets ? '会话已重置（保留资产）' : '会话已完全重置');
+        toast.success(keepAssets ? t('sessionResetKeepAssets') : t('sessionResetFull'));
       } catch (err: any) {
         console.error('Reset error:', err);
-        toast.error(err.message || '重置失败');
+        toast.error(err.message || t('resetFailed'));
       } finally {
         setIsResetting(false);
       }

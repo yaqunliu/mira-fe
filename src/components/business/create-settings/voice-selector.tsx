@@ -308,7 +308,7 @@ export function VoiceSelector({
           <SelectContent>
             {VOICE_TAG_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SelectItem>
             ))}
           </SelectContent>

@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useAgentStore } from '@/stores/agent-store';
 import { useQueryClient } from '@tanstack/react-query';
 import type { BoardAction } from '@/types/agent';
+import { useTranslations } from 'next-intl';
 
 /**
  * 看板操作管理 Hook
@@ -11,6 +12,7 @@ import type { BoardAction } from '@/types/agent';
  * 处理从 SSE 收到的看板操作指令
  */
 export function useAgentBoard(creationUuid: string) {
+  const t = useTranslations('agent');
   const queryClient = useQueryClient();
   const { setBoardView, highlightElement } = useAgentStore();
 
@@ -107,14 +109,14 @@ export function useAgentBoard(creationUuid: string) {
       addMessage({
         id: `board-op-${Date.now()}`,
         role: 'user',
-        content: formatOperationMessage(operation),
+        content: formatOperationMessage(operation, t),
         timestamp: new Date().toISOString(),
         status: 'completed',
       });
 
       return operation;
     },
-    []
+    [t]
   );
 
   return {
@@ -126,19 +128,23 @@ export function useAgentBoard(creationUuid: string) {
 /**
  * 格式化操作消息
  */
-function formatOperationMessage(operation: {
-  type: string;
-  target: string;
-  data?: any;
-}): string {
-  const messages: Record<string, string> = {
-    regenerate_character: `重新生成角色：${operation.target}`,
-    lock_character: `锁定角色：${operation.target}`,
-    regenerate_shot: `重新生成分镜 #${operation.target}`,
-    delete_shot: `删除分镜 #${operation.target}`,
-    reorder_shots: `调整分镜顺序`,
-    update_scene: `更新场景 #${operation.target}`,
+function formatOperationMessage(
+  operation: {
+    type: string;
+    target: string;
+    data?: any;
+  },
+  t: (key: string, values?: Record<string, any>) => string
+): string {
+  const messageKeys: Record<string, string> = {
+    regenerate_character: 'opRegenerateCharacter',
+    lock_character: 'opLockCharacter',
+    regenerate_shot: 'opRegenerateShot',
+    delete_shot: 'opDeleteShot',
+    reorder_shots: 'opReorderShots',
+    update_scene: 'opUpdateScene',
   };
 
-  return messages[operation.type] || `[用户操作] ${operation.type}`;
+  const key = messageKeys[operation.type];
+  return key ? t(key, { target: operation.target }) : t('opGeneric', { type: operation.type });
 }

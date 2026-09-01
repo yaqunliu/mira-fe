@@ -142,7 +142,7 @@ class AssetApi {
     const signatureRes = await this.getUploadSignature(file.name, file.type);
 
     if (!signatureRes.success || !signatureRes.data) {
-      throw new Error(signatureRes.message || '获取上传签名失败');
+      throw new Error(signatureRes.message || 'Failed to get the upload signature');
     }
 
     // 2. 上传到US3
