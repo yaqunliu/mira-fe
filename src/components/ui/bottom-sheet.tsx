@@ -5,6 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 export interface BottomSheetAction {
   label: string;
@@ -77,6 +78,7 @@ export function BottomSheet({
   style,
   contentClassName,
 }: BottomSheetProps) {
+  const t = useTranslations("common");
   const [keyboardHeight, setKeyboardHeight] = React.useState(0);
 
   // 获取屏幕尺寸和断点
@@ -174,7 +176,7 @@ export function BottomSheet({
           {showCloseButton && (
             <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none z-10 text-gray-600">
               <X className="h-6 w-6" />
-              <span className="sr-only">关闭</span>
+              <span className="sr-only">{t("close")}</span>
             </DialogPrimitive.Close>
           )}
 
@@ -221,7 +223,7 @@ export function BottomSheet({
                   )}
                 >
                   {action.icon && <span>{action.icon}</span>}
-                  <span className="tracking-wider">{action.loading ? "处理中..." : action.label}</span>
+                  <span className="tracking-wider">{action.loading ? t("processing") : action.label}</span>
                 </Button>
               ))}
             </div>

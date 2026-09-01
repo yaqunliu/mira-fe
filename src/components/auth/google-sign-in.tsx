@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { useAuthStore } from '@/stores/auth'
 import { useQueryClient } from '@tanstack/react-query'
 import { clearUserDataCache } from '@/lib/utils/clear-user-data'
@@ -12,6 +13,7 @@ import { authApi } from '@/lib/api/auth'
 import type { User } from '@/types'
 
 export function GoogleSignIn() {
+  const t = useTranslations('auth')
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const supabase = createClient()
@@ -51,7 +53,7 @@ export function GoogleSignIn() {
       })
       if (error) throw error
     } catch (error: any) {
-      toast.error(error.message || 'Google 登录失败，请重试')
+      toast.error(error.message || t('googleLoginFailed'))
       setLoading(false)
     }
   }
@@ -65,7 +67,7 @@ export function GoogleSignIn() {
       className="w-full h-12 clay-sm hover:clay transition-all duration-300"
     >
       {loading ? (
-        <span className="text-gray-600">登录中...</span>
+        <span className="text-gray-600">{t('loggingInButton')}</span>
       ) : (
         <>
           <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24">
@@ -86,7 +88,7 @@ export function GoogleSignIn() {
               fill="#EA4335"
             />
           </svg>
-          <span className="text-gray-700 font-medium">使用 Google 登录</span>
+          <span className="text-gray-700 font-medium">{t('loginWithGoogle')}</span>
         </>
       )}
     </Button>

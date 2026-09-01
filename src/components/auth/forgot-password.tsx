@@ -9,16 +9,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { Mail, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
+  email: z.string().email(t('emailInvalid')),
 })
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
 
 export function ForgotPassword() {
+  const t = useTranslations('auth')
   const [emailSent, setEmailSent] = useState(false)
   const [submittedEmail, setSubmittedEmail] = useState('')
   const supabase = createClient()
@@ -42,9 +44,9 @@ export function ForgotPassword() {
 
       setEmailSent(true)
       setSubmittedEmail(data.email)
-      toast.success('密码重置邮件已发送')
+      toast.success(t('resetEmailSent'))
     } catch (error: any) {
-      toast.error(error.message || '发送重置邮件失败，请稍后重试')
+      toast.error(error.message || t('sendResetFailed'))
     }
   }
 
@@ -62,13 +64,13 @@ export function ForgotPassword() {
 
         <div className="space-y-3">
           <h3 className="text-2xl font-semibold text-gray-900">
-            邮件已发送
+            {t('emailSentTitle')}
           </h3>
           <p className="text-sm text-gray-600 max-w-md mx-auto">
-            我们已向 <span className="font-medium text-gray-900">{submittedEmail}</span> 发送了密码重置链接
+            {t('emailSentTo')} <span className="font-medium text-gray-900">{submittedEmail}</span> {t('emailSentToSuffix')}
           </p>
           <p className="text-xs text-gray-500 pt-2 max-w-md mx-auto">
-            请检查您的邮箱并点击链接重置密码。如果没有收到邮件，请检查垃圾邮件文件夹。
+            {t('checkEmailInstructions')}
           </p>
         </div>
 
@@ -82,7 +84,7 @@ export function ForgotPassword() {
             }}
             className="w-full py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-800 font-medium"
           >
-            重新发送
+            {t('resendButton')}
           </button>
 
           <Link href={'/auth/login'} className="block">
@@ -91,7 +93,7 @@ export function ForgotPassword() {
               className="w-full py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-800 font-medium flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              返回登录
+              {t('backToLogin')}
             </button>
           </Link>
         </div>
@@ -103,10 +105,10 @@ export function ForgotPassword() {
     <div className="space-y-8">
       <div className="space-y-3 text-center">
         <h3 className="text-2xl font-semibold text-gray-900">
-          忘记密码？
+          {t('forgotPasswordTitle')}
         </h3>
         <p className="text-sm text-gray-600 max-w-md mx-auto">
-          输入您的邮箱地址，我们将向您发送密码重置链接
+          {t('forgotPasswordDesc')}
         </p>
       </div>
 
@@ -117,7 +119,7 @@ export function ForgotPassword() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700 font-medium mb-2 block">邮箱</FormLabel>
+                <FormLabel className="text-gray-700 font-medium mb-2 block">{t('emailLabel')}</FormLabel>
                 <FormControl>
                   <input
                     type="email"
@@ -136,7 +138,7 @@ export function ForgotPassword() {
             disabled={form.formState.isSubmitting}
             className={`w-full py-3 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 ${form.formState.isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            {form.formState.isSubmitting ? '发送中...' : '发送重置链接'}
+            {form.formState.isSubmitting ? t('sendingButton') : t('sendResetLink')}
           </button>
 
           <Link href={'/auth/login'} className="block">
@@ -145,7 +147,7 @@ export function ForgotPassword() {
               className="w-full py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-800 font-medium flex items-center justify-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              返回登录
+              {t('backToLogin')}
             </button>
           </Link>
         </form>

@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export interface ConfirmDialogProps {
   open: boolean
@@ -27,14 +28,19 @@ export interface ConfirmDialogProps {
 export function ConfirmDialog({
   open,
   onOpenChange,
-  title = "确认操作",
+  title,
   description,
-  confirmText = "确认",
-  cancelText = "取消",
+  confirmText,
+  cancelText,
   onConfirm,
   onCancel,
   variant = "default",
 }: ConfirmDialogProps) {
+  const t = useTranslations("common")
+  const dialogTitle = title ?? t("confirmAction")
+  const confirmLabel = confirmText ?? t("confirm")
+  const cancelLabel = cancelText ?? t("cancel")
+
   const handleConfirm = () => {
     onConfirm()
     onOpenChange(false)
@@ -56,7 +62,7 @@ export function ConfirmDialog({
               </div>
             )}
             <DialogTitle className="text-lg font-semibold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">
-            {title}
+            {dialogTitle}
           </DialogTitle>
         </div>
         {description ? (
@@ -65,7 +71,7 @@ export function ConfirmDialog({
           </DialogDescription>
         ) : (
           <DialogDescription className="sr-only">
-            Confirmation dialog for {title}
+            Confirmation dialog for {dialogTitle}
           </DialogDescription>
         )}
       </DialogHeader>
@@ -75,7 +81,7 @@ export function ConfirmDialog({
             onClick={handleCancel}
             className="flex-1"
           >
-            {cancelText}
+            {cancelLabel}
           </Button>
           {variant === "destructive" ? (
             <Button
@@ -83,14 +89,14 @@ export function ConfirmDialog({
               onClick={handleConfirm}
               className="flex-1"
             >
-              {confirmText}
+              {confirmLabel}
             </Button>
           ) : (
             <Button
               onClick={handleConfirm}
               className="flex-1"
             >
-              {confirmText}
+              {confirmLabel}
             </Button>
           )}
         </DialogFooter>

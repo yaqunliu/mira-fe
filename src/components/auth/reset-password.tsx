@@ -12,18 +12,21 @@ import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff, CheckCircle2, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
-const resetPasswordSchema = z.object({
-  password: z.string().min(6, '密码至少需要6个字符'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: '两次输入的密码不一致',
-  path: ['confirmPassword'],
-})
-
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>
+function makeResetSchema(t: (k: string) => string) {
+  return z.object({
+    password: z.string().min(6, t('passwordMin')),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('passwordMismatch'),
+    path: ['confirmPassword'],
+  })
+}
+type ResetPasswordFormData = z.infer<ReturnType<typeof makeResetSchema>>
 
 export function ResetPassword() {
+  const t = useTranslations('auth')
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -33,7 +36,7 @@ export function ResetPassword() {
   const supabase = createClient()
 
   const form = useForm<ResetPasswordFormData>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolver(makeResetSchema(t)),
     defaultValues: {
       password: '',
       confirmPassword: '',
@@ -75,14 +78,14 @@ export function ResetPassword() {
       if (error) throw error
 
       setResetSuccess(true)
-      toast.success('密码重置成功')
+      toast.success(t('resetSuccess'))
 
       // 3秒后跳转到登录页
       setTimeout(() => {
         router.push('/auth/login')
       }, 3000)
     } catch (error: any) {
-      toast.error(error.message || '密码重置失败，请重试')
+      toast.error(error.message || t('resetFailed', { default: 'Reset failed, please try again' }))
     }
   }
 
@@ -97,10 +100,10 @@ export function ResetPassword() {
         </div>
         <div className="space-y-3">
           <h3 className="text-2xl font-semibold text-gray-900">
-            正在验证...
+            {t('verifying')}
           </h3>
           <p className="text-sm text-gray-600 max-w-md mx-auto">
-            请稍候，我们正在验证您的重置请求
+            {t('verifyingDesc')}
           </p>
         </div>
       </div>
@@ -113,10 +116,10 @@ export function ResetPassword() {
       <div className="space-y-8 text-center">
         <div className="space-y-3">
           <h3 className="text-2xl font-semibold text-gray-900">
-            无效的重置链接
+            {t('invalidResetLink')}
           </h3>
           <p className="text-sm text-gray-600 max-w-md mx-auto">
-            密码重置链接已过期或无效，请重新申请密码重置
+            {t('invalidResetLinkDesc')}
           </p>
         </div>
 
@@ -126,7 +129,7 @@ export function ResetPassword() {
               type="button"
               className="w-full py-3 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
             >
-              重新申请密码重置
+              {t('requestNewReset')}
             </button>
           </Link>
 
@@ -135,7 +138,7 @@ export function ResetPassword() {
               type="button"
               className="w-full py-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 text-gray-800 font-medium"
             >
-              返回登录
+              {t('backToLogin')}
             </button>
           </Link>
         </div>
@@ -158,13 +161,13 @@ export function ResetPassword() {
 
         <div className="space-y-3">
           <h3 className="text-2xl font-semibold text-gray-900">
-            密码重置成功
+            {t('resetSuccess')}
           </h3>
           <p className="text-sm text-gray-600 max-w-md mx-auto">
-            您的密码已成功更新
+            {t('resetSuccessDesc')}
           </p>
           <p className="text-xs text-gray-500 pt-2 max-w-md mx-auto">
-            页面将在 3 秒后自动跳转到登录页面...
+            {t('redirectCountdown')}
           </p>
         </div>
 
@@ -173,7 +176,7 @@ export function ResetPassword() {
             type="button"
             className="w-full py-3 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
           >
-            立即登录
+            {t('loginNow')}
           </button>
         </Link>
       </div>
@@ -184,10 +187,10 @@ export function ResetPassword() {
     <div className="space-y-8">
       <div className="space-y-3 text-center">
         <h3 className="text-2xl font-semibold text-gray-900">
-          设置新密码
+          {t('setNewPassword')}
         </h3>
         <p className="text-sm text-gray-600 max-w-md mx-auto">
-          请输入您的新密码
+          {t('setNewPasswordDesc')}
         </p>
       </div>
 
@@ -198,12 +201,12 @@ export function ResetPassword() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700 font-medium mb-2 block">新密码</FormLabel>
+                <FormLabel className="text-gray-700 font-medium mb-2 block">{t('newPasswordLabel')}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="请输入新密码（至少6个字符）"
+                      placeholder={t('enterNewPassword')}
                       className="w-full h-12 px-4 pr-12 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       {...field}
                     />
@@ -230,12 +233,12 @@ export function ResetPassword() {
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700 font-medium mb-2 block">确认新密码</FormLabel>
+                <FormLabel className="text-gray-700 font-medium mb-2 block">{t('confirmNewPassword')}</FormLabel>
                 <FormControl>
                   <div className="relative">
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="请再次输入新密码"
+                      placeholder={t('enterPasswordAgain')}
                       className="w-full h-12 px-4 pr-12 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200"
                       {...field}
                     />
@@ -262,7 +265,7 @@ export function ResetPassword() {
             disabled={form.formState.isSubmitting}
             className={`w-full py-3 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 ${form.formState.isSubmitting ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
-            {form.formState.isSubmitting ? '重置中...' : '重置密码'}
+            {form.formState.isSubmitting ? t('resettingButton') : t('resetButton')}
           </button>
         </form>
       </Form>

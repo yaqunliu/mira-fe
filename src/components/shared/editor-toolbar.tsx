@@ -82,7 +82,7 @@ export function EditorToolbar({
   const t = useTranslations("Editor");
 
   // 状态
-  const [projectTitle, setProjectTitle] = useState(creation?.title || "新建项目");
+  const [projectTitle, setProjectTitle] = useState(creation?.title || t("newProject"));
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<"16:9" | "9:16">("16:9");
   const [showModelSettings, setShowModelSettings] = useState(false);
@@ -108,7 +108,7 @@ export function EditorToolbar({
   // 初始化模型和设置
   useEffect(() => {
     if (creation) {
-      setProjectTitle(creation.title || "新建项目");
+      setProjectTitle(creation.title || t("newProject"));
       const extraData = creation.extra_data as any || {};
       if (extraData.aspect_ratio) {
         setAspectRatio(extraData.aspect_ratio as "16:9" | "9:16");
@@ -147,11 +147,11 @@ export function EditorToolbar({
     if (creation?.uuid && projectTitle !== creation.title) {
       try {
         await creationApi.updateCreation(creation.uuid, { title: projectTitle });
-        toast.success(t("titleUpdated") || "标题已更新");
+        toast.success(t("titleUpdated"));
         queryClient.invalidateQueries({ queryKey: ["creation", creationId] });
       } catch (error) {
-        toast.error(t("updateFailed") || "更新失败");
-        setProjectTitle(creation.title || "新建项目");
+        toast.error(t("updateFailed"));
+        setProjectTitle(creation.title || t("newProject"));
       }
     }
   };
@@ -232,7 +232,7 @@ export function EditorToolbar({
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleTitleSave();
                     if (e.key === "Escape") {
-                      setProjectTitle(creation?.title || "新建项目");
+                      setProjectTitle(creation?.title || t("newProject"));
                       setIsEditingTitle(false);
                     }
                   }}
@@ -287,7 +287,7 @@ export function EditorToolbar({
                 >
                   <div className="flex items-center gap-2">
                     <Monitor size={12} className="text-gray-600" />
-                    <span>{t("landscape") || "横版 (16:9)"}</span>
+                    <span>{t("landscape")}</span>
                   </div>
                 </SelectItem>
                 <SelectItem
@@ -296,7 +296,7 @@ export function EditorToolbar({
                 >
                   <div className="flex items-center gap-2">
                     <Smartphone size={12} className="text-gray-600" />
-                    <span>{t("portrait") || "竖版 (9:16)"}</span>
+                    <span>{t("portrait")}</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -309,17 +309,17 @@ export function EditorToolbar({
             onClick={() => setShowModelSettings(true)}
           >
             <Settings size={14} className="text-[#22C55E]" />
-            <span>{t("modelSettings") || "模型设置"}</span>
+            <span>{t("modelSettings")}</span>
           </button>
 
-          {/* 使用说明按钮 */}
+          {/* {t('tutorial')}按钮 */}
           {onShowUsageGuide && (
             <button
               className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
               onClick={onShowUsageGuide}
             >
               <HelpCircle size={14} className="text-[#22C55E]" />
-              <span>{t("usageGuide") || "使用说明"}</span>
+              <span>{t("usageGuide") || t("tutorial")}</span>
             </button>
           )}
 
@@ -339,7 +339,7 @@ export function EditorToolbar({
               ) : (
                 <Save size={14} />
               )}
-              <span>{saveStatus === "saving" ? "保存中..." : "保存"}</span>
+              <span>{saveStatus === "saving" ? t("saving") : t("save")}</span>
             </button>
           )}
 
@@ -350,7 +350,7 @@ export function EditorToolbar({
               onClick={onShowExportHistory}
             >
               <History size={14} />
-              <span>导出历史</span>
+              <span>{t('exportHistory')}</span>
             </button>
           )}
 
@@ -361,7 +361,7 @@ export function EditorToolbar({
               onClick={onShowImageHistory}
             >
               <ImageIcon size={14} className="text-purple-500" />
-              <span>图片历史</span>
+              <span>{t('imageHistory')}</span>
             </button>
           )}
 
@@ -375,7 +375,7 @@ export function EditorToolbar({
                 size={14}
                 className={showTimeline ? "text-blue-500" : "text-gray-400"}
               />
-              <span>{showTimeline ? "隐藏时间轴" : "显示时间轴"}</span>
+              <span>{showTimeline ? t("hideTimeline") : t("showTimeline")}</span>
             </button>
           )}
 
@@ -389,12 +389,12 @@ export function EditorToolbar({
               {exportProgress ? (
                 <>
                   <Loader2 size={14} className="animate-spin" />
-                  <span>导出中 {exportProgress.percent}%</span>
+                  <span>{t('exporting')} {exportProgress.percent}%</span>
                 </>
               ) : (
                 <>
                   <Download size={14} />
-                  导出视频
+                  {t('exportVideo')}
                 </>
               )}
             </Button>
@@ -413,12 +413,12 @@ export function EditorToolbar({
             {mode === "agent" ? (
               <>
                 <Wrench size={14} className="text-[#FDBCB4]" />
-                <span>切换到专业模式</span>
+                <span>{t('switchToPro')}</span>
               </>
             ) : (
               <>
                 <Bot size={14} className="text-[#22C55E]" />
-                <span>切换到 Agent 模式</span>
+                <span>{t('switchToAgent')}</span>
               </>
             )}
           </button>
@@ -430,22 +430,22 @@ export function EditorToolbar({
         <DialogContent className="bg-white max-w-md">
           <DialogHeader>
             <DialogTitle className="text-gray-900">
-              {t("modelSettings") || "模型设置"}
+              {t("modelSettings")}
             </DialogTitle>
             <DialogDescription className="text-gray-600">
-              选择用于生成图片和视频的 AI 模型
+              {t("selectAIModel")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             {/* 文生图模型 */}
             <div className="space-y-2">
-              <Label className="text-gray-700">文生图模型</Label>
+              <Label className="text-gray-700">{t('textToImageModel')}</Label>
               <Select
                 value={textToImageModel}
                 onValueChange={(v) => handleModelChange("text_to_image", v)}
               >
                 <SelectTrigger className="bg-white border-gray-200 text-gray-900">
-                  <SelectValue placeholder="选择模型" />
+                  <SelectValue placeholder={t("selectModel")} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {textToImageModels.map((m: any) => (
@@ -459,13 +459,13 @@ export function EditorToolbar({
 
             {/* 图生图模型 */}
             <div className="space-y-2">
-              <Label className="text-gray-700">图生图模型</Label>
+              <Label className="text-gray-700">{t('imageToImageModel')}</Label>
               <Select
                 value={imageToImageModel}
                 onValueChange={(v) => handleModelChange("image_to_image", v)}
               >
                 <SelectTrigger className="bg-white border-gray-200 text-gray-900">
-                  <SelectValue placeholder="选择模型" />
+                  <SelectValue placeholder={t("selectModel")} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {imageToImageModels.map((m: any) => (
@@ -479,13 +479,13 @@ export function EditorToolbar({
 
             {/* 视频生成模型 */}
             <div className="space-y-2">
-              <Label className="text-gray-700">视频生成模型</Label>
+              <Label className="text-gray-700">{t('videoModel')}</Label>
               <Select
                 value={videoModel}
                 onValueChange={(v) => handleModelChange("video", v)}
               >
                 <SelectTrigger className="bg-white border-gray-200 text-gray-900">
-                  <SelectValue placeholder="选择模型" />
+                  <SelectValue placeholder={t("selectModel")} />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
                   {videoModels.map((m: any) => (

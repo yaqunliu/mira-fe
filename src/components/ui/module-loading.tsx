@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import LoadingIcon from "./loading-icon";
 
 interface ModuleLoadingProps {
@@ -14,9 +15,11 @@ export default function ModuleLoading({
   loading,
   children,
   className = "",
-  text = "加载中...",
+  text,
   coverFlowContainer = false
 }: ModuleLoadingProps) {
+  const t = useTranslations("common");
+  const label = text ?? t("loading");
   const [flowContainer, setFlowContainer] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -29,7 +32,7 @@ export default function ModuleLoading({
   const loadingOverlay = loading && (
     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] rounded-lg opacity-80 flex-col gap-2">
       <LoadingIcon className="h-6 w-6" />
-      <span className="text-sm text-white">{text}</span>
+      <span className="text-sm text-white">{label}</span>
     </div>
   );
 

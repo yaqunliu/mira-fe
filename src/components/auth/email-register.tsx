@@ -9,19 +9,21 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 
-const emailRegisterSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少需要6个字符'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: '两次输入的密码不一致',
-  path: ['confirmPassword'],
-})
-
-type EmailRegisterFormData = z.infer<typeof emailRegisterSchema>
+function makeRegisterSchema(t: (k: string) => string) {
+  return z.object({
+    email: z.string().email(t('emailInvalid')),
+    password: z.string().min(6, t('passwordMin')),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('passwordMismatch'),
+    path: ['confirmPassword'],
+  })
+}
+type EmailRegisterFormData = z.infer<ReturnType<typeof makeRegisterSchema>>
 
 interface EmailRegisterProps {
   onSuccess?: () => void
@@ -37,7 +39,7 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
   
   // 第一步：邮箱验证表单
   const emailForm = useForm<{ email: string }>({
-    resolver: zodResolver(z.object({ email: z.string().email('请输入有效的邮箱地址') })),
+    resolver: zodResolver(z.object({ email: z.string().email(t('emailInvalid')) })),
     defaultValues: {
       email: '',
     },
@@ -45,7 +47,7 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
 
   // 第二步：密码注册表单
   const passwordForm = useForm<EmailRegisterFormData>({
-    resolver: zodResolver(emailRegisterSchema),
+    resolver: zodResolver(makeRegisterSchema(t)),
     defaultValues: {
       email: '',
       password: '',
@@ -78,17 +80,17 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
       if (error) throw error
 
       if (authData.user) {
-        toast.success('注册成功！请检查您的邮箱以验证账户')
+        toast.success(t('registerSuccessCheck'))
         
         if (onSuccess) {
           onSuccess()
         } else {
           // 跳转到登录页面，提示用户验证邮箱
-          router.push(`/auth/login?message=${encodeURIComponent('请检查您的邮箱以验证账户')}`)
+          router.push(`/auth/login?message=${encodeURIComponent(t('checkEmailMessage'))}`)
         }
       }
     } catch (error: any) {
-      toast.error(error.message || '注册失败，请重试')
+      toast.error(error.message || t('registerFailed'))
     }
   }
 
@@ -103,7 +105,7 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium mb-2">邮箱</FormLabel>
+                  <FormLabel className="text-gray-700 font-medium mb-2">{t('emailLabel')}</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -127,7 +129,7 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
               className="w-full h-12 bg-vibrant-green hover:bg-green-600 text-white font-medium shadow-lg shadow-green-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/60"
               disabled={emailForm.formState.isSubmitting || !emailForm.watch('email')}
             >
-              继续
+              {t('continueButton')}
             </Button>
           </form>
         </Form>
@@ -150,7 +152,7 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
                   }}
                   className="text-xs text-vibrant-green hover:text-green-600 border-green-200 hover:bg-green-50"
                 >
-                  更改
+                  {t('changeButton')}
                 </Button>
               </div>
             </div>
@@ -160,12 +162,12 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium mb-2">密码</FormLabel>
+                  <FormLabel className="text-gray-700 font-medium mb-2">{t('password')}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="至少6个字符"
+                        placeholder={t("passwordMinPlaceholder")}
                         className="h-12 clay-inset w-full placeholder:text-gray-400 focus:ring-2 focus:ring-green-200 transition-all pr-12"
                         {...field}
                         autoFocus
@@ -195,12 +197,12 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium mb-2">确认密码</FormLabel>
+                  <FormLabel className="text-gray-700 font-medium mb-2">{t('confirmPassword')}</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showConfirmPassword ? 'text' : 'password'}
-                        placeholder="再次输入密码"
+                        placeholder={t("enterPasswordAgain")}
                         className="h-12 clay-inset w-full placeholder:text-gray-400 focus:ring-2 focus:ring-green-200 transition-all pr-12"
                         {...field}
                       />
@@ -229,7 +231,7 @@ export function EmailRegister({ onSuccess }: EmailRegisterProps) {
               className="w-full h-12 bg-vibrant-green hover:bg-green-600 text-white font-medium shadow-lg shadow-green-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/60"
               disabled={passwordForm.formState.isSubmitting}
             >
-              {passwordForm.formState.isSubmitting ? '注册中...' : '注册'}
+              {passwordForm.formState.isSubmitting ? t('registeringButton') : t('registeringAction')}
             </Button>
           </form>
         </Form>

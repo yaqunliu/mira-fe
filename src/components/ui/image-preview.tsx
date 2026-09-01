@@ -4,6 +4,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Dialog, DialogContent, DialogClose, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { X, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export interface ImagePreviewProps {
   /** 是否打开预览 */
@@ -29,11 +30,13 @@ export function ImagePreview({
   open,
   onOpenChange,
   src,
-  alt = "图片预览",
+  alt,
   className,
   showCloseButton = true,
   closeButtonPosition = "top-right",
 }: ImagePreviewProps) {
+  const t = useTranslations("common");
+  const altLabel = alt ?? t("imagePreview");
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -140,8 +143,8 @@ export function ImagePreview({
         )}
         showCloseButton={false}
       >
-        <DialogTitle className="sr-only">{alt}</DialogTitle>
-        <DialogDescription className="sr-only">图片预览窗口</DialogDescription>
+        <DialogTitle className="sr-only">{altLabel}</DialogTitle>
+        <DialogDescription className="sr-only">{t("imagePreviewWindow")}</DialogDescription>
         <div 
           className="relative w-full h-full flex items-center justify-center overflow-hidden"
           onWheel={handleWheel}
@@ -162,7 +165,7 @@ export function ImagePreview({
             >
               <img
                 src={src || ""}
-                alt={alt}
+                alt={altLabel}
                 className="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl pointer-events-none"
                 draggable={false}
               />
@@ -174,7 +177,7 @@ export function ImagePreview({
             <button 
               onClick={() => setScale(Math.max(scale - 0.2, 0.5))} 
               className="p-1 hover:text-primary hover:bg-white/10 rounded-full transition-all"
-              title="缩小"
+              title={t("zoomOut")}
             >
               <ZoomOut className="w-5 h-5" />
             </button>
@@ -198,7 +201,7 @@ export function ImagePreview({
             <button 
               onClick={() => setScale(Math.min(scale + 0.2, 5))} 
               className="p-1 hover:text-primary hover:bg-white/10 rounded-full transition-all"
-              title="放大"
+              title={t("zoomIn")}
             >
               <ZoomIn className="w-5 h-5" />
             </button>
@@ -208,7 +211,7 @@ export function ImagePreview({
             <button 
               onClick={resetZoom} 
               className="p-1 hover:text-primary hover:bg-white/10 rounded-full transition-all" 
-              title="重置 (100%)"
+              title={t("resetZoom")}
             >
               <RotateCcw className="w-5 h-5" />
             </button>

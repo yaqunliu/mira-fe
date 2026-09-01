@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useTranslations } from "next-intl";
 
 interface ImageVersion {
   image_url: string;
@@ -47,16 +48,10 @@ export function ImageVersionPreview({
   frameType = "start",
   className,
 }: ImageVersionPreviewProps) {
+  const t = useTranslations("Editor");
+  const tCommon = useTranslations("common");
   const [selectedVersionIndex, setSelectedVersionIndex] = useState<number>(0);
   const [isDownloading, setIsDownloading] = useState(false);
-
-  // 根据实体类型确定版本名称前缀
-  const getVersionNamePrefix = () => {
-    if (entityType === "shot") {
-      return frameType === "start" ? "首帧" : "尾帧";
-    }
-    return "当前版本";
-  };
 
   const versions: ImageVersion[] = [
     ...(currentImageUrl
@@ -65,8 +60,8 @@ export function ImageVersionPreview({
           image_url: currentImageUrl,
           created_at: new Date().toISOString(),
           version_name: entityType === "shot"
-            ? (frameType === "start" ? "首帧-当前版本" : "尾帧-当前版本")
-            : "当前版本",
+            ? (frameType === "start" ? t("startFrameCurrent") : t("endFrameCurrent"))
+            : t("currentVersion"),
         },
       ]
       : []),
@@ -79,8 +74,8 @@ export function ImageVersionPreview({
     (selectedVersionIndex === 0 && imageHistory.length === 0);
 
   const frameLabel = entityType === "shot"
-    ? (frameType === "start" ? "首帧" : "尾帧")
-    : "图片";
+    ? (frameType === "start" ? t("startFrame") : t("endFrame"))
+    : tCommon("image");
 
   const handleDownload = async () => {
     if (!currentVersion?.image_url) return;
@@ -97,10 +92,10 @@ export function ImageVersionPreview({
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success(`${frameLabel}图片下载成功`);
+      toast.success(t("downloadSuccess", { frame: frameLabel }));
     } catch (error) {
       console.error("Download failed:", error);
-      toast.error("图片下载失败");
+      toast.error(t("downloadFailed"));
     } finally {
       setIsDownloading(false);
     }
@@ -110,7 +105,7 @@ export function ImageVersionPreview({
     if (currentVersion && !isCurrentVersionSelected) {
       onApplyVersion(currentVersion);
     } else {
-      toast.info("当前已是主版本，无需应用");
+      toast.info(t("alreadyMainVersion"));
     }
   };
 
@@ -119,7 +114,7 @@ export function ImageVersionPreview({
       {entityType === "shot" && (
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-700 bg-blue-100 px-2 py-1 rounded">
-            {frameLabel}预览
+            {t("framePreview", { frame: frameLabel })}
           </span>
         </div>
       )}
@@ -139,15 +134,15 @@ export function ImageVersionPreview({
           }}
         >
           <SelectTrigger className="w-[160px] h-9 bg-white border-blue-200 focus:ring-blue-400">
-            <SelectValue placeholder="选择版本" />
+            <SelectValue placeholder={t("selectVersion")} />
           </SelectTrigger>
           <SelectContent>
             {versions.map((version, index) => (
               <SelectItem key={index} value={String(index)}>
                 {version.version_name ||
                   (entityType === "shot"
-                    ? `${frameType === "start" ? "首帧" : "尾帧"}历史${index}`
-                    : `历史版本${index}`)}
+                    ? t("frameHistory", { frame: frameType === "start" ? t("startFrame") : t("endFrame"), index })
+                    : t("historyVersion", { index }))}
               </SelectItem>
             ))}
           </SelectContent>
@@ -166,7 +161,7 @@ export function ImageVersionPreview({
           ) : (
             <RefreshCw className="w-4 h-4 mr-1" />
           )}
-          重新生成
+          {t("regenerate")}
         </Button>
 
         {/* 下载按钮 */}
@@ -198,7 +193,7 @@ export function ImageVersionPreview({
           )}
         >
           <Save className="w-4 h-4 mr-1" />
-          应用此版本
+          {t("applyThisVersion")}
         </Button>
       </div>
 
@@ -236,7 +231,14 @@ export function ImageVersionPreview({
         >
           <div className="text-center text-gray-500">
             <RefreshCw className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">暂无{entityType === "character" ? "角色" : entityType === "scene" ? "场景" : ""}{frameLabel}，点击重新生成</p>
+            <p className="text-sm">
+              {t("noImageYet", {
+                target: [
+                  entityType === "character" ? t("character") : entityType === "scene" ? t("scene") : "",
+                  frameLabel,
+                ].filter(Boolean).join(" "),
+              })}
+            </p>
           </div>
         </div>
       )}

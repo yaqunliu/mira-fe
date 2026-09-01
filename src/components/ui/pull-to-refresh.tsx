@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from "react";
 import { Loader2, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>;
@@ -17,6 +18,7 @@ export function PullToRefresh({
   className,
   disabled = false,
 }: PullToRefreshProps) {
+  const t = useTranslations("common");
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
@@ -110,7 +112,7 @@ export function PullToRefresh({
           {isRefreshing ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin text-[#22C55E]" />
-              <span className="text-xs text-muted-foreground">刷新中...</span>
+              <span className="text-xs text-muted-foreground">{t("refreshing")}</span>
             </>
           ) : (
             <>
@@ -119,7 +121,7 @@ export function PullToRefresh({
                 style={{ transform: `rotate(${indicatorRotation}deg)` }}
               />
               <span className="text-xs text-muted-foreground">
-                {pullDistance >= threshold ? "松开刷新" : "下拉刷新"}
+                {pullDistance >= threshold ? t("releaseToRefresh") : t("pullToRefresh")}
               </span>
             </>
           )}

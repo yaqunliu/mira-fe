@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { toast } from 'sonner'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth'
 import { useQueryClient } from '@tanstack/react-query'
@@ -19,17 +20,17 @@ import type { User } from '@/types'
 import { waitForSupabaseSession, waitForUserInfoInStore } from '@/lib/utils/wait-for-supabase-token'
 import Link from 'next/link'
 
-const emailSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-})
-
-const passwordSchema = z.object({
-  email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(6, '密码至少需要6个字符'),
-})
-
-type EmailFormData = z.infer<typeof emailSchema>
-type EmailSignInFormData = z.infer<typeof passwordSchema>
+function makeEmailSchema(t: (k: string) => string) {
+  return z.object({ email: z.string().email(t('emailInvalid')) })
+}
+function makePasswordSchema(t: (k: string) => string) {
+  return z.object({
+    email: z.string().email(t('emailInvalid')),
+    password: z.string().min(6, t('passwordMin')),
+  })
+}
+type EmailFormData = z.infer<ReturnType<typeof makeEmailSchema>>
+type EmailSignInFormData = z.infer<ReturnType<typeof makePasswordSchema>>
 
 interface EmailSignInProps {
   onSuccess?: () => void
@@ -46,7 +47,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
   
   // 第一步：邮箱验证表单
   const emailForm = useForm<EmailFormData>({
-    resolver: zodResolver(emailSchema),
+    resolver: zodResolver(makeEmailSchema(t)),
     defaultValues: {
       email: '',
     },
@@ -54,7 +55,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
 
   // 第二步：密码登录表单
   const passwordForm = useForm<EmailSignInFormData>({
-    resolver: zodResolver(passwordSchema),
+    resolver: zodResolver(makePasswordSchema(t)),
     defaultValues: {
       email: '',
       password: '',
@@ -122,7 +123,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
             // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
             await waitForUserInfoInStore(5000, 100)
 
-            toast.success('登录成功')
+            toast.success(t('loginSuccessToast'))
 
             if (onSuccess) {
               onSuccess()
@@ -158,7 +159,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
           // 等待用户信息同步到 store（不等待 Supabase session，因为已经在 store 中了）
           await waitForUserInfoInStore(5000, 100)
 
-          toast.success('登录成功')
+          toast.success(t('loginSuccessToast'))
 
           if (onSuccess) {
             onSuccess()
@@ -169,7 +170,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
         }
       }
     } catch (error: any) {
-      toast.error(error.message || '登录失败，请检查邮箱和密码')
+      toast.error(error.message || t('loginFailed'))
     }
   }
 
@@ -184,7 +185,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700 font-medium mb-2">邮箱</FormLabel>
+                  <FormLabel className="text-gray-700 font-medium mb-2">{t('emailLabel')}</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -209,7 +210,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
               className="w-full h-12 bg-vibrant-green hover:bg-green-600 text-white font-medium shadow-lg shadow-green-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/60"
               disabled={emailForm.formState.isSubmitting || !emailForm.watch('email')}
             >
-              继续
+              {t('continueButton')}
             </Button>
           </form>
         </Form>
@@ -232,7 +233,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
                   }}
                   className="text-xs text-vibrant-green hover:text-green-600 border-green-200 hover:bg-green-50"
                 >
-                  更改
+                  {t('changeButton')}
                 </Button>
               </div>
             </div>
@@ -243,19 +244,20 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center justify-between mb-2">
-                    <FormLabel className="text-gray-700 font-medium">密码</FormLabel>
+                    <FormLabel className="text-gray-700 font-medium">{t('password')}</FormLabel>
                     <Link
                       href={'/auth/forgot-password'}
                       className="text-xs text-vibrant-green hover:text-green-600 transition-colors"
                     >
-                      忘记密码？
+                      {t('forgotPassword')}
                     </Link>
                   </div>
                   <FormControl>
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="请输入密码"
+                        {...field}
+                    placeholder={t("enterPasswordPlaceholder")}
                         className="h-12 clay-inset w-full placeholder:text-gray-400 focus:ring-2 focus:ring-green-200 transition-all pr-12"
                         {...field}
                         autoFocus
@@ -285,7 +287,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
               className="w-full h-12 bg-vibrant-green hover:bg-green-600 text-white font-medium shadow-lg shadow-green-200/50 transition-all duration-300 hover:shadow-xl hover:shadow-green-300/60"
               disabled={passwordForm.formState.isSubmitting}
             >
-              {passwordForm.formState.isSubmitting ? '登录中...' : '登录'}
+              {passwordForm.formState.isSubmitting ? t('loggingInButton') : t('login')}
             </Button>
           </form>
         </Form>
