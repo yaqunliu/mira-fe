@@ -1,5 +1,5 @@
 {
-  "total": 1596,
+  "total": 1573,
   "counts": {
     "src/app/[locale]/dynamic-comic-editor/page.tsx": 136,
     "src/components/agent/shot-detail-dialog.tsx": 73,
@@ -13,7 +13,6 @@
     "src/app/[locale]/subscriptions/page.tsx": 30,
     "src/components/timeline/export-trigger-dialog.tsx": 29,
     "src/components/timeline/shot-image-history-dialog.tsx": 29,
-    "src/app/[locale]/pricing/page.tsx": 28,
     "src/components/shared/editor-toolbar.tsx": 28,
     "src/app/[locale]/scripts/[id]/page.tsx": 27,
     "src/components/business/asset-manager.tsx": 27,
@@ -26,6 +25,7 @@
     "src/app/[locale]/novels/[id]/page.tsx": 22,
     "src/components/auth/reset-password.tsx": 22,
     "src/lib/flow-manager.ts": 22,
+    "src/app/[locale]/pricing/page.tsx": 21,
     "src/components/business/novel-upload.tsx": 21,
     "src/components/timeline/export-preview-dialog.tsx": 21,
     "src/components/ui/image-version-preview.tsx": 21,
@@ -35,7 +35,6 @@
     "src/components/agent/chat-tool-call.tsx": 17,
     "src/components/business/create-settings/voice-selector.tsx": 17,
     "src/components/business/novel-select.tsx": 17,
-    "src/app/[locale]/payment/wechat/page.tsx": 16,
     "src/components/auth/email-register.tsx": 16,
     "src/lib/agent/form-configs.ts": 16,
     "src/components/auth/forgot-password.tsx": 15,

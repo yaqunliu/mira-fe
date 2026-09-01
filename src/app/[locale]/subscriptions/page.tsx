@@ -57,10 +57,9 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
   const isActive = subscription.status === 'active'
   const isCancelled = subscription.status === 'cancelled' || subscription.cancel_at_period_end
   const isExpired = subscription.status === 'expired'
-  // 检查是否为手动续费（微信订阅）
-  const isManualRenewal = subscription.subscription_metadata?.auto_renewal === false || 
-                          subscription.subscription_metadata?.renewal_type === 'manual' ||
-                          subscription.payment_method === 'wechat'
+  // 检查是否为手动续费（后端标记 auto_renewal=false 或 renewal_type=manual）
+  const isManualRenewal = subscription.subscription_metadata?.auto_renewal === false ||
+                          subscription.subscription_metadata?.renewal_type === 'manual'
 
   return (
     <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
@@ -113,7 +112,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
               {t('subscriptions.periodEnd', { default: '结束' })}:{' '}
               {formatDate(subscription.current_period_end)}
             </div>
-            {/* 微信订阅永远不显示下次扣款时间（next_billing_date永远为null） */}
+            {/* 手动续费订阅没有下次扣款时间（next_billing_date 永远为 null） */}
             {!isManualRenewal && (
               <div className="flex items-center gap-2 text-sm text-gray-600 pt-1">
                 <AlertCircle className="h-4 w-4 text-[#FDBCB4]" />
@@ -152,7 +151,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
             </span>
           </div>
         )}
-        {/* 微信订阅不显示取消按钮（因为没有自动续费，不需要取消） */}
+        {/* 手动续费订阅不显示取消按钮（没有自动续费，无需取消） */}
         {isManualRenewal && (
           <div className="space-y-2">
             <div className="flex items-start gap-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-2">
@@ -163,7 +162,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
             </div>
           </div>
         )}
-        {/* 只有Creem订阅显示取消按钮 */}
+        {/* 只有自动续费订阅显示取消按钮 */}
         {!isManualRenewal && isActive && !subscription.cancel_at_period_end && (
           <Button
             variant="outline"

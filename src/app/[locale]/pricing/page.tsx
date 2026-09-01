@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
-import { useRouter } from 'next/navigation'
 import { productsApi, type Product } from '@/lib/api/products'
 import { ordersApi } from '@/lib/api/orders'
 import { subscriptionsApi, type Subscription } from '@/lib/api/subscriptions'
@@ -18,15 +17,15 @@ import remarkGfm from 'remark-gfm'
 import { useAuthStore } from '@/stores/auth'
 
 const FALLBACK_ONETIME: Product[] = [
-  { uuid: 'fallback-1', product_id: 0, name: '8000 积分', price: 1990, currency: 'USD', billing_type: 'onetime', points_amount: 8000, status: 'active' },
-  { uuid: 'fallback-2', product_id: 0, name: '20000 积分', price: 3990, currency: 'USD', billing_type: 'onetime', points_amount: 20000, status: 'active' },
-  { uuid: 'fallback-3', product_id: 0, name: '120000 积分', price: 9990, currency: 'USD', billing_type: 'onetime', points_amount: 120000, status: 'active' },
+  { uuid: 'fallback-1', product_id: 0, name: '8,000 Credits', price: 1990, currency: 'USD', billing_type: 'onetime', points_amount: 8000, status: 'active' },
+  { uuid: 'fallback-2', product_id: 0, name: '20,000 Credits', price: 3990, currency: 'USD', billing_type: 'onetime', points_amount: 20000, status: 'active' },
+  { uuid: 'fallback-3', product_id: 0, name: '120,000 Credits', price: 9990, currency: 'USD', billing_type: 'onetime', points_amount: 120000, status: 'active' },
 ]
 
 const FALLBACK_SUBS: Product[] = [
-  { uuid: 'fallback-month', product_id: 0, name: '月付 · 20000积分/月', price: 3990, currency: 'USD', billing_type: 'recurring', billing_period: 'every-month', points_amount: 20000, status: 'active' },
-  { uuid: 'fallback-quarter', product_id: 0, name: '季度 · 25000积分/月', price: 11990, currency: 'USD', billing_type: 'recurring', billing_period: 'every-month', points_amount: 25000, status: 'active' },
-  { uuid: 'fallback-year', product_id: 0, name: '年付 · 30000积分/月', price: 39900, currency: 'USD', billing_type: 'recurring', billing_period: 'every-month', points_amount: 30000, status: 'active' },
+  { uuid: 'fallback-month', product_id: 0, name: 'Monthly · 20,000 credits/mo', price: 3990, currency: 'USD', billing_type: 'recurring', billing_period: 'every-month', points_amount: 20000, status: 'active' },
+  { uuid: 'fallback-quarter', product_id: 0, name: 'Quarterly · 25,000 credits/mo', price: 11990, currency: 'USD', billing_type: 'recurring', billing_period: 'every-month', points_amount: 25000, status: 'active' },
+  { uuid: 'fallback-year', product_id: 0, name: 'Yearly · 30,000 credits/mo', price: 39900, currency: 'USD', billing_type: 'recurring', billing_period: 'every-month', points_amount: 30000, status: 'active' },
 ]
 
 function formatPrice(cents: number, currency = 'USD') {
@@ -134,7 +133,6 @@ function PriceCard({
 
 export default function PricingPage() {
   const t = useTranslations()
-  const router = useRouter()
   const [tab, setTab] = useState<'onetime' | 'recurring'>('recurring')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { isAuthenticated } = useAuthStore()
@@ -203,20 +201,12 @@ export default function PricingPage() {
         metadata: {},
       })
       
-      // 更新success_url，添加order_uuid参数
-      const successUrlWithOrder = `${window.location.origin}/payment/success?order_uuid=${order.uuid}`
       
-      // 根据支付方式处理
+      // 海外交付只走 Creem。后端若仍返回 wechat，视为无可用支付链接。
       if (order.payment_method === 'creem' && order.payment_info?.checkout_url) {
-        // Creem支付：跳转到checkout_url
         window.location.href = order.payment_info.checkout_url
-      } else if (order.payment_method === 'wechat' && order.payment_info?.code_url) {
-        // 微信支付：显示二维码
-        // TODO: 打开二维码弹窗或跳转到二维码页面
-        // 临时方案：跳转到支付页面
-        router.push(`/payment/wechat?code_url=${encodeURIComponent(order.payment_info.code_url)}&order_uuid=${order.uuid}`)
       } else {
-        toast.error(t('pricing.errorNoCheckoutUrl', { default: '未获取到支付链接' }))
+        toast.error(t('pricing.errorNoCheckoutUrl', { default: 'Failed to get checkout URL' }))
       }
     } catch (error: any) {
       toast.error(error?.message || t('pricing.errorCreateOrder', { default: '创建订单失败' }))

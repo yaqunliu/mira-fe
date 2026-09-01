@@ -24,7 +24,7 @@ export type ProductListResponse = {
 
 export const productsApi = {
   list: async (params: {
-    language: string  // 必填：语言代码（zh=微信支付，en=Creem支付）
+    language: string  // 必填：后端商品目录按语言分区。海外交付固定传 'en'（对应 Creem 支付）
     billing_type?: string
     status?: string
     page?: number
