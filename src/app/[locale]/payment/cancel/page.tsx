@@ -17,12 +17,12 @@ export default function PaymentCancelPage() {
         <CardHeader className="text-center">
           <XCircle className="h-16 w-16 mx-auto mb-4 text-amber-500" />
           <CardTitle className="text-2xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-            {t('payment.cancelledTitle', { default: '支付已取消' })}
+            {t('payment.cancelledTitle')}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-center text-gray-600">
-            {t('payment.cancelledMessage', { default: '您已取消支付，订单未完成。您可以随时返回继续购买。' })}
+            {t('payment.cancelledMessage')}
           </p>
 
           <div className="flex flex-col gap-2 pt-4">
@@ -31,12 +31,12 @@ export default function PaymentCancelPage() {
               className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
             >
               <Link href={'/pricing'}>
-                {t('payment.backToPricing', { default: '返回套餐页面' })}
+                {t('payment.backToPricing')}
               </Link>
             </Button>
             <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
               <Link href={'/workspace'}>
-                {t('payment.backToWorkspace', { default: '返回工作台' })}
+                {t('payment.backToWorkspace')}
               </Link>
             </Button>
           </div>

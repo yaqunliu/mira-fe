@@ -69,17 +69,17 @@ function PriceCard({
           {product.billing_type === 'recurring' && (
             <span className="text-sm text-gray-500 ml-1">
               / {product.billing_period === 'every-year'
-                ? t('pricing.year', { default: '年' })
+                ? t('pricing.year')
                 : product.billing_period === 'every-quarter'
-                ? t('pricing.quarter', { default: '季' })
-                : t('pricing.month', { default: '月' })}
+                ? t('pricing.quarter')
+                : t('pricing.month')}
             </span>
           )}
         </div>
         <p className="text-sm text-gray-600">
           {product.billing_type === 'onetime'
-            ? `${product.points_amount.toLocaleString()} ${t('pricing.points', { default: '积分' })} · ${t('pricing.instantDelivery', { default: '即时到账' })}`
-            : `${product.points_amount.toLocaleString()} ${t('pricing.points', { default: '积分' })} / ${t('pricing.month', { default: '月' })} · ${t('pricing.autoDelivery', { default: '自动发放' })}`}
+            ? `${product.points_amount.toLocaleString()} ${t('pricing.points')} · ${t('pricing.instantDelivery')}`
+            : `${product.points_amount.toLocaleString()} ${t('pricing.points')} / ${t('pricing.month')} · ${t('pricing.autoDelivery')}`}
         </p>
       </CardHeader>
       <CardContent className="relative flex flex-col flex-1 min-h-0">
@@ -94,15 +94,15 @@ function PriceCard({
             <ul className="space-y-2 text-sm text-gray-700">
               <li className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-[#FDBCB4]" />
-                {t('pricing.feature1', { default: 'AI 角色生成 · 分镜创作' })}
+                {t('pricing.feature1')}
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-[#ADD8E6]" />
-                {t('pricing.feature2', { default: '小说改编 · 视频生成' })}
+                {t('pricing.feature2')}
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-[#22C55E]" />
-                {t('pricing.feature3', { default: '积分长期有效 · 永久使用' })}
+                {t('pricing.feature3')}
               </li>
             </ul>
           )}
@@ -113,7 +113,7 @@ function PriceCard({
             disabled
           >
             <CheckCircle2 className="h-4 w-4 mr-2" />
-            {t('pricing.alreadySubscribed', { default: '已订阅' })}
+            {t('pricing.alreadySubscribed')}
           </Button>
         ) : (
           <Button
@@ -122,8 +122,8 @@ function PriceCard({
             disabled={isLoading}
           >
             {product.billing_type === 'onetime'
-              ? t('pricing.buyNow', { default: '立即购买' })
-              : t('pricing.subscribeNow', { default: '立即订阅' })}
+              ? t('pricing.buyNow')
+              : t('pricing.subscribeNow')}
           </Button>
         )}
       </CardContent>
@@ -206,10 +206,10 @@ export default function PricingPage() {
       if (order.payment_method === 'creem' && order.payment_info?.checkout_url) {
         window.location.href = order.payment_info.checkout_url
       } else {
-        toast.error(t('pricing.errorNoCheckoutUrl', { default: 'Failed to get checkout URL' }))
+        toast.error(t('pricing.errorNoCheckoutUrl'))
       }
     } catch (error: any) {
-      toast.error(error?.message || t('pricing.errorCreateOrder', { default: '创建订单失败' }))
+      toast.error(error?.message || t('pricing.errorCreateOrder'))
     } finally {
       setIsSubmitting(false)
     }
@@ -221,7 +221,7 @@ export default function PricingPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="flex items-center gap-3 rounded-xl bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] px-4 py-3 text-gray-800">
             <Loader2 className="h-5 w-5 animate-spin text-[#FDBCB4]" />
-            <span>{t('pricing.processing', { default: '正在发起支付…' })}</span>
+            <span>{t('pricing.processing')}</span>
           </div>
         </div>
       )}
@@ -229,14 +229,14 @@ export default function PricingPage() {
         <div className="mb-10 flex flex-col gap-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-[#FDBCB4]/20 px-3 py-1 text-xs text-[#F9A899] border border-[#FDBCB4]/30">
             <Sparkles className="h-4 w-4" />
-            {t('pricing.title', { default: '套餐与订阅' })}
+            {t('pricing.title')}
           </div>
           <div>
             <h1 className="text-3xl font-bold leading-tight md:text-4xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-              {t('pricing.headline', { default: '选择适合你的积分套餐或订阅' })}
+              {t('pricing.headline')}
             </h1>
             <p className="mt-2 text-gray-600">
-              {t('pricing.subtitle', { default: '一次性购买即时到账 · 订阅自动按月发放 · 可随时取消' })}
+              {t('pricing.subtitle')}
             </p>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function PricingPage() {
               }`}
             >
               <Repeat className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{t('pricing.tabSubscription', { default: '订阅' })}</span>
+              <span className="truncate">{t('pricing.tabSubscription')}</span>
             </button>
             <button
               onClick={() => setTab('onetime')}
@@ -264,7 +264,7 @@ export default function PricingPage() {
               }`}
             >
               <Coins className="h-4 w-4 flex-shrink-0" />
-              <span className="truncate">{t('pricing.tabOnetime', { default: '一次性积分包' })}</span>
+              <span className="truncate">{t('pricing.tabOnetime')}</span>
             </button>
             {/* 动态背景指示器 */}
             <div
@@ -294,9 +294,9 @@ export default function PricingPage() {
                     product={p}
                     highlight={
                       idx === 0
-                        ? t('pricing.recommended', { default: '推荐' })
+                        ? t('pricing.recommended')
                         : idx === 2
-                        ? t('pricing.yearSave', { default: '年付更省' })
+                        ? t('pricing.yearSave')
                         : undefined
                     }
                     onPurchase={handlePurchase}
@@ -324,7 +324,7 @@ export default function PricingPage() {
                   <PriceCard
                     key={p.uuid || idx}
                     product={p}
-                    highlight={idx === 1 ? t('pricing.popular', { default: '热门' }) : undefined}
+                    highlight={idx === 1 ? t('pricing.popular') : undefined}
                     onPurchase={handlePurchase}
                     t={t}
                     isLoading={isSubmitting}

@@ -37,12 +37,12 @@ function formatDate(dateString: string | undefined): string {
 
 function getStatusBadge(status: string, t: any) {
   const statusMap: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-    active: { label: t('subscriptions.statusActive', { default: '活跃' }), variant: 'default' },
-    past_due: { label: t('subscriptions.statusPastDue', { default: '逾期' }), variant: 'destructive' },
-    cancelled: { label: t('subscriptions.statusCancelled', { default: '已取消' }), variant: 'secondary' },
-    canceled: { label: t('subscriptions.statusCancelled', { default: '已取消' }), variant: 'secondary' },
-    expired: { label: t('subscriptions.statusExpired', { default: '已过期' }), variant: 'secondary' },
-    scheduled_cancel: { label: t('subscriptions.statusScheduledCancel', { default: '计划取消' }), variant: 'secondary' },
+    active: { label: t('subscriptions.statusActive'), variant: 'default' },
+    past_due: { label: t('subscriptions.statusPastDue'), variant: 'destructive' },
+    cancelled: { label: t('subscriptions.statusCancelled'), variant: 'secondary' },
+    canceled: { label: t('subscriptions.statusCancelled'), variant: 'secondary' },
+    expired: { label: t('subscriptions.statusExpired'), variant: 'secondary' },
+    scheduled_cancel: { label: t('subscriptions.statusScheduledCancel'), variant: 'secondary' },
   }
   const statusInfo = statusMap[status] || { label: status, variant: 'outline' }
   return (
@@ -68,24 +68,24 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
           <div className="flex-1">
             <CardTitle className="text-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-[#FDBCB4]" />
-              {product?.name || t('subscriptions.unknownProduct', { default: '未知产品' })}
+              {product?.name || t('subscriptions.unknownProduct')}
               {getStatusBadge(subscription.status, t)}
             </CardTitle>
             <div className="mt-2 flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <Coins className="h-4 w-4 text-[#FDBCB4]" />
                 <span>
-                  {subscription.points_per_period.toLocaleString()} {t('subscriptions.pointsPerPeriod', { default: '积分/周期' })}
+                  {subscription.points_per_period.toLocaleString()} {t('subscriptions.pointsPerPeriod')}
                 </span>
               </div>
               <div className="flex items-center gap-1">
                 <Repeat className="h-4 w-4 text-[#ADD8E6]" />
                 <span>
                   {subscription.billing_period === 'every-year'
-                    ? t('subscriptions.billingYear', { default: '年付' })
+                    ? t('subscriptions.billingYear')
                     : subscription.billing_period === 'every-quarter'
-                    ? t('subscriptions.billingQuarter', { default: '季付' })
-                    : t('subscriptions.billingMonth', { default: '月付' })}
+                    ? t('subscriptions.billingQuarter')
+                    : t('subscriptions.billingMonth')}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -101,15 +101,15 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
         <div className="rounded-lg bg-gray-50 p-3 border border-gray-200">
           <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
             <Calendar className="h-4 w-4 text-[#ADD8E6]" />
-            <span className="font-semibold">{t('subscriptions.currentPeriod', { default: '订阅周期' })}</span>
+            <span className="font-semibold">{t('subscriptions.currentPeriod')}</span>
           </div>
           <div className="text-xs text-gray-500 space-y-1">
             <div>
-              {t('subscriptions.periodStart', { default: '开始' })}:{' '}
+              {t('subscriptions.periodStart')}:{' '}
               {formatDate(subscription.current_period_start)}
             </div>
             <div>
-              {t('subscriptions.periodEnd', { default: '结束' })}:{' '}
+              {t('subscriptions.periodEnd')}:{' '}
               {formatDate(subscription.current_period_end)}
             </div>
             {/* 手动续费订阅没有下次扣款时间（next_billing_date 永远为 null） */}
@@ -117,10 +117,10 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
               <div className="flex items-center gap-2 text-sm text-gray-600 pt-1">
                 <AlertCircle className="h-4 w-4 text-[#FDBCB4]" />
                 <span className="text-xs text-gray-500">
-                  {t('subscriptions.nextBilling', { default: '下次扣款' })}:{' '}
+                  {t('subscriptions.nextBilling')}:{' '}
                   {subscription.status === 'active' 
-                    ? (subscription.next_billing_date ? formatDate(subscription.next_billing_date) : t('subscriptions.noBillingDate', { default: '-' }))
-                    : t('subscriptions.noBillingDate', { default: '-' })}
+                    ? (subscription.next_billing_date ? formatDate(subscription.next_billing_date) : t('subscriptions.noBillingDate'))
+                    : t('subscriptions.noBillingDate')}
                 </span>
               </div>
             )}
@@ -128,7 +128,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
               <div className="flex items-center gap-2 text-sm text-blue-600 pt-1">
                 <AlertCircle className="h-4 w-4 text-blue-400" />
                 <span className="text-xs text-blue-600">
-                  {t('subscriptions.manualRenewal', { default: '手动续费' })} - {t('subscriptions.noBillingDate', { default: '-' })}
+                  {t('subscriptions.manualRenewal')} - {t('subscriptions.noBillingDate')}
                 </span>
               </div>
             )}
@@ -138,7 +138,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
           <div className="flex items-start gap-2 text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-2">
             <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <span>
-              {t('subscriptions.cancelAtPeriodEnd', { default: '已设置到期取消，本周期结束后不再自动扣费' })}
+              {t('subscriptions.cancelAtPeriodEnd')}
             </span>
           </div>
         )}
@@ -146,7 +146,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
           <div className="flex items-center gap-2 text-sm text-red-600">
             <XCircle className="h-4 w-4" />
             <span>
-              {t('subscriptions.cancelledAt', { default: '已取消于' })}:{' '}
+              {t('subscriptions.cancelledAt')}:{' '}
               {formatDate(subscription.cancelled_at)}
             </span>
           </div>
@@ -157,7 +157,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
             <div className="flex items-start gap-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg p-2">
               <AlertCircle className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
               <span>
-                {t('subscriptions.manualRenewalDesc', { default: '本订阅为手动续费，到期后需要手动购买续费' })}
+                {t('subscriptions.manualRenewalDesc')}
               </span>
             </div>
           </div>
@@ -169,7 +169,7 @@ function SubscriptionCard({ subscription, t, onCancel }: { subscription: Subscri
             className="w-full border-red-500/50 text-red-600 hover:bg-red-50 hover:text-red-700"
             onClick={() => onCancel(subscription.uuid)}
           >
-            {t('subscriptions.cancelSubscription', { default: '取消订阅' })}
+            {t('subscriptions.cancelSubscription')}
           </Button>
         )}
       </CardContent>
@@ -192,16 +192,16 @@ export default function SubscriptionsPage() {
   const cancelMutation = useMutation({
     mutationFn: (uuid: string) => subscriptionsApi.cancel(uuid, { cancel_at_period_end: true }),
     onSuccess: () => {
-      toast.success(t('subscriptions.cancelSuccess', { default: '已设置到期取消，当前周期结束后不再扣费' }))
+      toast.success(t('subscriptions.cancelSuccess'))
       queryClient.invalidateQueries({ queryKey: ['subscriptions'] })
     },
     onError: (error: any) => {
-      toast.error(error?.message || t('subscriptions.cancelError', { default: '取消订阅失败' }))
+      toast.error(error?.message || t('subscriptions.cancelError'))
     },
   })
 
   const handleCancel = (uuid: string) => {
-    if (confirm(t('subscriptions.confirmCancel', { default: '确定要取消订阅吗？取消后当前周期结束将不再自动扣费。' }))) {
+    if (confirm(t('subscriptions.confirmCancel'))) {
       cancelMutation.mutate(uuid)
     }
   }
@@ -213,7 +213,7 @@ export default function SubscriptionsPage() {
           <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
             <CardContent className="p-8 text-center">
               <ShieldCheck className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">{t('subscriptions.loginRequired', { default: '请先登录以查看您的订阅' })}</p>
+              <p className="text-gray-600">{t('subscriptions.loginRequired')}</p>
             </CardContent>
           </Card>
         </div>
@@ -227,13 +227,13 @@ export default function SubscriptionsPage() {
         <div className="mb-8">
           <div className="inline-flex items-center gap-2 rounded-full bg-[#FDBCB4]/20 px-3 py-1 text-xs text-[#F9A899] border border-[#FDBCB4]/30 mb-4">
             <Repeat className="h-4 w-4" />
-            {t('subscriptions.title', { default: '我的订阅' })}
+            {t('subscriptions.title')}
           </div>
           <h1 className="text-3xl font-bold leading-tight md:text-4xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-            {t('subscriptions.headline', { default: '订阅管理' })}
+            {t('subscriptions.headline')}
           </h1>
           <p className="mt-2 text-gray-600">
-            {t('subscriptions.subtitle', { default: '查看和管理您的订阅服务' })}
+            {t('subscriptions.subtitle')}
           </p>
         </div>
 
@@ -249,19 +249,19 @@ export default function SubscriptionsPage() {
           <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
             <CardContent className="p-8 text-center">
               <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-              <p className="text-red-600">{t('subscriptions.loadError', { default: '加载订阅失败' })}</p>
+              <p className="text-red-600">{t('subscriptions.loadError')}</p>
             </CardContent>
           </Card>
         ) : !subscriptions || subscriptions.items.length === 0 ? (
           <Card className="border-0 bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
             <CardContent className="p-8 text-center">
               <Sparkles className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-4">{t('subscriptions.noSubscriptions', { default: '您还没有任何订阅' })}</p>
+              <p className="text-gray-600 mb-4">{t('subscriptions.noSubscriptions')}</p>
               <Button
                 onClick={() => (window.location.href = '/pricing')}
                 className="bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white"
               >
-                {t('subscriptions.browsePlans', { default: '浏览套餐' })}
+                {t('subscriptions.browsePlans')}
               </Button>
             </CardContent>
           </Card>

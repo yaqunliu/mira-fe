@@ -2,9 +2,11 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import { ResetPassword } from '@/components/auth/reset-password'
+import { useTranslations } from 'next-intl'
 import { Sparkles } from 'lucide-react'
 
 export default function ResetPasswordPage() {
+  const t = useTranslations('auth')
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -28,10 +30,10 @@ export default function ResetPasswordPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-            重置密码
+            {t('resetPasswordHeading')}
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            请设置您的新密码
+            {t('resetPasswordSubheading')}
           </p>
         </div>
 
@@ -44,7 +46,7 @@ export default function ResetPasswordPage() {
 
         {/* 底部装饰文字 */}
         <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-          请设置一个安全性强的密码来保护您的账户
+          {t('strongPasswordHint')}
         </p>
       </div>
 

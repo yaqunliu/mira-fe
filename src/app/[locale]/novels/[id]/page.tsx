@@ -295,8 +295,8 @@ export default function NovelDetailPage() {
     const confirmed = await confirm({
       title: t("novelDetail.deleteChapter"),
       description: t("novelDetail.deleteChapterConfirm", { title: chapterTitle }),
-      confirmText: t("common.confirm") || "确认",
-      cancelText: t("common.cancel") || "取消",
+      confirmText: t("common.confirm"),
+      cancelText: t("common.cancel"),
       variant: "destructive",
     });
     if (confirmed) {
@@ -337,7 +337,7 @@ export default function NovelDetailPage() {
     if (chaptersError && !finalChapters?.length) {
       return (
         <div className="flex items-center justify-center gap-2">
-          <span className="text-sm text-secondary">加载失败...</span>
+          <span className="text-sm text-secondary">{t("novelDetail.loadFailed")}</span>
         </div>
       );
     }
@@ -348,14 +348,14 @@ export default function NovelDetailPage() {
             <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
               <BookOpen className="h-7 w-7 text-muted-foreground" />
             </div>
-            <div className="text-sm font-medium">还没有章节</div>
-            <div className="text-xs text-muted-foreground mt-1">可以直接开始创作，或先上传章节</div>
+            <div className="text-sm font-medium">{t("novelDetail.noChaptersYet")}</div>
+            <div className="text-xs text-muted-foreground mt-1">{t("novelDetail.noChaptersHint")}</div>
             <div className="mt-5 flex items-center justify-center gap-2">
               <Button size="sm" onClick={() => handleCreateVideo()}>
                 {t("novelDetail.goToCreate")}
               </Button>
               <Button size="sm" variant="outline" onClick={() => router.push('/novels/upload')}>
-                上传小说
+                {t("novel.uploadNovel")}
               </Button>
             </div>
           </CardContent>
@@ -367,7 +367,7 @@ export default function NovelDetailPage() {
         <CardHeader className="flex-row items-center justify-between space-y-0 border-b bg-muted/30">
           <div className="space-y-1">
             <CardTitle className="text-base">{t("novelDetail.chapterList")}</CardTitle>
-            <CardDescription className="text-xs">共 {chaptersTotal} 章</CardDescription>
+            <CardDescription className="text-xs">{t("novelDetail.chaptersCount", { count: chaptersTotal })}</CardDescription>
           </div>
           <Button size="sm" onClick={() => handleCreateVideo()}>
             {t("novelDetail.goToCreate")}
@@ -531,7 +531,7 @@ export default function NovelDetailPage() {
                   disabled={!chapterPageInput || isChaptersLoading}
                   className="h-8 text-xs"
                 >
-                  跳转
+                  {t("novelDetail.jumpToPage")}
                 </Button>
               </div>
 
@@ -561,7 +561,7 @@ export default function NovelDetailPage() {
     if (charactersError && !finalCharacters?.length) {
       return (
         <div className="flex items-center justify-center gap-2">
-          <span className="text-sm text-secondary">加载失败...</span>
+          <span className="text-sm text-secondary">{t("novelDetail.loadFailed")}</span>
         </div>
       );
     }
@@ -572,8 +572,8 @@ export default function NovelDetailPage() {
             <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
               <User className="h-7 w-7 text-muted-foreground" />
             </div>
-            <div className="text-sm font-medium">暂无角色</div>
-            <div className="text-xs text-muted-foreground mt-1">完成角色分析后会在这里展示</div>
+            <div className="text-sm font-medium">{t("novelDetail.noCharacters")}</div>
+            <div className="text-xs text-muted-foreground mt-1">{t("novelDetail.noCharactersHint")}</div>
           </CardContent>
         </Card>
       );
@@ -583,7 +583,7 @@ export default function NovelDetailPage() {
       <Card className="overflow-hidden">
         <CardHeader className="border-b bg-muted/30">
           <CardTitle className="text-base">{t("novelDetail.characterLibrary")}</CardTitle>
-          <CardDescription className="text-xs">共 {finalCharacters.length} 位角色</CardDescription>
+          <CardDescription className="text-xs">{t("novelDetail.charactersCount", { count: finalCharacters.length })}</CardDescription>
         </CardHeader>
         <CardContent className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -603,7 +603,7 @@ export default function NovelDetailPage() {
     if (creationsError && !finalCreations?.length) {
       return (
         <div className="flex items-center justify-center gap-2">
-          <span className="text-sm text-secondary">加载失败...</span>
+          <span className="text-sm text-secondary">{t("novelDetail.loadFailed")}</span>
         </div>
       );
     }
@@ -614,8 +614,8 @@ export default function NovelDetailPage() {
             <div className="mx-auto w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
               <BookOpen className="h-7 w-7 text-muted-foreground" />
             </div>
-            <div className="text-sm font-medium">暂无创作</div>
-            <div className="text-xs text-muted-foreground mt-1">生成的视频创作会自动出现在这里</div>
+            <div className="text-sm font-medium">{t("novelDetail.noCreations")}</div>
+            <div className="text-xs text-muted-foreground mt-1">{t("novelDetail.noCreationsHint")}</div>
           </CardContent>
         </Card>
       );
@@ -624,7 +624,7 @@ export default function NovelDetailPage() {
       <Card className="overflow-hidden">
         <CardHeader className="border-b bg-muted/30">
           <CardTitle className="text-base">{t("novelDetail.relatedCreations")}</CardTitle>
-          <CardDescription className="text-xs">共 {finalCreations.length} 个创作</CardDescription>
+          <CardDescription className="text-xs">{t("novelDetail.creationsCount", { count: finalCreations.length })}</CardDescription>
         </CardHeader>
         <CardContent className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -650,7 +650,7 @@ export default function NovelDetailPage() {
               {t("novelDetail.bookNotFound")}
             </h2>
             <p className="text-sm bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
-              {error instanceof Error ? error.message : '加载失败'}
+              {error instanceof Error ? error.message : t("novelDetail.loadFailedShort")}
             </p>
             <Button onClick={() => router.push('/novels')} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               {t("novelDetail.back")}
@@ -673,7 +673,7 @@ export default function NovelDetailPage() {
               {t("novelDetail.bookNotFound")}
             </h2>
             <p className="text-sm bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent mb-4">
-              小说ID: {novelId}
+              {t("novelDetail.novelId", { id: novelId })}
             </p>
             <Button onClick={() => router.push('/novels')} className="mt-4 bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
               {t("novelDetail.back")}
@@ -743,7 +743,7 @@ export default function NovelDetailPage() {
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-full shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                       <User className="h-4 w-4 text-[#ADD8E6]" />
-                      <span className="bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{novel.author || "未知作者"}</span>
+                      <span className="bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{novel.author || t("novelDetail.unknownAuthor")}</span>
                     </div>
                     <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-full shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                       <BookOpen className="h-4 w-4 text-[#ADD8E6]" />

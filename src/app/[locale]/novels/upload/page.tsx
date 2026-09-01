@@ -22,7 +22,7 @@ export default function NovelUploadPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{t('uploadNovel')}</h1>
           <p className="bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent">
-            上传您的小说，我们将自动拆分成章节
+            {t('upload.description')}
           </p>
         </div>
 
@@ -30,7 +30,7 @@ export default function NovelUploadPage() {
           <div className="mb-6">
             <h2 className="text-xl font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent mb-2">{t('uploadNovel')}</h2>
             <p className="bg-gradient-to-r from-gray-500 to-gray-700 bg-clip-text text-transparent">
-              选择包含小说内容的 .txt 文件
+              {t('upload.cardDescription')}
             </p>
           </div>
           <NovelUpload onComplete={handleComplete} />

@@ -64,8 +64,8 @@ function ScriptCard({
         const confirmed = await confirm({
             title: t("common.delete"),
             description: t("novel.deleteConfirm"),
-            confirmText: t("common.confirm") || "确认",
-            cancelText: t("common.cancel") || "取消",
+            confirmText: t("common.confirm"),
+            cancelText: t("common.cancel"),
             variant: "destructive",
         });
         if (confirmed) {
@@ -161,7 +161,7 @@ function ScriptCard({
                 onClick={handleDeleteClick}
                 disabled={isDeleting}
                 className="absolute top-3 right-3 z-20 p-2 rounded-lg bg-[#FDBCB4] hover:bg-[#F9A899] text-white shadow-[2px_2px_4px_rgba(253,188,180,0.2),-1px_-1px_2px_rgba(255,255,255,0.7)] backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="删除"
+                aria-label={t("common.delete")}
             >
                 <Trash2 className="w-4 h-4" />
             </button>
@@ -332,7 +332,7 @@ export default function ScriptsPage() {
                                     <FileText className="h-12 w-12 text-[#FDBCB4]" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900">{t("novel.loadingFailed")}</h3>
-                                <p className="text-gray-600">请稍后重试</p>
+                                <p className="text-gray-600">{t("scripts.retryLater")}</p>
                             </div>
                         </div>
                     ) : scripts.length === 0 ? (
@@ -351,8 +351,8 @@ export default function ScriptsPage() {
                                     </>
                                 ) : (
                                     <>
-                                        <h3 className="text-2xl font-bold text-gray-900">暂无内容</h3>
-                                        <p className="text-gray-600">开始您的创作之旅吧</p>
+                                        <h3 className="text-2xl font-bold text-gray-900">{t("scripts.noContent")}</h3>
+                                        <p className="text-gray-600">{t("scripts.noContentHint")}</p>
                                         <div className="flex gap-4 justify-center">
                                             <Button
                                                 onClick={() => router.push('/novels/upload')}

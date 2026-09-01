@@ -39,8 +39,8 @@ function CreationCard({
     const confirmed = await confirm({
       title: t("creation.delete"),
       description: t("creation.deleteConfirm"),
-      confirmText: t("common.confirm") || "确认",
-      cancelText: t("common.cancel") || "取消",
+      confirmText: t("common.confirm"),
+      cancelText: t("common.cancel"),
       variant: "destructive",
     });
     if (confirmed) {
@@ -83,7 +83,7 @@ function CreationCard({
                   <ImageOff className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
                 </div>
                 <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 tracking-widest">
-                  暂无预览
+                  {t("creation.noPreview")}
                 </span>
               </div>
             </div>

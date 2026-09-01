@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTranslations } from 'next-intl'
 import { Sparkles, CheckCircle2, XCircle, Loader2 } from 'lucide-react'
@@ -10,9 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 
 export default function ConfirmPage() {
   const router = useRouter()
-  const params = useParams()
   const searchParams = useSearchParams()
-  const locale = params?.locale as string
   const t = useTranslations('auth')
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
@@ -25,7 +23,7 @@ export default function ConfirmPage() {
 
       if (!tokenHash) {
         setStatus('error')
-        setErrorMessage('缺少验证令牌')
+        setErrorMessage(t('missingToken'))
         return
       }
 
@@ -41,7 +39,7 @@ export default function ConfirmPage() {
         if (error) {
           console.error('Email confirmation error:', error)
           setStatus('error')
-          setErrorMessage(error.message || '邮箱验证失败')
+          setErrorMessage(error.message || t('emailVerifyFailed'))
         } else {
           setStatus('success')
           // 根据类型决定跳转页面
@@ -58,12 +56,12 @@ export default function ConfirmPage() {
       } catch (error) {
         console.error('Confirmation error:', error)
         setStatus('error')
-        setErrorMessage('验证过程中发生错误')
+        setErrorMessage(t('verifyError'))
       }
     }
 
     confirmEmail()
-  }, [searchParams, router, locale])
+  }, [searchParams, router, t])
 
   const handleGoToLogin = () => {
     const type = searchParams.get('type')
@@ -96,7 +94,7 @@ export default function ConfirmPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-            {searchParams.get('type') === 'recovery' ? '密码重置验证' : '邮箱验证'}
+            {searchParams.get('type') === 'recovery' ? t('resetVerifyTitle') : t('emailVerifyTitle')}
           </h1>
         </div>
 
@@ -111,10 +109,10 @@ export default function ConfirmPage() {
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      {searchParams.get('type') === 'recovery' ? '正在验证重置请求...' : '正在验证您的邮箱...'}
+                      {searchParams.get('type') === 'recovery' ? t('verifyingReset') : t('verifyingEmail')}
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      请稍候，我们正在处理您的验证请求
+                      {t('verifyingHint')}
                     </p>
                   </div>
                 </>
@@ -130,18 +128,18 @@ export default function ConfirmPage() {
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      验证成功！
+                      {t('verifySuccess')}
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                       {searchParams.get('type') === 'recovery'
-                        ? '即将跳转到密码重置页面...'
-                        : '您的邮箱已成功验证，即将跳转到登录页面...'}
+                        ? t('redirectToReset')
+                        : t('redirectToLoginAfterVerify')}
                     </p>
                     <Button
                       onClick={handleGoToLogin}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     >
-                      {searchParams.get('type') === 'recovery' ? '立即重置密码' : '立即前往登录'}
+                      {searchParams.get('type') === 'recovery' ? t('resetPasswordNow') : t('goToLoginNow')}
                     </Button>
                   </div>
                 </>
@@ -154,17 +152,17 @@ export default function ConfirmPage() {
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                      验证失败
+                      {t('verifyFailed')}
                     </h2>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      {errorMessage || '邮箱验证失败，请重试或联系支持团队'}
+                      {errorMessage || t('emailVerifyFailedHint')}
                     </p>
                     <Button
                       onClick={handleGoToLogin}
                       variant="outline"
                       className="w-full"
                     >
-                      返回登录页面
+                      {t('backToLoginPage')}
                     </Button>
                   </div>
                 </>
@@ -175,7 +173,7 @@ export default function ConfirmPage() {
 
         {/* 底部装饰文字 */}
         <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-          遇到问题？请联系我们的支持团队
+          {t('supportHint')}
         </p>
       </div>
 

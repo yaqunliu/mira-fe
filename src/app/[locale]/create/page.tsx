@@ -491,11 +491,11 @@ export default function CreateCreation() {
       }).then((response) => {
         const newCreationId = response?.data?.creation_id || response?.data;
         if (newCreationId) {
-          toast.success(t("creation.characterAnalysisStart") || "角色分析已开始");
+          toast.success(t("creation.characterAnalysisStart"));
           // 刷新创作数据以获取最新的任务ID
           refetchCreation();
         } else {
-          throw new Error(t("creation.taskIdNotFound") || "未获取到创作ID");
+          throw new Error(t("creation.taskIdNotFound"));
         }
         setIsResubmitting(false);
       }).catch((error) => {
@@ -539,7 +539,7 @@ export default function CreateCreation() {
     )
 
     if (!pointsAvailable) {
-      throw new Error('积分不足')
+      throw new Error(t("creation.insufficientPoints"))
     }
 
     setIsGeneratingShots(true);

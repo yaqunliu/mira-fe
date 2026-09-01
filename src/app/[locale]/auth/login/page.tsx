@@ -1,17 +1,27 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTranslations } from 'next-intl'
 import { GoogleSignIn } from '@/components/auth/google-sign-in'
 import { EmailSignIn } from '@/components/auth/email-sign-in'
 import { Separator } from '@/components/ui/separator'
+import { Suspense, useEffect } from 'react'
+import { toast } from 'sonner'
 import { Sparkles } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const t = useTranslations('auth')
+
+  // ?message= 只接受已知的 message code，再由本页翻译渲染；
+  // 不直接渲染 query 里的文本，避免把任意（且可能是中文的）字符串带上界面。
+  useEffect(() => {
+    const code = searchParams.get('message')
+    if (code === 'check_email') toast.success(t('checkEmailMessage'))
+  }, [searchParams, t])
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-gradient-to-b from-[#FDBCB4]/30 via-[#ADD8E6]/30 to-white">
@@ -54,7 +64,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-white px-4 py-2 text-gray-500 rounded-full shadow-sm">
-                    或
+                    {t('or')}
                   </span>
                 </div>
               </div>
@@ -89,5 +99,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   )
 }

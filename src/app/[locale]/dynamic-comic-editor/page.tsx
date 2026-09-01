@@ -9,7 +9,7 @@ import { AssetManager } from '@/components/business/asset-manager';
 import { useTimelineStore } from '@/stores/timeline';
 import { TimelineProject, TimelineTrack } from '@/types/timeline';
 import { Loader2, ChevronLeft, User, Image as ImageIcon, Film, Music, Type, Map as LucideMap, Save, Sparkles, Pencil, Volume2, PenLine, RotateCcw, Maximize2, WandSparkles, Edit2, FolderOpen, FolderDown, HelpCircle, Download, History, Settings, Plus, Monitor, Smartphone, Bot, Check } from 'lucide-react';
-import { useTranslations, NextIntlClientProvider } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import creationApi from '@/lib/api/creation';
 import characterApi from '@/lib/api/character';
@@ -59,83 +59,13 @@ import { cn, downloadFile } from "@/lib/utils";
 // 不要回落到 http://localhost:8000 —— 那在用户浏览器里指向用户自己的机器。
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-// 创建一个简单的消息对象作为 fallback
-const fallbackMessages = {
-    Editor: {
-        initializing: "初始化中...",
-        newProject: "新项目",
-        analyzingCharacters: "正在分析角色...",
-        analysisStarted: "分析已开始",
-        analysisCompleted: "分析已完成",
-        analysisFailed: "分析失败",
-        analyzingScenes: "正在分析场景...",
-        sceneAnalysisStarted: "场景分析已开始",
-        sceneAnalysisCompleted: "场景分析已完成",
-        sceneAnalysisFailed: "场景分析失败",
-        regenerating: "重新生成中...",
-        regenerationFailed: "重新生成失败",
-        generationStarted: "生成已开始",
-        sceneImagesGenerated: "场景图片已生成",
-        generationFailed: "生成失败",
-        analyzingShots: "正在分析分镜...",
-        shotAnalysisStarted: "分镜分析已开始",
-        shotAnalysisCompleted: "分镜分析已完成",
-        shotAnalysisFailed: "分镜分析失败",
-        shotImagesGenerated: "分镜图片已生成",
-        videoGenerationStarted: "视频生成已开始",
-        videoGenerated: "视频已生成",
-        videoGenerationFailed: "视频生成失败",
-        noShotsWithImages: "没有带图片的分镜",
-        batchVideoGenerationStarted: "批量视频生成已开始",
-        batchVideoGenerationCompleted: "批量视频生成已完成",
-        needImageFirst: "请先生成分镜图片",
-        videoAlreadyGenerating: "视频正在生成中",
-        failedToFetchTaskData: "获取任务数据失败",
-        failedToLoadTask: "加载任务失败",
-        importedClips: "已导入片段",
-        shots: "分镜",
-        createdTracks: "已创建轨道",
-        addedAssetsToTracks: "已添加素材到轨道",
-        noAssetsAvailable: "没有可用素材",
-        pleaseAnalyzeCharacters: "请分析角色",
-        analyzeCharactersDescription: "分析角色后可以生成角色图片",
-        analyzeCharacters: "分析角色",
-        titleUpdated: "标题已更新",
-        updateFailed: "更新失败",
-        error: "错误",
-        generatingDynamicComic: "正在生活动漫...",
-        saveSuccess: "保存成功",
-        saveFailed: "保存失败",
-        modelSettings: "模型设置",
-        usageGuide: "使用指南",
-        landscape: "横版 (16:9)",
-        portrait: "竖版 (9:16)",
-        characters: "角色",
-        scenes: "场景",
-        assets: "素材"
-    },
-    common: {
-        insufficientPoints: "点数不足"
-    }
-};
-
 export default function DynamicComicEditor() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
 
-    // 尝试使用 useTranslations，如果失败则使用 fallback
-    let t: (key: string, options?: any) => string;
-    let tC: (key: string, options?: any) => string;
-    
-    try {
-        t = useTranslations('Editor');
-        tC = useTranslations('common');
-    } catch (error) {
-        // 如果无法获取上下文，使用 fallback
-        t = (key: string) => (fallbackMessages.Editor as any)[key] || key;
-        tC = (key: string) => (fallbackMessages.common as any)[key] || key;
-    }
+    const t = useTranslations('Editor');
+    const tC = useTranslations('common');
     const taskId = searchParams.get('taskId');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -318,10 +248,10 @@ export default function DynamicComicEditor() {
                     ...creation,
                     extra_data: updatedExtraData
                 });
-                toast.success("模型配置已更新");
+                toast.success(t('modelConfigUpdated'));
             } catch (error) {
                 console.error("Failed to update model:", error);
-                toast.error("更新模型配置失败");
+                toast.error(t('modelConfigUpdateFailed'));
             }
         }
     };
@@ -343,10 +273,10 @@ export default function DynamicComicEditor() {
                     ...creation,
                     extra_data: updatedExtraData
                 });
-                toast.success("风格配置已更新");
+                toast.success(t('styleConfigUpdated'));
             } catch (error) {
                 console.error("Failed to update style:", error);
-                toast.error("更新风格配置失败");
+                toast.error(t('styleConfigUpdateFailed'));
             }
         }
     };
@@ -366,10 +296,10 @@ export default function DynamicComicEditor() {
                     ...creation,
                     extra_data: updatedExtraData
                 });
-                toast.success("创作比例已更新");
+                toast.success(t('aspectRatioUpdated'));
             } catch (error) {
                 console.error("Failed to update aspect ratio:", error);
-                toast.error("更新创作比例失败");
+                toast.error(t('aspectRatioUpdateFailed'));
             }
         }
     };
@@ -458,10 +388,10 @@ export default function DynamicComicEditor() {
             await creationApi.updateCreation(creation.uuid, { title: projectTitle });
             setCreation({ ...creation, title: projectTitle });
             setIsEditingTitle(false);
-            toast.success(t('titleUpdated') || "标题已更新");
+            toast.success(t('titleUpdated'));
         } catch (error) {
             console.error("Failed to update title:", error);
-            toast.error(t('updateFailed') || "更新失败");
+            toast.error(t('updateFailed'));
         }
     };
 
@@ -1051,7 +981,7 @@ export default function DynamicComicEditor() {
 
         if (!creation.uuid) {
             console.error('Creation UUID is missing:', creation);
-            toast.error('创作项目UUID缺失，无法生成视频');
+            toast.error(t('missingCreationUuid'));
             return;
         }
 
@@ -1606,6 +1536,7 @@ export default function DynamicComicEditor() {
 
                 // 遍历每条台词，单独添加到轨道
                 shot.narration.forEach((narrationItem: any) => {
+                    // i18n-ignore: 后端 LLM 输出的 JSON 字段名，翻译会破坏数据契约
                     const subtitleText = narrationItem.内容 || narrationItem.content || '';
 
                     if (subtitleText.trim()) {
@@ -1714,7 +1645,7 @@ export default function DynamicComicEditor() {
         if (exportStep.status === 'processing' && exportStep.progress) {
             setExportProgress({
                 percent: exportStep.progress.percent || 0,
-                status: exportStep.progress.status || '处理中...'
+                status: exportStep.progress.status || t('processingStatus')
             });
         } else {
             setExportProgress(null);
@@ -1999,7 +1930,7 @@ export default function DynamicComicEditor() {
             }
         } catch (error) {
             console.error("获取小说角色失败:", error);
-            toast.error("获取角色列表失败");
+            toast.error(t('fetchCharactersFailed'));
             setNovelCharacters([]);
         } finally {
             setIsLoadingNovelCharacters(false);
@@ -2022,7 +1953,7 @@ export default function DynamicComicEditor() {
     // 保存角色选择
     const handleSaveCharacterSelection = async () => {
         if (!creation?.uuid) {
-            toast.error("创作ID不存在");
+            toast.error(t('creationIdNotFound'));
             return;
         }
 
@@ -2051,7 +1982,7 @@ export default function DynamicComicEditor() {
             };
             await creationApi.updateCreation(creation.uuid, updateData);
 
-            toast.success("角色更新成功");
+            toast.success(t('characterUpdated'));
             setIsAddCharacterModalOpen(false);
 
             // 刷新创作数据
@@ -2061,7 +1992,7 @@ export default function DynamicComicEditor() {
             }
         } catch (error) {
             console.error("保存角色失败:", error);
-            toast.error("保存角色失败");
+            toast.error(t('saveCharacterFailed'));
         } finally {
             setIsSavingCharacters(false);
         }
@@ -2092,7 +2023,7 @@ export default function DynamicComicEditor() {
                         newMap.set(characterUuid, response.data!.task_id);
                         return newMap;
                     });
-                    toast.success(t('regenerating') || "重新生成中...");
+                    toast.success(t('regenerating'));
                 }
             } catch (error: any) {
                 toast.error(error.message || "Failed to start regeneration");
@@ -2103,8 +2034,8 @@ export default function DynamicComicEditor() {
         if (character.image_url) {
             setConfirmDialog({
                 open: true,
-                title: t('regenerateConfirmTitle') || "确认重新生成？",
-                description: t('regenerateConfirmDesc') || "重新生成后，当前的图片将无法找回。确定要继续吗？",
+                title: t('regenerateConfirmTitle'),
+                description: t('regenerateConfirmDesc'),
                 onConfirm: performRegeneration,
                 variant: 'destructive'
             });
@@ -2132,7 +2063,7 @@ export default function DynamicComicEditor() {
             // For batch generation, we might want to track a main task or just rely on polling the creation
             // Assuming the API returns a main task ID or we just poll the creation
             if (response.data && response.data.task_id) {
-                toast.success(t('generationStarted') || "生成任务已开始");
+                toast.success(t('generationStarted'));
                 // Here we could track the main task, but simpler to just poll creation or rely on the polling effect
                 // However, to show "Generating" state, we might need to know when it finishes.
                 // For now, let's just set isGenerating to false after a timeout or when creation updates.
@@ -2166,7 +2097,7 @@ export default function DynamicComicEditor() {
                 true
             );
             if (response.data && response.data.task_id) {
-                toast.success(t('regenerating') || "重新生成中...");
+                toast.success(t('regenerating'));
                 setTimeout(() => setIsGenerating(false), 5000);
             } else {
                 setIsGenerating(false);
@@ -2424,7 +2355,7 @@ export default function DynamicComicEditor() {
                     <p className="text-xl font-bold mb-2">{t('error')}</p>
                     <p>{error}</p>
                     <Button onClick={() => router.back()} variant="outline" className="mt-4 border-red-500 text-red-500 hover:bg-red-950">
-                        返回
+                        {t('back')}
                     </Button>
                 </div>
             </div>
@@ -2484,13 +2415,13 @@ export default function DynamicComicEditor() {
                                     <SelectItem value="16:9" className="focus:bg-[#ADD8E6]/30 focus:text-gray-900 text-xs py-1.5 cursor-pointer">
                                         <div className="flex items-center gap-2">
                                             <Monitor size={12} className="text-gray-600" />
-                                            <span>{t('landscape') || '横版 (16:9)'}</span>
+                                            <span>{t('landscape')}</span>
                                         </div>
                                     </SelectItem>
                                     <SelectItem value="9:16" className="focus:bg-[#ADD8E6]/30 focus:text-gray-900 text-xs py-1.5 cursor-pointer">
                                         <div className="flex items-center gap-2">
                                             <Smartphone size={12} className="text-gray-600" />
-                                            <span>{t('portrait') || '竖版 (9:16)'}</span>
+                                            <span>{t('portrait')}</span>
                                         </div>
                                     </SelectItem>
                                 </SelectContent>
@@ -2503,7 +2434,7 @@ export default function DynamicComicEditor() {
                             onClick={() => setShowModelSettings(true)}
                         >
                             <Settings size={14} className="text-[#22C55E]" />
-                            <span>{t('modelSettings') || '模型设置'}</span>
+                            <span>{t('modelSettings')}</span>
                         </button>
 
                         <button
@@ -2527,14 +2458,14 @@ export default function DynamicComicEditor() {
                             ) : (
                                 <Save size={14} />
                             )}
-                            <span>{saveStatus === 'saving' ? '保存中...' : '保存'}</span>
+                            <span>{saveStatus === 'saving' ? t('saving') : t('save')}</span>
                         </button>
                         <button
                             className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                             onClick={() => setShowTimeline(!showTimeline)}
                         >
                             <Monitor size={14} className={showTimeline ? "text-blue-500" : "text-gray-400"} />
-                            <span>{showTimeline ? '隐藏时间轴' : '显示时间轴'}</span>
+                            <span>{showTimeline ? t('hideTimeline') : t('showTimeline')}</span>
                         </button>
                         <Button
                             size="sm"
@@ -2549,12 +2480,12 @@ export default function DynamicComicEditor() {
                             {exportProgress ? (
                                 <>
                                     <Loader2 size={14} className="animate-spin" />
-                                    <span>导出中 {exportProgress.percent}%</span>
+                                    <span>{t('exportingPercent', { percent: exportProgress.percent })}</span>
                                 </>
                             ) : (
                                 <>
                                     <Download size={14} />
-                                    导出视频
+                                    {t('exportVideo')}
                                 </>
                             )}
                         </Button>
@@ -2566,7 +2497,7 @@ export default function DynamicComicEditor() {
                             className="h-9 px-4 rounded-xl bg-gradient-to-br from-[#22C55E]/20 to-[#ADD8E6]/30 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-[#22C55E]/50 text-gray-700 font-medium hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 text-sm"
                         >
                             <Bot size={14} className="text-[#22C55E]" />
-                            <span>切换到 Agent 模式</span>
+                            <span>{t('switchToAgentMode')}</span>
                         </button>
                     </div>
                 </div>
@@ -2605,7 +2536,7 @@ export default function DynamicComicEditor() {
                                         },
                                         {
                                             value: "assets",
-                                            label: <div className="flex items-center gap-2"><FolderOpen size={14} className="text-[#22C55E]" /><span>素材</span></div>,
+                                            label: <div className="flex items-center gap-2"><FolderOpen size={14} className="text-[#22C55E]" /><span>{t('assets')}</span></div>,
                                             content: null
                                         }
                                     ]}
@@ -2636,7 +2567,7 @@ export default function DynamicComicEditor() {
                                                             <div className="text-center space-y-1">
                                                                 <p className={cn("text-gray-700 font-medium", hasNoCharacters ? "text-base" : "text-sm")}>
                                                                     {t('analyzingCharacters')}
-                                                                    {step.status === 'failed' && step.error === 'timeout' && ` (${t('timeout') || '超时'})`}
+                                                                    {step.status === 'failed' && step.error === 'timeout' && ` (${t('timeout')})`}
                                                                 </p>
                                                                 {hasNoCharacters && (
                                                                     <p className="text-gray-600 text-xs max-w-[260px] mx-auto">{t('analyzeCharactersDescription')}</p>
@@ -2659,7 +2590,7 @@ export default function DynamicComicEditor() {
                                                             <div className="p-2 bg-[#ADD8E6]/50 rounded-full">
                                                                 <Loader2 size={16} className="text-[#22C55E] animate-spin" />
                                                             </div>
-                                                            <p className="text-gray-700 text-sm font-medium">{t('generatingCharacters') || '角色生成中...'}</p>
+                                                            <p className="text-gray-700 text-sm font-medium">{t('generatingCharacters')}</p>
                                                         </div>
                                                     );
                                                 }
@@ -2687,7 +2618,7 @@ export default function DynamicComicEditor() {
                                                         onClick={() => setIsAddCharacterModalOpen(true)}
                                                     >
                                                         <Plus className="w-3 h-3 mr-1" />
-                                                        添加角色
+                                                        {t('addCharacter')}
                                                     </Button>
                                                     {/* Re-analyze Button: With text and smaller than Generate All */}
                                                     {creation.characters.length > 0 && (
@@ -2786,7 +2717,7 @@ export default function DynamicComicEditor() {
                                                                                 onClick={() => handleRegenerateSingleCharacter(char)}
                                                                                 disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
                                                                             >
-                                                                                {t('generate') || '生成'}
+                                                                                {t('generate')}
                                                                             </Button>
                                                                             {/* Hover Actions Overlay */}
                                                                             <div className="absolute inset-0 bg-[#22C55E]/30 opacity-0 group-hover:opacity-100 transition-opacity flex flex-row items-center justify-center gap-2">
@@ -2805,7 +2736,7 @@ export default function DynamicComicEditor() {
                                                                                     className="h-7 w-7 text-white hover:bg-white/20 rounded-full"
                                                                                     onClick={() => handleRegenerateSingleCharacter(char)}
                                                                                     disabled={regeneratingCharacters.has(char.uuid || String(char.character_id)) || char.status === 'generating'}
-                                                                                    title={t('generate') || '生成'}
+                                                                                    title={t('generate')}
                                                                                 >
                                                                                     <ImageIcon size={14} />
                                                                                 </Button>
@@ -2937,8 +2868,8 @@ export default function DynamicComicEditor() {
                                                             </div>
                                                             <div className="text-center space-y-1">
                                                                 <p className={cn("text-gray-700 font-medium", hasNoScenes ? "text-base" : "text-sm")}>
-                                                                    {isAnalyzing ? t('analyzingScenes') : t('generatingSceneImages') || '场景图生成中...'}
-                                                                    {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout') || '超时'})`}
+                                                                    {isAnalyzing ? t('analyzingScenes') : t('generatingSceneImages')}
+                                                                    {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout')})`}
                                                                 </p>
                                                                 {hasNoScenes && (
                                                                     <p className="text-gray-600 text-xs max-w-[200px] mx-auto">{t('analyzeScenesDescription')}</p>
@@ -2954,7 +2885,7 @@ export default function DynamicComicEditor() {
                                                             <div className="p-2 bg-[#ADD8E6]/50 rounded-full">
                                                                 <Loader2 size={16} className="text-[#22C55E] animate-spin" />
                                                             </div>
-                                                            <p className="text-gray-700 text-sm font-medium">{t('generatingSceneImages') || '场景图生成中...'}</p>
+                                                            <p className="text-gray-700 text-sm font-medium">{t('generatingSceneImages')}</p>
                                                         </div>
                                                     );
                                                 }
@@ -3039,7 +2970,7 @@ export default function DynamicComicEditor() {
                                                                         <div className="w-full h-full flex flex-col items-center justify-center bg-[#FDBCB4]/30 text-gray-500">
                                                                             <LucideMap size={16} className="opacity-50 mb-0.5" />
                                                                             <span className="text-[8px] opacity-50 scale-90">
-                                                                                {(creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing') ? tC('generating') : '待生成'}
+                                                                                {(creation && getStepStatus(creation, 'sceneImageGeneration').status === 'processing') ? tC('generating') : t('pendingGeneration')}
                                                                             </span>
                                                                         </div>
                                                                     )}
@@ -3114,8 +3045,8 @@ export default function DynamicComicEditor() {
                                                             </div>
                                                             <div className="text-center space-y-1">
                                                                 <p className={cn("text-slate-300 font-medium", hasNoShots ? "text-base" : "text-sm")}>
-                                                                    {isAnalyzing ? t('analyzingShots') : t('generatingShotImages') || '分镜图生成中...'}
-                                                                    {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout') || '超时'})`}
+                                                                    {isAnalyzing ? t('analyzingShots') : t('generatingShotImages')}
+                                                                    {analysisStep.status === 'failed' && analysisStep.error === 'timeout' && ` (${t('timeout')})`}
                                                                 </p>
                                                                 {hasNoShots && (
                                                                     <p className="text-slate-600 text-xs max-w-[200px] mx-auto">{t('analyzeShotsDescription')}</p>
@@ -3131,7 +3062,7 @@ export default function DynamicComicEditor() {
                                                             <div className="p-2 bg-slate-800/50 rounded-full">
                                                                 <Loader2 size={16} className="text-orange-500 animate-spin" />
                                                             </div>
-                                                            <p className="text-slate-300 text-sm font-medium">{t('generatingShotImages') || '分镜图生成中...'}</p>
+                                                            <p className="text-slate-300 text-sm font-medium">{t('generatingShotImages')}</p>
                                                         </div>
                                                     );
                                                 }
@@ -3218,7 +3149,7 @@ export default function DynamicComicEditor() {
 
                                                                 // 如果正在处理中且未超时，显示提示
                                                                 if (stepStatus.status === 'processing') {
-                                                                    toast.warning(t('shotAnalysisInProgress') || '分镜解析正在进行中，请稍候...');
+                                                                    toast.warning(t('shotAnalysisInProgress'));
                                                                     return;
                                                                 }
 
@@ -3323,7 +3254,7 @@ export default function DynamicComicEditor() {
                                                                                             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-[2px]">
                                                                                                 <div className="flex flex-col items-center">
                                                                                                     <Loader2 className="w-3 h-3 text-green-500 animate-spin mb-0.5" />
-                                                                                                    <span className="text-[6px] text-green-600 font-medium">生成中</span>
+                                                                                                    <span className="text-[6px] text-green-600 font-medium">{t('generatingShort')}</span>
                                                                                                 </div>
                                                                                             </div>
                                                                                         )}
@@ -3331,7 +3262,7 @@ export default function DynamicComicEditor() {
                                                                                 ) : (
                                                                                     <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-white to-blue-50 text-gray-500">
                                                                                         <ImageIcon size={12} className="opacity-50 mb-0.5" />
-                                                                                        <span className="text-[6px] opacity-50 scale-90">首帧</span>
+                                                                                        <span className="text-[6px] opacity-50 scale-90">{t('firstFrameShort')}</span>
                                                                                     </div>
                                                                                 )}
                                                                             </div>
@@ -3370,7 +3301,7 @@ export default function DynamicComicEditor() {
                                                                                     return (
                                                                                         <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-white to-blue-50 text-gray-500">
                                                                                             <ImageIcon size={12} className="opacity-50 mb-0.5" />
-                                                                                            <span className="text-[6px] opacity-50 scale-90">尾帧</span>
+                                                                                            <span className="text-[6px] opacity-50 scale-90">{t('lastFrameShort')}</span>
                                                                                         </div>
                                                                                     );
                                                                                 })()}
@@ -3399,33 +3330,33 @@ export default function DynamicComicEditor() {
                                                                                 {shot.video_url && (
                                                                                     <span className="text-[9px] px-1.5 py-0.5 h-4 bg-blue-100 text-blue-800 shrink-0 font-normal rounded-full flex items-center gap-1">
                                                                                         <Film className="w-2 h-2" />
-                                                                                        视频
+                                                                                        {t('badgeVideo')}
                                                                                     </span>
                                                                                 )}
                                                                                 {/* Audio Status Badge */}
                                                                                 {shot.audio_url && (
                                                                                     <span className="text-[9px] px-1.5 py-0.5 h-4 bg-green-100 text-green-800 shrink-0 font-normal rounded-full flex items-center gap-1">
                                                                                         <Music className="w-2 h-2" />
-                                                                                        音频
+                                                                                        {t('badgeAudio')}
                                                                                     </span>
                                                                                 )}
                                                                                 {/* Subtitle Status Badge */}
                                                                                 {shot.narration && shot.narration.length > 0 && (
                                                                                     <span className="text-[9px] px-1.5 py-0.5 h-4 bg-amber-100 text-amber-800 shrink-0 font-normal rounded-full flex items-center gap-1">
                                                                                         <Type className="w-2 h-2" />
-                                                                                        字幕
+                                                                                        {t('badgeSubtitle')}
                                                                                     </span>
                                                                                 )}
                                                                                 {/* Video Generating Badge */}
                                                                                 {getVideoGenerationStatus(shot) === 'generating' && (
                                                                                     <span className="text-[9px] px-1.5 py-0.5 h-4 bg-green-100 text-green-800 animate-pulse shrink-0 font-normal rounded-full flex items-center gap-1">
                                                                                         <Loader2 className="w-2 h-2 animate-spin" />
-                                                                                        生成中
+                                                                                        {t('generatingShort')}
                                                                                     </span>
                                                                                 )}
                                                                             </div>
                                                                             <div className="text-xs text-gray-700 leading-relaxed max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-blue">
-                                                                                {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"]) || t('noDescription')}
+                                                                                {shot.description || shot.content || (shot.extra_data?.ai_output?.["简要剧情"] /* i18n-ignore: 后端 LLM 输出字段名 */) || t('noDescription')}
                                                                             </div>
                                                                         </div>
 
@@ -3623,7 +3554,7 @@ export default function DynamicComicEditor() {
                                 {t('usageGuideTitle')}
                             </DialogTitle>
                             <DialogDescription className="sr-only">
-                                {t('usageGuideDesc') || '如何使用动态漫编辑器进行创作的指南'}
+                                {t('usageGuideDesc')}
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
@@ -3697,10 +3628,10 @@ export default function DynamicComicEditor() {
                         <DialogHeader className="text-left">
                             <DialogTitle className="flex items-center gap-2 text-xl font-bold justify-start text-left">
                                 <Settings className="h-5 w-5 text-blue-500" />
-                                <div className='text-gray-600'>{t('modelSettings') || '模型设置'}</div>
+                                <div className='text-gray-600'>{t('modelSettings')}</div>
                             </DialogTitle>
                             <DialogDescription className="text-gray-600">
-                                {t('modelSettingsDesc') || '配置用于视频、文生图和图生图的 AI 模型'}
+                                {t('modelSettingsDesc')}
                             </DialogDescription>
                         </DialogHeader>
 
@@ -3710,11 +3641,11 @@ export default function DynamicComicEditor() {
                             <div className="space-y-3">
                                 <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                     <Film className="w-4 h-4 text-purple-400" />
-                                    {t('videoModel') || '视频生成模型'}
+                                    {t('videoModel')}
                                 </Label>
                                 <Select value={videoModel} onValueChange={(val) => handleModelChange('video', val)}>
                                     <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
-                                        <SelectValue placeholder="选择视频模型" />
+                                        <SelectValue placeholder={t('selectVideoModel')} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900 ">
                                         {videoModels.map((model: any) => (
@@ -3739,11 +3670,11 @@ export default function DynamicComicEditor() {
                             <div className="space-y-3">
                                 <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                     <Type className="w-4 h-4 text-blue-400" />
-                                    {t('textToImageModel') || '文生图模型'}
+                                    {t('textToImageModel')}
                                 </Label>
                                 <Select value={textToImageModel} onValueChange={(val) => handleModelChange('text_to_image', val)}>
                                     <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
-                                        <SelectValue placeholder="选择文生图模型" />
+                                        <SelectValue placeholder={t('selectTextToImageModel')} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         {textToImageModels.map((model: any) => (
@@ -3768,11 +3699,11 @@ export default function DynamicComicEditor() {
                             <div className="space-y-3">
                                 <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                     <ImageIcon className="w-4 h-4 text-green-400" />
-                                    {t('imageToImageModel') || '图生图模型'}
+                                    {t('imageToImageModel')}
                                 </Label>
                                 <Select value={imageToImageModel} onValueChange={(val) => handleModelChange('image_to_image', val)}>
                                     <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
-                                        <SelectValue placeholder="选择图生图模型" />
+                                        <SelectValue placeholder={t('selectImageToImageModel')} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         {imageToImageModels.map((model: any) => (
@@ -3797,41 +3728,41 @@ export default function DynamicComicEditor() {
                             <div className="space-y-3 pt-4 border-t border-slate-700/50">
                                 <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                     <Sparkles className="w-4 h-4 text-purple-400" />
-                                    创作风格
+                                    {t('visualStyle')}
                                 </Label>
                                 <Select value={visualStyle} onValueChange={handleStyleChange}>
                                     <SelectTrigger className="w-full bg-white border border-gray-200 text-gray-900 hover:bg-gray-50">
-                                        <SelectValue placeholder="选择创作风格" />
+                                        <SelectValue placeholder={t('selectVisualStyle')} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-white border border-gray-200 shadow-[8px_8px_24px_rgba(0,0,0,0.1),-8px_-8px_24px_rgba(255,255,255,0.9)] text-gray-900">
                                         <SelectItem value="realism" className="justify-start">
                                             <div className="flex flex-col gap-0.5 items-start w-full">
-                                                <span className="font-medium text-left">写实主义</span>
-                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">真实人物的AI真人剧</span>
+                                                <span className="font-medium text-left">{t('styleRealism')}</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{t('styleRealismDesc')}</span>
                                             </div>
                                         </SelectItem>
                                         <SelectItem value="cyberpunk" className="justify-start">
                                             <div className="flex flex-col gap-0.5 items-start w-full">
-                                                <span className="font-medium text-left">赛博朋克动画</span>
-                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">未来科幻赛博朋克风格</span>
+                                                <span className="font-medium text-left">{t('styleCyberpunk')}</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{t('styleCyberpunkDesc')}</span>
                                             </div>
                                         </SelectItem>
                                         <SelectItem value="ukiyoe" className="justify-start">
                                             <div className="flex flex-col gap-0.5 items-start w-full">
-                                                <span className="font-medium text-left">浮世绘</span>
-                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">传统日本浮世绘风格</span>
+                                                <span className="font-medium text-left">{t('styleUkiyoe')}</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{t('styleUkiyoeDesc')}</span>
                                             </div>
                                         </SelectItem>
                                         <SelectItem value="watercolor" className="justify-start">
                                             <div className="flex flex-col gap-0.5 items-start w-full">
-                                                <span className="font-medium text-left">水彩画风格</span>
-                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">柔和细腻的水彩画风格</span>
+                                                <span className="font-medium text-left">{t('styleWatercolor')}</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{t('styleWatercolorDesc')}</span>
                                             </div>
                                         </SelectItem>
                                         <SelectItem value="anime" className="justify-start">
                                             <div className="flex flex-col gap-0.5 items-start w-full">
-                                                <span className="font-medium text-left">日漫风格</span>
-                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">经典日本动漫风格</span>
+                                                <span className="font-medium text-left">{t('styleAnime')}</span>
+                                                <span className="text-[10px] text-gray-600 line-clamp-1 text-left">{t('styleAnimeDesc')}</span>
                                             </div>
                                         </SelectItem>
                                     </SelectContent>
@@ -3871,10 +3802,10 @@ export default function DynamicComicEditor() {
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col" aria-describedby="add-character-description">
                         <DialogHeader>
                             <DialogTitle className="flex items-center justify-between">
-                                <span>添加角色</span>
+                                <span>{t('addCharacterDialogTitle')}</span>
                             </DialogTitle>
                             <p id="add-character-description" className="text-sm text-gray-500">
-                                从项目中选择要添加的角色
+                                {t('addCharacterDialogDesc')}
                             </p>
                         </DialogHeader>
 
@@ -3884,7 +3815,7 @@ export default function DynamicComicEditor() {
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        placeholder="搜索角色名称..."
+                                        placeholder={t('searchCharacterPlaceholder')}
                                         value={characterSearchQuery}
                                         onChange={(e) => setCharacterSearchQuery(e.target.value)}
                                         className="w-full h-9 px-3 pl-9 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 focus:border-[#22C55E]"
@@ -3918,7 +3849,7 @@ export default function DynamicComicEditor() {
                                 </div>
                             ) : novelCharacters.length === 0 ? (
                                 <div className="text-center py-8 text-gray-400">
-                                    该项目下暂无角色
+                                    {t('noCharactersInProject')}
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -3986,11 +3917,11 @@ export default function DynamicComicEditor() {
                                                                 ? "bg-[#FDBCB4]/10 text-[#FDBCB4]"
                                                                 : "bg-[#22C55E]/10 text-[#22C55E]"
                                                         }`}>
-                                                            {isVoiceCharacter ? "声音" : "出镜"}
+                                                            {isVoiceCharacter ? t('voiceRole') : t('onScreenRole')}
                                                         </span>
                                                     </div>
                                                     <p className="text-xs text-gray-500 truncate">
-                                                        {character.appearance || character.basic_info || "暂无描述"}
+                                                        {character.appearance || character.basic_info || t('noDescription')}
                                                     </p>
                                                 </div>
                                             </div>
@@ -4006,7 +3937,7 @@ export default function DynamicComicEditor() {
                                         );
                                     }).length === 0 && (
                                         <div className="text-center py-8 text-gray-400">
-                                            没有找到匹配的角色
+                                            {t('noMatchingCharacters')}
                                         </div>
                                     )}
                                 </div>
@@ -4019,7 +3950,7 @@ export default function DynamicComicEditor() {
                                 variant="outline"
                                 onClick={() => setIsAddCharacterModalOpen(false)}
                             >
-                                取消
+                                {tC('cancel')}
                             </Button>
                             <Button
                                 onClick={handleSaveCharacterSelection}
@@ -4029,12 +3960,12 @@ export default function DynamicComicEditor() {
                                 {isSavingCharacters ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                        保存中...
+                                        {t('saving')}
                                     </>
                                 ) : (
                                     <>
                                         <Check size={16} className="mr-2" />
-                                        保存 ({selectedCharacterIds.size})
+                                        {t('saveWithCount', { count: selectedCharacterIds.size })}
                                     </>
                                 )}
                             </Button>

@@ -71,10 +71,10 @@ export default function ScriptDetailPage() {
             setIsAddingItem(false);
             setNewItemTitle("");
             setNewItemContent("");
-            toast.success("添加成功");
+            toast.success(t("scripts.addSuccess"));
         },
         onError: (error) => {
-            toast.error("添加失败");
+            toast.error(t("scripts.addFailed"));
             console.error(error);
         },
     });
@@ -87,10 +87,10 @@ export default function ScriptDetailPage() {
             queryClient.invalidateQueries({ queryKey: ["scripts"] });
             setEditingScriptTitle(false);
             setScriptTitleValue("");
-            toast.success("更新成功");
+            toast.success(t("novelDetail.updateSuccess"));
         },
         onError: (error) => {
-            toast.error("更新失败");
+            toast.error(t("novelDetail.updateFailed"));
             console.error("更新标题失败:", error);
         },
     });
@@ -282,9 +282,9 @@ export default function ScriptDetailPage() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-r from-[#FDBCB4]/20 to-[#ADD8E6]/20 flex items-center justify-center mb-6 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                     <FileText className="h-10 w-10 text-[#ADD8E6]" />
                 </div>
-                <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">文案未找到</h2>
+                <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{t("scripts.notFound")}</h2>
                 <Button onClick={() => router.push('/scripts')} variant="outline" className="mt-2 border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
-                    返回列表
+                    {t("novel.upload.backToList")}
                 </Button>
             </div>
         );
@@ -304,12 +304,12 @@ export default function ScriptDetailPage() {
                 <div className="flex items-center justify-between border-b border-gray-200/30 pb-6">
                     <div className="space-y-1">
                         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-                            {script.type === 'novel' ? '章节列表' : '文案列表'}
+                            {script.type === 'novel' ? t("novelDetail.chapterList") : t("scripts.listTitle")}
                         </h2>
                         <p className="text-sm text-gray-600">
-                            {script.type === 'novel' 
-                                ? `管理您的小说章节，共 ${itemsTotal} 章`
-                                : `管理您的分镜脚本和文案内容，共 ${itemsTotal} 篇`
+                            {script.type === 'novel'
+                                ? t("scripts.manageChapters", { count: itemsTotal })
+                                : t("scripts.manageScripts", { count: itemsTotal })
                             }
                         </p>
                     </div>
@@ -319,7 +319,7 @@ export default function ScriptDetailPage() {
                             className="rounded-full px-6 bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(253,188,180,0.3),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all hover:scale-105"
                         >
                             <Plus className="h-4 w-4 mr-2" /> 
-                            新增文案
+                            {t("scripts.addScript")}
                         </Button>
                     )}
                 </div>
@@ -329,19 +329,19 @@ export default function ScriptDetailPage() {
                         <div className="absolute inset-0 bg-gradient-to-br from-[#ADD8E6]/10 via-transparent to-transparent pointer-events-none" />
                         <div className="p-6 space-y-6 relative">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">标题</label>
+                                <label className="text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{t("scripts.titleLabel")}</label>
                                 <Input
-                                    placeholder="给文案起个好听的名字"
+                                    placeholder={t("scripts.titlePlaceholder")}
                                     value={newItemTitle}
                                     onChange={(e) => setNewItemTitle(e.target.value)}
                                     className="bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">内容</label>
+                                <label className="text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">{t("scripts.contentLabel")}</label>
                                 <div className="relative">
                                     <Textarea
-                                        placeholder="在此输入文案内容..."
+                                        placeholder={t("scripts.contentPlaceholder")}
                                         value={newItemContent}
                                         onChange={(e) => {
                                             if (e.target.value.length <= 3000) {
@@ -357,13 +357,13 @@ export default function ScriptDetailPage() {
                                 </div>
                             </div>
                             <div className="flex justify-end gap-3 pt-2">
-                                <Button variant="ghost" onClick={() => setIsAddingItem(false)} className="hover:bg-[#ADD8E6]/10 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">取消</Button>
+                                <Button variant="ghost" onClick={() => setIsAddingItem(false)} className="hover:bg-[#ADD8E6]/10 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">{t("common.cancel")}</Button>
                                 <Button
                                     onClick={handleAddItem}
                                     disabled={!newItemTitle.trim() || !newItemContent.trim() || createItemMutation.isPending}
                                     className="min-w-[100px] bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#F69689] text-white shadow-[4px_4px_8px_rgba(253,188,180,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {createItemMutation.isPending ? <LoadingIcon /> : "确认添加"}
+                                    {createItemMutation.isPending ? <LoadingIcon /> : t("scripts.confirmAdd")}
                                 </Button>
                             </div>
                         </div>
@@ -375,11 +375,11 @@ export default function ScriptDetailPage() {
                         <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#FDBCB4]/20 flex items-center justify-center mb-4 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                             <BookOpen className="h-8 w-8 text-[#ADD8E6]" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">暂无文案</h3>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">{t("scripts.empty")}</h3>
                         <p className="text-sm text-gray-600 max-w-xs mx-auto">
-                            {script.type === 'script' 
-                                ? '点击右上角的"新增文案"按钮，开始创作您的第一个文案。'
-                                : '该小说暂无章节。'}
+                            {script.type === 'script'
+                                ? t("scripts.emptyHint")
+                                : t("scripts.noChapters")}
                         </p>
                     </div>
                 ) : (
@@ -429,7 +429,7 @@ export default function ScriptDetailPage() {
                                                 {item.has_creation && (
                                                     <span className="flex items-center gap-1.5 text-white bg-gradient-to-r from-[#22C55E] to-[#16A34A] px-2 py-0.5 rounded text-[10px] font-bold shadow-[4px_4px_8px_rgba(34,197,94,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] animate-pulse">
                                                         <Check className="h-3 w-3" />
-                                                        已有创作
+                                                        {t("scripts.hasCreation")}
                                                     </span>
                                                 )}
                                             </div>
@@ -451,7 +451,7 @@ export default function ScriptDetailPage() {
                                             {item.word_count > 0 && (
                                                 <span className="flex items-center gap-1.5 bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 px-3 py-1 rounded-lg shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] text-gray-700">
                                                     <FileText className="h-3.5 w-3.5 text-[#ADD8E6]" />
-                                                    {item.word_count} 字
+                                                    {item.word_count} {t("scripts.wordsSuffix")}
                                                 </span>
                                             )}
                                         </div>
@@ -463,7 +463,7 @@ export default function ScriptDetailPage() {
                                             className="h-8 px-4 rounded-full font-medium shadow-sm hover:shadow-md bg-gradient-to-r from-[#ADD8E6] to-[#ADD8E6]/80 text-white hover:from-[#ADD8E6] hover:to-[#ADD8E6] transition-all shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]" 
                                             onClick={() => handleCreateVideo(itemUuid)}
                                         >
-                                            去创作
+                                            {t("novelDetail.goToCreate")}
                                         </Button>
                                         <Button
                                             size="icon"
@@ -491,7 +491,7 @@ export default function ScriptDetailPage() {
                     {/* Header Navigation */}
                     <div className="flex items-center justify-between">
                         <Button variant="ghost" size="sm" onClick={() => router.push('/scripts')} className="hover:bg-[#ADD8E6]/10 -ml-2 text-[#ADD8E6] hover:text-[#ADD8E6] shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-white rounded-xl">
-                            <ChevronLeft className="h-4 w-4 mr-1" />返回列表
+                            <ChevronLeft className="h-4 w-4 mr-1" />{t("novel.upload.backToList")}
                         </Button>
                     </div>
 
@@ -534,7 +534,7 @@ export default function ScriptDetailPage() {
                                     <div className="flex flex-wrap gap-4 md:gap-6 text-sm">
                                         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                             <User className="h-3.5 w-3.5 text-[#ADD8E6]" />
-                                            <span className="text-gray-700">{script.author || '未知作者'}</span>
+                                            <span className="text-gray-700">{script.author || t("scripts.unknownAuthor")}</span>
                                         </div>
                                         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                             <Calendar className="h-3.5 w-3.5 text-[#ADD8E6]" />
@@ -542,7 +542,7 @@ export default function ScriptDetailPage() {
                                         </div>
                                         <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#ADD8E6]/20 to-[#ADD8E6]/10 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
                                             <BookOpen className="h-3.5 w-3.5 text-[#ADD8E6]" />
-                                            <span className="text-gray-700">{itemsTotal} 条文案</span>
+                                            <span className="text-gray-700">{t("scripts.itemsCount", { count: itemsTotal })}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -558,13 +558,13 @@ export default function ScriptDetailPage() {
                         {itemsTotalPages > 1 && (
                             <div className="flex items-center justify-center gap-4 py-4">
                                 <Button variant="outline" size="sm" onClick={() => setItemPage(p => Math.max(1, p - 1))} disabled={itemPage <= 1} className="border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] disabled:opacity-50 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
-                                    <ChevronLeft className="h-4 w-4 mr-1" /> 上一页
+                                    <ChevronLeft className="h-4 w-4 mr-1" /> {t("novel.previousPage")}
                                 </Button>
                                 <span className="text-sm font-medium bg-gradient-to-r from-[#ADD8E6]/20 to-[#FDBCB4]/20 px-3 py-1 rounded-md shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)] bg-clip-text text-transparent">
                                     {itemPage} / {itemsTotalPages}
                                 </span>
                                 <Button variant="outline" size="sm" onClick={() => setItemPage(p => Math.min(itemsTotalPages, p + 1))} disabled={itemPage >= itemsTotalPages} className="border-[#ADD8E6] text-[#ADD8E6] hover:bg-[#ADD8E6]/10 hover:text-[#ADD8E6] disabled:opacity-50 shadow-[4px_4px_8px_rgba(173,221,230,0.2),-2px_-2px_4px_rgba(255,255,255,0.7)]">
-                                    下一页 <ChevronLeft className="h-4 w-4 ml-1 rotate-180" />
+                                    {t("novel.nextPage")} <ChevronLeft className="h-4 w-4 ml-1 rotate-180" />
                                 </Button>
                             </div>
                         )}

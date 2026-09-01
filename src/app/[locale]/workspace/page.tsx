@@ -178,7 +178,7 @@ export default function WorkspacePage() {
                     {t("home.myCreations")}
                   </h2>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                    {t("home.manageYourCreations") || "管理您的创作作品"}
+                    {t("home.manageYourCreations")}
                   </p>
                 </div>
               </div>

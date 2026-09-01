@@ -42,14 +42,14 @@ export default function CreateV2Page() {
       } catch (err) {
         console.error("Failed to load creation:", err);
         setError("Failed to load creation data");
-        toast.error("加载创作数据失败");
+        toast.error(t("creation.loadDataFailed"));
       } finally {
         setLoading(false);
       }
     };
 
     loadCreation();
-  }, [creationId, setCreation, setLoading, setError]);
+  }, [creationId, setCreation, setLoading, setError, t]);
 
   // Transform store steps to UI steps
   const uiSteps: Step[] = useMemo(() => {
@@ -80,7 +80,7 @@ export default function CreateV2Page() {
   if (!creationId) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">无效的创作ID</p>
+        <p className="text-muted-foreground">{t("creation.invalidId")}</p>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function CreateV2Page() {
   return (
     <div className="container mx-auto py-8 space-y-8 bg-gradient-to-br from-[#FDBCB4]/20 via-[#ADD8E6]/20 to-white min-h-screen">
       <div className="flex flex-col space-y-4">
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">{creation?.title || "新建视频创作"}</h1>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-[#22C55E] to-[#ADD8E6] bg-clip-text text-transparent">{creation?.title || t("creation.newVideoCreation")}</h1>
         <Stepper 
           steps={uiSteps} 
           onStepClick={(_, index) => {

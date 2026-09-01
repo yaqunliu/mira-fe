@@ -254,7 +254,7 @@ export default function CreateDynamicComicPage() {
                 }
             } else {
                 const data = await res.json();
-                throw new Error(data.detail || "创建失败");
+                throw new Error(data.detail || t("createFailed"));
             }
         } catch (e: any) {
             toast.error(`${t('scriptCreationFailed')}: ${e.message}`);
@@ -310,7 +310,7 @@ export default function CreateDynamicComicPage() {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    title: "自由创作",
+                    title: t("freeCreation"),
                     creation_type: "chat",
                     workflow_mode: "agent"
                 })

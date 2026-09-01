@@ -90,7 +90,7 @@ export default function PaymentSuccessPage() {
         }
         // 支付成功后刷新积分数据
         await refreshPointsData()
-        toast.success(t('payment.success', { default: '支付成功！积分已到账' }))
+        toast.success(t('payment.success'))
       } else if (orderData.status === 'failed' || orderData.status === 'cancelled' || orderData.status === 'refunded') {
         setOrderStatus('failed')
         // 停止轮询
@@ -116,7 +116,7 @@ export default function PaymentSuccessPage() {
             <>
               <Loader2 className="h-16 w-16 mx-auto mb-4 text-blue-500 animate-spin" />
               <CardTitle className="text-2xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-                {t('payment.processing', { default: '正在处理支付...' })}
+                {t('payment.processing')}
               </CardTitle>
             </>
           )}
@@ -124,7 +124,7 @@ export default function PaymentSuccessPage() {
             <>
               <Loader2 className="h-16 w-16 mx-auto mb-4 text-amber-500 animate-spin" />
               <CardTitle className="text-2xl bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-                {t('payment.confirming', { default: '正在确认支付...' })}
+                {t('payment.confirming')}
               </CardTitle>
             </>
           )}
@@ -132,7 +132,7 @@ export default function PaymentSuccessPage() {
             <>
               <CheckCircle2 className="h-16 w-16 mx-auto mb-4 text-[#22C55E]" />
               <CardTitle className="text-2xl text-[#22C55E]">
-                {t('payment.successTitle', { default: '支付成功！' })}
+                {t('payment.successTitle')}
               </CardTitle>
             </>
           )}
@@ -140,7 +140,7 @@ export default function PaymentSuccessPage() {
             <>
               <XCircle className="h-16 w-16 mx-auto mb-4 text-red-500" />
               <CardTitle className="text-2xl text-red-500">
-                {t('payment.failedTitle', { default: '支付失败' })}
+                {t('payment.failedTitle')}
               </CardTitle>
             </>
           )}
@@ -149,18 +149,18 @@ export default function PaymentSuccessPage() {
           {order && (
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">{t('payment.orderNumber', { default: '订单号' })}:</span>
+                <span className="text-gray-600">{t('payment.orderNumber')}:</span>
                 <span className="font-mono text-gray-800">{order.order_number}</span>
               </div>
               {order.points_amount && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">{t('payment.pointsAmount', { default: '积分数量' })}:</span>
+                  <span className="text-gray-600">{t('payment.pointsAmount')}:</span>
                   <span className="font-semibold text-[#22C55E]">{order.points_amount.toLocaleString()}</span>
                 </div>
               )}
               {order.amount && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">{t('payment.amount', { default: '支付金额' })}:</span>
+                  <span className="text-gray-600">{t('payment.amount')}:</span>
                   <span className="text-gray-800">
                     {order.currency === 'USD' 
                       ? `$${(order.amount / 100).toFixed(2)}`
@@ -181,12 +181,12 @@ export default function PaymentSuccessPage() {
                   className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   <Link href={'/points'}>
-                    {t('payment.viewPoints', { default: '查看积分' })}
+                    {t('payment.viewPoints')}
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
                   <Link href={'/workspace'}>
-                    {t('payment.backToWorkspace', { default: '返回工作台' })}
+                    {t('payment.backToWorkspace')}
                   </Link>
                 </Button>
               </>
@@ -198,12 +198,12 @@ export default function PaymentSuccessPage() {
                   className="w-full bg-gradient-to-r from-[#FDBCB4] to-[#F9A899] hover:from-[#F9A899] hover:to-[#FDBCB4] text-white font-medium shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   <Link href={'/pricing'}>
-                    {t('payment.retryPayment', { default: '重新支付' })}
+                    {t('payment.retryPayment')}
                   </Link>
                 </Button>
                 <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
                   <Link href={'/workspace'}>
-                    {t('payment.backToWorkspace', { default: '返回工作台' })}
+                    {t('payment.backToWorkspace')}
                   </Link>
                 </Button>
               </>
@@ -211,7 +211,7 @@ export default function PaymentSuccessPage() {
             {(orderStatus === 'loading' || orderStatus === 'pending') && (
               <Button variant="outline" asChild className="w-full border-gray-200 text-gray-700 hover:bg-gray-50">
                 <Link href={'/workspace'}>
-                  {t('payment.backToWorkspace', { default: '返回工作台' })}
+                  {t('payment.backToWorkspace')}
                 </Link>
               </Button>
             )}

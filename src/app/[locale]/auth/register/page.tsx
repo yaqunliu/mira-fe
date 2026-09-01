@@ -45,7 +45,7 @@ function RegisterContent() {
               {/* 邮箱注册 */}
               <EmailRegister
                 onSuccess={() => {
-                  router.push(`/auth/login?message=${encodeURIComponent('请检查您的邮箱以验证账户')}`)
+                  router.push('/auth/login?message=check_email')
                 }}
               />
 
@@ -56,7 +56,7 @@ function RegisterContent() {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                   <span className="bg-white px-4 py-2 text-gray-500 rounded-full shadow-sm">
-                    或
+                    {t('or')}
                   </span>
                 </div>
               </div>

@@ -2,9 +2,11 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 import { ForgotPassword } from '@/components/auth/forgot-password'
+import { useTranslations } from 'next-intl'
 import { Sparkles } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
+  const t = useTranslations('auth')
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -28,10 +30,10 @@ export default function ForgotPasswordPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-            密码重置
+            {t('forgotPasswordHeading')}
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            让我们帮您找回账户访问权限
+            {t('forgotPasswordSubheading')}
           </p>
         </div>
 
@@ -44,7 +46,7 @@ export default function ForgotPasswordPage() {
 
         {/* 底部装饰文字 */}
         <p className="text-center text-xs text-gray-500 dark:text-gray-400">
-          密码重置链接将在1小时后过期
+          {t('resetLinkExpiryHint')}
         </p>
       </div>
 
