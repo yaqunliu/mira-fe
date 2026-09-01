@@ -218,7 +218,7 @@ function CharactorCard({
           open={previewImage !== null}
           onOpenChange={() => setPreviewImage(null)}
           src={previewImage}
-          alt="角色形象"
+          alt={t('portrait')}
         />
       )}
     </div>

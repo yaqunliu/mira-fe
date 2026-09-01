@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -120,7 +121,7 @@ function VoiceCard({
           <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
             <User className="w-3 h-3" />
             <span className="truncate">
-              {voice.author?.nickname || "未知"}
+              {voice.author?.nickname || t("unknown")}
             </span>
           </div>
 
@@ -287,7 +288,7 @@ export function VoiceSelector({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
-            placeholder="搜索语音名称..."
+            placeholder={t("searchPlaceholder")}
             value={searchTitle}
             onChange={(e) => setSearchTitle(e.target.value)}
             className="pl-9 rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
@@ -300,7 +301,7 @@ export function VoiceSelector({
           onValueChange={(value) => setSelectedTag(value as VoiceTag | "all")}
         >
           <SelectTrigger className="w-full sm:w-[140px] rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]">
-            <SelectValue placeholder="声音类型" />
+            <SelectValue placeholder={t("voiceType")} />
           </SelectTrigger>
           <SelectContent>
             {VOICE_TAG_OPTIONS.map((option) => (
@@ -316,7 +317,7 @@ export function VoiceSelector({
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-6 animate-spin text-#22C55E" />
-          <span className="ml-2 text-gray-600">加载中...</span>
+          <span className="ml-2 text-gray-600">{t("loadingVoices")}</span>
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center py-12 gap-4">
@@ -324,9 +325,9 @@ export function VoiceSelector({
             <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-red-50 to-pink-50 flex items-center justify-center shadow-md">
               <Volume2 className="w-8 h-8 text-red-500" />
             </div>
-            <p className="text-red-500 font-medium">加载语音列表失败，请稍后重试</p>
+            <p className="text-red-500 font-medium">{t("loadFailed")}</p>
             <p className="text-sm text-gray-600 mt-2">
-              {error instanceof Error ? error.message : "网络连接异常"}
+              {error instanceof Error ? error.message : t("networkError")}
             </p>
           </div>
           <Button
@@ -334,15 +335,13 @@ export function VoiceSelector({
             variant="outline"
             className="flex items-center gap-2 rounded-2xl border-2 border-#22C55E hover:border-#16A34A bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] transition-all duration-200 hover:scale-105"
           >
-            <RefreshCw className="w-4 h-4" />
-            重新加载
-          </Button>
+            <RefreshCw className="w-4 h-4" />{t("reload")}</Button>
         </div>
       ) : voices.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-gray-600">
           <Volume2 className="w-12 h-12 mb-4 opacity-50" />
-          <p>未找到匹配的语音</p>
-          <p className="text-sm mt-1">试试其他搜索条件？</p>
+          <p>{t("noMatchingVoice", { default: "No matching voices found" })}</p>
+          <p className="text-sm mt-1">{t("tryOtherSearch", { default: "Try other search terms?" })}</p>
         </div>
       ) : (
         <>
@@ -371,7 +370,7 @@ export function VoiceSelector({
                 className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
               >
                 <ChevronLeft className="w-4 h-4" />
-                上一页
+                {t("prev", { default: "Previous" })}
               </Button>
 
               <span className="text-sm text-gray-600 px-4 py-2 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]">
@@ -387,7 +386,7 @@ export function VoiceSelector({
                 disabled={currentPage >= totalPages}
                 className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
               >
-                下一页
+                {t("nextPage", { default: "Next" })}
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -396,7 +395,7 @@ export function VoiceSelector({
           {/* 总数统计 */}
           {voicesResponse && (
             <div className="text-center text-sm text-gray-600 mt-4 py-2 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]">
-              共找到 {voicesResponse.total} 个语音
+              {t("foundTotal", { default: "Found" })} {voicesResponse.total} 个语音
             </div>
           )}
         </>

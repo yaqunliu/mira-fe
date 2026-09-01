@@ -1,4 +1,5 @@
-'use client';
+'use client'
+import { useTranslations } from 'next-intl';
 
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { useTimelineStore } from '@/stores/timeline';
@@ -240,7 +241,7 @@ export const VideoPreview: React.FC = () => {
         
         {Object.keys(errors).map(clipId => (
           <div key={clipId} className="bg-gradient-to-br from-red-500/90 to-rose-500/90 backdrop-blur-lg px-3 py-1.5 rounded-xl border border-red-500/50 shadow-xl shadow-red-500/20 text-[10px] text-white max-w-[200px] truncate">
-            错误: {clipId}
+            {t("errorPrefix")} {clipId}
           </div>
         ))}
       </div>
@@ -281,7 +282,7 @@ export const VideoPreview: React.FC = () => {
             <div className="p-6 bg-gradient-to-br from-gray-900/90 to-slate-900/90 rounded-full border border-gray-800/50 shadow-xl shadow-indigo-950/20">
               <Film size={48} strokeWidth={1.5} className="text-gray-500" />
             </div>
-            <p className="text-sm font-medium tracking-wide text-gray-400">暂无可见视频素材</p>
+            <p className="text-sm font-medium tracking-wide text-gray-400">{t("noVisibleAssets")}</p>
           </div>
         )}
       </div>
@@ -324,7 +325,7 @@ export const VideoPreview: React.FC = () => {
         <button 
           onClick={() => setIsMuted(!isMuted)}
           className="p-2 bg-gradient-to-br from-gray-900/90 to-slate-900/90 hover:bg-gradient-to-br from-gray-800/90 to-slate-800/90 text-gray-300 hover:text-white rounded-full backdrop-blur-lg border border-gray-800/50 shadow-xl shadow-indigo-950/20 transition-all active:scale-95"
-          title={isMuted ? '取消静音' : '静音'}
+          title={isMuted ? t('unmute', { default: 'Unmute' }) : t('mute', { default: 'Mute' })}
         >
           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>

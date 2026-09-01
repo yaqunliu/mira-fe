@@ -48,7 +48,7 @@ export function ShotItem({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-xs bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 text-white px-2 py-0.5">
-                {`分镜 ${index + 1}`} 
+                {t("shotItem", { index: index + 1 })} 
               </Badge>
               <div className="flex items-center gap-1 text-xs text-gray-600 ml-1">
                 <Clock className="h-3 w-3" />
@@ -94,7 +94,7 @@ export function ShotItem({
           <div className="space-y-2">
             <div className="flex items-center gap-1 text-sm font-medium text-gray-800">
               <Mic className="h-3 w-3" />
-              旁白
+              {t("narration")}
             </div>
             <div className="space-y-1">
               {Array.isArray(currentShot.narration) && currentShot.narration.length > 0 ? (
@@ -105,7 +105,7 @@ export function ShotItem({
                 ))
               ) : (
                 <p className="text-sm text-gray-400 leading-relaxed italic">
-                  暂无旁白
+                  {t("noNarration")}
                 </p>
               )}
             </div>

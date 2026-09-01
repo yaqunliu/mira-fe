@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl'
 import React, { useState, useCallback } from "react";
 import { Stepper, updateStepStatus, type Step } from "@/components/ui/stepper";
 import { Button } from "@/components/ui/button";
@@ -160,16 +161,14 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
               disabled={isFirstStep}
               className="flex items-center gap-2 rounded-xl border-2 border-blue-200 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:border-#22C55E/50 hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 disabled:hover:scale-100 disabled:opacity-50"
             >
-              <ChevronLeft className="w-4 h-4" />
-              上一步
-            </Button>
+              <ChevronLeft className="w-4 h-4" />{t("prev")}</Button>
 
             <Button
               onClick={nextStep}
               disabled={isLastStep}
               className="flex items-center gap-2 bg-gradient-to-br from-#22C55E to-#16A34A text-white shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.15),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200 hover:scale-105 rounded-xl disabled:opacity-50 disabled:hover:scale-100"
             >
-              {isLastStep ? "完成" : "下一步"}
+              {isLastStep ? t('done') : t('next_step')}
               {!isLastStep && <ChevronRight className="w-4 h-4" />}
             </Button>
           </div>

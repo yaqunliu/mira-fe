@@ -121,9 +121,7 @@ export function CreationOverview() {
               <div className="p-3 rounded-full bg-white/50 dark:bg-white/5 border border-zinc-200/50 dark:border-white/10 shadow-sm backdrop-blur-sm">
                 <ImageOff className="w-5 h-5 text-zinc-400 dark:text-zinc-500" />
               </div>
-              <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 tracking-widest">
-                暂无预览
-              </span>
+              <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 tracking-widest">{t("noPreview")}</span>
             </div>
           </div>
         )}

@@ -31,7 +31,8 @@ import {
 } from "@/components/ui/dialog";
 
 export function StorySetting() {
-  const t = useTranslations("");
+  const t = useTranslations("")
+  const tSB = useTranslations("storyboard");
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -148,19 +149,19 @@ export function StorySetting() {
                 ...chapterData,
                 uuid: chapterData.uuid || chapterData.chapter_id || chapterData.chapterId || chapterIdFromUrl,
                 chapter_id: chapterData.chapter_id || chapterData.chapterId || chapterIdFromUrl,
-                title: chapterData.title || "未知章节",
+                title: chapterData.title || tSB("unknownChapter"),
                 chapter_number: chapterData.chapter_number || chapterData.chapterNumber || 0,
               };
               setSelectedChapters([fullChapter]);
             } else {
               console.error("获取章节详情失败：返回数据为空");
-              toast.error("获取章节详情失败");
+              toast.error(tSB("fetchChapterFailed"));
             }
             setIsLoadingFromUrl(false);
           })
           .catch((error) => {
             console.error("获取章节详情失败:", error);
-            toast.error("获取章节详情失败，请重试");
+            toast.error(tSB("fetchChapterError"));
             setIsLoadingFromUrl(false);
           });
       }
@@ -193,7 +194,7 @@ export function StorySetting() {
 
       if (creationIdToUse) {
         setCreationId(creationIdToUse);
-        toast.success(t("creation.characterAnalysisStart") || "开始分析章节内容...");
+        toast.success(t("creation.characterAnalysisStart") || tSB("analyzing"));
         // 根据创作模式跳转到不同页面
         if (creationMode === "agent") {
           router.replace(`/create-agent?creationId=${creationIdToUse}`);
@@ -201,7 +202,7 @@ export function StorySetting() {
           router.replace(`/dynamic-comic-editor?taskId=${creationIdToUse}`);
         }
       } else {
-        throw new Error(t("creation.taskIdNotFound") || "未获取到创作ID");
+        throw new Error(t("creation.taskIdNotFound") || tSB("missingCreationId"));
       }
     },
     onError: (error: Error) => {
@@ -256,7 +257,7 @@ export function StorySetting() {
     )
 
     if (!pointsAvailable) {
-      throw new Error('积分不足')
+      throw new Error(tSB('missingCreationId', { default: t('insufficientPoints') }))
     }
 
     // 构建 extra_data
@@ -409,7 +410,7 @@ export function StorySetting() {
                                   }`}
                                 >
                                   <Wrench className="w-3.5 h-3.5" />
-                                  专业模式
+                                  {tSB("proMode")}
                                 </button>
                                 <button
                                   type="button"
@@ -435,7 +436,7 @@ export function StorySetting() {
                                   className="flex-1 sm:flex-initial rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 hover:border-[#ADD8E6]/50 transition-all duration-200 hover:scale-105 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]"
                                 >
                                   <Settings className="w-4 h-4 mr-2 text-[#ADD8E6]" />
-                                  {t("creation.config") || "配置"}
+                                  {t("creation.config") || tSB("config")}
                                 </Button>
                               </DialogTrigger>
                               <DialogContent className="sm:max-w-[600px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col p-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border-white/10">
@@ -446,11 +447,11 @@ export function StorySetting() {
                                         <Settings className="w-5 h-5 text-amber-400" />
                                       </div>
                                       <DialogTitle className="text-2xl font-bold text-white">
-                                        {t("creation.modelConfig") || "创作配置"}
+                                        {t("creation.modelConfig") || tSB("creationConfig")}
                                       </DialogTitle>
                                     </div>
                                     <DialogDescription className="text-slate-400 text-sm">
-                                      {t("creation.modelConfigDescription") || "选择用于生成创作的模型和模式"}
+                                      {t("creation.modelConfigDescription") || tSB("creationConfigDesc")}
                                     </DialogDescription>
                                   </DialogHeader>
 
@@ -460,26 +461,26 @@ export function StorySetting() {
                                       <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                                         <Label className="text-sm font-semibold text-white flex items-center gap-2">
                                           <div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>
-                                          {t("creation.aspectRatio") || "创作比例"}
+                                          {t("creation.aspectRatio") || tSB("aspectRatioConfig")}
                                         </Label>
                                         <Select value={aspectRatio} onValueChange={(value: "16:9" | "9:16") => setAspectRatio(value)}>
                                           <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                            <SelectValue placeholder={t("creation.selectAspectRatio") || "选择比例"} />
+                                            <SelectValue placeholder={t("creation.selectAspectRatio") || tSB("selectRatio")} />
                                           </SelectTrigger>
                                           <SelectContent className="bg-slate-800 border-white/10">
                                             <SelectItem value="16:9" className="text-white hover:bg-white/10">
-                                              {t("creation.landscape") || "横版 (16:9)"}
+                                              {t("creation.landscape") || tSB("landscape")}
                                             </SelectItem>
                                             <SelectItem value="9:16" className="text-white hover:bg-white/10">
-                                              {t("creation.portrait") || "竖版 (9:16)"}
+                                              {t("creation.portrait") || tSB("portrait")}
                                             </SelectItem>
                                           </SelectContent>
                                         </Select>
                                         <div className="text-xs text-slate-400 pt-1">
                                           <p className="text-slate-300">
                                             {aspectRatio === "16:9" 
-                                              ? (t("creation.landscapeDesc") || "适合宽屏观看，常用于电影、电视剧。") 
-                                              : (t("creation.portraitDesc") || "适合手机全屏观看，常用于短视频、直播。")}
+                                              ? (t("creation.landscapeDesc") || tSB("landscapeDesc")) 
+                                              : (t("creation.portraitDesc") || tSB("portraitDesc"))}
                                           </p>
                                         </div>
                                       </div>
@@ -488,11 +489,11 @@ export function StorySetting() {
                                       <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                                         <Label className="text-sm font-semibold text-white flex items-center gap-2">
                                           <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-                                          {t("creation.llmModel") || "文生文模型"}
+                                          {t("creation.llmModel") || tSB("textToTextModel")}
                                         </Label>
                                         <Select value={llmModel} onValueChange={setLlmModel}>
                                           <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                            <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                            <SelectValue placeholder={t("creation.selectModel") || tSB("selectModel")} />
                                           </SelectTrigger>
                                           <SelectContent className="bg-slate-800 border-white/10">
                                             {llmModels.map((model) => (
@@ -511,7 +512,7 @@ export function StorySetting() {
                                               )}
                                               <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="whitespace-nowrap">
-                                                  {t("creation.maxTokens") || "最大Token"}: <span className="text-white font-medium">{selectedModel.config?.max_tokens || "-"}</span>
+                                                  {t("creation.maxTokens") || tSB("maxToken")}: <span className="text-white font-medium">{selectedModel.config?.max_tokens || "-"}</span>
                                                 </span>
                                               </div>
                                             </div>
@@ -524,11 +525,11 @@ export function StorySetting() {
                                     <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                                       <Label className="text-sm font-semibold text-white flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-purple-400"></div>
-                                        {t("creation.textToImageModel") || "文生图模型"}
+                                        {t("creation.textToImageModel") || tSB("textToImageModel")}
                                       </Label>
                                       <Select value={textToImageModel} onValueChange={setTextToImageModel}>
                                         <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                          <SelectValue placeholder={t("creation.selectModel") || tSB("selectModel")} />
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
                                           {textToImageModels.map((model) => (
@@ -547,10 +548,10 @@ export function StorySetting() {
                                             )}
                                             <div className="flex items-center gap-4 flex-wrap">
                                               <span>
-                                                {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
+                                                {t("creation.aspectRatio") || tSB("aspectRatioShort")}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
                                               </span>
                                               <span>
-                                                {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                                {t("creation.supportedLanguages") || tSB("supportedLanguages")}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
                                               </span>
                                             </div>
                                           </div>
@@ -562,11 +563,11 @@ export function StorySetting() {
                                     <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                                       <Label className="text-sm font-semibold text-white flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-pink-400"></div>
-                                        {t("creation.imageToImageModel") || "图生图模型"}
+                                        {t("creation.imageToImageModel") || tSB("imageToImageModel")}
                                       </Label>
                                       <Select value={imageToImageModel} onValueChange={setImageToImageModel}>
                                         <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                          <SelectValue placeholder={t("creation.selectModel") || tSB("selectModel")} />
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
                                           {imageToImageModels.map((model) => (
@@ -585,10 +586,10 @@ export function StorySetting() {
                                             )}
                                             <div className="flex items-center gap-4 flex-wrap">
                                               <span>
-                                                {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
+                                                {t("creation.aspectRatio") || tSB("aspectRatioShort")}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
                                               </span>
                                               <span>
-                                                {t("creation.supportedLanguages") || "支持语言"}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
+                                                {t("creation.supportedLanguages") || tSB("supportedLanguages")}: <span className="text-white font-medium">{Array.isArray(selectedModel.config?.languages) ? selectedModel.config.languages.join(", ") : "-"}</span>
                                               </span>
                                             </div>
                                           </div>
@@ -600,11 +601,11 @@ export function StorySetting() {
                                     <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                                       <Label className="text-sm font-semibold text-white flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>
-                                        {t("creation.videoModel") || "视频模型"}
+                                        {t("creation.videoModel") || tSB("videoModel")}
                                       </Label>
                                       <Select value={videoModel} onValueChange={setVideoModel}>
                                         <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
-                                          <SelectValue placeholder={t("creation.selectModel") || "选择模型"} />
+                                          <SelectValue placeholder={t("creation.selectModel") || tSB("selectModel")} />
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
                                           {videoModels.map((model) => (
@@ -623,10 +624,10 @@ export function StorySetting() {
                                             )}
                                             <div className="flex items-center gap-4 flex-wrap">
                                               <span>
-                                                {t("creation.videoDuration") || "视频时长"}: <span className="text-white font-medium">{selectedModel.config?.durations?.[0] || "-"}s</span>
+                                                {t("creation.videoDuration") || tSB("videoDuration")}: <span className="text-white font-medium">{selectedModel.config?.durations?.[0] || "-"}s</span>
                                               </span>
                                               <span>
-                                                {t("creation.aspectRatio") || "宽高比"}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
+                                                {t("creation.aspectRatio") || tSB("aspectRatioShort")}: <span className="text-white font-medium">{selectedModel.config?.aspect_ratio || "-"}</span>
                                               </span>
                                             </div>
                                           </div>
@@ -638,7 +639,7 @@ export function StorySetting() {
                                     <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                                       <Label className="text-sm font-semibold text-white flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
-                                        {t("creation.narrationMode") || "解说词模式"}
+                                        {t("creation.narrationMode") || tSB("narrationMode")}
                                       </Label>
                                       <Select value={narrationMode} onValueChange={(value) => setNarrationMode(value as "original" | "rewrite")}>
                                         <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
@@ -646,18 +647,18 @@ export function StorySetting() {
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
                                           <SelectItem value="original" className="text-white hover:bg-white/10">
-                                            {t("creation.originalMode") || "原文模式"}
+                                            {t("creation.originalMode") || tSB("originalMode")}
                                           </SelectItem>
                                           <SelectItem value="rewrite" className="text-white hover:bg-white/10">
-                                            {t("creation.rewriteMode") || "爽文模式"}
+                                            {t("creation.rewriteMode") || tSB("fastPacedMode")}
                                           </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <div className="text-xs text-slate-400 pt-2 border-t border-white/10">
                                         {narrationMode === "original" ? (
-                                          <p className="text-slate-300">{t("creation.originalModeDesc") || "保持原文内容，仅进行场景分解"}</p>
+                                          <p className="text-slate-300">{t("creation.originalModeDesc") || tSB("originalModeDesc")}</p>
                                         ) : (
-                                          <p className="text-slate-300">{t("creation.rewriteModeDesc") || "改写缩短文本，使用快节奏的解说方式"}</p>
+                                          <p className="text-slate-300">{t("creation.rewriteModeDesc") || tSB("fastPacedModeDesc")}</p>
                                         )}
                                       </div>
                                     </div>
@@ -666,7 +667,7 @@ export function StorySetting() {
                                     <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
                                       <Label className="text-sm font-semibold text-white flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-green-400"></div>
-                                        {t("createVideo.aspectRatio") || "创作比例"}
+                                        {t("createVideo.aspectRatio") || tSB("aspectRatioConfig")}
                                       </Label>
                                       <Select value={aspectRatio} onValueChange={(value) => setAspectRatio(value as "16:9" | "9:16")}>
                                         <SelectTrigger className="w-full bg-white/5 border-white/20 text-white hover:bg-white/10">
@@ -674,18 +675,18 @@ export function StorySetting() {
                                         </SelectTrigger>
                                         <SelectContent className="bg-slate-800 border-white/10">
                                           <SelectItem value="16:9" className="text-white hover:bg-white/10">
-                                            {t("createVideo.landscape") || "横版 (16:9)"}
+                                            {t("createVideo.landscape") || tSB("landscape")}
                                           </SelectItem>
                                           <SelectItem value="9:16" className="text-white hover:bg-white/10">
-                                            {t("createVideo.portrait") || "竖版 (9:16)"}
+                                            {t("createVideo.portrait") || tSB("portrait")}
                                           </SelectItem>
                                         </SelectContent>
                                       </Select>
                                       <div className="text-xs text-slate-400 pt-2 border-t border-white/10">
                                         {aspectRatio === "16:9" ? (
-                                          <p className="text-slate-300">{t("createVideo.landscapeDesc") || "适合电脑和电视播放"}</p>
+                                          <p className="text-slate-300">{t("createVideo.landscapeDesc") || tSB("landscapeCompat")}</p>
                                         ) : (
-                                          <p className="text-slate-300">{t("createVideo.portraitDesc") || "适合手机短视频播放"}</p>
+                                          <p className="text-slate-300">{t("createVideo.portraitDesc") || tSB("portraitCompat")}</p>
                                         )}
                                       </div>
                                     </div>
@@ -696,7 +697,7 @@ export function StorySetting() {
                                     onClick={() => setIsConfigDialogOpen(false)}
                                     className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-medium"
                                   >
-                                    {t("common.confirm") || "确认"}
+                                    {t("common.confirm") || tSB("confirm")}
                                   </Button>
                                 </div>
                               </DialogContent>

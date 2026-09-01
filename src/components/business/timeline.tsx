@@ -254,20 +254,20 @@ export const Timeline: React.FC = () => {
   // 处理新增文案
   const handleAddSubtitle = () => {
     if (!newSubtitleText.trim()) {
-      toast.error('请输入文案内容');
+      toast.error(t('enterScript'));
       return;
     }
 
     const duration = parseFloat(newSubtitleDuration);
     if (isNaN(duration) || duration <= 0) {
-      toast.error('请输入有效的时长');
+      toast.error(t('enterValidDuration'));
       return;
     }
 
     // 寻找第一个文字轨道
     const textTrack = project.tracks.find(t => t.type === 'text');
     if (!textTrack) {
-      toast.error('未找到文字轨道');
+      toast.error(t('noTextTrack'));
       return;
     }
 
@@ -282,7 +282,7 @@ export const Timeline: React.FC = () => {
       volume: 1,
     });
 
-    toast.success('已添加文案到轨道');
+    toast.success(t('scriptAdded'));
     setIsAddSubtitleModalOpen(false);
     setNewSubtitleText('');
     setNewSubtitleDuration('2');
@@ -361,9 +361,9 @@ export const Timeline: React.FC = () => {
     }
 
     if (addedCount > 0) {
-      toast.success(`已添加 ${addedCount} 个素材到播放头位置`);
+      toast.success(t("assetsAdded", { count: addedCount }));
     } else {
-      toast.warning('该分镜没有可用的素材');
+      toast.warning(t('noAssetsAvailable'));
     }
 
     return addedCount;
@@ -663,7 +663,7 @@ export const Timeline: React.FC = () => {
                 if (track.type === 'video') {
                   // 检查是否有视频
                   if (!shot.video_url) {
-                    toast.error('该分镜没有视频，无法添加到视频轨道');
+                    toast.error(t('noVideoForTrack'));
                     setDragHoverTrackId(null);
                     setDraggingAssetType(null);
                     return;
@@ -678,11 +678,11 @@ export const Timeline: React.FC = () => {
                     layer: track.clips.length + 1,
                     volume: 0, // 视频静音（音频在单独的音频轨道）
                   });
-                  toast.success(`已添加分镜 #${shot.shot_number} 视频到轨道`);
+                  toast.success(t("videoAddedToTrack", { num: shot.shot_number }));
                 } else if (track.type === 'audio') {
                   // 检查是否有音频
                   if (!shot.audio_url) {
-                    toast.error('该分镜没有音频，无法添加到音频轨道');
+                    toast.error(t('noAudioForTrack'));
                     setDragHoverTrackId(null);
                     setDraggingAssetType(null);
                     return;
@@ -697,11 +697,11 @@ export const Timeline: React.FC = () => {
                     layer: track.clips.length + 1,
                     volume: 1, // 默认音量100%
                   });
-                  toast.success(`已添加分镜 #${shot.shot_number} 音频到轨道`);
+                  toast.success(t("audioAddedToTrack", { num: shot.shot_number }));
                 } else if (track.type === 'text') {
                   // 检查是否有字幕
                   if (!shot.narration || shot.narration.length === 0) {
-                    toast.error('该分镜没有字幕，无法添加到文字轨道');
+                    toast.error(t('noSubtitleForTrack'));
                     setDragHoverTrackId(null);
                     setDraggingAssetType(null);
                     return;
@@ -728,7 +728,7 @@ export const Timeline: React.FC = () => {
                     layer: track.clips.length + 1,
                     volume: 1,
                   });
-                  toast.success(`已添加分镜 #${shot.shot_number} 字幕到轨道`);
+                  toast.success(t("subtitleAddedToTrack", { num: shot.shot_number }));
                 }
 
                 setDragHoverTrackId(null);
@@ -743,21 +743,21 @@ export const Timeline: React.FC = () => {
 
                 // 检查素材类型是否匹配轨道类型
                 if (assetType === 'audio' && track.type !== 'audio') {
-                  toast.error('音频素材只能添加到音频轨道');
+                  toast.error(t('onlyAudioTrack'));
                   // 清除高亮状态
                   setDragHoverTrackId(null);
                   setDraggingAssetType(null);
                   return;
                 }
                 if (assetType === 'video' && track.type !== 'video') {
-                  toast.error('视频素材只能添加到视频轨道');
+                  toast.error(t('onlyVideoTrack'));
                   // 清除高亮状态
                   setDragHoverTrackId(null);
                   setDraggingAssetType(null);
                   return;
                 }
                 if (assetType === 'image' && track.type !== 'video') {
-                  toast.error('图片素材只能添加到视频轨道');
+                  toast.error(t('onlyVideoOrImageTrack'));
                   // 清除高亮状态
                   setDragHoverTrackId(null);
                   setDraggingAssetType(null);
@@ -783,7 +783,7 @@ export const Timeline: React.FC = () => {
                   layer: track.clips.length + 1,
                 });
 
-                toast.success(`已添加${data.name}到轨道`);
+                toast.success(t("assetAddedToTrack", { name: data.name }));
               }
             } catch (error) {
               console.error('Drop error:', error);
@@ -805,7 +805,7 @@ export const Timeline: React.FC = () => {
                 <div className="absolute inset-0 border-4 border-green-400 rounded-lg shadow-[0_0_20px_rgba(74,222,128,0.6)]"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-green-500/90 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg">
-                    拖放到这里
+                    {t("dropHere")}
                   </div>
                 </div>
               </div>
@@ -817,7 +817,7 @@ export const Timeline: React.FC = () => {
                 <div className="absolute inset-0 border-4 border-red-400 rounded-lg shadow-[0_0_20px_rgba(248,113,113,0.6)]"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="bg-red-500/90 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg">
-                    不支持此类型
+                    {t("unsupportedType")}
                   </div>
                 </div>
               </div>
@@ -1439,7 +1439,7 @@ export const Timeline: React.FC = () => {
                 className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-purple-500/20 to-violet-500/20 text-purple-400 border border-purple-500/30 rounded-lg hover:bg-purple-500/30 hover:border-purple-500/40 transition-all text-xs font-medium group shadow-md shadow-purple-500/10 hover:shadow-lg hover:shadow-purple-500/20"
             >
                 <Edit2 size={14} className="group-hover:scale-110 transition-transform" />
-                <span>新增文案</span>
+                <span>{t("addScript")}</span>
             </button>
           </div>
         </div>
@@ -1450,7 +1450,7 @@ export const Timeline: React.FC = () => {
             <button 
               onClick={undo} 
               disabled={!canUndo}
-              title={t('undo') || '撤销 (Ctrl+Z)'}
+              title={t('undo') || t("undo")}
               className={`p-2 rounded-lg transition-all ${canUndo ? 'hover:bg-gray-800/80 text-gray-400 hover:text-white shadow-md shadow-gray-800/50' : 'text-gray-700 cursor-not-allowed'}`}
             >
               <Undo size={18} />
@@ -1458,7 +1458,7 @@ export const Timeline: React.FC = () => {
             <button 
               onClick={redo} 
               disabled={!canRedo}
-              title={t('redo') || '重做 (Ctrl+Shift+Z)'}
+              title={t('redo') || t("redo")}
               className={`p-2 rounded-lg transition-all ${canRedo ? 'hover:bg-gray-800/80 text-gray-400 hover:text-white shadow-md shadow-gray-800/50' : 'text-gray-700 cursor-not-allowed'}`}
             >
               <Redo size={18} />
@@ -1528,7 +1528,7 @@ export const Timeline: React.FC = () => {
       {selectedClipId && (
         <div className="h-10 flex items-center px-4 bg-gradient-to-r from-gray-900/90 to-slate-900/90 backdrop-blur-lg border-b border-gray-800/80 shrink-0 gap-3 animate-in slide-in-from-top-2 duration-200 shadow-md shadow-indigo-950/10">
           <div className="flex items-center gap-2 px-2 py-1 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border border-blue-500/30 rounded-lg text-[11px] text-blue-400 font-medium shadow-md shadow-blue-500/10">
-            <span className="opacity-70">{t('selectedClip') || '已选中片段'}:</span>
+            <span className="opacity-70">{t('selectedClip') || t('clipSelected')}:</span>
             <span>{selectedClipId.split('-').pop()}</span>
           </div>
           
@@ -1537,12 +1537,12 @@ export const Timeline: React.FC = () => {
           <button 
             onClick={() => {
                 // TODO: 实现编辑功能
-                toast.info(t('editFeatureComingSoon') || '编辑功能即将上线');
+                toast.info(t('editFeatureComingSoon') || t('editComingSoon'));
             }}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-gray-800/50 to-slate-800/50 hover:bg-gray-700/50 text-gray-300 hover:text-white rounded-lg transition-all text-xs font-medium group shadow-md shadow-gray-800/20 hover:shadow-lg hover:shadow-gray-800/30"
           >
             <Edit2 size={14} className="group-hover:scale-110 transition-transform" />
-            <span>{t('edit') || '编辑'}</span>
+            <span>{t('edit') || t('edit')}</span>
           </button>
 
           <button 
@@ -1561,7 +1561,7 @@ export const Timeline: React.FC = () => {
             className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-red-500/20 to-rose-500/20 hover:bg-red-500/30 text-gray-400 hover:text-red-400 rounded-lg transition-all text-xs font-medium group border border-red-500/30 shadow-md shadow-red-500/10 hover:shadow-lg hover:shadow-red-500/20"
           >
             <Trash2 size={14} className="group-hover:scale-110 transition-transform" />
-            <span>{t('delete') || '删除'}</span>
+            <span>{t('delete') || t('delete')}</span>
           </button>
 
           <div className="flex-1"></div>
@@ -1569,7 +1569,7 @@ export const Timeline: React.FC = () => {
           <button 
             onClick={() => selectClip(undefined)}
             className="p-1.5 text-gray-500 hover:text-gray-300 hover:bg-gray-800/80 rounded-lg transition-all shadow-md shadow-gray-800/20 hover:shadow-lg hover:shadow-gray-800/30"
-            title={t('deselect') || '取消选择'}
+            title={t('deselect') || t('deselect')}
           >
             <Plus size={14} className="rotate-45" />
           </button>
@@ -1672,7 +1672,7 @@ export const Timeline: React.FC = () => {
               {editingTrackType === 'audio' ? t('editVolume') : t('editSubtitle')}
             </DialogTitle>
             <DialogDescription className="sr-only text-gray-400">
-              {editingTrackType === 'audio' ? '调整音频轨道音量大小' : '修改字幕文本内容'}
+              {editingTrackType === 'audio' ? t('adjustVolume') : t('editSubtitle')}
             </DialogDescription>
           </DialogHeader>
 
@@ -1728,21 +1728,21 @@ export const Timeline: React.FC = () => {
       <Dialog open={isAddSubtitleModalOpen} onOpenChange={setIsAddSubtitleModalOpen}>
         <DialogContent className="bg-gradient-to-br from-gray-900 to-slate-900 border border-gray-800/50 shadow-xl shadow-indigo-950/30 backdrop-blur-lg rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-gray-200">新增文案</DialogTitle>
+            <DialogTitle className="text-gray-200">{t("addScript")}</DialogTitle>
             <DialogDescription className="text-gray-400">
-              在播放头位置添加一段自定义文案。
+              {t("addScriptDesc")}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="text-sm text-gray-300">文案内容</Label>
+              <Label className="text-sm text-gray-300">{t("scriptContent")}</Label>
               <Textarea
                 value={newSubtitleText}
                 onChange={(e) => setNewSubtitleText(e.target.value)}
                 rows={4}
                 className="bg-gradient-to-r from-gray-800/80 to-slate-800/80 border border-gray-700/50 text-gray-200 rounded-lg shadow-inner shadow-gray-900/50"
-                placeholder="请输入文案内容..."
+                placeholder={t("scriptPlaceholder")}
               />
             </div>
             <div className="space-y-2">
@@ -1764,7 +1764,7 @@ export const Timeline: React.FC = () => {
               {t('cancel')}
             </Button>
             <Button onClick={handleAddSubtitle} className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-500 hover:to-violet-500 text-white shadow-xl shadow-purple-500/30">
-              添加
+              {t("add")}
             </Button>
           </DialogFooter>
         </DialogContent>

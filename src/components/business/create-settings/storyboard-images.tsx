@@ -147,7 +147,7 @@ export function StoryboardImages({
       const taskData = response?.data;
 
       if (!taskData) {
-        throw new Error("无法获取任务状态");
+        throw new Error(t("cannotFetchStatus"));
       }
 
       const status = taskData.status;
@@ -221,7 +221,7 @@ export function StoryboardImages({
       }
     } catch (error) {
       console.error("轮询任务状态失败:", error);
-      toast.error("查询任务状态失败");
+      toast.error(t("queryStatusFailed"));
       
       setRegeneratingIds(prev => {
         const newSet = new Set(prev);
@@ -265,7 +265,7 @@ export function StoryboardImages({
           
           if (!targetImage) {
             console.error("未找到对应的分镜图片:", imageId);
-            toast.error("未找到对应的分镜图片，请刷新页面重试。");
+            toast.error(t("shotImageNotFound"));
             return;
           }
           
@@ -290,7 +290,7 @@ export function StoryboardImages({
           )
 
           if (!pointsAvailable) {
-            throw new Error('积分不足')
+            throw new Error(t('insufficientPoints'))
           }
 
           // 添加到正在生成的列表
@@ -301,7 +301,7 @@ export function StoryboardImages({
           const taskId = response?.data?.task_id;
           
           if (!taskId) {
-            throw new Error("未能获取任务ID");
+            throw new Error(t("taskIdNotFound", { default: "Could not get task ID" }));
           }
           
           toast.info(t("storyboard.regenerateImageStart"));
@@ -551,9 +551,7 @@ export function StoryboardImages({
                       <>
                         <img
                           src={localImageUpdates[image.image_id] || image.image_url}
-                          alt={`${image.title} - 分镜图片 ${
-                            imageIndex + 1
-                          }`}
+                          alt={t("shotImageTitle", { title: image.title, index: imageIndex + 1 })}
                           className={cn(
                             "w-full object-cover cursor-pointer",
                             isRegenerating && "opacity-50"
@@ -643,7 +641,7 @@ export function StoryboardImages({
                 </>
               ) : (
                 <>
-                  {t("storyboard.generateVideo") || "生成视频"}
+                  {t("storyboard.generateVideo") || t("generateVideo", { default: "Generate Video" })}
                   <ArrowRight className="w-4 h-4 mr-1" />
                 </>
               )}

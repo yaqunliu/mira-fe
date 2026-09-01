@@ -19,7 +19,8 @@ import {
 } from 'lucide-react';
 import { IAsset, AssetType } from '@/types/asset';
 import assetApi from '@/lib/api/asset';
-import { toast } from 'sonner';
+import { toast } from 'sonner'
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -65,13 +66,13 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
       // 验证文件类型 - 只支持视频和音频
       const validTypes = ['audio/', 'video/'];
       if (!validTypes.some((type) => file.type.startsWith(type))) {
-        toast.error('拖拽上传仅支持视频和音频文件');
+        toast.error(t('onlyVideoAudio'));
         return;
       }
 
       // 验证文件大小 (100MB)
       if (file.size > 100 * 1024 * 1024) {
-        toast.error('文件大小不能超过100MB');
+        toast.error(t('fileTooLargeMax', { size: '100MB' }));
         return;
       }
 
@@ -84,7 +85,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
         });
 
         if (res.success) {
-          toast.success('上传成功');
+          toast.success(t('uploadSuccess'));
           onAssetsChange();
         } else {
           toast.error(res.message || '上传失败');
@@ -158,7 +159,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
       );
 
       if (res.success) {
-        toast.success('删除成功');
+        toast.success(t('deleteSuccess'));
         onAssetsChange();
       } else {
         toast.error(res.message || '删除失败');
@@ -261,7 +262,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
         <div className="absolute inset-0 z-50 bg-blue-600/20 backdrop-blur-sm border-2 border-dashed border-blue-400 flex items-center justify-center">
           <div className="text-center">
             <Upload size={48} className="mx-auto mb-3 text-blue-400" />
-            <p className="text-lg font-medium text-blue-400">拖放视频或音频文件到此处</p>
+            <p className="text-lg font-medium text-blue-400">{t("dropVideoAudio")}</p>
             <p className="text-sm text-slate-300 mt-1">支持 MP4, MOV, MP3, WAV 等格式</p>
           </div>
         </div>
@@ -285,8 +286,8 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
           ) : (
             <div className="text-center p-4 rounded-lg bg-white shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-300">
               <Upload size={24} className="mx-auto mb-2 text-[#22C55E]" />
-              <p className="text-sm font-medium text-gray-800 mb-1">拖放文件到此处上传</p>
-              <p className="text-xs text-gray-600">支持视频和音频文件，最大100MB</p>
+              <p className="text-sm font-medium text-gray-800 mb-1">{t("dragDropHere")}</p>
+              <p className="text-xs text-gray-600">{t("dropFilesSupported")}</p>
             </div>
           )}
         </div>
@@ -295,7 +296,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" />
           <Input
-            placeholder="搜索素材..."
+            placeholder={t("searchAssets")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 h-8 text-sm bg-white"
@@ -318,7 +319,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             onClick={() => setSelectedType('all')}
             className="flex-1 h-7 text-xs"
           >
-            全部
+            {t("selectAll", { default: "All" })}
           </Button>
           <Button
             variant={selectedType === AssetType.AUDIO ? 'default' : 'ghost'}
@@ -327,7 +328,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             className="flex-1 h-7 text-xs"
           >
             <Music size={12} className="mr-1" />
-            音频
+            {t("audio", { default: "Audio" })}
           </Button>
           <Button
             variant={selectedType === AssetType.IMAGE ? 'default' : 'ghost'}
@@ -336,7 +337,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             className="flex-1 h-7 text-xs"
           >
             <ImageIcon size={12} className="mr-1" />
-            图片
+            {t("image")}
           </Button>
           <Button
             variant={selectedType === AssetType.VIDEO ? 'default' : 'ghost'}
@@ -345,7 +346,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             className="flex-1 h-7 text-xs"
           >
             <Video size={12} className="mr-1" />
-            视频
+            {t("video", { default: "Video" })}
           </Button>
         </div>
       </div>
@@ -357,9 +358,9 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             <div className="col-span-2 text-center py-12 text-slate-500">
               <FileAudio size={48} className="mx-auto mb-3 opacity-20" />
               <p className="text-sm">
-                {searchQuery || selectedType !== 'all' ? '没有找到素材' : '暂无素材'}
+                {searchQuery || selectedType !== 'all' ? t('noAssetsFound') : t('noAssets')}
               </p>
-              <p className="text-xs mt-1">拖放视频或音频文件到上方区域上传</p>
+              <p className="text-xs mt-1">{t("dropVideoAudio")}</p>
             </div>
           ) : (
             filteredAssets.map((asset) => (
@@ -418,7 +419,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
       <Dialog open={deleteConfirm.open} onOpenChange={(open) => !open && setDeleteConfirm({ open: false, asset: null })}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>确认删除</DialogTitle>
+            <DialogTitle>{t("deleteConfirmTitle")}</DialogTitle>
             <DialogDescription>
               确定要删除素材 "{deleteConfirm.asset?.name}" 吗？此操作无法撤销。
             </DialogDescription>
@@ -427,15 +428,11 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             <Button
               variant="outline"
               onClick={() => setDeleteConfirm({ open: false, asset: null })}
-            >
-              取消
-            </Button>
+            >{t("cancel")}</Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
-            >
-              删除
-            </Button>
+            >{t("delete")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

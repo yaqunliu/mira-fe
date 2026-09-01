@@ -81,7 +81,7 @@ export function NovelUpload({
   const handleFileSelect = (file: File) => {
     // 验证文件类型
     if (!file.name.endsWith(".txt")) {
-      toast.error("请选择 .txt 文件");
+      toast.error(t("onlyTxt"));
       return;
     }
 
@@ -132,13 +132,13 @@ export function NovelUpload({
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error("请选择要上传的小说");
+      toast.error(t("selectNovelFirst"));
       return;
     }
 
     try {
       setIsUploading(true);
-      toast.info("正在上传文件...");
+      toast.info(t("uploading"));
 
       // 上传小说文件
       const response = await novelApi.uploadNovel(selectedFile, {
@@ -152,18 +152,18 @@ export function NovelUpload({
       const uploadTaskId = response?.data?.task_id;
 
       if (uploadTaskId) {
-        toast.success("文件上传成功，开始解析...", {
-          description: "您可以离开此页面，小说将在后台继续处理",
+        toast.success(t("uploadStarted"), {
+          description: t("uploadNote"),
           duration: 5000,
         });
         setTaskId(uploadTaskId); // 设置 taskId 后会自动开始轮询
         setIsUploading(false); // 文件上传完成，但任务在后台处理
       } else {
-        toast.error("上传成功但未返回任务ID");
+        toast.error(t("uploadNoTaskId"));
         setIsUploading(false);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "上传失败，请重试");
+      toast.error(error instanceof Error ? error.message : t("uploadFailed"));
       setIsUploading(false);
     }
   };
@@ -210,7 +210,7 @@ export function NovelUpload({
                 </p>
                 {isUploading && (
                   <p className="text-sm text-#22C55E font-medium">
-                    正在上传中，请稍候...
+                    {tNovel("uploading")}
                   </p>
                 )}
               </div>
@@ -226,7 +226,7 @@ export function NovelUpload({
                   className="rounded-xl bg-gradient-to-br from-white to-red-50 border border-red-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
                 >
                   <X className="h-4 w-4 text-red-500 mr-1" />
-                  移除文件
+                  {tNovel("remove", { default: "Remove File" })}
                 </Button>
               )}
             </div>
@@ -234,7 +234,7 @@ export function NovelUpload({
             <div className="space-y-4">
               <Upload className="h-10 w-10 mx-auto text-#22C55E" />
               <div>
-                <div className="text-base font-medium text-gray-800">拖拽或点击上传小说</div>
+                <div className="text-base font-medium text-gray-800">{tNovel("dragOrClickUpload", { default: "Drag or click to upload novel" })}</div>
                 <div className="text-xs text-gray-600 mt-2">
                   支持最大 {formatFileSize(MAX_FILE_SIZE)} 的.txt文件
                 </div>
@@ -251,15 +251,15 @@ export function NovelUpload({
             <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <p className="font-medium text-blue-900 mb-2">
-                小说正在后台处理中
+                {tNovel("processing", { default: "Novel is being processed in the background" })}
               </p>
               <p className="text-sm text-blue-700 mb-3">
-                您可以离开此页面，处理完成后会显示在小说列表中。
+                {tNovel("leavePageNote", { default: "You can leave this page; the novel will appear in the list when done." })}
               </p>
               {task.progress && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between text-xs text-blue-600 mb-1">
-                    <span>处理进度</span>
+                    <span>{tNovel("processingProgress", { default: "Processing Progress" })}</span>
                     <span>{task.progress.percent || 0}%</span>
                   </div>
                   <Progress 
@@ -293,14 +293,14 @@ export function NovelUpload({
               <>
                 <CheckCircle className="h-5 w-5 text-#22C55E" />
                 <span className="font-medium text-green-900">
-                  上传小说解析完成！
+                  {tNovel("uploadParsed", { default: "Novel uploaded and parsed!" })}
                 </span>
               </>
             ) : task.status === TaskStatus.FAILURE ? (
               <>
                 <X className="h-5 w-5 text-red-500" />
                 <span className="font-medium text-red-900">
-                  解析失败
+                  {tNovel("parseFailed", { default: "Parse failed" })}
                 </span>
               </>
             ) : null}
@@ -319,7 +319,7 @@ export function NovelUpload({
             disabled={isUploading || !selectedFile}
             className="rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 tracking-wide w-[140px]"
           >
-            {isUploading ? "上传中..." : "上传解析"}
+            {isUploading ? tNovel('uploading') : tNovel('uploadParse', { default: 'Upload & Parse' })}
           </Button>
         </div>
       ) : uploadCompleted ? (
@@ -329,7 +329,7 @@ export function NovelUpload({
             onClick={() => novelId && onComplete(novelId as string)}
             className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 tracking-wide w-[140px]"
           >
-            返回
+            {tNovel("back", { default: "Back" })}
           </Button>
         </div>
       ) : null}

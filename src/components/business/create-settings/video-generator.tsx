@@ -342,7 +342,7 @@ export function VideoGenerator({
       if (query.state.error) {
         console.error("查询任务状态失败:", query.state.error);
         setStage("failed");
-        setErrorMessage("查询任务状态失败，请刷新页面重试");
+        setErrorMessage(t("taskFailed"));
         return false;
       }
 
@@ -414,7 +414,7 @@ export function VideoGenerator({
     )
 
     if (!pointsAvailable) {
-      throw new Error('积分不足')
+      throw new Error(t('insufficientPoints'))
     }
 
     setStage("generating");
@@ -488,14 +488,14 @@ export function VideoGenerator({
         currentCreationData = response?.data;
       } catch (error) {
         console.error("获取创作数据失败:", error);
-        toast.error("获取创作信息失败");
+        toast.error(t("fetchCreationFailed"));
         return;
       }
     }
     
     // 从创作信息中获取 voice_id 和 voice_speed
     if (!currentCreationData?.voice_id) {
-      toast.error("创作信息中没有语音ID");
+      toast.error(t("noAudio"));
       return;
     }
     
@@ -639,7 +639,7 @@ export function VideoGenerator({
                       已选择: {selectedVoice.title}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {selectedVoice.author?.nickname || "未知作者"} ·{
+                      {selectedVoice.author?.nickname || t("unknownAuthor", { default: "Unknown Author" })} ·{
                         " "
                       }{selectedVoice.task_count.toLocaleString()} 次使用
                     </p>

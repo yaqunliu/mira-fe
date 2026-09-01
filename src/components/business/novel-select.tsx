@@ -199,13 +199,13 @@ export function NovelSelect({
     mutationFn: (title: string) =>
       novelApi.createNovel({ title, type: 'script', author: 'User' }),
     onSuccess: (response: any) => {
-      toast.success(t("createProjectSuccess") || "项目创建成功");
+      toast.success(t("createProjectSuccess") || t("projectCreated"));
       setIsProjectDialogOpen(false);
       setNewProjectTitle("");
       queryClient.invalidateQueries({ queryKey: ["novels"] });
     },
     onError: (error: any) => {
-      toast.error(t("createProjectFailed") || "项目创建失败");
+      toast.error(t("createProjectFailed") || t("projectCreateFailed"));
     }
   });
 
@@ -214,7 +214,7 @@ export function NovelSelect({
     mutationFn: ({ novelId, title, content }: { novelId: string; title: string; content: string }) =>
       novelApi.createChapter(novelId, { title, content }),
     onSuccess: (response: any) => {
-      toast.success(t("createChapterSuccess") || "文案创建成功");
+      toast.success(t("createChapterSuccess") || t("scriptCreated"));
       setIsChapterDialogOpen(false);
       setNewChapterTitle("");
       setNewChapterContent("");
@@ -226,13 +226,13 @@ export function NovelSelect({
       }
     },
     onError: (error: any) => {
-      toast.error(t("createChapterFailed") || "文案创建失败");
+      toast.error(t("createChapterFailed") || t("scriptCreateFailed"));
     }
   });
 
   const handleCreateProject = () => {
     if (!newProjectTitle.trim()) {
-      toast.error(t("projectTitleEmpty") || "项目名称不能为空");
+      toast.error(t("projectTitleEmpty") || t("projectNameRequired"));
       return;
     }
     createProjectMutation.mutate(newProjectTitle.trim());
@@ -241,11 +241,11 @@ export function NovelSelect({
   const handleCreateChapter = () => {
     if (!currentNovel) return;
     if (!newChapterTitle.trim()) {
-      toast.error(t("chapterTitleEmpty") || "文案标题不能为空");
+      toast.error(t("chapterTitleEmpty") || t("scriptTitleRequired"));
       return;
     }
     if (!newChapterContent.trim()) {
-      toast.error(t("chapterContentEmpty") || "文案内容不能为空");
+      toast.error(t("chapterContentEmpty") || t("scriptContentRequired"));
       return;
     }
     createChapterMutation.mutate({
@@ -365,7 +365,7 @@ export function NovelSelect({
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
             <Input
-              placeholder="搜索小说标题或作者..."
+              placeholder={t("searchPlaceholderNovel")}
               value={novelSearchTerm}
               onChange={(e) => setNovelSearchTerm(e.target.value)}
               className="pl-10 rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
@@ -660,7 +660,7 @@ export function NovelSelect({
                 disabled={!chapterPageInput || isChaptersLoading}
                 className="h-8 text-xs px-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
               >
-                跳转
+                {t("goto", { default: "Go" })}
               </Button>
             </div>
 
@@ -706,16 +706,16 @@ export function NovelSelect({
           <DialogHeader>
             <DialogTitle>{t("createVideo.createProject")}</DialogTitle>
             <DialogDescription className="sr-only">
-              输入项目名称并确认以创建新的视频项目
+              {tNovel("createProjectDesc", { default: "Enter project name to create a new video project" })}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("projectTitle") || "项目名称"}</label>
+              <label className="text-sm font-medium">{t("projectTitle") || tNovel('projectNameLabel', { default: 'Project Name' })}</label>
               <Input
                 value={newProjectTitle}
                 onChange={(e) => setNewProjectTitle(e.target.value)}
-                placeholder={t("projectTitlePlaceholder") || "请输入项目名称"}
+                placeholder={t("projectTitlePlaceholder") || tNovel('projectNamePlaceholder', { default: 'Enter project name' })}
               />
             </div>
           </div>
@@ -736,24 +736,24 @@ export function NovelSelect({
           <DialogHeader>
             <DialogTitle>{t("createVideo.addChapter")}</DialogTitle>
             <DialogDescription className="sr-only">
-              输入文案标题和内容以添加新的创作文案
+              {tNovel("createScriptDesc", { default: "Enter title and content to add a new script" })}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("chapterTitle") || "文案标题"}</label>
+              <label className="text-sm font-medium">{t("chapterTitle") || tNovel('scriptTitleLabel', { default: 'Script Title' })}</label>
               <Input
                 value={newChapterTitle}
                 onChange={(e) => setNewChapterTitle(e.target.value)}
-                placeholder={t("chapterTitlePlaceholder") || "请输入标题"}
+                placeholder={t("chapterTitlePlaceholder") || tNovel('scriptTitlePlaceholder', { default: 'Enter title' })}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("chapterContent") || "文案内容"}</label>
+              <label className="text-sm font-medium">{t("chapterContent") || tNovel('scriptContentLabel', { default: 'Script Content' })}</label>
               <textarea
                 value={newChapterContent}
                 onChange={(e) => setNewChapterContent(e.target.value)}
-                placeholder={t("chapterContentPlaceholder") || "请输入文案内容..."}
+                placeholder={t("chapterContentPlaceholder") || tNovel('scriptContentPlaceholder', { default: 'Enter script content...' })}
                 className="w-full h-48 p-3 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>

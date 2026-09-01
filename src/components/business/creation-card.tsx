@@ -85,9 +85,7 @@ function VideoCard({ creation }: { creation: ICreation }) {
             <div className="p-3 rounded-full bg-white shadow-[2px_2px_4px_rgba(173,221,230,0.3),-1px_-1px_3px_rgba(255,255,255,0.7)]">
               <ImageOff className="w-5 h-5 text-gray-600" />
             </div>
-            <span className="text-xs font-medium text-gray-600 tracking-widest">
-              暂无预览
-            </span>
+            <span className="text-xs font-medium text-gray-600 tracking-widest">{t("noPreview")}</span>
           </div>
         </div>
       )}

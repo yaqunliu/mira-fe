@@ -134,10 +134,10 @@ export function CharacterSetting({
         setIsGeneratingPlaybook(false);
         handleUpdate(); // 刷新创作数据以获取最新状态
         if (query.state.data?.data?.status === TaskStatus.FAILURE) {
-          toast.error(query.state.data?.message || tCreation("playbookGenerationFailed") || "分镜拆分失败");
+          toast.error(query.state.data?.message || tCreation("playbookGenerationFailed") || t("splitFailed", { default: "Shot split failed" }));
         } else {
           // 分镜拆分成功，跳转到脚本页面
-          toast.success(tCreation("playbookGenerationSuccess") || "分镜拆分完成");
+          toast.success(tCreation("playbookGenerationSuccess") || t("splitCompleted", { default: "Shot split completed" }));
           setTimeout(() => {
             onComplete();
           }, 500);
@@ -195,7 +195,7 @@ export function CharacterSetting({
   // 生成角色图片的内部函数
   const generateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
     if (!creationId) {
-      throw new Error(t("creationIdRequired") || "创作ID不存在");
+      throw new Error(t("creationIdRequired") || tCreation("missingId"));
     }
 
     // 检查积分是否充足
@@ -209,7 +209,7 @@ export function CharacterSetting({
     )
 
     if (!pointsAvailable) {
-      throw new Error('积分不足')
+      throw new Error(tCreation('insufficientPoints'))
     }
 
     setIsGenerating(true);
@@ -247,7 +247,7 @@ export function CharacterSetting({
   // 重新生成角色图片的内部函数（force_regenerate=true）
   const regenerateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
     if (!creationId) {
-      throw new Error(t("creationIdRequired") || "创作ID不存在");
+      throw new Error(t("creationIdRequired") || tCreation("missingId"));
     }
 
     // 检查积分是否充足
@@ -261,7 +261,7 @@ export function CharacterSetting({
     )
 
     if (!pointsAvailable) {
-      throw new Error('积分不足')
+      throw new Error(tCreation('insufficientPoints'))
     }
 
     setIsGenerating(true);
@@ -314,7 +314,7 @@ export function CharacterSetting({
   // 打开添加角色弹窗
   const handleOpenAddCharacterModal = async () => {
     if (!creation?.novel_id) {
-      toast.error("无法获取小说信息");
+      toast.error(tCreation("cannotFetchNovel"));
       return;
     }
 
@@ -337,7 +337,7 @@ export function CharacterSetting({
       }
     } catch (error) {
       console.error("获取小说角色失败:", error);
-      toast.error("获取角色列表失败");
+      toast.error(t("fetchFailed"));
     } finally {
       setIsLoadingNovelCharacters(false);
     }
@@ -359,7 +359,7 @@ export function CharacterSetting({
   // 保存角色选择
   const handleSaveCharacterSelection = async () => {
     if (!creationId) {
-      toast.error("创作ID不存在");
+      toast.error(tCreation("missingId"));
       return;
     }
 
@@ -380,14 +380,14 @@ export function CharacterSetting({
       };
       await creationApi.updateCreation(creationId, updateData);
 
-      toast.success("角色更新成功");
+      toast.success(t("characterUpdated"));
       setIsAddCharacterModalOpen(false);
 
       // 刷新角色列表
       handleUpdate();
     } catch (error) {
       console.error("保存角色失败:", error);
-      toast.error("保存角色失败");
+      toast.error(t("saveFailed"));
     } finally {
       setIsSavingCharacters(false);
     }
@@ -396,13 +396,13 @@ export function CharacterSetting({
   // 单个角色重新生成图片
   const handleRegenerateSingleCharacter = useCallback(async (character: ICharacter) => {
     if (!creationId) {
-      toast.error(t("creationIdRequired") || "创作ID不存在");
+      toast.error(t("creationIdRequired") || tCreation("missingId"));
       return;
     }
 
     const characterUuid = character.uuid || (character.character_id ? String(character.character_id) : '');
     if (!characterUuid) {
-      toast.error("角色ID不存在");
+      toast.error(t("missingCharacterId"));
       return;
     }
 
@@ -439,10 +439,10 @@ export function CharacterSetting({
           newMap.set(characterUuid, response.data!.task_id);
           return newMap;
         });
-        toast.success("角色图片重新生成中...");
+        toast.success(t("regeneratingImage"));
       }
     } catch (error: any) {
-      toast.error(error.message || "重新生成失败");
+      toast.error(error.message || t("regeneratingFailed"));
     }
   }, [creationId, selectedStyle, t, creation?.extra_data]); // Added creation?.extra_data dependency
 
@@ -474,7 +474,7 @@ export function CharacterSetting({
               });
               // 刷新数据
               handleUpdate();
-              toast.success("角色图片重新生成成功");
+              toast.success(t("regeneratingSuccess"));
             } else if (rawTask.status === TaskStatus.FAILURE) {
               // 生成失败
               setRegeneratingCharacters(prev => {
@@ -482,7 +482,7 @@ export function CharacterSetting({
                 newMap.delete(characterUuid);
                 return newMap;
               });
-              toast.error(rawTask.message || "角色图片生成失败");
+              toast.error(rawTask.message || t("imageGenerationFailed"));
             }
           }
         } catch (error) {
@@ -506,18 +506,18 @@ export function CharacterSetting({
   // 根据状态确定 loading 文本
   const getLoadingText = () => {
     if (isGeneratingPlaybook) {
-      return tCreation("playbookGenerationStarted") || "正在生成分镜...";
+      return tCreation("playbookGenerationStarted") || t("generatingShots");
     }
     if (isGenerating) {
-      return t("generating") || "生成中...";
+      return t("generating") || t("generating");
     }
     if (characters?.length === 0 && !!currentTaskId) {
-      return t("analyzing") || "分析中...";
+      return t("analyzing") || t("analyzing");
     }
     if (isResubmitting) {
-      return tCreation("resubmitting") || "重新提交中...";
+      return tCreation("resubmitting") || t("resubmitting");
     }
-    return "加载中...";
+    return t("loading", { default: "Loading..." });
   };
 
   // 区分出镜角色和声音角色
@@ -570,7 +570,7 @@ export function CharacterSetting({
                 size="sm"
                 >
                 <WandSparkles className="w-3 h-3 mr-2" />
-                {isGenerating || isSubmittingCharacters ? t("generating") : "生成全部角色图片"}
+                {isGenerating || isSubmittingCharacters ? t("generating") : t("generateAllImages")}
                 </Button>
 
                 {/* 添加角色按钮 */}
@@ -581,7 +581,7 @@ export function CharacterSetting({
                   onClick={handleOpenAddCharacterModal}
                 >
                   <Plus className="w-3 h-3 mr-2" />
-                  添加角色
+                  {t("addCharacter")}
                 </Button>
             </div>
           </div>
@@ -637,21 +637,21 @@ export function CharacterSetting({
                                             <button 
                                                 onClick={() => handleImageClick(character.image_url!)}
                                                 className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
-                                                title="预览"
+                                                title={t("preview", { default: "Preview" })}
                                             >
                                                 <Maximize2 size={18} />
                                             </button>
                                             <button 
                                                 onClick={() => handleEditCharacter(originalIndex)}
                                                 className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
-                                                title="编辑"
+                                                title={t("edit", { default: "Edit" })}
                                             >
                                                 <PenLine size={18} />
                                             </button>
                                             <button 
                                                 onClick={() => handleRegenerateSingleCharacter(character)}
                                                 className="p-2 bg-[#22C55E]/30 hover:bg-[#22C55E]/50 rounded-full text-white backdrop-blur-sm transition-colors"
-                                                title="重新生成"
+                                                title={t("regenerate")}
                                             >
                                                 <RotateCcw size={18} />
                                             </button>
@@ -662,7 +662,7 @@ export function CharacterSetting({
                                         <div className="w-10 h-10 mb-2 rounded-full bg-white/50 flex items-center justify-center border border-[#ADD8E6]/30">
                                             <ImageIcon size={20} className="opacity-50 text-[#ADD8E6]" />
                                         </div>
-                                        <span className="text-xs font-medium opacity-70">等待生成</span>
+                                        <span className="text-xs font-medium opacity-70">{t("waitingToGenerate")}</span>
                                     </div>
                                 )}
                             </div>
@@ -679,12 +679,12 @@ export function CharacterSetting({
                                     <div className="space-y-2">
                                         {character.appearance && (
                                             <div className="text-xs text-gray-600 leading-relaxed max-h-[60px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300">
-                                                <span className="text-[#ADD8E6] mr-1">外貌:</span>
+                                                <span className="text-[#ADD8E6] mr-1">{t("appearanceLabel")}</span>
                                                 {character.appearance}
                                             </div>
                                         )}
                                         {!character.appearance && (
-                                            <p className="text-xs text-gray-500 italic">暂无特征描述</p>
+                                            <p className="text-xs text-gray-500 italic">{t("noFeatureDesc")}</p>
                                         )}
                                     </div>
                                 </div>
@@ -697,7 +697,7 @@ export function CharacterSetting({
                                         onClick={() => handleEditCharacter(originalIndex)}
                                     >
                                         <PenLine size={12} className="mr-1" />
-                                        编辑
+                                        {t("edit", { default: "Edit" })}
                                     </Button>
                                     <Button 
                                         variant="secondary" 
@@ -706,7 +706,7 @@ export function CharacterSetting({
                                         onClick={() => handleRegenerateSingleCharacter(character)}
                                     >
                                         <RotateCcw size={12} className="mr-1" />
-                                        {character.image_url ? "重新生成" : "生成参考图"}
+                                        {character.image_url ? t("regenerate") : t("generateRefImage")}
                                     </Button>
                                 </div>
                             </div>
@@ -718,7 +718,7 @@ export function CharacterSetting({
             )}
             {appearanceCharacters.length === 0 && (
               <div className="text-center py-8 text-gray-400 text-sm">
-                暂无出镜角色，点击"添加角色"按钮添加
+                暂无出镜角色，点击t("addCharacter")按钮添加
               </div>
             )}
           </div>
@@ -749,11 +749,11 @@ export function CharacterSetting({
                                 <div className="flex items-center gap-2 mb-1">
                                     <h4 className="font-medium text-gray-900 truncate">{character.name}</h4>
                                     <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-[#FDBCB4]/10 text-[#FDBCB4] hover:bg-[#FDBCB4]/20">
-                                        声音
+                                        {t("voiceShort")}
                                     </Badge>
                                 </div>
                                 <div className="text-xs text-gray-600 max-h-[40px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300">
-                                    {character.voice_description || "暂无音色描述"}
+                                    {character.voice_description || t("noVoiceDesc")}
                                 </div>
                             </div>
 
@@ -789,7 +789,7 @@ export function CharacterSetting({
         open={isImagePreviewOpen}
         onOpenChange={setIsImagePreviewOpen}
         src={previewImage || undefined}
-        alt="角色图片预览"
+        alt={t("imagePreviewTitle")}
         closeButtonPosition="top-right"
       />
 
@@ -822,7 +822,7 @@ export function CharacterSetting({
                   }
                   
                   if (!creationId) {
-                    toast.error(tCreation("creationIdRequired") || "创作ID不存在");
+                    toast.error(tCreation("creationIdRequired") || tCreation("missingId"));
                     return;
                   }
                   
@@ -832,18 +832,18 @@ export function CharacterSetting({
                     const response = await creationApi.generatePlaybook(creationId, "original");
                     if (response?.data?.task_id) {
                       setPlaybookTaskId(response.data.task_id);
-                      toast.success(tCreation("playbookGenerationStarted") || "分镜拆分任务已启动");
+                      toast.success(tCreation("playbookGenerationStarted") || t("shotSplitStarted"));
                       // 启动任务后，立即跳转到脚本页面
                       handleUpdate(); // 刷新创作数据
                       setTimeout(() => {
                         onComplete(); // 跳转到脚本页面
                       }, 300);
                     } else {
-                      throw new Error(t("taskIdNotFound") || "未获取到任务ID");
+                      throw new Error(t("taskIdNotFound") || t("missingTaskId"));
                     }
                   } catch (error: any) {
                     setIsGeneratingPlaybook(false);
-                    toast.error(error?.message || tCreation("playbookGenerationFailed") || "启动分镜拆分任务失败");
+                    toast.error(error?.message || tCreation("playbookGenerationFailed") || t("shotSplitFailed"));
                     console.error("启动分镜拆分任务失败:", error);
                   }
                   return;
@@ -879,7 +879,7 @@ export function CharacterSetting({
               )}
             >
               {isGeneratingPlaybook
-                ? (tCreation("playbookGenerationStarted") || "正在生成分镜...")
+                ? (tCreation("playbookGenerationStarted") || t("generatingShots"))
                 : (creationStatus === CreationStatus.CHARACTER_ANALYZED
                     ? t("analyzePlaybook")
                     : t("next"))
@@ -896,7 +896,7 @@ export function CharacterSetting({
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-between">
-              <span>添加角色</span>
+              <span>{t("addCharacter")}</span>
               <Button
                 variant="ghost"
                 size="icon"
@@ -915,7 +915,7 @@ export function CharacterSetting({
               </div>
             ) : novelCharacters.length === 0 ? (
               <div className="text-center py-8 text-gray-400">
-                该小说下暂无角色
+                {t("noCharactersLabel")}
               </div>
             ) : (
               <div className="space-y-2">
@@ -974,11 +974,11 @@ export function CharacterSetting({
                                 : "bg-[#22C55E]/10 text-[#22C55E]"
                             }`}
                           >
-                            {isVoiceCharacter ? "声音" : "出镜"}
+                            {isVoiceCharacter ? t("voiceShort") : t("cameraShort")}
                           </Badge>
                         </div>
                         <p className="text-xs text-gray-500 truncate">
-                          {character.appearance || character.basic_info || "暂无描述"}
+                          {character.appearance || character.basic_info || t("noDescription")}
                         </p>
                       </div>
                     </div>
@@ -994,7 +994,7 @@ export function CharacterSetting({
               variant="outline"
               onClick={() => setIsAddCharacterModalOpen(false)}
             >
-              取消
+              {t("cancel", { default: "Cancel" })}
             </Button>
             <Button
               onClick={handleSaveCharacterSelection}
@@ -1004,7 +1004,7 @@ export function CharacterSetting({
               {isSavingCharacters ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  保存中...
+                  {t("saving", { default: "Saving..." })}
                 </>
               ) : (
                 <>

@@ -86,25 +86,25 @@ export function AppSidebar() {
 
   const navItems: NavItem[] = [
     {
-      label: t('workspace', { default: '工作台' }),
+      label: t('workspace'),
       icon: LayoutDashboard,
       href: '/workspace',
       translationKey: 'workspace',
     },
     {
-      label: t('create', { default: '创作' }),
+      label: t('create'),
       icon: Wand2,
       href: '/create-dynamic-comic',
       translationKey: 'create',
     },
     {
-      label: t('creations', { default: '创作记录' }),
+      label: t('creations'),
       icon: History,
       href: '/creations',
       translationKey: 'creations',
     },
     {
-      label: t('scripts', { default: '文案列表' }),
+      label: t('scripts'),
       icon: FileText,
       href: '/scripts',
       translationKey: 'scripts',
@@ -349,7 +349,7 @@ export function AppSidebar() {
                       </button>
                     </TooltipTrigger>
                     <TooltipContent side="right">
-                      <p>{t('points', { default: '积分' })}: {currentBalance?.available_points?.toLocaleString() ?? 0}</p>
+                      <p>{t('points', { default: t('points') })}: {currentBalance?.available_points?.toLocaleString() ?? 0}</p>
                     </TooltipContent>
                   </Tooltip>
                 ) : (
@@ -370,7 +370,7 @@ export function AppSidebar() {
                               {currentBalance?.available_points?.toLocaleString() ?? 0}
                             </div>
                             <div className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                              {t('points', { default: '积分余额' })}
+                              {t('points', { default: t('pointsBalance') })}
                             </div>
                           </>
                         )}
@@ -392,7 +392,7 @@ export function AppSidebar() {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="right">
-                        <p>{t('recharge', { default: '立即充值' })}</p>
+                        <p>{t('recharge', { default: t('topUp') })}</p>
                       </TooltipContent>
                     </Tooltip>
                   ) : (
@@ -401,7 +401,7 @@ export function AppSidebar() {
                       className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-3 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-[4px_4px_16px_rgba(59,130,246,0.3),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(59,130,246,0.4),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-blue-400/30"
                     >
                       <Sparkles className="h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm font-semibold">{t('recharge', { default: '充值' })}</span>
+                      <span className="text-sm font-semibold">{t('recharge', { default: t('recharge') })}</span>
                     </button>
                   )}
 
@@ -417,7 +417,7 @@ export function AppSidebar() {
                         </button>
                       </TooltipTrigger>
                       <TooltipContent side="right">
-                        <p>{t('subscriptions', { default: '我的订阅' })}</p>
+                        <p>{t('subscriptions', { default: t('mySubscriptions', { default: 'My Subscriptions' }) })}</p>
                       </TooltipContent>
                     </Tooltip>
                   ) : (
@@ -426,7 +426,7 @@ export function AppSidebar() {
                       className="rounded-xl transition-all duration-300 flex items-center justify-center flex-1 gap-2 py-3 px-3 bg-gradient-to-br from-white to-blue-50 text-gray-900 shadow-[4px_4px_16px_rgba(0,0,0,0.12),-4px_-4px_16px_rgba(255,255,255,0.95)] hover:shadow-[6px_6px_20px_rgba(0,0,0,0.18),-6px_-6px_20px_rgba(255,255,255,1)] hover:-translate-y-0.5 border border-white/50"
                     >
                       <Repeat className="h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm font-semibold">{t('subscriptionsShort', { default: '订阅' })}</span>
+                      <span className="text-sm font-semibold">{t('subscriptionsShort', { default: t('subscriptions', { default: 'Subscriptions' }) })}</span>
                     </button>
                   )}
                 </div>
@@ -474,7 +474,7 @@ export function AppSidebar() {
                   )}
                 >
                   <LogOut className="h-4 w-4 flex-shrink-0" />
-                  {!isCollapsed && <span>登出</span>}
+                  {!isCollapsed && <span>{t("logout", { default: "Logout" })}</span>}
                 </button>
               </div>
             ) : (
@@ -487,7 +487,7 @@ export function AppSidebar() {
               >
                 <LogIn className="h-4 w-4 flex-shrink-0" />
                 {!isCollapsed && (
-                  <span>{t('login', { default: '登录' })}</span>
+                  <span>{t('login')}</span>
                 )}
               </button>
             )}
