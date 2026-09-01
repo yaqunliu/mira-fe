@@ -1,3 +1,6 @@
+// i18n-ignore-file：本文件残留的中文全部是数据契约——narration item 的
+// `角色` / `内容` 字段名（读写后端 JSON，非界面文案）。界面文案已全部抽成 key。
+// 契约需等后端改为 role / content 后再同步。见 en-plan.md Phase 0 白名单。
 "use client";
 
 import { useTranslations } from 'next-intl'
@@ -121,17 +124,18 @@ function getGenerationStatus(character: any): 'pending' | 'generating' | 'genera
  * 状态标签组件
  */
 function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated' }) {
+  const t = useTranslations('agent');
   const config = {
     pending: {
-      label: '⏳ 未生成',
+      label: t('statusNotGenerated'),
       className: 'bg-gray-100 text-gray-600 border-gray-300',
     },
     generating: {
-      label: '🔄 生成中',
+      label: t('statusGeneratingIcon'),
       className: 'bg-blue-100 text-blue-700 border-blue-300 animate-pulse',
     },
     generated: {
-      label: '✅ 已生成',
+      label: t('statusGeneratedIcon'),
       className: 'bg-green-100 text-green-700 border-green-300',
     },
   };
@@ -227,7 +231,7 @@ export function CanvasCharacterView({
             </div>
           </div>
           <div className="flex-1 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg p-4 border border-purple-200">
-            <div className="text-xs text-purple-600 mb-1">未生成</div>
+            <div className="text-xs text-purple-600 mb-1">{t('notGenerated')}</div>
             <div className="text-2xl font-bold text-purple-900">
               {statusCounts.pending + statusCounts.generating}
             </div>
@@ -277,6 +281,7 @@ function CharacterCard({
   isHighlighted: boolean;
   onClick?: () => void;
 }) {
+  const t = useTranslations('agent');
   // 兼容不同字段名
   const imageUrl = character.image_url || character.final_image_url;
   const candidateImages = character.candidate_image_urls || [];
@@ -295,7 +300,7 @@ function CharacterCard({
       {/* 头部：名称 + 状态 */}
       <div className="flex items-center justify-between mb-3">
         <h4 className="text-base font-semibold text-gray-800">
-          {character.name || '未命名角色'}
+          {character.name || t('unnamedCharacter')}
         </h4>
         <StatusBadge status={status} />
       </div>
@@ -319,7 +324,7 @@ function CharacterCard({
           <div className="text-center">
             <div className="text-4xl mb-2">👤</div>
             <p className="text-xs text-gray-400">
-              {status === 'generating' ? '生成中...' : '待生成'}
+              {status === 'generating' ? t('generatingEllipsis') : t('pendingGeneration')}
             </p>
           </div>
         </div>
@@ -329,7 +334,7 @@ function CharacterCard({
       <div className="space-y-2">
         {description && (
           <div>
-            <div className="text-xs text-gray-500 mb-1">描述</div>
+            <div className="text-xs text-gray-500 mb-1">{t('descriptionShort')}</div>
             <p className="text-sm text-gray-700 line-clamp-2">
               {description}
             </p>
@@ -339,7 +344,7 @@ function CharacterCard({
         {/* 角色外观 */}
         {character.appearance && (
           <div>
-            <div className="text-xs text-gray-500 mb-1">外观</div>
+            <div className="text-xs text-gray-500 mb-1">{t('appearanceShort')}</div>
             <p className="text-sm text-gray-700 line-clamp-2">
               {character.appearance}
             </p>
@@ -350,12 +355,12 @@ function CharacterCard({
         <div className="flex flex-wrap gap-1">
           {character.gender && (
             <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-200">
-              {character.gender === 'male' ? '♂ 男' : character.gender === 'female' ? '♀ 女' : character.gender}
+              {character.gender === 'male' ? t('genderMaleShort') : character.gender === 'female' ? t('genderFemaleShort') : character.gender}
             </span>
           )}
           {character.age && (
             <span className="px-2 py-0.5 bg-purple-50 text-purple-600 text-xs rounded border border-purple-200">
-              {character.age}岁
+              {character.age}{t('yearsOld')}
             </span>
           )}
           {character.role && (
@@ -374,7 +379,7 @@ function CharacterCard({
       {/* 候选图片缩略图 */}
       {candidateImages.length > 1 && (
         <div className="mt-3 pt-3 border-t border-gray-200">
-          <div className="text-xs text-gray-500 mb-2">候选图片</div>
+          <div className="text-xs text-gray-500 mb-2">{t('candidateImages')}</div>
           <div className="flex gap-2 overflow-x-auto">
             {candidateImages.map((url: string, idx: number) => (
               <div
@@ -383,7 +388,7 @@ function CharacterCard({
               >
                 <img
                   src={url}
-                  alt={`候选 ${idx + 1}`}
+                  alt={t('candidateN', { n: idx + 1 })}
                   className="w-full h-full object-cover"
                 />
               </div>

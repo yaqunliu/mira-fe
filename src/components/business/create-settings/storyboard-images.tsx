@@ -1,3 +1,6 @@
+// i18n-ignore-file：本文件残留的中文全部是数据契约——narration item 的
+// `角色` / `内容` 字段名（读写后端 JSON，非界面文案）。界面文案已全部抽成 key。
+// 契约需等后端改为 role / content 后再同步。见 en-plan.md Phase 0 白名单。
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
@@ -301,7 +304,7 @@ export function StoryboardImages({
           const taskId = response?.data?.task_id;
           
           if (!taskId) {
-            throw new Error(t("taskIdNotFound", { default: "Could not get task ID" }));
+            throw new Error(t("storyboard.taskIdNotFound"));
           }
           
           toast.info(t("storyboard.regenerateImageStart"));
@@ -641,7 +644,7 @@ export function StoryboardImages({
                 </>
               ) : (
                 <>
-                  {t("storyboard.generateVideo") || t("generateVideo", { default: "Generate Video" })}
+                  {t("storyboard.generateVideo")}
                   <ArrowRight className="w-4 h-4 mr-1" />
                 </>
               )}
@@ -655,7 +658,7 @@ export function StoryboardImages({
           open={!!previewImageId}
           onOpenChange={(open) => !open && setPreviewImageId(null)}
           src={localImageUpdates[previewImage.image_id] || previewImage.image_url}
-          alt={`分镜图片预览`}
+          alt={t('Timeline.shotImagePreview')}
         />
       )}
 

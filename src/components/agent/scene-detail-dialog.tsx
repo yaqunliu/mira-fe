@@ -180,7 +180,7 @@ export function SceneDetailDialog({
                     {scene.title || scene.location || t("sceneLabel", { n: sceneNumber })}
                   </DialogTitle>
                   <DialogDescription className="text-sm" style={{ color: '#6b7280' }}>
-                    {shotCount} 个分镜
+                    {t('shotsCount', { n: shotCount })}
                   </DialogDescription>
                 </div>
               </div>
@@ -198,7 +198,7 @@ export function SceneDetailDialog({
                   )}
                 >
                   <ChevronLeft size={16} />
-                  上一个
+                  {t('prev')}
                 </button>
                 <button
                   onClick={onNavigateNext}
@@ -210,7 +210,7 @@ export function SceneDetailDialog({
                       : "text-gray-300 cursor-not-allowed"
                   )}
                 >
-                  下一个
+                  {t('next')}
                   <ChevronRight size={16} />
                 </button>
                 <button
@@ -218,7 +218,7 @@ export function SceneDetailDialog({
                   className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 text-gray-700 font-medium"
                 >
                   <X size={14} />
-                  <span className="text-sm">关闭</span>
+                  <span className="text-sm">{t('close')}</span>
                 </button>
                 <button
                   onClick={form.handleSubmit(handleSave)}
@@ -230,7 +230,7 @@ export function SceneDetailDialog({
                 >
                   {isSaving && <Loader2 size={14} className="animate-spin" />}
                   <Save size={14} />
-                  <span className="text-sm">保存</span>
+                  <span className="text-sm">{t('save')}</span>
                 </button>
               </div>
             </div>
@@ -246,7 +246,7 @@ export function SceneDetailDialog({
                 </TabsTrigger>
                 <TabsTrigger value="info" className="flex items-center gap-2">
                   <Info className="w-4 h-4" />
-                  场景信息
+                  {t('sceneInfo')}
                 </TabsTrigger>
               </TabsList>
 
@@ -275,7 +275,7 @@ export function SceneDetailDialog({
 
                     {/* 右侧：场景提示词 */}
                     <div className="space-y-3 flex flex-col">
-                      <div className="text-sm font-medium text-gray-700">场景图片提示词</div>
+                      <div className="text-sm font-medium text-gray-700">{t('scenePromptLabel')}</div>
                       <div className="flex-1 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 flex flex-col">
                         <FormField
                           control={form.control}
@@ -286,7 +286,7 @@ export function SceneDetailDialog({
                                 <textarea
                                   {...field}
                                   className="flex-1 w-full px-3 py-2 rounded-lg bg-white border border-purple-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                  placeholder="输入场景生成提示词..."
+                                  placeholder={t('scenePromptPlaceholder')}
                                 />
                               </FormControl>
                             </FormItem>
@@ -304,7 +304,7 @@ export function SceneDetailDialog({
                     <div className="p-3 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200">
                       <div className="text-xs text-orange-600 mb-2 flex items-center gap-1">
                         <Clock size={12} />
-                        时间设定
+                        {t('timeSetting')}
                       </div>
                       <FormField
                         control={form.control}
@@ -315,7 +315,7 @@ export function SceneDetailDialog({
                               <textarea
                                 {...field}
                                 className="w-full px-2 py-2 rounded border border-orange-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none min-h-[60px]"
-                                placeholder="例如：清晨、黄昏、深夜..."
+                                placeholder={t('timeSettingPlaceholder')}
                               />
                             </FormControl>
                           </FormItem>
@@ -326,7 +326,7 @@ export function SceneDetailDialog({
                     <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
                       <div className="text-xs text-blue-600 mb-2 flex items-center gap-1">
                         <MapPin size={12} />
-                        地点
+                        {t('location')}
                       </div>
                       <FormField
                         control={form.control}
@@ -337,7 +337,7 @@ export function SceneDetailDialog({
                               <textarea
                                 {...field}
                                 className="w-full px-2 py-2 rounded border border-blue-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[60px]"
-                                placeholder="例如：城市街道、咖啡厅、公园..."
+                                placeholder={t('locationPlaceholder')}
                               />
                             </FormControl>
                           </FormItem>
@@ -348,7 +348,7 @@ export function SceneDetailDialog({
                     <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200">
                       <div className="text-xs text-indigo-600 mb-2 flex items-center gap-1">
                         <Film size={12} />
-                        空间类型
+                        {t('spaceType')}
                       </div>
                       <FormField
                         control={form.control}
@@ -359,7 +359,7 @@ export function SceneDetailDialog({
                               <textarea
                                 {...field}
                                 className="w-full px-2 py-2 rounded border border-indigo-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none min-h-[60px]"
-                                placeholder="例如：室内、室外、半开放空间..."
+                                placeholder={t('spaceTypePlaceholder')}
                               />
                             </FormControl>
                           </FormItem>
@@ -370,7 +370,7 @@ export function SceneDetailDialog({
                     <div className="p-3 rounded-xl bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200">
                       <div className="text-xs text-pink-600 mb-2 flex items-center gap-1">
                         <Palette size={12} />
-                        氛围
+                        {t('atmosphere')}
                       </div>
                       <FormField
                         control={form.control}
@@ -381,7 +381,7 @@ export function SceneDetailDialog({
                               <textarea
                                 {...field}
                                 className="w-full px-2 py-2 rounded border border-pink-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-pink-500 resize-none min-h-[60px]"
-                                placeholder="例如：温馨、紧张、宁静..."
+                                placeholder={t('atmospherePlaceholder')}
                               />
                             </FormControl>
                           </FormItem>
@@ -401,7 +401,7 @@ export function SceneDetailDialog({
         open={!!previewImage}
         onOpenChange={(open) => !open && setPreviewImage(null)}
         src={previewImage}
-        alt="场景图片预览"
+        alt={t('sceneImagePreview')}
       />
     </>
   );

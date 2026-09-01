@@ -661,7 +661,7 @@ export function NovelSelect({
                 disabled={!chapterPageInput || isChaptersLoading}
                 className="h-8 text-xs px-3 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
               >
-                {t("goto", { default: "Go" })}
+                {t("novel.goto")}
               </Button>
             </div>
 
@@ -707,16 +707,16 @@ export function NovelSelect({
           <DialogHeader>
             <DialogTitle>{t("createVideo.createProject")}</DialogTitle>
             <DialogDescription className="sr-only">
-              {tNovel("createProjectDesc", { default: "Enter project name to create a new video project" })}
+              {tNovel("createProjectDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("projectTitle") || tNovel('projectNameLabel', { default: 'Project Name' })}</label>
+              <label className="text-sm font-medium">{t("projectTitle") || tNovel('projectNameLabel')}</label>
               <Input
                 value={newProjectTitle}
                 onChange={(e) => setNewProjectTitle(e.target.value)}
-                placeholder={t("projectTitlePlaceholder") || tNovel('projectNamePlaceholder', { default: 'Enter project name' })}
+                placeholder={t("projectTitlePlaceholder") || tNovel('projectNamePlaceholder')}
               />
             </div>
           </div>
@@ -737,24 +737,24 @@ export function NovelSelect({
           <DialogHeader>
             <DialogTitle>{t("createVideo.addChapter")}</DialogTitle>
             <DialogDescription className="sr-only">
-              {tNovel("createScriptDesc", { default: "Enter title and content to add a new script" })}
+              {tNovel("createScriptDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("chapterTitle") || tNovel('scriptTitleLabel', { default: 'Script Title' })}</label>
+              <label className="text-sm font-medium">{t("chapterTitle") || tNovel('scriptTitleLabel')}</label>
               <Input
                 value={newChapterTitle}
                 onChange={(e) => setNewChapterTitle(e.target.value)}
-                placeholder={t("chapterTitlePlaceholder") || tNovel('scriptTitlePlaceholder', { default: 'Enter title' })}
+                placeholder={t("chapterTitlePlaceholder") || tNovel('scriptTitlePlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("chapterContent") || tNovel('scriptContentLabel', { default: 'Script Content' })}</label>
+              <label className="text-sm font-medium">{t("chapterContent") || tNovel('scriptContentLabel')}</label>
               <textarea
                 value={newChapterContent}
                 onChange={(e) => setNewChapterContent(e.target.value)}
-                placeholder={t("chapterContentPlaceholder") || tNovel('scriptContentPlaceholder', { default: 'Enter script content...' })}
+                placeholder={t("chapterContentPlaceholder") || tNovel('scriptContentPlaceholder')}
                 className="w-full h-48 p-3 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>

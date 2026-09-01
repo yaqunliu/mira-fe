@@ -84,7 +84,7 @@ export function ChatActionButtons({
       {request.timeoutSeconds && (
         <div className="mt-3 text-xs text-gray-500 flex items-center gap-1">
           <span>⏱️</span>
-          <span>请在 {request.timeoutSeconds} 秒内选择</span>
+          <span>{t('selectWithinSeconds', { seconds: request.timeoutSeconds })}</span>
         </div>
       )}
     </div>

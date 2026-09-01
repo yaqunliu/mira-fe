@@ -210,7 +210,7 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  {t("hair", { default: "Hair" })}
+                  {t("hair")}
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -231,7 +231,7 @@ export function CharacterEditBottomSheet({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-800 mb-1">
-                  {t("clothing", { default: "Clothing" })}
+                  {t("clothing")}
                 </FormLabel>
                 <FormControl>
                   <Textarea

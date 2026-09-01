@@ -52,7 +52,7 @@ export function CheckinButton({ className }: CheckinButtonProps = {}) {
       pointsApi.getBalance().then(setBalance)
     },
     onError: (error: Error) => {
-      if (error.message.includes(t('checkedIn', { default: 'Checked In' }))) {
+      if (error.message.includes(t('checkedIn'))) {
         toast.error(t('alreadyCheckedIn'))
       } else {
         toast.error(t('checkinFailed'))

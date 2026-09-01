@@ -89,11 +89,11 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
           toast.success(t('uploadSuccess'));
           onAssetsChange();
         } else {
-          toast.error(res.message || '上传失败');
+          toast.error(res.message || t('uploadFailedGeneric'));
         }
       } catch (error: any) {
         console.error('Upload error:', error);
-        toast.error(error.message || '上传失败');
+        toast.error(error.message || t('uploadFailedGeneric'));
       } finally {
         setUploading(false);
         setUploadProgress(0);
@@ -163,11 +163,11 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
         toast.success(t('deleteSuccess'));
         onAssetsChange();
       } else {
-        toast.error(res.message || '删除失败');
+        toast.error(res.message || t('deleteFailedGeneric'));
       }
     } catch (error: any) {
       console.error('Delete error:', error);
-      toast.error(error.message || '删除失败');
+      toast.error(error.message || t('deleteFailedGeneric'));
     } finally {
       setDeleteConfirm({ open: false, asset: null });
     }
@@ -264,7 +264,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
           <div className="text-center">
             <Upload size={48} className="mx-auto mb-3 text-blue-400" />
             <p className="text-lg font-medium text-blue-400">{t("dropVideoAudio")}</p>
-            <p className="text-sm text-slate-300 mt-1">支持 MP4, MOV, MP3, WAV 等格式</p>
+            <p className="text-sm text-slate-300 mt-1">{t('supportedFormats')}</p>
           </div>
         </div>
       )}
@@ -276,7 +276,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
           {uploading ? (
             <div className="text-center p-4 rounded-lg bg-[#ADD8E6]/30 shadow-[4px_4px_8px_rgba(173,221,230,0.3),-2px_-2px_4px_rgba(255,255,255,0.7)] hover:shadow-[6px_6px_12px_rgba(173,221,230,0.4),-4px_-4px_8px_rgba(255,255,255,0.8)] transition-all duration-300">
               <Loader2 size={24} className="mx-auto mb-2 text-[#22C55E] animate-spin" />
-              <p className="text-sm font-medium text-[#22C55E] mb-1">上传中... {uploadProgress}%</p>
+              <p className="text-sm font-medium text-[#22C55E] mb-1">{t('uploadingPercent', { percent: uploadProgress })}</p>
               <div className="w-full h-1 bg-white rounded-full overflow-hidden shadow-[inset_1px_1px_2px_rgba(173,221,230,0.3),inset_-1px_-1px_2px_rgba(255,255,255,0.7)]">
                 <div
                   className="h-full bg-[#22C55E] transition-all duration-300 shadow-[2px_2px_4px_rgba(173,221,230,0.3),-1px_-1px_3px_rgba(255,255,255,0.7)]"
@@ -320,7 +320,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             onClick={() => setSelectedType('all')}
             className="flex-1 h-7 text-xs"
           >
-            {t("selectAll", { default: "All" })}
+            {t("selectAll")}
           </Button>
           <Button
             variant={selectedType === AssetType.AUDIO ? 'default' : 'ghost'}
@@ -329,7 +329,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             className="flex-1 h-7 text-xs"
           >
             <Music size={12} className="mr-1" />
-            {t("audio", { default: "Audio" })}
+            {t("audio")}
           </Button>
           <Button
             variant={selectedType === AssetType.IMAGE ? 'default' : 'ghost'}
@@ -347,7 +347,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
             className="flex-1 h-7 text-xs"
           >
             <Video size={12} className="mr-1" />
-            {t("video", { default: "Video" })}
+            {t("video")}
           </Button>
         </div>
       </div>
@@ -422,7 +422,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
           <DialogHeader>
             <DialogTitle>{t("deleteConfirmTitle")}</DialogTitle>
             <DialogDescription>
-              确定要删除素材 "{deleteConfirm.asset?.name}" 吗？此操作无法撤销。
+              {t('deleteAssetConfirmFull', { name: deleteConfirm.asset?.name ?? '' })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

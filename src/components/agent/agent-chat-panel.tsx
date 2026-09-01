@@ -192,7 +192,7 @@ export function AgentChatPanel({ creationType, creation }: AgentChatPanelProps) 
                       gaoxiao_video: t("gaoxiaoVideo"),
                       story_video: t("storyVideo"),
                     };
-                    const message = `${t("chat.startVocabVideo").replace("英文单词视频", typeNames[type])}`;
+                    const message = t("chat.startCreationOfType", { type: typeNames[type] });
                     handleSendMessage(message);
                   }}
                 />

@@ -29,11 +29,13 @@ export function ChatInteractionCard({
             params: params || {},
         };
         // 直接调用 onResponse 并传递 action_response
+        // i18n-ignore: 下面两处字符串是发给后端 agent 的协议响应值，不是界面文案
         onResponse('确认生成视频', actionResponse);
     };
 
     // 处理确认/拒绝
     const handleApproveReject = (approved: boolean) => {
+        // i18n-ignore: 发给后端 agent 的协议响应值
         onResponse(approved ? '确认' : '拒绝');
     };
 
@@ -123,10 +125,10 @@ export function ChatInteractionCard({
 
                 {type === 'config_card' && fields && fields.length > 0 && (
                     <ConfigCard
-                        title={title || '配置参数'}
+                        title={title || t('configParamsTitle')}
                         description={description}
                         fields={fields}
-                        submitText={submitText || '确认'}
+                        submitText={submitText || t('confirm')}
                         onSubmit={handleConfigSubmit}
                     />
                 )}
@@ -160,10 +162,10 @@ export function ChatInteractionCard({
                     <div className="flex flex-col gap-3">
                         <div className="text-sm text-gray-600">
                             {params && params.words && (
-                                <p>单词: {Array.isArray(params.words) ? params.words.join(', ') : params.words}</p>
+                                <p>{t('wordsLabel')} {Array.isArray(params.words) ? params.words.join(', ') : params.words}</p>
                             )}
                             {params && params.sentence_level && (
-                                <p>难度: {params.sentence_level}</p>
+                                <p>{t('difficultyLabel')} {params.sentence_level}</p>
                             )}
                         </div>
                         <button
@@ -171,7 +173,7 @@ export function ChatInteractionCard({
                             className="flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-medium hover:from-green-600 hover:to-emerald-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
                             <span>🎬</span>
-                            <span>确认生成视频</span>
+                            <span>{t('confirmGenerateVideoTitle')}</span>
                         </button>
                     </div>
                 )}

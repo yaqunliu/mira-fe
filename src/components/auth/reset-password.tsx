@@ -85,7 +85,7 @@ export function ResetPassword() {
         router.push('/auth/login')
       }, 3000)
     } catch (error: any) {
-      toast.error(error.message || t('resetFailed', { default: 'Reset failed, please try again' }))
+      toast.error(error.message || t('resetFailed'))
     }
   }
 

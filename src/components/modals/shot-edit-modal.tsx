@@ -1,3 +1,7 @@
+// i18n-ignore-file：本文件残留的中文全部是数据契约——narration item 的
+// `角色` / `内容` 字段名，以及约定的角色值 `旁白`（写回后端，非界面文案）。
+// 界面文案已全部抽成 key。契约需等后端改为 role / content / narrator 后再同步。
+// 见 en-plan.md Phase 0 白名单。
 import React, { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -325,7 +329,7 @@ export function ShotEditModal({
     const handleGenerateAudio = async (index: number) => {
         const item = narration[index];
         if (!item.内容) {
-            toast.error('请先输入内容');
+            toast.error(t('enterContentFirst'));
             return;
         }
 
@@ -356,14 +360,14 @@ export function ShotEditModal({
                     [index]: newHistory.length - 1
                 }));
 
-                toast.success('音频生成成功');
+                toast.success(t('audioGenSuccess'));
                 onSuccess();
             } else {
-                toast.error(result.error || '音频生成失败');
+                toast.error(result.error || t('audioGenFailed'));
             }
         } catch (error) {
             console.error('生成音频失败:', error);
-            toast.error('音频生成失败');
+            toast.error(t('audioGenFailed'));
         } finally {
             setGeneratingAudioIndex(null);
         }
@@ -559,15 +563,15 @@ export function ShotEditModal({
                       <TabsList className="grid w-full grid-cols-4 mb-4 flex-shrink-0">
                         <TabsTrigger value="image" className="flex items-center gap-2">
                           <ImageIcon className="w-4 h-4" />
-                          首位帧图片
+                          {t('firstLastFrame')}
                         </TabsTrigger>
                         <TabsTrigger value="video" className="flex items-center gap-2">
                           <Film className="w-4 h-4" />
-                          视频预览
+                          {t('videoPreview')}
                         </TabsTrigger>
                         <TabsTrigger value="dialogue" className="flex items-center gap-2">
                           <Sparkles className="w-4 h-4" />
-                          对话预览
+                          {t('dialoguePreview')}
                         </TabsTrigger>
                         <TabsTrigger value="info" className="flex items-center gap-2">
                           <Edit2 className="w-4 h-4" />
@@ -593,12 +597,12 @@ export function ShotEditModal({
                             <div className="p-4 rounded-xl bg-gradient-to-br from-orange-50 to-pink-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-orange-100 space-y-2">
                               <Label className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3" />
-                                {t('imagePrompt') || "首帧生图提示词"}
+                                {t('imagePrompt')}
                               </Label>
                               <textarea
                                 value={imagePrompt}
                                 onChange={(e) => setImagePrompt(e.target.value)}
-                                placeholder={t('imagePromptPlaceholder') || "输入自定义生图提示词..."}
+                                placeholder={t('imagePromptPlaceholder')}
                                 className="w-full text-sm resize-none bg-gradient-to-br from-white to-orange-50 border border-orange-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-orange-200 transition-all duration-200 rounded-lg p-3 h-[calc(100%-28px)]"
                               />
                             </div>
@@ -620,12 +624,12 @@ export function ShotEditModal({
                             <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100 space-y-2">
                               <Label className="text-xs font-semibold text-blue-700 flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3" />
-                                尾帧图片提示词
+                                {t('lastFramePrompt')}
                               </Label>
                               <textarea
                                 value={endFrameImagePrompt}
                                 onChange={(e) => setEndFrameImagePrompt(e.target.value)}
-                                placeholder="输入尾帧图片提示词..."
+                                placeholder={t('lastFramePromptPlaceholder')}
                                 className="w-full text-sm resize-none bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all duration-200 rounded-lg p-3 h-[calc(100%-28px)]"
                               />
                             </div>
@@ -644,12 +648,12 @@ export function ShotEditModal({
                                     onValueChange={setSelectedVersionId}
                                   >
                                     <SelectTrigger className="h-8 w-[180px] text-xs bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
-                                      <SelectValue placeholder={t('selectVersion') || "选择版本"} />
+                                      <SelectValue placeholder={t('selectVersion')} />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[8px_8px_24px_rgba(173,221,230,0.3),-8px_-8px_24px_rgba(255,255,255,0.9)]">
                                       {((shot.extra_data as any).version_history as any[]).map((v, idx) => (
                                         <SelectItem key={v.version_id} value={v.version_id} className="text-xs">
-                                          {t('version') || "版本"} {idx + 1} ({new Date(v.created_at).toLocaleString()})
+                                          {t('version')} {idx + 1} ({new Date(v.created_at).toLocaleString()})
                                         </SelectItem>
                                       ))}
                                     </SelectContent>
@@ -690,7 +694,7 @@ export function ShotEditModal({
                                           className="flex-1 rounded-xl bg-gradient-to-br from-green-400 to-green-500 text-white font-medium shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 px-3 py-2 text-sm flex items-center justify-center gap-1.5"
                                         >
                                           <Play className="w-4 h-4" />
-                                          播放视频和音频
+                                          {t('playVideoAudio')}
                                         </button>
                                         <button
                                           onClick={handleGenerateVideo}
@@ -727,8 +731,8 @@ export function ShotEditModal({
                                   return (
                                     <div className="rounded-xl bg-gradient-to-br from-white to-blue-50 border-2 border-dashed border-green-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] p-8 text-center">
                                       <Loader2 className="w-12 h-12 mx-auto mb-2 text-green-500 animate-spin" />
-                                      <p className="text-sm text-green-600 mb-2">视频生成中...</p>
-                                      <p className="text-xs text-gray-500">生成完成后将自动刷新</p>
+                                      <p className="text-sm text-green-600 mb-2">{t('videoGenerating')}</p>
+                                      <p className="text-xs text-gray-500">{t('autoRefreshHint')}</p>
                                     </div>
                                   );
                                 }
@@ -762,7 +766,7 @@ export function ShotEditModal({
                               <div className="flex items-center justify-between mb-3">
                                 <Label className="text-xs font-semibold text-purple-700 flex items-center gap-1.5">
                                   <Film className="w-3 h-3" />
-                                  {t('videoPrompt') || "视频提示词"}
+                                  {t('videoPrompt')}
                                 </Label>
                                 <button
                                   onClick={handleRegenerateVideoPrompt}
@@ -774,13 +778,13 @@ export function ShotEditModal({
                                   ) : (
                                     <Sparkles className="w-3 h-3" />
                                   )}
-                                  {t('regeneratePrompt') || "重新生成提示词"}
+                                  {t('regeneratePrompt')}
                                 </button>
                               </div>
                               <textarea
                                 value={videoPrompt}
                                 onChange={(e) => setVideoPrompt(e.target.value)}
-                                placeholder={t('videoPromptPlaceholder') || "输入视频提示词..."}
+                                placeholder={t('videoPromptPlaceholder')}
                                 className="flex-1 w-full text-sm resize-none bg-gradient-to-br from-white to-purple-50 border border-purple-100 shadow-[inset_2px_2px_6px_rgba(0,0,0,0.05),inset_-2px_-2px_6px_rgba(255,255,255,0.8)] focus:outline-none focus:ring-2 focus:ring-purple-200 transition-all duration-200 rounded-lg p-3"
                               />
                             </div>
@@ -793,7 +797,7 @@ export function ShotEditModal({
                             <div className="flex items-center justify-between">
                               <Label className="text-xs font-semibold text-blue-700 flex items-center gap-1.5">
                                 <Sparkles className="w-3 h-3" />
-                                对话/旁白列表
+                                {t('dialogueNarrationList')}
                               </Label>
                               <Button
                                 onClick={() => setNarration(prev => [...prev, { 角色: '旁白', 内容: '' }])}
@@ -802,7 +806,7 @@ export function ShotEditModal({
                                 className="h-7 text-[10px] bg-white hover:bg-blue-50 border-blue-200"
                               >
                                 <Plus className="w-3 h-3 mr-1" />
-                                添加旁白
+                                {t('addNarration')}
                               </Button>
                             </div>
 
@@ -829,7 +833,7 @@ export function ShotEditModal({
                                     <Input
                                       value={item.内容}
                                       onChange={(e) => handleUpdateNarration(index, '内容', e.target.value)}
-                                      placeholder="输入对话内容..."
+                                      placeholder={t('dialogueContentPlaceholder')}
                                       className="flex-1 h-8 text-xs"
                                     />
                                     <Button
@@ -854,12 +858,12 @@ export function ShotEditModal({
                                         {playingAudioIndex === index ? (
                                           <>
                                             <Pause className="w-3 h-3 mr-1" />
-                                            暂停
+                                            {t('pause')}
                                           </>
                                         ) : (
                                           <>
                                             <Play className="w-3 h-3 mr-1" />
-                                            试听
+                                            {t('audition')}
                                           </>
                                         )}
                                       </Button>
@@ -873,12 +877,12 @@ export function ShotEditModal({
                                         {generatingAudioIndex === index ? (
                                           <>
                                             <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                            生成中...
+                                            {t('generating')}
                                           </>
                                         ) : (
                                           <>
                                             <RefreshCw className="w-3 h-3 mr-1" />
-                                            重新生成
+                                            {t('regenerate')}
                                           </>
                                         )}
                                       </Button>
@@ -889,7 +893,7 @@ export function ShotEditModal({
                                         onClick={() => handleAddToTrack(item)}
                                       >
                                         <Plus className="w-3 h-3 mr-1" />
-                                        添加到音轨
+                                        {t('addToAudioTrack')}
                                       </Button>
                                       <audio
                                         ref={narrationAudioRef}
@@ -912,17 +916,17 @@ export function ShotEditModal({
                                         {generatingAudioIndex === index ? (
                                           <>
                                             <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                            生成中...
+                                            {t('generating')}
                                           </>
                                         ) : (
                                           <>
                                             <Sparkles className="w-3 h-3 mr-1" />
-                                            生成音频
+                                            {t('generateAudio')}
                                           </>
                                         )}
                                       </Button>
                                       {!item.内容 && (
-                                        <span className="text-xs text-red-500 ml-2">请先输入内容</span>
+                                        <span className="text-xs text-red-500 ml-2">{t('enterContentFirst')}</span>
                                       )}
                                     </div>
                                   )}
@@ -931,7 +935,7 @@ export function ShotEditModal({
 
                               {narration.length === 0 && (
                                 <div className="text-center py-8 text-gray-400 text-sm">
-                                  暂无对话/旁白，点击上方按钮添加
+                                  {t('noNarrationHint')}
                                 </div>
                               )}
                             </div>
@@ -1021,7 +1025,7 @@ export function ShotEditModal({
                             {/* 出镜元素 */}
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
-                                <Label className="text-sm font-medium text-gray-700">出镜元素 (手机、包包等道具)</Label>
+                                <Label className="text-sm font-medium text-gray-700">{t('onScreenElements')} ({t('onScreenElementsHint')})</Label>
                                 <button
                                   onClick={handleAddAppearanceElement}
                                   className="h-7 text-[10px] text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-lg px-2 flex items-center gap-1 transition-all duration-200"
@@ -1037,7 +1041,7 @@ export function ShotEditModal({
                                       value={element}
                                       onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
                                       className="h-6 w-24 bg-transparent border-0 focus:outline-none focus:ring-1 focus:ring-blue-200 text-xs"
-                                      placeholder="元素名称"
+                                      placeholder={t('elementName')}
                                     />
                                     <button
                                       onClick={() => handleRemoveAppearanceElement(index)}
@@ -1048,7 +1052,7 @@ export function ShotEditModal({
                                   </div>
                                 ))}
                                 {(!Array.isArray(appearanceElements) || appearanceElements.length === 0) && (
-                                  <span className="text-xs text-gray-500 italic">暂无元素</span>
+                                  <span className="text-xs text-gray-500 italic">{t('noElements')}</span>
                                 )}
                               </div>
                             </div>

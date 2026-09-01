@@ -85,7 +85,7 @@ export function CanvasTimelineView({
                   `}
                 >
                   <span className="text-sm font-medium text-purple-900">
-                    场景 {sceneIdx + 1}
+                    {t('sceneNumber', { n: sceneIdx + 1 })}
                   </span>
                   <span className="text-xs text-purple-600">
                     {formatDuration(sceneDuration)}
@@ -116,7 +116,7 @@ export function CanvasTimelineView({
                               title={shot.prompt || t("shotLabel", { n: shotIdx + 1 })}
                             >
                               <span className="truncate">
-                                分镜 {shotIdx + 1}
+                                {t('shotNumber', { n: shotIdx + 1 })}
                               </span>
                             </div>
 
@@ -138,7 +138,7 @@ export function CanvasTimelineView({
 
       {/* 时间刻度尺 */}
       <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">时间刻度</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-4">{t('timeScaleLabel')}</h3>
         <TimelineScale totalDuration={totalDuration} />
       </div>
     </div>

@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/dialog";
 
 export function StorySetting() {
-  const t = useTranslations("")
+  const t = useTranslations()
   const tSB = useTranslations("storyboard");
   const router = useRouter();
   const params = useParams();
@@ -257,7 +257,7 @@ export function StorySetting() {
     )
 
     if (!pointsAvailable) {
-      throw new Error(tSB('missingCreationId', { default: t('insufficientPoints') }))
+      throw new Error(tSB('missingCreationId'))
     }
 
     // 构建 extra_data

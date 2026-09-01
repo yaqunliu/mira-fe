@@ -106,7 +106,7 @@ export function ExportTriggerDialog({
 
   const getStatusText = () => {
     if (!exportStep?.progress) return t("preparing");
-    return exportStep.progress.status || "处理中...";
+    return exportStep.progress.status || t("processingStatus");
   };
 
   const isCompleted = exportStep?.status === "success";
@@ -151,25 +151,25 @@ export function ExportTriggerDialog({
 
               {/* 导出内容说明 */}
               <div className="bg-[#ADD8E6]/10 rounded-xl p-4 border border-[#ADD8E6]/30 shadow-[2px_2px_4px_rgba(173,221,230,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
-                <p className="text-xs font-medium text-gray-700 mb-3">导出将包含:</p>
+                <p className="text-xs font-medium text-gray-700 mb-3">{t("exportWillInclude")}</p>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 text-sm text-gray-600">
                     <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#ADD8E6]/20 border border-[#ADD8E6]/30 shadow-[2px_2px_4px_rgba(173,221,230,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                       <Video className="h-4 w-4 text-[#ADD8E6]" />
                     </div>
-                    <span>所有视频轨道（含剪辑和透明度）</span>
+                    <span>{t("exportIncludeVideo")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-gray-600">
                     <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#22C55E]/20 border border-[#22C55E]/30 shadow-[2px_2px_4px_rgba(34,197,94,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                       <Music className="h-4 w-4 text-[#22C55E]" />
                     </div>
-                    <span>所有音频轨道（含音量和混音）</span>
+                    <span>{t("exportIncludeAudio")}</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-gray-600">
                     <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#FDBCB4]/20 border border-[#FDBCB4]/30 shadow-[2px_2px_4px_rgba(253,188,180,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                       <Type className="h-4 w-4 text-[#FDBCB4]" />
                     </div>
-                    <span>所有字幕轨道（烧录到视频）</span>
+                    <span>{t("exportIncludeSubtitle")}</span>
                   </div>
                 </div>
               </div>
@@ -204,10 +204,10 @@ export function ExportTriggerDialog({
 
               <div className="text-center">
                 <p className="text-xs text-gray-500">
-                  视频渲染中，可能需要几分钟时间...
+                  {t("renderingHint")}
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  请不要关闭此窗口
+                  {t("doNotCloseWindow")}
                 </p>
               </div>
             </div>
@@ -226,16 +226,16 @@ export function ExportTriggerDialog({
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">导出成功！</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">{t("exportSucceededTitle")}</h3>
                   <p className="text-sm text-gray-500">
-                    您的视频已成功保存到云端存储
+                    {t("exportSavedToCloud")}
                   </p>
                 </div>
               </div>
 
               <div className="bg-gradient-to-r from-[#22C55E]/10 to-[#16A34A]/10 rounded-xl p-4 border border-[#22C55E]/30 shadow-[2px_2px_4px_rgba(34,197,94,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                 <p className="text-xs text-[#22C55E] text-center">
-                  视频已准备就绪，您可以下载或在导出历史中查看
+                  {t("videoReadyHint")}
                 </p>
               </div>
             </div>
@@ -254,16 +254,16 @@ export function ExportTriggerDialog({
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">导出失败</h3>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">{t("exportFailedTitle")}</h3>
                   <p className="text-sm text-gray-500">
-                    {exportStep?.error || "未知错误，请重试"}
+                    {exportStep?.error || t("unknownErrorRetry")}
                   </p>
                 </div>
               </div>
 
               <div className="bg-gradient-to-r from-[#FDBCB4]/10 to-[#F9A899]/10 rounded-xl p-4 border border-[#FDBCB4]/30 shadow-[2px_2px_4px_rgba(253,188,180,0.1),-1px_-1px_2px_rgba(255,255,255,0.7)]">
                 <p className="text-xs text-[#FDBCB4] text-center">
-                  如果问题持续存在，请联系技术支持
+                  {t("contactSupportHint")}
                 </p>
               </div>
             </div>
@@ -279,14 +279,14 @@ export function ExportTriggerDialog({
                 onClick={handleClose}
                 className="border-gray-300 hover:bg-gray-100"
               >
-                取消
+                {t("cancel")}
               </Button>
               <Button
                 onClick={handleExport}
                 className="bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] shadow-[3px_3px_6px_rgba(34,197,94,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)]"
               >
                 <Download className="h-4 w-4 mr-2" />
-                开始导出
+                {t("startExport")}
               </Button>
             </>
           )}
@@ -298,7 +298,7 @@ export function ExportTriggerDialog({
               className="border-gray-300"
             >
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              导出中...
+              {t("exportingEllipsis")}
             </Button>
           )}
 
@@ -309,14 +309,14 @@ export function ExportTriggerDialog({
                 onClick={handleClose}
                 className="border-gray-300 hover:bg-gray-100"
               >
-                关闭
+                {t("close")}
               </Button>
               <Button
                 onClick={handleDownload}
                 className="bg-gradient-to-r from-[#22C55E] to-[#16A34A] hover:from-[#16A34A] hover:to-[#15803D] shadow-[3px_3px_6px_rgba(34,197,94,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)]"
               >
                 <Download className="h-4 w-4 mr-2" />
-                下载视频
+                {t("downloadVideo")}
               </Button>
             </>
           )}
@@ -328,13 +328,13 @@ export function ExportTriggerDialog({
                 onClick={handleClose}
                 className="border-gray-300 hover:bg-gray-100"
               >
-                关闭
+                {t("close")}
               </Button>
               <Button
                 onClick={handleExport}
                 className="bg-gradient-to-r from-[#ADD8E6] to-[#93C5FD] hover:from-[#93C5FD] hover:to-[#60A5FA] shadow-[3px_3px_6px_rgba(173,221,230,0.2),-1px_-1px_3px_rgba(255,255,255,0.7)]"
               >
-                重试
+                {t("retry")}
               </Button>
             </>
           )}

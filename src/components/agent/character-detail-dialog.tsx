@@ -281,7 +281,7 @@ export function CharacterDetailDialog({
                 </div>
                 <div>
                   <DialogTitle className="text-lg font-semibold" style={{ color: '#111827' }}>
-                    {character.name || '未命名角色'}
+                    {character.name || t('unnamedCharacter')}
                   </DialogTitle>
                   <DialogDescription className="text-sm flex items-center gap-2" style={{ color: '#6b7280' }}>
                     <StatusBadge status={status} />
@@ -302,7 +302,7 @@ export function CharacterDetailDialog({
                   )}
                 >
                   <ChevronLeft size={16} />
-                  上一个
+                  {t('prev')}
                 </button>
                 <button
                   onClick={onNavigateNext}
@@ -314,7 +314,7 @@ export function CharacterDetailDialog({
                       : "text-gray-300 cursor-not-allowed"
                   )}
                 >
-                  下一个
+                  {t('next')}
                   <ChevronRight size={16} />
                 </button>
                 <button
@@ -322,7 +322,7 @@ export function CharacterDetailDialog({
                   className="h-9 px-4 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 flex items-center gap-2 text-gray-700 font-medium"
                 >
                   <X size={14} />
-                  <span className="text-sm">关闭</span>
+                  <span className="text-sm">{t('close')}</span>
                 </button>
                 <button
                   onClick={form.handleSubmit(handleSave)}
@@ -334,7 +334,7 @@ export function CharacterDetailDialog({
                 >
                   {isSaving && <Loader2 size={14} className="animate-spin" />}
                   <Save size={14} />
-                  <span className="text-sm">保存</span>
+                  <span className="text-sm">{t('save')}</span>
                 </button>
               </div>
             </div>
@@ -346,7 +346,7 @@ export function CharacterDetailDialog({
               <TabsList className="grid w-full grid-cols-3 mb-4 flex-shrink-0 bg-white/50">
                 <TabsTrigger value="image" className="flex items-center gap-2">
                   <ImageIcon className="w-4 h-4" />
-                  角色图片
+                  {t('characterImage')}
                 </TabsTrigger>
                 <TabsTrigger value="info" className="flex items-center gap-2">
                   <Info className="w-4 h-4" />
@@ -365,12 +365,12 @@ export function CharacterDetailDialog({
                   <div className="flex flex-wrap gap-2">
                     {(character as any).gender && (
                       <span className="px-3 py-1.5 bg-blue-50 text-blue-700 text-sm rounded-lg border border-blue-200">
-                        {(character as any).gender === 'male' ? '♂ 男性' : (character as any).gender === 'female' ? '♀ 女性' : (character as any).gender}
+                        {(character as any).gender === 'male' ? t('genderMale') : (character as any).gender === 'female' ? t('genderFemale') : (character as any).gender}
                       </span>
                     )}
                     {(character as any).age && (
                       <span className="px-3 py-1.5 bg-purple-50 text-purple-700 text-sm rounded-lg border border-purple-200">
-                        {(character as any).age}岁
+                        {(character as any).age}{t('yearsOld')}
                       </span>
                     )}
                     {(character as any).role && (
@@ -387,7 +387,7 @@ export function CharacterDetailDialog({
 
                   {/* 角色描述 */}
                   <div className="p-4 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100">
-                    <div className="text-sm font-medium text-blue-700 mb-2">角色描述</div>
+                    <div className="text-sm font-medium text-blue-700 mb-2">{t('characterDescription')}</div>
                     <FormField
                       control={form.control}
                       name="basicInfo"
@@ -397,7 +397,7 @@ export function CharacterDetailDialog({
                             <textarea
                               {...field}
                               className="w-full px-3 py-2 rounded-lg bg-white border border-blue-200 text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="输入角色描述..."
+                              placeholder={t('characterDescriptionPlaceholder')}
                             />
                           </FormControl>
                         </FormItem>
@@ -407,7 +407,7 @@ export function CharacterDetailDialog({
 
                   {/* 角色外观 */}
                   <div className="p-4 rounded-xl bg-gradient-to-br from-white to-pink-50 border border-pink-100">
-                    <div className="text-sm font-medium text-pink-700 mb-2">外观特征</div>
+                    <div className="text-sm font-medium text-pink-700 mb-2">{t('appearanceFeatures')}</div>
                     <FormField
                       control={form.control}
                       name="appearance"
@@ -417,7 +417,7 @@ export function CharacterDetailDialog({
                             <textarea
                               {...field}
                               className="w-full px-3 py-2 rounded-lg bg-white border border-pink-200 text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-pink-500"
-                              placeholder="输入角色外观特征..."
+                              placeholder={t('appearancePlaceholder')}
                             />
                           </FormControl>
                         </FormItem>
@@ -429,7 +429,7 @@ export function CharacterDetailDialog({
                   <div className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100">
                     <div className="text-sm font-medium text-green-700 mb-2 flex items-center gap-2">
                       <Sparkles size={14} />
-                      生成提示词
+                      {t('generationPrompt')}
                     </div>
                     <FormField
                       control={form.control}
@@ -440,7 +440,7 @@ export function CharacterDetailDialog({
                             <textarea
                               {...field}
                               className="w-full px-3 py-2 rounded-lg bg-white border border-green-200 text-sm resize-none h-24 focus:outline-none focus:ring-2 focus:ring-green-500"
-                              placeholder="输入自定义生图提示词..."
+                              placeholder={t('customImagePromptPlaceholder')}
                             />
                           </FormControl>
                         </FormItem>
@@ -455,7 +455,7 @@ export function CharacterDetailDialog({
                   <div className="grid grid-cols-2 gap-6">
                     {/* 左侧：角色图片 */}
                     <div className="space-y-3">
-                      <div className="text-sm font-medium text-gray-700">角色图片</div>
+                      <div className="text-sm font-medium text-gray-700">{t('characterImage')}</div>
                       <ImageVersionPreview
                         currentImageUrl={imageUrl}
                         imageHistory={imageHistory}
@@ -472,7 +472,7 @@ export function CharacterDetailDialog({
 
                     {/* 右侧：角色提示词 */}
                     <div className="space-y-3">
-                      <div className="text-sm font-medium text-gray-700">角色提示词</div>
+                      <div className="text-sm font-medium text-gray-700">{t('characterPrompt')}</div>
                       <div className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-teal-50 border border-green-100 h-full">
                         <FormField
                           control={form.control}
@@ -483,7 +483,7 @@ export function CharacterDetailDialog({
                                 <textarea
                                   {...field}
                                   className="w-full h-[200px] px-3 py-2 rounded-lg bg-white border border-green-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-green-500"
-                                  placeholder="输入自定义生图提示词..."
+                                  placeholder={t('customImagePromptPlaceholder')}
                                 />
                               </FormControl>
                             </FormItem>
@@ -496,7 +496,7 @@ export function CharacterDetailDialog({
                   {/* 候选图片 */}
                   {candidateImages.length > 1 && (
                     <div className="space-y-3">
-                      <div className="text-sm font-medium text-gray-700">候选图片</div>
+                      <div className="text-sm font-medium text-gray-700">{t('candidateImages')}</div>
                       <div className="grid grid-cols-4 gap-2">
                         {candidateImages.map((url: string, idx: number) => (
                           <div
@@ -506,7 +506,7 @@ export function CharacterDetailDialog({
                           >
                             <img
                               src={url}
-                              alt={`候选 ${idx + 1}`}
+                              alt={t('candidateN', { n: idx + 1 })}
                               className="w-full h-full object-cover"
                             />
                           </div>
@@ -522,7 +522,7 @@ export function CharacterDetailDialog({
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                     <Input
-                      placeholder="搜索语音名称..."
+                      placeholder={t('searchVoicePlaceholder')}
                       value={voiceSearch}
                       onChange={(e) => setVoiceSearch(e.target.value)}
                       className="pl-9 rounded-xl bg-white border border-gray-200"
@@ -533,12 +533,12 @@ export function CharacterDetailDialog({
                   {isLoadingVoices ? (
                     <div className="flex items-center justify-center py-8">
                       <Loader2 className="w-6 h-6 animate-spin text-green-500" />
-                      <span className="ml-2 text-gray-600">加载中...</span>
+                      <span className="ml-2 text-gray-600">{t('loading')}</span>
                     </div>
                   ) : voices.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-gray-500">
                       <Volume2 className="w-10 h-10 mb-2 opacity-50" />
-                      <p>未找到匹配的语音</p>
+                      <p>{t('noMatchingVoice')}</p>
                     </div>
                   ) : (
                     <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
@@ -619,7 +619,7 @@ export function CharacterDetailDialog({
                                 {sample && (
                                   <div className="mt-3 flex items-center gap-2">
                                     <div className="flex-1 px-3 py-2 bg-gray-50 rounded-lg text-xs text-gray-600 truncate">
-                                      {sample.text || "暂无试听文本"}
+                                      {sample.text || t('noAuditionText')}
                                     </div>
                                     {hasAudio && (
                                       <button
@@ -664,7 +664,7 @@ export function CharacterDetailDialog({
                             : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                         )}
                       >
-                        上一页
+                        {t('previousPage')}
                       </button>
                       <span className="text-sm text-gray-600 px-2">
                         {voicePage} / {totalVoicePages}
@@ -679,7 +679,7 @@ export function CharacterDetailDialog({
                             : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                         )}
                       >
-                        下一页
+                        {t('nextPage')}
                       </button>
                     </div>
                   )}
@@ -695,7 +695,7 @@ export function CharacterDetailDialog({
         open={!!previewImage}
         onOpenChange={(open) => !open && setPreviewImage(null)}
         src={previewImage}
-        alt="角色图片预览"
+        alt={t('characterImagePreview')}
       />
     </>
   );

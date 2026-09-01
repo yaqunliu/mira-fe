@@ -100,7 +100,7 @@ export function ExportPreviewDialog({
           </DialogHeader>
           <div className="py-12 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-[#22C55E]"></div>
-            <p className="text-sm text-gray-500 mt-4">{t("loading", { default: "Loading..." })}</p>
+            <p className="text-sm text-gray-500 mt-4">{t("loading")}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -130,7 +130,7 @@ export function ExportPreviewDialog({
                 </div>
                 <h3 className="text-lg font-medium text-gray-800 mb-2">{t("noExportHistory")}</h3>
                 <p className="text-sm text-gray-500">
-                  导出视频后将在此处显示历史记录
+                  {t("exportHistoryHint")}
                 </p>
               </div>
             ) : (
@@ -173,13 +173,13 @@ export function ExportPreviewDialog({
                               {output.status === "completed" && (
                                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#22C55E]/10 border border-[#22C55E]/20 shadow-[1px_1px_2px_rgba(34,197,94,0.1),-0.5px_-0.5px_1px_rgba(255,255,255,0.7)]">
                                   <div className="w-1.5 h-1.5 rounded-full bg-[#22C55E]"></div>
-                                  <span className="text-xs text-[#22C55E] font-medium">导出成功</span>
+                                  <span className="text-xs text-[#22C55E] font-medium">{t("exportSuccess")}</span>
                                 </div>
                               )}
                               {output.status === "failed" && (
                                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#FDBCB4]/10 border border-[#FDBCB4]/20 shadow-[1px_1px_2px_rgba(253,188,180,0.1),-0.5px_-0.5px_1px_rgba(255,255,255,0.7)]">
                                   <div className="w-1.5 h-1.5 rounded-full bg-[#FDBCB4]"></div>
-                                  <span className="text-xs text-[#FDBCB4] font-medium">导出失败</span>
+                                  <span className="text-xs text-[#FDBCB4] font-medium">{t("exportFailed")}</span>
                                 </div>
                               )}
                             </div>
@@ -226,7 +226,7 @@ export function ExportPreviewDialog({
                                 className="flex-1 border-[#22C55E]/30 hover:bg-[#22C55E]/10 hover:border-[#22C55E]/50 text-[#22C55E]"
                               >
                                 <Play className="h-3.5 w-3.5 mr-1.5" />
-                                预览
+                                {t("preview")}
                               </Button>
                               <Button
                                 size="sm"
@@ -235,7 +235,7 @@ export function ExportPreviewDialog({
                                 className="flex-1 border-[#ADD8E6]/30 hover:bg-[#ADD8E6]/10 hover:border-[#ADD8E6]/50 text-[#ADD8E6]"
                               >
                                 <Download className="h-3.5 w-3.5 mr-1.5" />
-                                下载
+                                {t("download")}
                               </Button>
                             </div>
                           )}
@@ -250,7 +250,7 @@ export function ExportPreviewDialog({
             {exportHistory && exportHistory.total > 0 && (
             <div className="text-center pt-2 pb-1 border-t border-gray-200">
               <p className="text-xs text-gray-500">
-                共 {exportHistory.total} 条导出记录
+                {t("exportRecordsCount", { count: exportHistory.total })}
               </p>
             </div>
           )}
@@ -262,7 +262,7 @@ export function ExportPreviewDialog({
             onClick={onClose}
             className="border-gray-300 hover:bg-gray-100"
           >
-            关闭
+            {t("close")}
           </Button>
         </div>
       </DialogContent>
@@ -272,8 +272,8 @@ export function ExportPreviewDialog({
     {previewUrl && (
       <Dialog open={!!previewUrl} onOpenChange={closePreview}>
         <DialogContent className="sm:max-w-[90vw] max-h-[90vh] shadow-[8px_8px_16px_rgba(173,221,230,0.3),-4px_-4px_12px_rgba(255,255,255,0.7)] bg-black p-0 overflow-hidden">
-          <DialogTitle className="sr-only">视频预览</DialogTitle>
-          <DialogDescription className="sr-only">导出结果视频预览播放器</DialogDescription>
+          <DialogTitle className="sr-only">{t("videoPreview")}</DialogTitle>
+          <DialogDescription className="sr-only">{t("videoPreviewPlayer")}</DialogDescription>
           <div className="relative w-full h-full">
             {/* 关闭按钮 */}
             <Button
@@ -294,7 +294,7 @@ export function ExportPreviewDialog({
                   className="w-full h-full max-h-[85vh] object-contain"
                   style={{ backgroundColor: "#000" }}
                 >
-                  您的浏览器不支持视频播放
+                  {t("browserNotSupportVideo")}
                 </video>
               </div>
             </div>

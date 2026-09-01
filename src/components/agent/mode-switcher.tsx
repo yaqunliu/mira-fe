@@ -84,7 +84,7 @@ export function ModeSwitcher({
 
       {/* 模式说明 */}
       <div className="text-xs text-gray-500">
-        {isAgentMode ? '🤖 AI 全自动引导' : '⚙️ 手动精细控制'}
+        {isAgentMode ? t('modeAgentDesc') : t('modeManualDesc')}
       </div>
     </div>
   );
@@ -94,6 +94,7 @@ export function ModeSwitcher({
  * 紧凑版模式切换组件
  */
 export function CompactModeSwitcher({ creationId, currentMode }: Omit<ModeSwitcherProps, 'className'>) {
+  const t = useTranslations('agent');
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
@@ -121,7 +122,7 @@ export function CompactModeSwitcher({ creationId, currentMode }: Omit<ModeSwitch
     >
       <span>{isAgentMode ? '🤖' : '⚙️'}</span>
       <span className="font-medium text-gray-700">
-        切换到{isAgentMode ? '专业' : 'Agent'}模式
+        {isAgentMode ? t('switchToProfessional') : t('switchToAgent')}
       </span>
     </button>
   );

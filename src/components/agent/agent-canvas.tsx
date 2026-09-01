@@ -63,7 +63,7 @@ export function AgentCanvas({ creation }: AgentCanvasProps) {
         {/* 视图头部 */}
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-800">
-            {getViewTitle(currentView)}
+            {getViewTitle(currentView, t)}
           </h2>
           <ViewSwitcher />
         </div>
@@ -88,14 +88,15 @@ export function AgentCanvas({ creation }: AgentCanvasProps) {
  * 视图切换器
  */
 function ViewSwitcher() {
+  const t = useTranslations('agent');
   const { currentView, setBoardView } = useAgentStore();
 
   const views = [
-    { id: 'script' as const, label: '剧本', icon: '📜' },
-    { id: 'characters' as const, label: '角色', icon: '👥' },
-    { id: 'scenes' as const, label: '场景', icon: '🎬' },
-    { id: 'storyboard' as const, label: '分镜', icon: '🎞️' },
-    { id: 'preview' as const, label: '预览', icon: '▶️' },
+    { id: 'script' as const, label: t('script'), icon: '📜' },
+    { id: 'characters' as const, label: t('characters'), icon: '👥' },
+    { id: 'scenes' as const, label: t('scenes'), icon: '🎬' },
+    { id: 'storyboard' as const, label: t('shots'), icon: '🎞️' },
+    { id: 'preview' as const, label: t('preview'), icon: '▶️' },
   ];
 
   return (
@@ -143,14 +144,14 @@ function EmptyState() {
 /**
  * 获取视图标题
  */
-function getViewTitle(view: string): string {
+function getViewTitle(view: string, t: (k: string) => string): string {
   const titles: Record<string, string> = {
-    script: '剧本内容',
-    characters: '角色设计',
-    scenes: '场景设计',
-    storyboard: '分镜设计',
-    preview: '作品预览',
+    script: t('scriptContent'),
+    characters: t('characterDesign'),
+    scenes: t('sceneDesign'),
+    storyboard: t('shotDesign'),
+    preview: t('workPreview'),
   };
 
-  return titles[view] || '看板';
+  return titles[view] || t('board');
 }

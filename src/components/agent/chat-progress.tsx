@@ -100,6 +100,7 @@ interface ChatProgressListProps {
 }
 
 export function ChatProgressList({ items, title }: ChatProgressListProps) {
+  const t = useTranslations('agent');
   const totalProgress = items.reduce((sum, item) => sum + item.progress, 0) / items.length;
 
   return (
@@ -109,7 +110,7 @@ export function ChatProgressList({ items, title }: ChatProgressListProps) {
         <div className="flex items-center justify-between mb-3 pb-2 border-b border-green-200">
           <span className="text-sm font-semibold text-gray-700">{title}</span>
           <span className="text-xs font-semibold text-gray-600">
-            总进度: {Math.round(totalProgress)}%
+            {t('totalProgress')} {Math.round(totalProgress)}%
           </span>
         </div>
       )}

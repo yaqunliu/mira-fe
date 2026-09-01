@@ -254,7 +254,7 @@ export function DynamicForm({
                   disabled={isLoading}
                   className="flex-1"
                 >
-                  {t("cancel", { default: "Cancel" })}
+                  {t("cancel")}
                 </Button>
               )}
               <Button

@@ -129,7 +129,7 @@ function VoiceCard({
           {/* 使用次数 */}
           <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
             <Users className="w-3 h-3" />
-            <span>{voice.task_count.toLocaleString()} 次使用</span>
+            <span>{t('usageCount', { count: voice.task_count.toLocaleString() })}</span>
           </div>
 
           {/* 标签 */}
@@ -342,8 +342,8 @@ export function VoiceSelector({
       ) : voices.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-gray-600">
           <Volume2 className="w-12 h-12 mb-4 opacity-50" />
-          <p>{t("noMatchingVoice", { default: "No matching voices found" })}</p>
-          <p className="text-sm mt-1">{t("tryOtherSearch", { default: "Try other search terms?" })}</p>
+          <p>{t("noMatchingVoice")}</p>
+          <p className="text-sm mt-1">{t("tryOtherSearch")}</p>
         </div>
       ) : (
         <>
@@ -372,11 +372,11 @@ export function VoiceSelector({
                 className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
               >
                 <ChevronLeft className="w-4 h-4" />
-                {t("prev", { default: "Previous" })}
+                {t("prev")}
               </Button>
 
               <span className="text-sm text-gray-600 px-4 py-2 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]">
-                第 {currentPage} 页 / 共 {totalPages} 页
+                {t('pageInfo', { current: currentPage, total: totalPages })}
               </span>
 
               <Button
@@ -388,7 +388,7 @@ export function VoiceSelector({
                 disabled={currentPage >= totalPages}
                 className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_16px_rgba(0,0,0,0.1),-6px_-6px_16px_rgba(255,255,255,0.9)] transition-all duration-200"
               >
-                {t("nextPage", { default: "Next" })}
+                {t("nextPage")}
                 <ChevronRight className="w-4 h-4" />
               </Button>
             </div>
@@ -397,7 +397,7 @@ export function VoiceSelector({
           {/* 总数统计 */}
           {voicesResponse && (
             <div className="text-center text-sm text-gray-600 mt-4 py-2 rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]">
-              {t("foundTotal", { default: "Found" })} {voicesResponse.total} 个语音
+              {t('foundTotal')} {t('voicesTotal', { count: voicesResponse.total })}
             </div>
           )}
         </>

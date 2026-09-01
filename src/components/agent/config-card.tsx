@@ -219,8 +219,8 @@ export function ConfigCard({
                   
                   {/* 数量提示 */}
                   <div className="flex justify-between text-xs text-gray-400">
-                    <span>已添加 {values[field.name]?.length || 0} 个</span>
-                    {field.max && <span>最多 {field.max} 个</span>}
+                    <span>{t('addedCountOf', { count: values[field.name]?.length || 0 })}</span>
+                    {field.max && <span>{t('maxCount', { count: field.max })}</span>}
                   </div>
                 </div>
               )}

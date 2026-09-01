@@ -155,7 +155,7 @@ function CharacterFormFields({
               />
             ) : (
               <div className="text-sm text-gray-500 text-center py-8">
-                请先在"基本信息"Tab中完善角色设定信息
+                {t('completeInfoPrefix')}"{t('basicInfoTab')}"{t('completeInfoSuffix')}
               </div>
             )}
           </div>
@@ -168,7 +168,7 @@ function CharacterFormFields({
                 <FormItem className="space-y-1 h-full flex flex-col">
                   <FormLabel className="text-xs font-semibold text-orange-700 flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3" />
-                    {t("imagePrompt") || "生图提示词"}
+                    {t("imagePrompt")}
                   </FormLabel>
                   <FormControl className="flex-1">
                     <textarea
@@ -379,10 +379,10 @@ function CharacterFormFields({
           {selectedVoiceId && (
             <div className="mt-4 p-3 rounded-lg bg-white/60 border border-purple-100">
               <p className="text-xs text-gray-600 mb-2">
-                已选择: <span className="font-medium text-purple-700">{selectedVoice?.title || "未知音色"}</span>
+                {t('selectedLabel')} <span className="font-medium text-purple-700">{selectedVoice?.title || t('unknownVoice')}</span>
               </p>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-600">语速:</span>
+                <span className="text-xs text-gray-600">{t('speedLabel')}</span>
                 <select
                   value={voiceSpeed}
                   onChange={(e) => onSpeedChange(e.target.value)}
@@ -390,7 +390,7 @@ function CharacterFormFields({
                 >
                   <option value="0.5">0.5x</option>
                   <option value="0.75">0.75x</option>
-                  <option value="1.0">1.0x (正常)</option>
+                  <option value="1.0">1.0x ({t('speedNormal')})</option>
                   <option value="1.25">1.25x</option>
                   <option value="1.5">1.5x</option>
                   <option value="2.0">2.0x</option>
@@ -501,7 +501,7 @@ export function CharacterEditModal({
       const characterUuid = (character as any).uuid || (character as any).UUID;
       if (!characterUuid) {
         console.error("角色对象缺少uuid字段:", character);
-        toast.error(`角色数据错误：缺少UUID字段，无法保存。`);
+        toast.error(t('missingCharacterUuid'));
         return;
       }
       

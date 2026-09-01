@@ -19,7 +19,7 @@ export function ChatToolCall({ toolCall }: ChatToolCallProps) {
       {/* 头部：工具名称 + 状态 */}
       <div className="flex items-center gap-2 mb-2">
         <span className="text-sm font-medium text-blue-700">
-          🔧 {getToolDisplayName(toolCall.name)}
+          🔧 {getToolDisplayName(toolCall.name, t)}
         </span>
         <StatusBadge status={toolCall.status} />
       </div>
@@ -61,21 +61,22 @@ export function ChatToolCall({ toolCall }: ChatToolCallProps) {
  * 状态徽章组件
  */
 function StatusBadge({ status }: { status: ToolCall['status'] }) {
+  const t = useTranslations('agent')
   const config = {
     calling: {
-      label: '执行中',
+      label: t('toolRunning'),
       color: 'bg-blue-500',
       icon: '⏳',
       animation: 'animate-pulse',
     },
     success: {
-      label: '成功',
+      label: t('toolSuccess'),
       color: 'bg-green-500',
       icon: '✓',
       animation: '',
     },
     error: {
-      label: '失败',
+      label: t('toolFailed'),
       color: 'bg-red-500',
       icon: '✗',
       animation: '',
@@ -97,19 +98,19 @@ function StatusBadge({ status }: { status: ToolCall['status'] }) {
 /**
  * 工具名称映射
  */
-function getToolDisplayName(toolName: string): string {
+function getToolDisplayName(toolName: string, t: (k: string) => string): string {
   const nameMap: Record<string, string> = {
-    parse_script: '解析剧本',
-    generate_character: '生成角色',
-    generate_scene: '生成场景',
-    generate_storyboard: '生成分镜',
-    generate_image: '生成图片',
-    generate_video: '生成视频',
-    analyze_content: '分析内容',
-    update_asset: '更新资产',
-    lock_character: '锁定角色',
-    regenerate_shot: '重新生成分镜',
-    adjust_timeline: '调整时间线',
+    parse_script: t('toolParseScript'),
+    generate_character: t('toolGenerateCharacter'),
+    generate_scene: t('toolGenerateScene'),
+    generate_storyboard: t('toolGenerateShot'),
+    generate_image: t('toolGenerateImage'),
+    generate_video: t('toolGenerateVideo'),
+    analyze_content: t('toolAnalyzeContent'),
+    update_asset: t('toolUpdateAsset'),
+    lock_character: t('toolLockCharacter'),
+    regenerate_shot: t('toolRegenerateShot'),
+    adjust_timeline: t('toolAdjustTimeline'),
   };
 
   return nameMap[toolName] || toolName;

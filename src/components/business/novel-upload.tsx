@@ -88,7 +88,7 @@ export function NovelUpload({
 
     // 验证文件大小
     if (file.size > MAX_FILE_SIZE) {
-      toast.error(`文件大小不能超过 ${formatFileSize(MAX_FILE_SIZE)}`);
+      toast.error(tNovel('fileTooLargeMax', { size: formatFileSize(MAX_FILE_SIZE) }));
       return;
     }
 
@@ -227,7 +227,7 @@ export function NovelUpload({
                   className="rounded-xl bg-gradient-to-br from-white to-red-50 border border-red-200 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
                 >
                   <X className="h-4 w-4 text-red-500 mr-1" />
-                  {tNovel("remove", { default: "Remove File" })}
+                  {tNovel("remove")}
                 </Button>
               )}
             </div>
@@ -235,9 +235,9 @@ export function NovelUpload({
             <div className="space-y-4">
               <Upload className="h-10 w-10 mx-auto text-#22C55E" />
               <div>
-                <div className="text-base font-medium text-gray-800">{tNovel("dragOrClickUpload", { default: "Drag or click to upload novel" })}</div>
+                <div className="text-base font-medium text-gray-800">{tNovel("dragOrClickUpload")}</div>
                 <div className="text-xs text-gray-600 mt-2">
-                  支持最大 {formatFileSize(MAX_FILE_SIZE)} 的.txt文件
+                  {tNovel('maxTxtFileSize', { size: formatFileSize(MAX_FILE_SIZE) })}
                 </div>
               </div>
             </div>
@@ -252,15 +252,15 @@ export function NovelUpload({
             <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
               <p className="font-medium text-blue-900 mb-2">
-                {tNovel("processing", { default: "Novel is being processed in the background" })}
+                {tNovel("processing")}
               </p>
               <p className="text-sm text-blue-700 mb-3">
-                {tNovel("leavePageNote", { default: "You can leave this page; the novel will appear in the list when done." })}
+                {tNovel("leavePageNote")}
               </p>
               {task.progress && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between text-xs text-blue-600 mb-1">
-                    <span>{tNovel("processingProgress", { default: "Processing Progress" })}</span>
+                    <span>{tNovel("processingProgress")}</span>
                     <span>{task.progress.percent || 0}%</span>
                   </div>
                   <Progress 
@@ -294,14 +294,14 @@ export function NovelUpload({
               <>
                 <CheckCircle className="h-5 w-5 text-#22C55E" />
                 <span className="font-medium text-green-900">
-                  {tNovel("uploadParsed", { default: "Novel uploaded and parsed!" })}
+                  {tNovel("uploadParsed")}
                 </span>
               </>
             ) : task.status === TaskStatus.FAILURE ? (
               <>
                 <X className="h-5 w-5 text-red-500" />
                 <span className="font-medium text-red-900">
-                  {tNovel("parseFailed", { default: "Parse failed" })}
+                  {tNovel("parseFailed")}
                 </span>
               </>
             ) : null}
@@ -320,7 +320,7 @@ export function NovelUpload({
             disabled={isUploading || !selectedFile}
             className="rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 tracking-wide w-[140px]"
           >
-            {isUploading ? tNovel('uploading') : tNovel('uploadParse', { default: 'Upload & Parse' })}
+            {isUploading ? tNovel('uploading') : tNovel('uploadParse')}
           </Button>
         </div>
       ) : uploadCompleted ? (
@@ -330,7 +330,7 @@ export function NovelUpload({
             onClick={() => novelId && onComplete(novelId as string)}
             className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200 tracking-wide w-[140px]"
           >
-            {tNovel("back", { default: "Back" })}
+            {tNovel("back")}
           </Button>
         </div>
       ) : null}

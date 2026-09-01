@@ -302,7 +302,7 @@ export function ScriptSetting({
                 {/* 分镜列表 */}
                 <div className="space-y-3">
                   <div className="text-md font-semibold text-[#22C55E] flex items-center gap-2">
-                    分镜列表 ({scene.shots.length}{t("count", { n: "" }).replace("{n}", "")})
+                    {t("storyboard.shotList")} ({scene.shots.length})
                   </div>
 
                   <div className="w-full space-y-3">

@@ -161,7 +161,7 @@ export function SceneImageHistoryDialog({
           </DialogHeader>
           <div className="py-12 text-center">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-3 border-gray-200 border-t-green-500"></div>
-            <p className="text-sm text-gray-500 mt-4">{t("loading", { default: "Loading..." })}</p>
+            <p className="text-sm text-gray-500 mt-4">{t("loading")}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -180,7 +180,7 @@ export function SceneImageHistoryDialog({
               {t("sceneImageHistory")}
             </DialogTitle>
             <DialogDescription>
-              查看场景图片的生成历史并选择版本应用为最终效果
+              {t("sceneHistoryDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -193,8 +193,8 @@ export function SceneImageHistoryDialog({
                       <ImageIcon className="h-8 w-8 text-gray-300" />
                     </div>
                   </div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-1">暂无图片历史记录</h3>
-                  <p className="text-xs text-gray-400">生成图片后将显示历史记录</p>
+                  <h3 className="text-sm font-medium text-gray-500 mb-1">{t("noImageHistory")}</h3>
+                  <p className="text-xs text-gray-400">{t("noImageHistoryHint")}</p>
                 </div>
               ) : (
                 imageHistory.map((item: ImageHistoryItem, index: number) => (
@@ -208,7 +208,7 @@ export function SceneImageHistoryDialog({
                           {item.image_url ? (
                             <img
                               src={item.image_url}
-                              alt={`版本 ${index + 1}`}
+                              alt={t("versionNumber", { number: index + 1 })}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -230,12 +230,12 @@ export function SceneImageHistoryDialog({
                               {item.success ? (
                                 <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-green-50 border border-green-100">
                                   <div className="w-1 h-1 rounded-full bg-green-500"></div>
-                                  <span className="text-[10px] text-green-600 font-medium">成功</span>
+                                  <span className="text-[10px] text-green-600 font-medium">{t("statusSuccess")}</span>
                                 </div>
                               ) : (
                                 <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 border border-red-100">
                                   <div className="w-1 h-1 rounded-full bg-red-500"></div>
-                                  <span className="text-[10px] text-red-600 font-medium">失败</span>
+                                  <span className="text-[10px] text-red-600 font-medium">{t("statusFailed")}</span>
                                 </div>
                               )}
                               {item.is_current && (
@@ -262,7 +262,7 @@ export function SceneImageHistoryDialog({
                             )}
                             <div className="flex items-center gap-0.5">
                               <ImageIcon className="h-3 w-3" />
-                              <span>{item.model_name || "默认模型"}</span>
+                              <span>{item.model_name || t("defaultModel")}</span>
                             </div>
                           </div>
 
@@ -275,7 +275,7 @@ export function SceneImageHistoryDialog({
                                 className="h-6 text-[10px] px-2 border-gray-200 hover:bg-gray-50"
                               >
                                 <Eye className="h-3 w-3 mr-1" />
-                                预览
+                                {t("preview")}
                               </Button>
                               <Button
                                 size="sm"
@@ -284,7 +284,7 @@ export function SceneImageHistoryDialog({
                                 className="h-6 text-[10px] px-2 border-gray-200 hover:bg-gray-50"
                               >
                                 <Download className="h-3 w-3 mr-1" />
-                                下载
+                                {t("download")}
                               </Button>
                               <Button
                                 size="sm"
@@ -293,7 +293,7 @@ export function SceneImageHistoryDialog({
                                 disabled={isUpdating || item.is_current}
                                 className="h-6 text-[10px] px-2 bg-green-500 hover:bg-green-600 text-white"
                               >
-                                {item.is_current ? "当前版本" : "应用版本"}
+                                {item.is_current ? t("currentVersion") : t("applyVersion")}
                               </Button>
                             </div>
                           )}
@@ -312,7 +312,7 @@ export function SceneImageHistoryDialog({
               onClick={onClose}
               className="border-gray-200 hover:bg-gray-50 text-sm"
             >
-              关闭
+              {t("close")}
             </Button>
           </div>
         </DialogContent>
@@ -321,8 +321,8 @@ export function SceneImageHistoryDialog({
       {previewUrl && (
         <Dialog open={!!previewUrl} onOpenChange={closePreview}>
           <DialogContent className="sm:max-w-[90vw] max-h-[90vh] p-0 overflow-hidden bg-black">
-            <DialogTitle className="sr-only">图片预览</DialogTitle>
-            <DialogDescription className="sr-only">图片预览查看器</DialogDescription>
+            <DialogTitle className="sr-only">{t("imagePreview")}</DialogTitle>
+            <DialogDescription className="sr-only">{t("imagePreviewViewer")}</DialogDescription>
             <div className="relative">
               <Button
                 variant="ghost"
@@ -335,7 +335,7 @@ export function SceneImageHistoryDialog({
               <div className="flex items-center justify-center min-h-[50vh] max-h-[85vh]">
                 <img
                   src={previewUrl}
-                  alt="预览"
+                  alt={t("preview")}
                   className="max-w-full max-h-[85vh] object-contain"
                 />
               </div>

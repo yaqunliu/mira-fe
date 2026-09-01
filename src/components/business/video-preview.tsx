@@ -236,7 +236,7 @@ export const VideoPreview: React.FC = () => {
           <div className={`w-2 h-2 rounded-full ${isPlaying ? 'bg-gradient-to-r from-green-500 to-teal-500 animate-pulse shadow-lg shadow-green-500/50' : 'bg-gray-600'}`} />
           <span className="text-xs font-mono text-gray-200 tracking-widest">{formatTime(currentTime)} / {formatTime(project.duration)}</span>
           <span className="text-[10px] text-gray-400 border-l border-gray-700/50 pl-2 ml-1">
-            {visibleClips.length} 片段
+            {visibleClips.length} {t('clip')}
           </span>
         </div>
         
@@ -326,7 +326,7 @@ export const VideoPreview: React.FC = () => {
         <button 
           onClick={() => setIsMuted(!isMuted)}
           className="p-2 bg-gradient-to-br from-gray-900/90 to-slate-900/90 hover:bg-gradient-to-br from-gray-800/90 to-slate-800/90 text-gray-300 hover:text-white rounded-full backdrop-blur-lg border border-gray-800/50 shadow-xl shadow-indigo-950/20 transition-all active:scale-95"
-          title={isMuted ? t('unmute', { default: 'Unmute' }) : t('mute', { default: 'Mute' })}
+          title={isMuted ? t('unmute') : t('mute')}
         >
           {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
         </button>

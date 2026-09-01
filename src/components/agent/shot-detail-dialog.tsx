@@ -1,3 +1,6 @@
+// i18n-ignore-file：本文件残留的中文全部是数据契约——narration item 的
+// `角色` / `内容` 字段名（读写后端 JSON，非界面文案）。界面文案已全部抽成 key。
+// 契约需等后端改为 role / content 后再同步。见 en-plan.md Phase 0 白名单。
 "use client";
 
 import { useTranslations } from 'next-intl'
@@ -590,7 +593,7 @@ export function ShotDetailDialog({
                               <SelectContent>
                                 {allScenes.map((scene, idx) => (
                                   <SelectItem key={scene.scene_id} value={String(scene.scene_id)}>
-                                    场景 {idx + 1}: {scene.title || scene.location || t("sceneLabel", { n: scene.scene_id })}
+                                    {t("sceneNumber", { n: idx + 1 })}: {scene.title || scene.location || t("sceneLabel", { n: scene.scene_id })}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -681,7 +684,7 @@ export function ShotDetailDialog({
                   {/* 出镜元素 */}
                   <div className="p-4 rounded-xl bg-gradient-to-br from-white to-orange-50 border border-orange-100">
                     <div className="flex items-center justify-between mb-2">
-                      <label className="text-sm font-medium text-orange-700">出镜元素 (手机、包包等道具)</label>
+                      <label className="text-sm font-medium text-orange-700">{t('onScreenElements')} ({t('onScreenElementsHint')})</label>
                       <button
                         type="button"
                         onClick={handleAddAppearanceElement}
@@ -710,7 +713,7 @@ export function ShotDetailDialog({
                         </div>
                       ))}
                       {(!Array.isArray(appearanceElements) || appearanceElements.length === 0) && (
-                        <span className="text-xs text-gray-500 italic">暂无元素，点击t("add")按钮添加</span>
+                        <span className="text-xs text-gray-500 italic">{t('noElementsHint')}</span>
                       )}
                     </div>
                   </div>
@@ -772,7 +775,7 @@ export function ShotDetailDialog({
                                   value={field.value || ""}
                                   onChange={(e) => field.onChange(e.target.value || "")}
                                   className="flex-1 w-full px-3 py-2 rounded-lg bg-white border border-purple-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                  placeholder="输入视频生成提示词..."
+                                  placeholder={t('videoPromptPlaceholder')}
                                 />
                               </FormControl>
                             </FormItem>
@@ -784,7 +787,7 @@ export function ShotDetailDialog({
                           render={({ field }) => (
                             <FormItem>
                               <div className="flex items-center gap-2">
-                                <label className="text-xs text-purple-600">视频时长 (秒)</label>
+                                <label className="text-xs text-purple-600">{t('videoDurationSeconds')}</label>
                                 <FormControl>
                                   <input
                                     type="number"
@@ -797,7 +800,7 @@ export function ShotDetailDialog({
                                     placeholder="5"
                                   />
                                 </FormControl>
-                                <span className="text-xs text-gray-500">秒 (1-100)</span>
+                                <span className="text-xs text-gray-500">{t('secondsRange')}</span>
                               </div>
                             </FormItem>
                           )}

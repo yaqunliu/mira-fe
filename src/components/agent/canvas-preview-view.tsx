@@ -437,7 +437,7 @@ export function CanvasPreviewView({
                         </button>
                         <div className="flex-1">
                           <div className="text-white font-medium text-sm mb-1">
-                            {currentShot?.title || '未命名分镜'}
+                            {currentShot?.title || t('unnamedShot')}
                           </div>
                           <div className="text-white/60 text-xs">{t("imagePreviewMode")}</div>
                         </div>
@@ -468,7 +468,7 @@ export function CanvasPreviewView({
                         }}
                         className="mt-4 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors text-sm"
                       >
-                        播放下一个
+                        {t('playNext')}
                       </button>
                     </div>
                   </div>
@@ -513,7 +513,7 @@ export function CanvasPreviewView({
                       </button>
                       <div className="flex-1">
                         <div className="text-white font-medium text-sm mb-1">
-                          {currentShot?.title || '未命名分镜'}
+                          {currentShot?.title || t('unnamedShot')}
                         </div>
                         <div className="w-full h-1 bg-white/30 rounded-full overflow-hidden">
                           <div
@@ -537,8 +537,8 @@ export function CanvasPreviewView({
       {allShots.length > 0 && (
         <div className="bg-white rounded-xl p-3 border border-gray-200 shadow-sm flex-shrink-0">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-gray-700 text-sm">分镜顺序</h3>
-            <div className="text-xs text-gray-500">按空格键播放</div>
+            <h3 className="font-semibold text-gray-700 text-sm">{t('shotOrder')}</h3>
+            <div className="text-xs text-gray-500">{t('pressSpaceToPlay')}</div>
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin max-h-24">
             {allShots.map((shot, index) => {
@@ -580,7 +580,7 @@ export function CanvasPreviewView({
                   </div>
                   {!isValid && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-                      <span className="text-[10px] text-white">跳过</span>
+                      <span className="text-[10px] text-white">{t('skip')}</span>
                     </div>
                   )}
                 </button>

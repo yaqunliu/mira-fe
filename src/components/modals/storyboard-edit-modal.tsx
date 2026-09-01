@@ -1,3 +1,6 @@
+// i18n-ignore-file：本文件残留的中文全部是数据契约——narration item 的
+// `角色` / `内容` 字段名（读写后端 JSON，非界面文案）。界面文案已全部抽成 key。
+// 契约需等后端改为 role / content 后再同步。见 en-plan.md Phase 0 白名单。
 "use client";
 
 import { useTranslations } from 'next-intl'
@@ -119,7 +122,7 @@ export function StoryboardEditModal({
       const shotUuid = (shot as any).uuid;
       if (!shotUuid) {
         console.error("分镜对象缺少uuid字段:", shot);
-        toast.error(`分镜数据错误：缺少UUID字段，无法保存。分镜ID: ${(shot as any).shot_id || '未知'}`);
+        toast.error(t('missingShotUuid', { id: (shot as any).shot_id || t('unknownId') }));
         return;
       }
       // 确保是字符串类型，且不是数字ID
@@ -166,10 +169,10 @@ export function StoryboardEditModal({
       };
       
       onSave(updatedShot);
-      toast.success("分镜修改成功");
+      toast.success(t('shotUpdateSuccess'));
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "保存失败，请重试");
+      toast.error(error instanceof Error ? error.message : t('saveFailedRetry'));
     } finally {
       setIsLoading(false);
     }
@@ -206,10 +209,10 @@ export function StoryboardEditModal({
         <DialogContent className="sm:max-w-[600px] bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] border border-blue-100">
           <DialogHeader className="border-b-[1px] border-blue-100 pb-3">
             <DialogTitle className="flex items-center gap-2 text-base text-gray-800">
-              编辑分镜
+              {t('editShot')}
             </DialogTitle>
             <DialogDescription className="sr-only">
-              修改分镜标题、旁白和关联角色。
+              {t('editShotDesc')}
             </DialogDescription>
           </DialogHeader>
 
@@ -219,7 +222,7 @@ export function StoryboardEditModal({
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className="text-xs bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 text-white px-2 py-0.5">
-                    {`分镜 ${shot.shot_number}`}
+                    {t('shotLabel', { number: shot.shot_number })}
                   </Badge>
                 </div>
               </div>
@@ -232,10 +235,10 @@ export function StoryboardEditModal({
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-800 mb-1">标题</FormLabel>
+                        <FormLabel className="text-gray-800 mb-1">{t('title')}</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="输入分镜标题..."
+                            placeholder={t('shotTitlePlaceholder')}
                             className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                             {...field}
                             onFocus={(e) => {
@@ -259,7 +262,7 @@ export function StoryboardEditModal({
                     name="video_duration"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-800 mb-1">时长 (秒)</FormLabel>
+                        <FormLabel className="text-gray-800 mb-1">{t('duration')} ({t('seconds')})</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -282,7 +285,7 @@ export function StoryboardEditModal({
               {/* 出镜元素 */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <FormLabel className="text-gray-800">出镜元素 (手机、包包等道具)</FormLabel>
+                  <FormLabel className="text-gray-800">{t('onScreenElements')} ({t('onScreenElementsHint')})</FormLabel>
                   <Button 
                     type="button"
                     variant="outline" 
@@ -291,7 +294,7 @@ export function StoryboardEditModal({
                     className="h-8 text-xs rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
                   >
                     <Plus size={12} className="mr-1" />
-                    添加
+                    {t('add')}
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-3 p-4 rounded-xl border border-blue-100 bg-gradient-to-br from-white to-blue-50 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
@@ -301,7 +304,7 @@ export function StoryboardEditModal({
                         value={element}
                         onChange={(e) => handleUpdateAppearanceElement(index, e.target.value)}
                         className="h-8 w-32 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs p-0"
-                        placeholder="元素名称"
+                        placeholder={t('elementName')}
                       />
                       <Button 
                         type="button"
@@ -315,16 +318,16 @@ export function StoryboardEditModal({
                     </div>
                   ))}
                   {appearanceElements.length === 0 && (
-                    <span className="text-xs text-gray-600 italic">暂无元素</span>
+                    <span className="text-xs text-gray-600 italic">{t('noElements')}</span>
                   )}
                 </div>
               </div>
 
               {/* 关联角色 */}
               <div className="space-y-3">
-                <FormLabel className="text-gray-800">关联角色</FormLabel>
+                <FormLabel className="text-gray-800">{t('relatedCharacters')}</FormLabel>
                 {availableCharacters.length === 0 ? (
-                  <p className="text-sm text-gray-600">暂无可选角色</p>
+                  <p className="text-sm text-gray-600">{t('noSelectableCharacters')}</p>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {availableCharacters.map((character) => {
@@ -360,14 +363,14 @@ export function StoryboardEditModal({
                                   <div className="flex flex-col items-center gap-1">
                                       <Maximize2 className="w-4 h-4 text-white" />
                                       <Badge variant="secondary" className="text-[10px] h-4 px-1 bg-white/20 text-white border-none backdrop-blur-sm">
-                                          预览
+                                          {t('preview')}
                                       </Badge>
                                   </div>
                               </div>
                             </div>
                           ) : (
                             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-#FDBCB4 to-#ADD8E6 flex items-center justify-center text-xs text-white border-2 border-blue-100 shadow-[4px_4px_8px_rgba(0,0,0,0.08),-2px_-2px_4px_rgba(255,255,255,0.8)]">
-                              无图
+                              {t('noImage')}
                             </div>
                           )}
                           <input
@@ -393,7 +396,7 @@ export function StoryboardEditModal({
                     <FormLabel className="text-gray-800 mb-1">{t("narration")}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="输入这个分镜的旁白内容..."
+                        placeholder={t('shotNarrationPlaceholder')}
                         className="min-h-[80px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                         {...field}
                       />
@@ -412,11 +415,11 @@ export function StoryboardEditModal({
                   className="w-[35%] rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200"
                 >
                   <X className="h-4 w-4" />
-                  取消
+                  {t('cancel')}
                 </Button>
                 <Button type="submit" disabled={isLoading} className="flex-1 rounded-xl bg-gradient-to-br from-#22C55E to-#16A34A shadow-[4px_4px_12px_rgba(0,0,0,0.1),-4px_-4px_12px_rgba(255,255,255,0.8)] hover:scale-105 transition-all duration-200">
                   <Save className="h-4 w-4" />
-                  {isLoading ? "保存中..." : "保存"}
+                  {isLoading ? t('saving') : t('save')}
                 </Button>
               </DialogFooter>
             </form>

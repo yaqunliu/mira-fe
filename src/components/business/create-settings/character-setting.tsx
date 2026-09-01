@@ -134,10 +134,10 @@ export function CharacterSetting({
         setIsGeneratingPlaybook(false);
         handleUpdate(); // 刷新创作数据以获取最新状态
         if (query.state.data?.data?.status === TaskStatus.FAILURE) {
-          toast.error(query.state.data?.message || tCreation("playbookGenerationFailed") || t("splitFailed", { default: "Shot split failed" }));
+          toast.error(query.state.data?.message || tCreation("playbookGenerationFailed") || t("splitFailed"));
         } else {
           // 分镜拆分成功，跳转到脚本页面
-          toast.success(tCreation("playbookGenerationSuccess") || t("splitCompleted", { default: "Shot split completed" }));
+          toast.success(tCreation("playbookGenerationSuccess") || t("splitCompleted"));
           setTimeout(() => {
             onComplete();
           }, 500);
@@ -517,7 +517,7 @@ export function CharacterSetting({
     if (isResubmitting) {
       return tCreation("resubmitting") || t("resubmitting");
     }
-    return t("loading", { default: "Loading..." });
+    return t("loading");
   };
 
   // 区分出镜角色和声音角色
@@ -637,14 +637,14 @@ export function CharacterSetting({
                                             <button 
                                                 onClick={() => handleImageClick(character.image_url!)}
                                                 className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
-                                                title={t("preview", { default: "Preview" })}
+                                                title={t("preview")}
                                             >
                                                 <Maximize2 size={18} />
                                             </button>
                                             <button 
                                                 onClick={() => handleEditCharacter(originalIndex)}
                                                 className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
-                                                title={t("edit", { default: "Edit" })}
+                                                title={t("edit")}
                                             >
                                                 <PenLine size={18} />
                                             </button>
@@ -697,7 +697,7 @@ export function CharacterSetting({
                                         onClick={() => handleEditCharacter(originalIndex)}
                                     >
                                         <PenLine size={12} className="mr-1" />
-                                        {t("edit", { default: "Edit" })}
+                                        {t("edit")}
                                     </Button>
                                     <Button 
                                         variant="secondary" 
@@ -718,7 +718,7 @@ export function CharacterSetting({
             )}
             {appearanceCharacters.length === 0 && (
               <div className="text-center py-8 text-gray-400 text-sm">
-                暂无出镜角色，点击t("addCharacter")按钮添加
+                {t('noOnScreenCharacters')}
               </div>
             )}
           </div>
@@ -994,7 +994,7 @@ export function CharacterSetting({
               variant="outline"
               onClick={() => setIsAddCharacterModalOpen(false)}
             >
-              {t("cancel", { default: "Cancel" })}
+              {t("cancel")}
             </Button>
             <Button
               onClick={handleSaveCharacterSelection}
@@ -1004,12 +1004,12 @@ export function CharacterSetting({
               {isSavingCharacters ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                  {t("saving", { default: "Saving..." })}
+                  {t("saving")}
                 </>
               ) : (
                 <>
                   <Check size={16} className="mr-2" />
-                  保存 ({selectedCharacterIds.size})
+                  {t('save')} ({selectedCharacterIds.size})
                 </>
               )}
             </Button>

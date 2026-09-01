@@ -35,11 +35,11 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
 
   // 导航项
   const navItems = [
-    { id: 'script' as const, label: '剧本', icon: '📜', count: null },
-    { id: 'characters' as const, label: '角色', icon: '👥', count: stats.characters },
-    { id: 'scenes' as const, label: '场景', icon: '🎬', count: stats.scenes },
-    { id: 'storyboard' as const, label: '分镜', icon: '🎞️', count: stats.shots },
-    { id: 'preview' as const, label: '预览', icon: '▶️', count: null },
+    { id: 'script' as const, label: t('script'), icon: '📜', count: null },
+    { id: 'characters' as const, label: t('characters'), icon: '👥', count: stats.characters },
+    { id: 'scenes' as const, label: t('scenes'), icon: '🎬', count: stats.scenes },
+    { id: 'storyboard' as const, label: t('shots'), icon: '🎞️', count: stats.shots },
+    { id: 'preview' as const, label: t('preview'), icon: '▶️', count: null },
   ];
 
   return (
@@ -47,7 +47,7 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
       {/* 项目标题 */}
       <div className="mb-6">
         <h3 className="text-sm font-bold text-gray-800 mb-1 truncate">
-          {creation?.title || '新建项目'}
+          {creation?.title || t('newProject')}
         </h3>
         <p className="text-xs text-gray-500">
           {creation?.uuid?.slice(0, 8) || '---'}
@@ -112,7 +112,7 @@ export function AgentSidebar({ creation }: AgentSidebarProps) {
           <div className="mt-3 text-xs text-gray-600">
             <div className="flex items-center gap-1">
               <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(creation.status)}`} />
-              <span>{getStatusText(creation.status)}</span>
+              <span>{getStatusText(creation.status, t)}</span>
             </div>
           </div>
         )}
@@ -151,15 +151,15 @@ function calculateProgress(creation: ICreation | null): number {
 /**
  * 获取状态文本
  */
-function getStatusText(status: string | undefined): string {
+function getStatusText(status: string | undefined, t: (k: string) => string): string {
   const statusMap: Record<string, string> = {
-    draft: '草稿',
-    processing: '处理中',
-    completed: '已完成',
-    failed: '失败',
+    draft: t('statusDraft'),
+    processing: t('statusProcessing'),
+    completed: t('statusCompleted'),
+    failed: t('statusFailedLabel'),
   };
 
-  return statusMap[status || ''] || '未知';
+  return statusMap[status || ''] || t('statusUnknown');
 }
 
 /**

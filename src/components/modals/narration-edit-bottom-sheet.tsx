@@ -1,3 +1,6 @@
+// i18n-ignore-file：本文件残留的中文全部是数据契约——narration item 的
+// `角色` / `内容` 字段名（读写后端 JSON，非界面文案）。界面文案已全部抽成 key。
+// 契约需等后端改为 role / content 后再同步。见 en-plan.md Phase 0 白名单。
 "use client";
 
 import { useState } from "react";

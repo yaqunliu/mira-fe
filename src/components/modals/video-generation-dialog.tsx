@@ -232,13 +232,13 @@ export function VideoGenerationDialog({
 
                             {lastFrameType === 'next_shot' && nextShot && (
                                 <p className="text-[11px] text-gray-600 text-center">
-                                    {t('usingNextShotDesc', { number: nextShot.shot_number }) || `将使用分镜 ${nextShot.shot_number} 的图片作为当前分镜视频的结尾。`}
+                                    {t('usingNextShotDesc', { number: nextShot.shot_number })}
                                 </p>
                             )}
 
                             {lastFrameType === 'current_shot_end' && currentShotEndFrameUrl && (
                                 <p className="text-[11px] text-gray-600 text-center">
-                                    将使用当前分镜的尾帧图片作为视频的结尾。
+                                    {t('endWithLastFrame')}
                                 </p>
                             )}
                         </div>
@@ -265,7 +265,7 @@ export function VideoGenerationDialog({
                                 {tCommon('processing')}
                             </>
                         ) : (
-                            t('startGeneration') || "开始生成"
+                            t('startGeneration')
                         )}
                     </Button>
                 </DialogFooter>

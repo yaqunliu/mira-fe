@@ -1,3 +1,6 @@
+// i18n-ignore-file：本文件残留的中文全部是数据契约——narration item 的
+// `角色` / `内容` 字段名（读写后端 JSON，非界面文案）。界面文案已全部抽成 key。
+// 契约需等后端改为 role / content 后再同步。见 en-plan.md Phase 0 白名单。
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -636,12 +639,12 @@ export function VideoGenerator({
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-sm text-gray-800">
-                      已选择: {selectedVoice.title}
+                      {t('voice.selectedPrefix')} {selectedVoice.title}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {selectedVoice.author?.nickname || t("unknownAuthor", { default: "Unknown Author" })} ·{
+                      {selectedVoice.author?.nickname || t("scripts.unknownAuthor")} ·{
                         " "
-                      }{selectedVoice.task_count.toLocaleString()} 次使用
+                      }{t('voice.usageCount', { count: selectedVoice.task_count.toLocaleString() })}
                     </p>
                   </div>
                 </div>
@@ -694,7 +697,7 @@ export function VideoGenerator({
                       />
                     </div>
                     <p className="text-xs text-gray-600">
-                      调整语音播放速度，范围 0-2，默认 1.0
+                      {t('voice.speedHint')}
                     </p>
                   </div>
                 </div>
@@ -738,12 +741,12 @@ export function VideoGenerator({
                     <div className="flex justify-end gap-3 text-xs text-gray-600">
                       {(progress.success_count ?? 0) > 0 && (
                         <span className="text-[#22C55E]">
-                          {progress.success_count} 成功
+                          {t('voice.successCount', { count: progress.success_count })}
                         </span>
                       )}
                       {(progress.failed_count ?? 0) > 0 && (
                         <span className="text-[#FDBCB4]">
-                          {progress.failed_count} 失败
+                          {t('voice.failedCount', { count: progress.failed_count })}
                         </span>
                       )}
                     </div>

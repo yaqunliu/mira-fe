@@ -155,7 +155,7 @@ function SceneCard({
           <div className="w-48 aspect-video flex-shrink-0 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
             <div className="text-center">
               <div className="text-3xl mb-1">🎬</div>
-              <p className="text-xs text-gray-400">场景 {sceneNumber}</p>
+              <p className="text-xs text-gray-400">{t('sceneNumber', { n: sceneNumber })}</p>
             </div>
           </div>
         )}
@@ -165,11 +165,11 @@ function SceneCard({
           {/* 头部 */}
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-base font-semibold text-gray-800">
-              场景 {sceneNumber}
+              {t('sceneNumber', { n: sceneNumber })}
             </h4>
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded border border-blue-200">
-                {shotCount} 个分镜
+                {t('shotsCount', { n: shotCount })}
               </span>
               {scene.title && (
                 <span className="px-2 py-0.5 bg-purple-50 text-purple-600 text-xs rounded border border-purple-200">
