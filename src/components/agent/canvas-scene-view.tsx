@@ -18,6 +18,7 @@ interface CanvasSceneViewProps {
  */
 export function CanvasSceneView({
   creation, highlightedElement }: CanvasSceneViewProps) {
+  const t = useTranslations('agent');
   const [selectedSceneIndex, setSelectedSceneIndex] = useState<number | null>(null);
   const scenes = creation.scenes || [];
 
@@ -127,6 +128,7 @@ function SceneCard({
   isHighlighted: boolean;
   onClick?: () => void;
 }) {
+  const t = useTranslations('agent');
   const referenceImage = scene.image_url || scene.reference_image_url;
   const shotCount = scene.shots?.length || 0;
 

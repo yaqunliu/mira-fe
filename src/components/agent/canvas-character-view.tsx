@@ -152,6 +152,7 @@ function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated
  */
 export function CanvasCharacterView({
   creation, highlightedElement }: CanvasCharacterViewProps) {
+  const t = useTranslations('agent');
   const [selectedCharacterIndex, setSelectedCharacterIndex] = useState<number | null>(null);
 
   // 优先直接使用 creation.characters，如果没有再从分镜提取

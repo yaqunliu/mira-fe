@@ -20,17 +20,19 @@ import { Save, X } from "lucide-react";
 import { toast } from "sonner";
 import { ICharacter } from "@/types/character";
 
-const editCharacterSchema = z.object({
-  name: z.string().min(1, t("姓名不能为空", { default: "Name cannot be empty" })),
-  basicInfo: z.string().min(1, t("基础信息不能为空", { default: "Basic info cannot be empty" })),
-  appearance: z.string().min(1, t("容貌特征不能为空", { default: "Appearance cannot be empty" })),
-  body: z.string().min(1, t("身材特征不能为空", { default: "Body cannot be empty" })),
-  hair: z.string().min(1, t("头发不能为空", { default: "Hair cannot be empty" })),
-  clothing: z.string().min(1, t("服装不能为空", { default: "Clothing cannot be empty" })),
-  tags: z.array(z.string()).min(1, t("特征标签不能为空", { default: "Feature tags cannot be empty" })),
-});
+function makeEditCharacterSchema(t: (k: string) => string) {
+  return z.object({
+    name: z.string().min(1, t("nameRequired")),
+    basicInfo: z.string().min(1, t("basicInfoRequired")),
+    appearance: z.string().min(1, t("appearanceRequired")),
+    body: z.string().min(1, t("bodyRequired")),
+    hair: z.string().min(1, t("hairRequired")),
+    clothing: z.string().min(1, t("clothingRequired")),
+    tags: z.array(z.string()).min(1, t("tagsRequired")),
+  });
+}
 
-type EditCharacterFormData = z.infer<typeof editCharacterSchema>;
+type EditCharacterFormData = z.infer<ReturnType<typeof makeEditCharacterSchema>>;
 
 interface CharacterEditBottomSheetProps {
   isOpen: boolean;
@@ -45,16 +47,16 @@ interface CharacterEditBottomSheetProps {
  * 使用非常简单，只需传入标题、操作按钮和内容
  */
 export function CharacterEditBottomSheet({
-  const t = useTranslations('character')
   isOpen,
   onClose,
   character,
   onSave,
 }: CharacterEditBottomSheetProps) {
+  const t = useTranslations('character');
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<EditCharacterFormData>({
-    resolver: zodResolver(editCharacterSchema),
+    resolver: zodResolver(makeEditCharacterSchema(t)),
     defaultValues: {
       name: character.name,
       basicInfo: character.basic_info,
@@ -93,8 +95,8 @@ export function CharacterEditBottomSheet({
     <BottomSheet
       open={isOpen}
       onOpenChange={onClose}
-      title=t("editCharacterInfo")
-      description=t("editCharacterDescription")
+      title={t("editCharacterInfo")}
+      description={t("editCharacterDescription")}
       actions={[
         {
           label: t("cancel"),
@@ -128,7 +130,7 @@ export function CharacterEditBottomSheet({
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder=t("namePlaceholder")
+                    placeholder={t("namePlaceholder")}
                     className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -149,7 +151,7 @@ export function CharacterEditBottomSheet({
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder=t("basicInfoPlaceholder")
+                    placeholder={t("basicInfoPlaceholder")}
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -170,7 +172,7 @@ export function CharacterEditBottomSheet({
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder=t("appearancePlaceholder")
+                    placeholder={t("appearancePlaceholder")}
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -191,7 +193,7 @@ export function CharacterEditBottomSheet({
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder=t("bodyPlaceholder")
+                    placeholder={t("bodyPlaceholder")}
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -212,7 +214,7 @@ export function CharacterEditBottomSheet({
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder=t("hairPlaceholder")
+                    placeholder={t("hairPlaceholder")}
                     className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -233,7 +235,7 @@ export function CharacterEditBottomSheet({
                 </FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder=t("clothingPlaceholder")
+                    placeholder={t("clothingPlaceholder")}
                     className="min-h-[60px] resize-none rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />
@@ -254,7 +256,7 @@ export function CharacterEditBottomSheet({
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder=t("tagsPlaceholder")
+                    placeholder={t("tagsPlaceholder")}
                     className="rounded-xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
                     {...field}
                   />

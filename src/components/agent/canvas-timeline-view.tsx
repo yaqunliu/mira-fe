@@ -15,7 +15,8 @@ interface CanvasTimelineViewProps {
  * 展示所有场景和分镜的时间线排列
  */
 export function CanvasTimelineView({
-  const t = useTranslations('agent') creation, highlightedElement }: CanvasTimelineViewProps) {
+  creation, highlightedElement }: CanvasTimelineViewProps) {
+  const t = useTranslations('agent');
   const scenes = creation.scenes || [];
 
   // 计算总时长

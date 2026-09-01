@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,7 @@ export function ShotItem({
   onUpdate,
   availableCharacters = [],
 }: ShotItemProps) {
+  const t = useTranslations('Timeline');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentShot, setCurrentShot] = useState(shot);
 

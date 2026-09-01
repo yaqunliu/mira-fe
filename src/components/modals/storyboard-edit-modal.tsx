@@ -33,16 +33,18 @@ import { ICharacter } from "@/types/character";
 import shotApi from "@/lib/api/shot";
 import { ImagePreview } from "@/components/ui/image-preview";
 
-const editStoryboardSchema = z.object({
-  title: z.string().min(1, t("titleRequired")),
-  narration: z.string().min(1, t("narrationRequired")),
-  video_duration: z.any().transform((val) => {
-    const parsed = parseFloat(val);
-    return isNaN(parsed) ? 0 : parsed;
-  }).pipe(z.number().min(1, t("durationMin")).max(60, t("durationMax"))),
-});
+function makeEditStoryboardSchema(t: (k: string) => string) {
+  return z.object({
+    title: z.string().min(1, t("titleRequired")),
+    narration: z.string().min(1, t("narrationRequired")),
+    video_duration: z.any().transform((val) => {
+      const parsed = parseFloat(val);
+      return isNaN(parsed) ? 0 : parsed;
+    }).pipe(z.number().min(1, t("durationMin")).max(60, t("durationMax"))),
+  });
+}
 
-type EditStoryboardFormData = z.infer<typeof editStoryboardSchema>;
+type EditStoryboardFormData = z.infer<ReturnType<typeof makeEditStoryboardSchema>>;
 
 interface StoryboardEditModalProps {
   isOpen: boolean;
@@ -77,7 +79,7 @@ export function StoryboardEditModal({
   };
 
   const form = useForm<EditStoryboardFormData>({
-    resolver: zodResolver(editStoryboardSchema),
+    resolver: zodResolver(makeEditStoryboardSchema(t)),
     defaultValues: {
       title: shot.title || "",
       narration: getNarrationString(shot.narration),

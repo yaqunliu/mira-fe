@@ -86,6 +86,7 @@ export function NovelSelect({
   novelFixedClassName,
   chapterClassName,
 }: NovelSelectProps) {
+  const tNovel = useTranslations('novel');
   const t = useTranslations();
   const [searchTerm, setSearchTerm] = useState("");
   const [novelSearchTerm, setNovelSearchTerm] = useState("");

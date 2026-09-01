@@ -50,6 +50,7 @@ export const ProgressWrapper = React.forwardRef<HTMLDivElement, ProgressWrapperP
     children,
     ...props
   }, ref) => {
+    const t = useTranslations('common');
     const currentStepData = steps[currentStep];
     const isFirstStep = currentStep === 0;
     const isLastStep = currentStep === steps.length - 1;

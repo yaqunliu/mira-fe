@@ -17,6 +17,7 @@ interface CanvasStoryboardViewProps {
  */
 export function CanvasStoryboardView({
   creation, highlightedElement }: CanvasStoryboardViewProps) {
+  const t = useTranslations('agent');
   // 选中的分镜索引
   const [selectedShotIndex, setSelectedShotIndex] = useState<number | null>(null);
 
@@ -142,6 +143,7 @@ function ShotCard({ shot, shotNumber, isHighlighted, allCharacters = [], onClick
   allCharacters?: any[];
   onClick?: () => void;
 }) {
+  const t = useTranslations('agent');
   const hasImage = !!shot.image_url;
   const hasAudio = !!shot.audio_url;
   const endFrameImageUrl = (shot.extra_data as any)?.end_frame_image_url;

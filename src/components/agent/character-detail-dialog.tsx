@@ -74,6 +74,7 @@ function getGenerationStatus(character: any): 'pending' | 'generating' | 'genera
  * 状态标签组件
  */
 function StatusBadge({ status }: { status: 'pending' | 'generating' | 'generated' }) {
+  const t = useTranslations('agent');
   const config = {
     pending: {
       label: t('statusNotGenerated'),
@@ -112,6 +113,7 @@ export function CharacterDetailDialog({
   hasNext = false,
   onRefresh,
 }: CharacterDetailDialogProps) {
+  const t = useTranslations('agent');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);

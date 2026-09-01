@@ -29,6 +29,7 @@ interface ExportPreviewDialogProps {
 
 export function ExportPreviewDialog({
   creationId, isOpen, onClose }: ExportPreviewDialogProps) {
+  const t = useTranslations('Timeline');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   // 获取导出历史

@@ -39,6 +39,7 @@ export function ChatMessageList({
   autoScroll = true,
   creationType,
 }: ChatMessageListProps) {
+  const t = useTranslations('agent');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 跟踪哪些消息的卡片已经被处理过 - 必须在所有条件分支之前

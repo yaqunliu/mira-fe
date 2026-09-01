@@ -51,6 +51,7 @@ function VoiceCard({
   onSelect: () => void;
   onPlayToggle: () => void;
 }) {
+  const t = useTranslations('voice');
   const sample = voice.samples[0];
   const hasAudio = !!sample?.audio;
 
@@ -186,6 +187,7 @@ export function VoiceSelector({
   onSelect,
   className,
 }: VoiceSelectorProps) {
+  const t = useTranslations('voice');
   // 搜索和筛选状态
   const [searchTitle, setSearchTitle] = useState("");
   const [selectedTag, setSelectedTag] = useState<VoiceTag | "all">("all");

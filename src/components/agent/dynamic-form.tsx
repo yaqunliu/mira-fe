@@ -40,7 +40,7 @@ interface DynamicFormProps {
 /**
  * 根据表单配置生成 Zod Schema
  */
-function generateZodSchema(config: FormConfig): z.ZodObject<any> {
+function generateZodSchema(config: FormConfig, t: (k: string, v?: any) => string): z.ZodObject<any> {
   const schemaMap: Record<string, z.ZodTypeAny> = {};
 
   config.fields.forEach((field) => {
@@ -90,7 +90,7 @@ function generateZodSchema(config: FormConfig): z.ZodObject<any> {
 /**
  * 渲染单个表单字段
  */
-function renderFormField(field: FormField, form: any) {
+function renderFormField(field: FormField, form: any, t: (k: string, v?: any) => string) {
   switch (field.type) {
     case "textarea":
       return (
@@ -203,7 +203,8 @@ export function DynamicForm({
   onCancel,
   isLoading = false,
 }: DynamicFormProps) {
-  const schema = generateZodSchema(config);
+  const t = useTranslations('agent');
+  const schema = generateZodSchema(config, t);
 
   const form = useForm({
     resolver: zodResolver(schema),
@@ -230,7 +231,7 @@ export function DynamicForm({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             {config.fields.map((field) => (
-              <div key={field.name}>{renderFormField(field, form)}</div>
+              <div key={field.name}>{renderFormField(field, form, t)}</div>
             ))}
 
             <div className="flex gap-3 pt-4">

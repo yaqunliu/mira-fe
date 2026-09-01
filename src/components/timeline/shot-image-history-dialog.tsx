@@ -44,12 +44,12 @@ interface ImageHistoryItem {
 }
 
 export function ShotImageHistoryDialog({
-  const t = useTranslations('Timeline')
   isOpen,
   onClose,
   shotUuid,
   onSuccess
 }: ShotImageHistoryDialogProps) {
+  const t = useTranslations('Timeline');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();

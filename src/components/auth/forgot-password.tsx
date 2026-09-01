@@ -13,11 +13,13 @@ import { useTranslations } from 'next-intl'
 import { Mail, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email(t('emailInvalid')),
-})
+function makeForgotPasswordSchema(t: (k: string) => string) {
+  return z.object({
+    email: z.string().email(t('emailInvalid')),
+  })
+}
 
-type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>
+type ForgotPasswordFormData = z.infer<ReturnType<typeof makeForgotPasswordSchema>>
 
 export function ForgotPassword() {
   const t = useTranslations('auth')
@@ -26,7 +28,7 @@ export function ForgotPassword() {
   const supabase = createClient()
 
   const form = useForm<ForgotPasswordFormData>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(makeForgotPasswordSchema(t)),
     defaultValues: {
       email: '',
     },

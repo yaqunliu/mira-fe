@@ -21,6 +21,7 @@ interface PlaybackState {
 
 export function CanvasPreviewView({
   creation, highlightedElement }: CanvasPreviewViewProps) {
+  const t = useTranslations('agent');
   const [playbackState, setPlaybackState] = useState<PlaybackState>({
     isPlaying: false,
     currentShotIndex: 0,

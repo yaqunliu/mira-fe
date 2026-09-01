@@ -105,6 +105,7 @@ const PlayerItem = React.memo(({ clip, isPlaying, isVisible, isMuted, onReady, s
 });
 
 export const VideoPreview: React.FC = () => {
+  const t = useTranslations('common');
   const currentTime = useTimelineStore(state => state.currentTime);
   const isPlaying = useTimelineStore(state => state.isPlaying);
   const project = useTimelineStore(state => state.project);

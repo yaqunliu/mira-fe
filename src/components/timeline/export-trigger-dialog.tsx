@@ -18,6 +18,7 @@ interface ExportTriggerDialogProps {
 
 export function ExportTriggerDialog({
   creationId, isOpen, onClose }: ExportTriggerDialogProps) {
+  const t = useTranslations('Editor');
   const [exportedVideoUrl, setExportedVideoUrl] = useState<string | null>(null);
   const [isExportStarted, setIsExportStarted] = useState(false);
 

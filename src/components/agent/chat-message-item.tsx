@@ -14,7 +14,8 @@ interface ChatMessageItemProps {
  * 展示单条消息（用户或 AI）
  */
 export function ChatMessageItem({
-  const t = useTranslations('agent') message }: ChatMessageItemProps) {
+  message }: ChatMessageItemProps) {
+  const t = useTranslations('agent');
   const isUser = message.role === 'user';
 
   return (
@@ -121,7 +122,7 @@ function formatFileSize(bytes: number): string {
 /**
  * 格式化时间戳
  */
-function formatTimestamp(timestamp: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
+function formatTimestamp(timestamp: string, t: (key: string, opts?: any) => string): string {
   // 处理空值或无效时间戳
   if (!timestamp) {
     return t('justNow');

@@ -43,12 +43,12 @@ interface ImageHistoryItem {
 }
 
 export function SceneImageHistoryDialog({
-  const t = useTranslations('Timeline')
   isOpen,
   onClose,
   sceneUuid,
   onSuccess
 }: SceneImageHistoryDialogProps) {
+  const t = useTranslations('Timeline');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();

@@ -124,6 +124,7 @@ function ViewSwitcher() {
  * 空状态
  */
 function EmptyState() {
+  const t = useTranslations('agent');
   return (
     <div className="flex items-center justify-center h-full min-h-[400px]">
       <div className="text-center space-y-4">

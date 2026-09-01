@@ -43,12 +43,12 @@ interface ImageHistoryItem {
 }
 
 export function CharacterImageHistoryDialog({
-  const t = useTranslations('Timeline')
   isOpen,
   onClose,
   characterUuid,
   onSuccess
 }: CharacterImageHistoryDialogProps) {
+  const t = useTranslations('Timeline');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();

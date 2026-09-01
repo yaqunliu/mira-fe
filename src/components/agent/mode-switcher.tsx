@@ -18,7 +18,8 @@ interface ModeSwitcherProps {
  * 在 Agent 模式和专业模式之间切换
  */
 export function ModeSwitcher({
-  const t = useTranslations('agent') creationId, currentMode, className = '' }: ModeSwitcherProps) {
+  creationId, currentMode, className = '' }: ModeSwitcherProps) {
+  const t = useTranslations('agent');
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();

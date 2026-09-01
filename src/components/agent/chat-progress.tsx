@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
+
 interface ChatProgressProps {
   label: string;
   progress: number; // 0-100
@@ -13,12 +15,12 @@ interface ChatProgressProps {
  * 显示任务进度（如生成角色、分镜等）
  */
 export function ChatProgress({
-  const t = useTranslations('agent')
   label,
   progress,
   status = 'in_progress',
   detail,
 }: ChatProgressProps) {
+  const t = useTranslations('agent');
   // 进度条颜色
   const getProgressColor = () => {
     switch (status) {

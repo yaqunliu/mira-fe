@@ -18,6 +18,7 @@ interface CanvasScriptViewProps {
  */
 export function CanvasScriptView({
   creation, highlightedElement }: CanvasScriptViewProps) {
+  const t = useTranslations('agent');
   // 章节内容状态
   const [chapterContent, setChapterContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

@@ -27,6 +27,7 @@ export function NovelUpload({
 }: {
   onComplete: (novelId: string) => void;
 }) {
+  const tNovel = useTranslations('novel');
   const t = useTranslations("createVideo");
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);

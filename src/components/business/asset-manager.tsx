@@ -42,6 +42,7 @@ export const AssetManager: React.FC<AssetManagerProps> = ({
   assets,
   onAssetsChange,
 }) => {
+  const t = useTranslations('common');
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');

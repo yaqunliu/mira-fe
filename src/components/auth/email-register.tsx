@@ -30,6 +30,7 @@ interface EmailRegisterProps {
 }
 
 export function EmailRegister({ onSuccess }: EmailRegisterProps) {
+  const t = useTranslations('auth');
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)

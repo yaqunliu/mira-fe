@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from 'next-intl';
+
 import { useState } from 'react';
 import type { ActionRequest } from '@/types/agent';
 

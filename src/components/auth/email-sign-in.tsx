@@ -37,6 +37,7 @@ interface EmailSignInProps {
 }
 
 export function EmailSignIn({ onSuccess }: EmailSignInProps) {
+  const t = useTranslations('auth');
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [emailValidated, setEmailValidated] = useState(false)
@@ -65,7 +66,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
   // 验证邮箱
   const onEmailSubmit = async (data: EmailFormData) => {
     // 验证邮箱格式
-    const result = emailSchema.safeParse(data)
+    const result = makeEmailSchema(t).safeParse(data)
     if (result.success) {
       setEmailValidated(true)
       setValidatedEmail(data.email)
@@ -195,7 +196,7 @@ export function EmailSignIn({ onSuccess }: EmailSignInProps) {
                       onBlur={(e) => {
                         field.onBlur()
                         // 当失去焦点时，如果邮箱格式正确，自动验证
-                        if (e.target.value && emailSchema.safeParse({ email: e.target.value }).success) {
+                        if (e.target.value && makeEmailSchema(t).safeParse({ email: e.target.value }).success) {
                           emailForm.handleSubmit(onEmailSubmit)()
                         }
                       }}
