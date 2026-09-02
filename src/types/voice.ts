@@ -53,6 +53,19 @@ export interface VoiceQueryParams {
   tag?: 'male' | 'female' | 'cartoon';
 }
 
+/**
+ * 交付语言对应的 TTS 音色库。
+ *
+ * 后端 `/api/v1/voices?language=` 缺省是 `zh`，英文交付下必须显式请求 `en`，
+ * 否则英文界面里会列出一整排中文音色。
+ *
+ * ⚠️ 后端英文音色库是否真的有数据尚未验证（见 en-plan.md「后端待办 6」）。
+ * 因此不要直接用它调 getVoices —— 走 `voiceApi.getVoicesForDelivery`，
+ * 那里带了空结果回退：拿不到英文音色时退回后端默认库，
+ * 避免选择器变空导致整个视频生成流程卡死。
+ */
+export const VOICE_LANGUAGE = 'en';
+
 // 语音标签选项
 export type VoiceTag = 'male' | 'female' | 'cartoon';
 

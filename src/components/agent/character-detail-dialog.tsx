@@ -152,8 +152,7 @@ export function CharacterDetailDialog({
   const { data: voicesResponse, isLoading: isLoadingVoices } = useQuery({
     queryKey: ["voices", voiceSearch, voicePage],
     queryFn: async () => {
-      const result = await voiceApi.getVoices({
-        language: "zh",
+      const result = await voiceApi.getVoicesForDelivery({
         page_number: voicePage,
         page_size: voicePageSize,
         title: voiceSearch || undefined,

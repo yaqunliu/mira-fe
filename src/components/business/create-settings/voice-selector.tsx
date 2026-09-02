@@ -222,8 +222,7 @@ export function VoiceSelector({
   } = useQuery({
     queryKey: ["voices", debouncedSearch, selectedTag, currentPage, pageSize],
     queryFn: async () => {
-      const result = await voiceApi.getVoices({
-        language: "zh",
+      const result = await voiceApi.getVoicesForDelivery({
         page_number: currentPage,
         page_size: pageSize,
         title: debouncedSearch || undefined,
