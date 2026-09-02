@@ -17,6 +17,24 @@ const nextConfig = {
     ],
   },
   serverExternalPackages: ['sharp'],
+  // 旧的 /zh/* 链接兼容。
+  // 改用 localePrefix: 'never' 之后 URL 不再带语言前缀，历史上散出去的
+  // /zh/xxx 链接会 404 —— 这里永久重定向到无前缀路径。
+  // 注意：中间件已排除 /api，此处也不要匹配 /zh/api 之类的路径。
+  async redirects() {
+    return [
+      {
+        source: '/zh',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/zh/:path*',
+        destination: '/:path*',
+        permanent: true,
+      },
+    ];
+  },
   // 代理 API 请求到后端服务器
   async rewrites() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;

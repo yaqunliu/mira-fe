@@ -1,6 +1,6 @@
 # Novel2Video - 小说转视频应用
 
-一个基于AI的小说转视频Web应用，支持多语言，面向海外C端用户。
+一个基于AI的小说转视频Web应用，面向海外C端用户，对外仅提供英文界面。
 
 ## 🚀 功能特性
 
@@ -12,7 +12,7 @@
 - **视频合成**: 生成音频、字幕、BGM并合成最终视频
 
 ### 技术特性
-- **多语言支持**: 中文、英文、日文
+- **英文界面**: 对外仅提供英文，URL 不带语言前缀
 - **响应式设计**: 完美支持H5移动端
 - **现代化UI**: 基于shadcn/ui组件库
 - **类型安全**: 全TypeScript开发
@@ -51,7 +51,7 @@
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── [locale]/          # 多语言路由
+│   ├── [locale]/          # 语言路由目录（URL 不带前缀，由中间件 rewrite 到 /en）
 │   │   ├── (auth)/        # 认证页面
 │   │   └── (main)/        # 主要功能页面
 ├── components/            # 组件
@@ -107,14 +107,35 @@ pnpm dev
 - `/videos` - 视频管理
 - `/create` - 小说转视频
 
-## 🌍 多语言支持
+## 🌍 国际化 (i18n)
 
-支持以下语言：
-- 英语 (en)
-- 中文 (zh)
-- 日语 (ja)
+**对外只提供英文。** `src/i18n/routing.ts` 配置为 `defaultLocale: 'en'` +
+`localePrefix: 'never'` + `localeDetection: false`，因此：
 
-语言文件位于 `src/i18n/locales/` 目录。
+- URL 不带语言前缀（`/home` 而非 `/en/home`），中间件把 `/home` **rewrite**
+  到内部的 `/en/home`，`src/app/[locale]/` 目录结构保持不变。
+- ⚠️ 代码里**不能**再拼 `` `/${locale}/...` ``，那会变成 `/en/en/...` 而 404。
+- 老的 `/zh/*` 链接由 `next.config.js` 的 `redirects()` 永久重定向到无前缀路径。
+
+文案文件位于 **`src/messages/`**：`en.json`（生效）、`zh.json`（休眠保留，
+运行时不可达）。两份文件的 key 集合必须一致，由 `pnpm check:i18n` 校验。
+
+内部 QA 中文：把 `localeDetection` 改回 `true`，再手动设 `NEXT_LOCALE=zh` cookie。
+
+### i18n 闸门
+
+```bash
+pnpm check:i18n     # 扫描残留硬编码中文 + 校验 en/zh key 集合一致
+pnpm check:types    # 类型检查（next.config.js 有 ignoreBuildErrors，构建不会拦截）
+pnpm check          # 上面两者
+```
+
+少数文件顶部带 `i18n-ignore-file` 注释，表示整个文件豁免扫描，仅限三类：
+后端 LLM 输出的中文 JSON 字段名（数据契约）、仅进日志的诊断字符串、mock 数据。
+每处都在注释里写明了属于哪一类。
+
+> 注：AI 生成的剧本 / 角色 / 旁白等**内容**目前仍是中文——后端 prompt 尚未英文化，
+> 这是已知边界，不属于前端 i18n 范围。
 
 ## 🎨 UI组件
 
@@ -131,13 +152,13 @@ pnpm dev
 1. 在 `src/app/[locale]/(main)/` 下创建页面文件
 2. 添加对应的类型定义到 `src/types/`
 3. 如需要API，在 `src/lib/api/` 下添加接口
-4. 添加翻译到 `src/i18n/locales/`
+4. 添加翻译到 `src/messages/en.json` 与 `zh.json`（两边 key 必须一致）
 
 ### 添加新组件
 1. 在 `src/components/` 下创建组件
 2. 使用shadcn/ui组件作为基础
 3. 添加必要的类型定义
-4. 确保组件支持多语言
+4. 用户可见文案一律走 `useTranslations()`，不要硬编码
 
 ### 状态管理
 - 全局状态使用Zustand (`src/stores/`)
