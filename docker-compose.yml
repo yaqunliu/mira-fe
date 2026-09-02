@@ -35,8 +35,15 @@ services:
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?NEXT_PUBLIC_SUPABASE_URL 未设置}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?NEXT_PUBLIC_SUPABASE_ANON_KEY 未设置}
     ports:
-      # PORT 只控制宿主机端口；这是唯一对公网开放的入口
-      - "${PORT:-8001}:8001"
+      # 只绑本机：公网入口已交给 /opt/edge 的 Caddy（它走 mira-net 内网以
+      # mira-fe:8001 访问本容器，不经过这里的端口映射）。
+      #
+      # 不直接删掉这条，是为了在服务器上仍能 curl localhost:8001 排查问题 ——
+      # 能区分「前端本身挂了」还是「反代配错了」。
+      #
+      # 保留公网 8001 的话，等于在 https 站点旁边常开一个 http 后门，
+      # 可以绕过证书直连，所以这里必须加 127.0.0.1 前缀。
+      - "127.0.0.1:${PORT:-8001}:8001"
     networks:
       # 与后端共享的外部网络，需先创建：docker network create mira-net
       # 后端 api 服务在该网络上的别名为 mira-api
