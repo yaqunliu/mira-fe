@@ -345,7 +345,7 @@ export function VideoGenerator({
       if (query.state.error) {
         console.error("查询任务状态失败:", query.state.error);
         setStage("failed");
-        setErrorMessage(t("taskFailed"));
+        setErrorMessage(t("creation.taskFailed"));
         return false;
       }
 
@@ -417,7 +417,7 @@ export function VideoGenerator({
     )
 
     if (!pointsAvailable) {
-      throw new Error(t('insufficientPoints'))
+      throw new Error(t('creation.insufficientPoints'))
     }
 
     setStage("generating");
@@ -491,14 +491,14 @@ export function VideoGenerator({
         currentCreationData = response?.data;
       } catch (error) {
         console.error("获取创作数据失败:", error);
-        toast.error(t("fetchCreationFailed"));
+        toast.error(t("creation.fetchCreationFailed"));
         return;
       }
     }
     
     // 从创作信息中获取 voice_id 和 voice_speed
     if (!currentCreationData?.voice_id) {
-      toast.error(t("noAudio"));
+      toast.error(t("creation.noAudio"));
       return;
     }
     

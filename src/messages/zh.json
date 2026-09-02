@@ -82,7 +82,9 @@
     "deleteFailedGeneric": "删除失败",
     "supportedFormats": "支持 MP4, MOV, MP3, WAV 等格式",
     "uploadingPercent": "上传中... {percent}%",
-    "deleteAssetConfirmFull": "确定要删除素材 \"{name}\" 吗？此操作无法撤销。"
+    "deleteAssetConfirmFull": "确定要删除素材 \"{name}\" 吗？此操作无法撤销。",
+    "errorPrefix": "错误：",
+    "noVisibleAssets": "无可见的视频素材"
   },
   "auth": {
     "login": "登录",
@@ -186,7 +188,8 @@
     "resetPasswordSubheading": "请设置您的新密码",
     "strongPasswordHint": "请设置一个安全性强的密码来保护您的账户",
     "or": "或",
-    "resetFailed": "重置失败，请重试"
+    "resetFailed": "重置失败，请重试",
+    "enterPasswordPlaceholder": "请输入密码"
   },
   "home": {
     "title": "AI动画短剧",
@@ -471,7 +474,10 @@
     "speedNormal": "正常",
     "missingCharacterUuid": "角色数据错误：缺少UUID字段，无法保存。",
     "noOnScreenCharacters": "暂无出镜角色，点击「添加」按钮添加",
-    "save": "保存"
+    "save": "保存",
+    "generationFailed": "生成失败",
+    "regenerationStarted": "重新生成已开始",
+    "generationSuccess": "生成成功"
   },
   "user": {
     "userMenu": "用户菜单",
@@ -1417,7 +1423,8 @@
     "noSelectableCharacters": "暂无可选角色",
     "shotNarrationPlaceholder": "输入这个分镜的旁白内容...",
     "endWithNextShotImage": "将使用分镜 {number} 的图片作为当前分镜视频的结尾。",
-    "endWithLastFrame": "将使用当前分镜的尾帧图片作为视频的结尾。"
+    "endWithLastFrame": "将使用当前分镜的尾帧图片作为视频的结尾。",
+    "sceneDisplay": "场景"
   },
   "Timeline": {
     "videoTrack": "视频轨道",

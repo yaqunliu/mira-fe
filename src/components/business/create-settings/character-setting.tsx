@@ -195,7 +195,7 @@ export function CharacterSetting({
   // 生成角色图片的内部函数
   const generateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
     if (!creationId) {
-      throw new Error(t("creationIdRequired") || tCreation("missingId"));
+      throw new Error(tCreation("creationIdRequired"));
     }
 
     // 检查积分是否充足
@@ -247,7 +247,7 @@ export function CharacterSetting({
   // 重新生成角色图片的内部函数（force_regenerate=true）
   const regenerateCharacterImagesInternal = useCallback(async (characters: ICharacter[]) => {
     if (!creationId) {
-      throw new Error(t("creationIdRequired") || tCreation("missingId"));
+      throw new Error(tCreation("creationIdRequired"));
     }
 
     // 检查积分是否充足
@@ -396,7 +396,7 @@ export function CharacterSetting({
   // 单个角色重新生成图片
   const handleRegenerateSingleCharacter = useCallback(async (character: ICharacter) => {
     if (!creationId) {
-      toast.error(t("creationIdRequired") || tCreation("missingId"));
+      toast.error(tCreation("creationIdRequired"));
       return;
     }
 

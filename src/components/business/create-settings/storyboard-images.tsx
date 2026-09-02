@@ -150,7 +150,7 @@ export function StoryboardImages({
       const taskData = response?.data;
 
       if (!taskData) {
-        throw new Error(t("cannotFetchStatus"));
+        throw new Error(t("creation.cannotFetchStatus"));
       }
 
       const status = taskData.status;
@@ -224,7 +224,7 @@ export function StoryboardImages({
       }
     } catch (error) {
       console.error("轮询任务状态失败:", error);
-      toast.error(t("queryStatusFailed"));
+      toast.error(t("creation.queryStatusFailed"));
       
       setRegeneratingIds(prev => {
         const newSet = new Set(prev);
@@ -268,7 +268,7 @@ export function StoryboardImages({
           
           if (!targetImage) {
             console.error("未找到对应的分镜图片:", imageId);
-            toast.error(t("shotImageNotFound"));
+            toast.error(t("creation.shotImageNotFound"));
             return;
           }
           
@@ -293,7 +293,7 @@ export function StoryboardImages({
           )
 
           if (!pointsAvailable) {
-            throw new Error(t('insufficientPoints'))
+            throw new Error(t('creation.insufficientPoints'))
           }
 
           // 添加到正在生成的列表
@@ -554,7 +554,7 @@ export function StoryboardImages({
                       <>
                         <img
                           src={localImageUpdates[image.image_id] || image.image_url}
-                          alt={t("shotImageTitle", { title: image.title, index: imageIndex + 1 })}
+                          alt={t("creation.shotImageTitle", { title: image.title, index: imageIndex + 1 })}
                           className={cn(
                             "w-full object-cover cursor-pointer",
                             isRegenerating && "opacity-50"
@@ -613,7 +613,7 @@ export function StoryboardImages({
                           </div>
                         ))
                       ) : (
-                        <p className="text-xs text-gray-400 italic">{t("storyboard.noNarration")}</p>
+                        <p className="text-xs text-gray-400 italic">{t("Timeline.noNarration")}</p>
                       )}
                     </div>
                   </div>

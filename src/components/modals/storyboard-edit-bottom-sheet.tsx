@@ -142,10 +142,10 @@ export function StoryboardEditBottomSheet({
           {/* 关联角色 */}
           <div className="space-y-4 p-5 rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[4px_4px_12px_rgba(0,0,0,0.08),-4px_-4px_12px_rgba(255,255,255,0.8)]">
             <div className="text-base font-semibold text-gray-800">
-              {t("noRelatedCharacters")}
+              {t("Editor.noRelatedCharacters")}
             </div>
             {availableCharacters.length === 0 ? (
-              <p className="text-sm text-gray-600">{t("noCharactersAvailable")}</p>
+              <p className="text-sm text-gray-600">{t("Editor.noCharactersAvailable")}</p>
             ) : (
               <div className="grid grid-cols-2 gap-3">
                 {availableCharacters.map((character) => {

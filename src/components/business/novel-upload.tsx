@@ -82,7 +82,7 @@ export function NovelUpload({
   const handleFileSelect = (file: File) => {
     // 验证文件类型
     if (!file.name.endsWith(".txt")) {
-      toast.error(t("onlyTxt"));
+      toast.error(tNovel("onlyTxt"));
       return;
     }
 
@@ -133,13 +133,13 @@ export function NovelUpload({
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      toast.error(t("selectNovelFirst"));
+      toast.error(tNovel("selectNovelFirst"));
       return;
     }
 
     try {
       setIsUploading(true);
-      toast.info(t("uploading"));
+      toast.info(tNovel("uploading"));
 
       // 上传小说文件
       const response = await novelApi.uploadNovel(selectedFile, {
@@ -153,18 +153,18 @@ export function NovelUpload({
       const uploadTaskId = response?.data?.task_id;
 
       if (uploadTaskId) {
-        toast.success(t("uploadStarted"), {
-          description: t("uploadNote"),
+        toast.success(tNovel("uploadStarted"), {
+          description: tNovel("uploadNote"),
           duration: 5000,
         });
         setTaskId(uploadTaskId); // 设置 taskId 后会自动开始轮询
         setIsUploading(false); // 文件上传完成，但任务在后台处理
       } else {
-        toast.error(t("uploadNoTaskId"));
+        toast.error(tNovel("uploadNoTaskId"));
         setIsUploading(false);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : t("uploadFailed"));
+      toast.error(error instanceof Error ? error.message : tNovel("uploadFailed"));
       setIsUploading(false);
     }
   };

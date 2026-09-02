@@ -82,7 +82,9 @@
     "deleteFailedGeneric": "Delete failed",
     "supportedFormats": "Supports MP4, MOV, MP3, WAV and more",
     "uploadingPercent": "Uploading... {percent}%",
-    "deleteAssetConfirmFull": "Delete asset \"{name}\"? This action cannot be undone."
+    "deleteAssetConfirmFull": "Delete asset \"{name}\"? This action cannot be undone.",
+    "errorPrefix": "Error:",
+    "noVisibleAssets": "No visible video assets"
   },
   "auth": {
     "login": "Login",
@@ -186,7 +188,8 @@
     "resetPasswordSubheading": "Please set your new password",
     "strongPasswordHint": "Please choose a strong password to protect your account",
     "or": "or",
-    "resetFailed": "Reset failed, please try again"
+    "resetFailed": "Reset failed, please try again",
+    "enterPasswordPlaceholder": "Enter your password"
   },
   "home": {
     "title": "AI Animation Short",
@@ -471,7 +474,10 @@
     "speedNormal": "Normal",
     "missingCharacterUuid": "Character data error: missing UUID field, cannot save.",
     "noOnScreenCharacters": "No on-screen characters yet — click Add",
-    "save": "Save"
+    "save": "Save",
+    "generationFailed": "Generation failed",
+    "regenerationStarted": "Regeneration started",
+    "generationSuccess": "Generated successfully"
   },
   "user": {
     "userMenu": "User Menu",
@@ -1417,7 +1423,8 @@
     "noSelectableCharacters": "No characters available",
     "shotNarrationPlaceholder": "Enter the narration for this shot...",
     "endWithNextShotImage": "The image from shot {number} will be used as the ending of the current shot's video.",
-    "endWithLastFrame": "The current shot's last frame image will be used as the ending of the video."
+    "endWithLastFrame": "The current shot's last frame image will be used as the ending of the video.",
+    "sceneDisplay": "Scene"
   },
   "Timeline": {
     "videoTrack": "Video Track",

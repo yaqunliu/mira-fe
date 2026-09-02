@@ -200,13 +200,13 @@ export function NovelSelect({
     mutationFn: (title: string) =>
       novelApi.createNovel({ title, type: 'script', author: 'User' }),
     onSuccess: (response: any) => {
-      toast.success(t("createProjectSuccess") || t("projectCreated"));
+      toast.success(tNovel("projectCreated"));
       setIsProjectDialogOpen(false);
       setNewProjectTitle("");
       queryClient.invalidateQueries({ queryKey: ["novels"] });
     },
     onError: (error: any) => {
-      toast.error(t("createProjectFailed") || t("projectCreateFailed"));
+      toast.error(tNovel("projectCreateFailed"));
     }
   });
 
@@ -215,7 +215,7 @@ export function NovelSelect({
     mutationFn: ({ novelId, title, content }: { novelId: string; title: string; content: string }) =>
       novelApi.createChapter(novelId, { title, content }),
     onSuccess: (response: any) => {
-      toast.success(t("createChapterSuccess") || t("scriptCreated"));
+      toast.success(tNovel("scriptCreated"));
       setIsChapterDialogOpen(false);
       setNewChapterTitle("");
       setNewChapterContent("");
@@ -227,13 +227,13 @@ export function NovelSelect({
       }
     },
     onError: (error: any) => {
-      toast.error(t("createChapterFailed") || t("scriptCreateFailed"));
+      toast.error(tNovel("scriptCreateFailed"));
     }
   });
 
   const handleCreateProject = () => {
     if (!newProjectTitle.trim()) {
-      toast.error(t("projectTitleEmpty") || t("projectNameRequired"));
+      toast.error(tNovel("projectNameRequired"));
       return;
     }
     createProjectMutation.mutate(newProjectTitle.trim());
@@ -242,11 +242,11 @@ export function NovelSelect({
   const handleCreateChapter = () => {
     if (!currentNovel) return;
     if (!newChapterTitle.trim()) {
-      toast.error(t("chapterTitleEmpty") || t("scriptTitleRequired"));
+      toast.error(tNovel("scriptTitleRequired"));
       return;
     }
     if (!newChapterContent.trim()) {
-      toast.error(t("chapterContentEmpty") || t("scriptContentRequired"));
+      toast.error(tNovel("scriptContentRequired"));
       return;
     }
     createChapterMutation.mutate({
@@ -366,7 +366,7 @@ export function NovelSelect({
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
             <Input
-              placeholder={t("searchPlaceholderNovel")}
+              placeholder={tNovel("searchPlaceholderNovel")}
               value={novelSearchTerm}
               onChange={(e) => setNovelSearchTerm(e.target.value)}
               className="pl-10 rounded-2xl bg-gradient-to-br from-white to-blue-50 border border-blue-100 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.03),inset_-2px_-2px_5px_rgba(255,255,255,0.8)]"
@@ -712,11 +712,11 @@ export function NovelSelect({
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("projectTitle") || tNovel('projectNameLabel')}</label>
+              <label className="text-sm font-medium">{tNovel('projectNameLabel')}</label>
               <Input
                 value={newProjectTitle}
                 onChange={(e) => setNewProjectTitle(e.target.value)}
-                placeholder={t("projectTitlePlaceholder") || tNovel('projectNamePlaceholder')}
+                placeholder={tNovel('projectNamePlaceholder')}
               />
             </div>
           </div>
@@ -742,19 +742,19 @@ export function NovelSelect({
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("chapterTitle") || tNovel('scriptTitleLabel')}</label>
+              <label className="text-sm font-medium">{tNovel('scriptTitleLabel')}</label>
               <Input
                 value={newChapterTitle}
                 onChange={(e) => setNewChapterTitle(e.target.value)}
-                placeholder={t("chapterTitlePlaceholder") || tNovel('scriptTitlePlaceholder')}
+                placeholder={tNovel('scriptTitlePlaceholder')}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">{t("chapterContent") || tNovel('scriptContentLabel')}</label>
+              <label className="text-sm font-medium">{tNovel('scriptContentLabel')}</label>
               <textarea
                 value={newChapterContent}
                 onChange={(e) => setNewChapterContent(e.target.value)}
-                placeholder={t("chapterContentPlaceholder") || tNovel('scriptContentPlaceholder')}
+                placeholder={tNovel('scriptContentPlaceholder')}
                 className="w-full h-48 p-3 rounded-md border bg-transparent text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/50"
               />
             </div>
